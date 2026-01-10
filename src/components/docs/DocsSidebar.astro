@@ -1,0 +1,438 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  mobile?: boolean;
+}
+
+const { mobile = false } = Astro.props;
+const currentPath = Astro.url.pathname;
+
+interface NavItem {
+  title: string;
+  href: string;
+  icon?: string; // Lucide icon name
+  brandIcon?: string; // Simple Icons brand name
+}
+
+interface NavSection {
+  title: string;
+  icon: string; // Lucide icon name
+  items: NavItem[];
+}
+
+const navigation: NavSection[] = [
+  {
+    title: 'Getting Started',
+    icon: 'lucide:rocket',
+    items: [
+      { title: 'Quick Start', href: '/docs', icon: 'lucide:zap' },
+      { title: 'Installation', href: '/docs/getting-started', icon: 'lucide:download' },
+      { title: 'No-SDK Setup', href: '/docs/no-sdk-setup', icon: 'lucide:terminal' },
+    ],
+  },
+  {
+    title: 'API Reference',
+    icon: 'lucide:code',
+    items: [
+      { title: 'Overview', href: '/docs/api', icon: 'lucide:book-open' },
+      { title: 'Authentication', href: '/docs/api#authentication', icon: 'lucide:key' },
+      { title: 'Log Ingestion', href: '/docs/api#ingestion', icon: 'lucide:upload' },
+      { title: 'Log Query', href: '/docs/api#query', icon: 'lucide:search' },
+      { title: 'Alerts', href: '/docs/api#alerts', icon: 'lucide:bell' },
+    ],
+  },
+  {
+    title: 'SDKs',
+    icon: 'lucide:package',
+    items: [
+      { title: 'Overview', href: '/docs/sdks', icon: 'lucide:library' },
+      { title: 'Node.js', href: '/docs/sdks/nodejs', brandIcon: 'simple-icons:nodedotjs' },
+      { title: 'Python', href: '/docs/sdks/python', brandIcon: 'simple-icons:python' },
+      { title: 'Go', href: '/docs/sdks/go', brandIcon: 'simple-icons:go' },
+      { title: 'PHP', href: '/docs/sdks/php', brandIcon: 'simple-icons:php' },
+      { title: 'Kotlin', href: '/docs/sdks/kotlin', brandIcon: 'simple-icons:kotlin' },
+      { title: 'C# / .NET', href: '/docs/sdks/csharp', brandIcon: 'simple-icons:dotnet' },
+    ],
+  },
+  {
+    title: 'Integrations',
+    icon: 'lucide:plug',
+    items: [
+      { title: 'Syslog', href: '/docs/syslog', icon: 'lucide:scroll-text' },
+      { title: 'OpenTelemetry', href: '/docs/opentelemetry', brandIcon: 'simple-icons:opentelemetry' },
+    ],
+  },
+  {
+    title: 'Authentication',
+    icon: 'lucide:shield',
+    items: [
+      { title: 'Overview', href: '/docs/authentication', icon: 'lucide:lock' },
+      { title: 'OpenID Connect', href: '/docs/authentication#oidc', brandIcon: 'simple-icons:openid' },
+      { title: 'LDAP', href: '/docs/authentication#ldap', icon: 'lucide:users' },
+      { title: 'Initial Admin Setup', href: '/docs/authentication#initial-admin', icon: 'lucide:user-cog' },
+      { title: 'Auth-Free Mode', href: '/docs/authentication#auth-free-mode', icon: 'lucide:unlock' },
+      { title: 'Admin Settings', href: '/docs/authentication#admin-settings', icon: 'lucide:settings' },
+      { title: 'User Management', href: '/docs/authentication#user-management', icon: 'lucide:user-plus' },
+      { title: 'Troubleshooting', href: '/docs/authentication#troubleshooting', icon: 'lucide:wrench' },
+      { title: 'Dev Testing', href: '/docs/authentication#dev-testing', icon: 'lucide:flask-conical' },
+    ],
+  },
+  {
+    title: 'Migration',
+    icon: 'lucide:arrow-right-left',
+    items: [
+      { title: 'Overview', href: '/docs/migration', icon: 'lucide:file-text' },
+      { title: 'From Datadog', href: '/docs/migration/datadog', brandIcon: 'simple-icons:datadog' },
+      { title: 'From Splunk', href: '/docs/migration/splunk', brandIcon: 'simple-icons:splunk' },
+      { title: 'From ELK Stack', href: '/docs/migration/elk', brandIcon: 'simple-icons:elastic' },
+      { title: 'From SigNoz', href: '/docs/migration/signoz', icon: 'lucide:activity' },
+      { title: 'From Grafana Loki', href: '/docs/migration/loki', brandIcon: 'simple-icons:grafana' },
+    ],
+  },
+  {
+    title: 'Guides',
+    icon: 'lucide:book',
+    items: [
+      { title: 'Architecture', href: '/docs/architecture', icon: 'lucide:layout' },
+      { title: 'Log Retention', href: '/docs/architecture#log-retention', icon: 'lucide:database' },
+      { title: 'Deployment', href: '/docs/deployment', icon: 'lucide:server' },
+      { title: 'Contributing', href: '/docs/contributing', icon: 'lucide:git-pull-request' },
+    ],
+  },
+];
+
+function isActive(href: string, path: string): boolean {
+  if (href === '/docs') {
+    return path === '/docs' || path === '/docs/';
+  }
+  // Hash links should not be highlighted server-side
+  // They will be handled by client-side JavaScript
+  if (href.includes('#')) {
+    return false;
+  }
+  return path === href || path === href + '/';
+}
+
+function getIconName(item: NavItem): string {
+  return item.brandIcon || item.icon || 'lucide:file-text';
+}
+---
+
+<nav class:list={['docs-sidebar', { mobile }]}>
+  <div class="sidebar-content">
+    <a href="/docs" class="sidebar-header">
+      <Icon name="lucide:file-text" class="h-5 w-5 text-primary" />
+      <span class="text-lg font-semibold">Documentation</span>
+    </a>
+
+    <div class="nav-sections">
+      {navigation.map((section) => (
+        <details class="section" open>
+          <summary class="section-header">
+            <Icon name="lucide:chevron-down" class="h-4 w-4 chevron" />
+            <Icon name={section.icon} class="h-4 w-4 section-icon" />
+            <span class="section-title">{section.title}</span>
+          </summary>
+
+          <ul class="section-items">
+            {section.items.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class:list={['nav-link', { active: isActive(item.href, currentPath) }]}
+                >
+                  <Icon name={getIconName(item)} class="h-4 w-4 doc-icon" />
+                  <span>{item.title}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ))}
+    </div>
+
+    <div class="sidebar-footer">
+      <a
+        href="https://github.com/logward-dev/logward"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="github-link"
+      >
+        <Icon name="simple-icons:github" class="h-4 w-4" />
+        <span>View on GitHub</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<style>
+  .docs-sidebar {
+    width: 280px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: hsl(var(--background));
+    border-right: 1px solid hsl(var(--border));
+  }
+
+  .sidebar-content {
+    padding: 1.5rem;
+  }
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    color: hsl(var(--foreground));
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+
+  .sidebar-header:hover {
+    opacity: 0.8;
+  }
+
+  .nav-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .section {
+    margin-bottom: 0.5rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: none;
+    border: none;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 0.375rem;
+    transition: all 0.2s;
+    list-style: none;
+  }
+
+  .section-header::-webkit-details-marker {
+    display: none;
+  }
+
+  .section-header::marker {
+    display: none;
+    content: '';
+  }
+
+  .section-header:hover {
+    background: hsl(var(--muted) / 0.5);
+    color: hsl(var(--foreground));
+  }
+
+  .section-title {
+    flex: 1;
+  }
+
+  .section-icon {
+    opacity: 0.7;
+  }
+
+  .chevron {
+    transition: transform 0.2s;
+  }
+
+  .section:not([open]) .chevron {
+    transform: rotate(-90deg);
+  }
+
+  .section-items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    margin-left: 1rem;
+    padding-left: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    border-left: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.875rem;
+    text-decoration: none;
+    border-radius: 0.375rem;
+    border-left: 2px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .nav-link:hover {
+    background: hsl(var(--muted) / 0.5);
+    color: hsl(var(--foreground));
+  }
+
+  .nav-link.active {
+    background: transparent;
+    color: hsl(var(--foreground));
+    font-weight: 500;
+    border-left-color: hsl(var(--primary));
+  }
+
+  .nav-link [data-icon] {
+    flex-shrink: 0;
+    opacity: 0.6;
+  }
+
+  .nav-link.active [data-icon] {
+    opacity: 0.9;
+    color: hsl(var(--primary));
+  }
+
+  /* Scrollbar styling */
+  .docs-sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .docs-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .docs-sidebar::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.2);
+    border-radius: 3px;
+  }
+
+  .docs-sidebar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.3);
+  }
+
+  .sidebar-footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid hsl(var(--border));
+  }
+
+  .github-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.875rem;
+    text-decoration: none;
+    border-radius: 0.375rem;
+    transition: all 0.2s;
+  }
+
+  .github-link:hover {
+    background: hsl(var(--muted) / 0.5);
+    color: hsl(var(--foreground));
+  }
+
+  .github-link [data-icon] {
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .docs-sidebar {
+      display: none;
+    }
+
+    .docs-sidebar.mobile {
+      display: block;
+      width: 100%;
+      height: auto;
+      position: static;
+      border-right: none;
+    }
+  }
+</style>
+
+<script>
+  function updateHashHighlight() {
+    const hash = window.location.hash;
+    const path = window.location.pathname;
+
+    // Remove active class from all nav links
+    document.querySelectorAll('.docs-sidebar .nav-link').forEach(link => {
+      const href = link.getAttribute('href');
+      if (!href) return;
+
+      // Check if this link should be active
+      let isActive = false;
+
+      if (href.includes('#')) {
+        // Hash link: active if current URL matches exactly
+        isActive = (path + hash) === href || (path + '/' + hash) === href;
+      } else {
+        // Regular link: active if path matches (and no hash in URL or this is the base page)
+        const normalizedPath = path.endsWith('/') ? path.slice(0, -1) : path;
+        const normalizedHref = href.endsWith('/') ? href.slice(0, -1) : href;
+        isActive = normalizedPath === normalizedHref && !hash;
+      }
+
+      if (isActive) {
+        link.classList.add('active');
+      } else {
+        link.classList.remove('active');
+      }
+    });
+  }
+
+  // Update on page load
+  updateHashHighlight();
+
+  // Update when hash changes
+  window.addEventListener('hashchange', updateHashHighlight);
+
+  // Update on scroll to detect which section is visible
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        const sections = document.querySelectorAll('h2[id], h3[id]');
+        let currentSection = '';
+
+        sections.forEach(section => {
+          const rect = section.getBoundingClientRect();
+          if (rect.top <= 100) {
+            currentSection = section.id;
+          }
+        });
+
+        if (currentSection && window.location.hash !== '#' + currentSection) {
+          // Update active state without changing URL
+          document.querySelectorAll('.docs-sidebar .nav-link').forEach(link => {
+            const href = link.getAttribute('href');
+            if (!href) return;
+
+            if (href.includes('#')) {
+              const linkHash = href.split('#')[1];
+              if (linkHash === currentSection) {
+                link.classList.add('active');
+              } else {
+                link.classList.remove('active');
+              }
+            }
+          });
+        }
+
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+</script>

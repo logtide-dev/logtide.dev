@@ -1,0 +1,10 @@
+---
+interface Props {
+  class?: string;
+  level?: 1 | 2 | 3 | 4 | 5 | 6;
+}
+const { class: className = "", level = 3 } = Astro.props;
+---
+<div role="heading" aria-level={level} class:list={["text-2xl font-semibold leading-none tracking-tight", className]}>
+  <slot />
+</div>

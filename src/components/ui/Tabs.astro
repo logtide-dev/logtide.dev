@@ -1,0 +1,58 @@
+---
+interface Props {
+  defaultValue?: string;
+  class?: string;
+}
+const { defaultValue, class: className = "" } = Astro.props;
+---
+<div class:list={["tabs-root w-full", className]} data-default-value={defaultValue}>
+  <slot />
+</div>
+
+<script>
+  function setupTabs() {
+    document.querySelectorAll('.tabs-root').forEach(root => {
+      // Check if already initialized to prevent duplicate event listeners
+      if (root.getAttribute('data-tabs-initialized')) return;
+      root.setAttribute('data-tabs-initialized', 'true');
+
+      const triggers = root.querySelectorAll('[data-tab-trigger]');
+      const contents = root.querySelectorAll('[data-tab-content]');
+      
+      const activate = (value: string) => {
+        triggers.forEach(t => {
+          if (t.getAttribute('data-tab-trigger') === value) {
+            t.setAttribute('data-state', 'active');
+            t.classList.add('bg-background', 'text-foreground', 'shadow-sm');
+          } else {
+            t.setAttribute('data-state', 'inactive');
+            t.classList.remove('bg-background', 'text-foreground', 'shadow-sm');
+          }
+        });
+        contents.forEach(c => {
+          if (c.getAttribute('data-tab-content') === value) {
+            c.classList.remove('hidden');
+          } else {
+            c.classList.add('hidden');
+          }
+        });
+      };
+
+      triggers.forEach(trigger => {
+        trigger.addEventListener('click', () => {
+            const val = trigger.getAttribute('data-tab-trigger');
+            if (val) activate(val);
+        });
+      });
+
+      // Init
+      const defaultVal = root.getAttribute('data-default-value');
+      if (defaultVal) activate(defaultVal);
+    });
+  }
+  
+  // Run on load and after Astro swaps
+  setupTabs();
+  document.addEventListener('astro:after-swap', setupTabs);
+  document.addEventListener('astro:page-load', setupTabs);
+</script>

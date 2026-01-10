@@ -1,0 +1,25 @@
+---
+import Layout from '../layouts/Landing.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import HeroSection from '../components/landing/HeroSection.astro';
+import FeaturesSection from '../components/landing/FeaturesSection.astro';
+import QuickStartSection from '../components/landing/QuickStartSection.astro';
+import SDKsSection from '../components/landing/SDKsSection.astro';
+import CTASection from '../components/landing/CTASection.astro';
+---
+
+<Layout
+  title="LogWard - Privacy-first Log Management. Open Source."
+  description="Open source alternative to Datadog and Splunk. GDPR compliant, self-hosted log management with Sigma rules for threat detection. Built in Europe."
+>
+  <Header />
+  <main>
+    <HeroSection />
+    <FeaturesSection />
+    <QuickStartSection />
+    <SDKsSection />
+    <CTASection />
+  </main>
+  <Footer />
+</Layout>

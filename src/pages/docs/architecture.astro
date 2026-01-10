@@ -1,0 +1,337 @@
+---
+import DocsLayout from '../../layouts/Docs.astro';
+import Card from '../../components/ui/Card.astro';
+import CardHeader from '../../components/ui/CardHeader.astro';
+import CardTitle from '../../components/ui/CardTitle.astro';
+import CardContent from '../../components/ui/CardContent.astro';
+
+const headings = [
+  { text: "System Overview", slug: "overview", depth: 2 },
+  { text: "Technology Stack", slug: "tech-stack", depth: 2 },
+  { text: "Core Components", slug: "components", depth: 2 },
+  { text: "Data Flow", slug: "data-flow", depth: 2 },
+  { text: "Log Retention", slug: "log-retention", depth: 2 },
+  { text: "Key Design Decisions", slug: "design-decisions", depth: 2 }
+];
+---
+
+<DocsLayout
+  title="Architecture"
+  description="Understanding LogWard's system architecture and design decisions."
+  headings={headings}
+>
+  <h1 class="text-3xl font-bold mb-4">Architecture</h1>
+  <p class="text-lg text-muted-foreground mb-8">
+      Understanding LogWard's system architecture and design decisions.
+  </p>
+
+  <h2
+      id="overview"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      System Overview
+  </h2>
+
+  <div class="mb-8">
+      <p class="mb-4 text-muted-foreground">
+          LogWard follows a modern microservices architecture with clear
+          separation of concerns:
+      </p>
+
+      <Card class="mb-6">
+          <CardHeader>
+              <CardTitle>Data Hierarchy</CardTitle>
+          </CardHeader>
+          <CardContent>
+              <pre class="text-sm bg-muted p-4 rounded-md overflow-x-auto font-mono text-foreground">
+User → Organizations (1:N) → Projects (1:N) → API Keys → Logs
+      </pre>
+          </CardContent>
+      </Card>
+
+      <ul class="space-y-3 ml-6 list-none text-muted-foreground">
+          <li>
+              <strong>Organizations</strong> - Top-level isolation for companies/teams.
+              Each user can belong to multiple organizations.
+          </li>
+          <li>
+              <strong>Projects</strong> - Logical grouping within organizations
+              (e.g., "production", "staging"). Complete data isolation.
+          </li>
+          <li>
+              <strong>API Keys</strong> - Project-scoped keys for secure log
+              ingestion and query. Prefixed with <code class="bg-muted px-1 rounded">lp_</code>.
+          </li>
+          <li>
+              <strong>Logs</strong> - Time-series data stored in TimescaleDB with
+              automatic compression and retention policies.
+          </li>
+      </ul>
+  </div>
+
+  <h2
+      id="tech-stack"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Technology Stack
+  </h2>
+
+  <div class="mb-8 grid md:grid-cols-2 gap-6">
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base">Backend</CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm space-y-1 text-muted-foreground">
+              <p><strong>Runtime:</strong> Node.js 20+</p>
+              <p><strong>Framework:</strong> Fastify</p>
+              <p><strong>Language:</strong> TypeScript 5</p>
+              <p><strong>ORM:</strong> Kysely (type-safe SQL)</p>
+              <p><strong>Queue:</strong> BullMQ + Redis</p>
+              <p><strong>Validation:</strong> Zod schemas</p>
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base">Frontend</CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm space-y-1 text-muted-foreground">
+              <p><strong>Framework:</strong> SvelteKit 5 (Runes)</p>
+              <p><strong>Language:</strong> TypeScript 5</p>
+              <p><strong>Styling:</strong> TailwindCSS</p>
+              <p><strong>Components:</strong> shadcn-svelte</p>
+              <p><strong>Charts:</strong> ECharts</p>
+              <p><strong>State:</strong> Svelte stores</p>
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base">Database</CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm space-y-1 text-muted-foreground">
+              <p><strong>RDBMS:</strong> PostgreSQL 16</p>
+              <p><strong>Extension:</strong> TimescaleDB</p>
+              <p><strong>Time-series:</strong> Hypertables</p>
+              <p><strong>Compression:</strong> Automatic</p>
+              <p><strong>Retention:</strong> Configurable policies</p>
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base">Infrastructure</CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm space-y-1 text-muted-foreground">
+              <p><strong>Cache:</strong> Redis 7</p>
+              <p><strong>Proxy:</strong> Nginx</p>
+              <p><strong>Container:</strong> Docker</p>
+              <p><strong>Orchestration:</strong> Docker Compose</p>
+              <p><strong>Monorepo:</strong> pnpm workspaces</p>
+          </CardContent>
+      </Card>
+  </div>
+
+  <h2
+      id="components"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Core Components
+  </h2>
+
+  <div class="mb-8 space-y-6">
+      <div>
+          <h3 id="backend-server" class="text-lg font-semibold mb-2 scroll-mt-24">Backend Server (Fastify)</h3>
+          <p class="text-muted-foreground mb-3">
+              High-performance API server handling log ingestion, query, and
+              management endpoints. Modular architecture with feature-based
+              modules:
+          </p>
+          <ul class="ml-6 space-y-1 text-sm text-muted-foreground list-none">
+              <li><code class="bg-muted px-1 rounded">auth/</code> - Authentication and user management</li>
+              <li>
+                  <code class="bg-muted px-1 rounded">ingestion/</code> - Log ingestion with batch support
+              </li>
+              <li><code class="bg-muted px-1 rounded">query/</code> - Log search and filtering</li>
+              <li><code class="bg-muted px-1 rounded">alerts/</code> - Alert rule management</li>
+              <li><code class="bg-muted px-1 rounded">dashboard/</code> - Statistics and aggregations</li>
+          </ul>
+      </div>
+
+      <div>
+          <h3 id="worker-process" class="text-lg font-semibold mb-2 scroll-mt-24">Worker Process (BullMQ)</h3>
+          <p class="text-muted-foreground">
+              Background job processor for alert evaluation, notifications,
+              and data retention. Runs independently from the main API server.
+          </p>
+      </div>
+
+      <div>
+          <h3 id="frontend-dashboard" class="text-lg font-semibold mb-2 scroll-mt-24">
+              Frontend Dashboard (SvelteKit)
+          </h3>
+          <p class="text-muted-foreground">
+              Modern, reactive UI with real-time log streaming, search, alerts
+              management, and organization administration. Server-side
+              rendering for optimal performance.
+          </p>
+      </div>
+
+      <div>
+          <h3 id="timescaledb" class="text-lg font-semibold mb-2 scroll-mt-24">TimescaleDB</h3>
+          <p class="text-muted-foreground">
+              PostgreSQL extension optimized for time-series data. Automatic
+              partitioning, compression, and retention policies for efficient
+              long-term log storage.
+          </p>
+      </div>
+  </div>
+
+  <h2
+      id="data-flow"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Data Flow
+  </h2>
+
+  <div class="mb-8">
+      <h3 id="log-ingestion-flow" class="text-lg font-semibold mb-3 scroll-mt-24">Log Ingestion Flow</h3>
+      <ol class="ml-6 space-y-2 text-muted-foreground list-none">
+          <li>
+              Client sends logs via <code class="bg-muted px-1 rounded">POST /api/v1/ingest</code> with API
+              key
+          </li>
+          <li>Backend validates API key and extracts project ID</li>
+          <li>Logs are validated against Zod schema</li>
+          <li>Batch insert into TimescaleDB hypertable</li>
+          <li>Alert evaluator job is triggered (BullMQ)</li>
+          <li>Logs are broadcast to active SSE streams</li>
+      </ol>
+
+      <h3 id="alert-processing-flow" class="text-lg font-semibold mb-3 mt-6 scroll-mt-24">Alert Processing Flow</h3>
+      <ol class="ml-6 space-y-2 text-muted-foreground list-none">
+          <li>Worker evaluates all enabled alert rules (every minute)</li>
+          <li>For each rule, query logs matching conditions</li>
+          <li>If threshold exceeded, create alert instance</li>
+          <li>
+              Send notifications (email/webhook) via configured channels
+          </li>
+          <li>Update alert status and last triggered timestamp</li>
+      </ol>
+  </div>
+
+  <h2
+      id="log-retention"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Log Retention
+  </h2>
+
+  <div class="mb-8">
+      <p class="mb-4 text-muted-foreground">
+          LogWard supports customizable log retention policies per organization,
+          allowing administrators to control how long logs are stored before
+          automatic deletion.
+      </p>
+
+      <Card class="mb-6">
+          <CardHeader>
+              <CardTitle class="text-base">Retention Configuration</CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm space-y-3 text-muted-foreground">
+              <p><strong>Range:</strong> 1 to 365 days</p>
+              <p><strong>Default:</strong> 90 days</p>
+              <p><strong>Scope:</strong> Organization-level (applies to all projects within the organization)</p>
+              <p><strong>Cleanup:</strong> Daily at 2:00 AM (server time)</p>
+          </CardContent>
+      </Card>
+
+      <h3 id="retention-admin" class="text-lg font-semibold mb-3 scroll-mt-24">Admin Configuration</h3>
+      <p class="text-muted-foreground mb-4">
+          Only system administrators can modify retention settings. This is done through the
+          Admin Panel under Organization Details:
+      </p>
+      <ol class="ml-6 space-y-2 text-muted-foreground mb-6 list-none">
+          <li>Navigate to <code class="bg-muted px-1 rounded">Admin Panel → Organizations</code></li>
+          <li>Click on the organization you want to configure</li>
+          <li>Find the "Log Retention Policy" card</li>
+          <li>Enter the desired retention period (1-365 days)</li>
+          <li>Click "Save" to apply the changes</li>
+      </ol>
+
+      <h3 id="retention-visibility" class="text-lg font-semibold mb-3 scroll-mt-24">User Visibility</h3>
+      <p class="text-muted-foreground mb-4">
+          Regular users can view their organization's retention policy in read-only mode:
+      </p>
+      <ol class="ml-6 space-y-2 text-muted-foreground mb-6 list-none">
+          <li>Navigate to <code class="bg-muted px-1 rounded">Organization Settings</code></li>
+          <li>View the "Log Retention Policy" card showing the current retention period</li>
+          <li>Contact your administrator if you need to change the retention policy</li>
+      </ol>
+
+      <h3 id="retention-cleanup" class="text-lg font-semibold mb-3 scroll-mt-24">Cleanup Process</h3>
+      <p class="text-muted-foreground mb-4">
+          The retention cleanup runs as a background worker job:
+      </p>
+      <ul class="ml-6 space-y-2 text-muted-foreground mb-6 list-none">
+          <li><strong>Schedule:</strong> Daily at 2:00 AM server time</li>
+          <li><strong>Startup:</strong> Also runs 2 minutes after worker starts</li>
+          <li><strong>Process:</strong> Deletes logs older than the retention period for each organization</li>
+          <li><strong>Logging:</strong> All cleanup operations are logged internally for audit purposes</li>
+      </ul>
+
+      <Card class="border-yellow-500/50 bg-yellow-500/5">
+          <CardContent class="pt-4 text-sm">
+              <p class="font-semibold text-yellow-600 dark:text-yellow-400 mb-2">Important Notes</p>
+              <ul class="space-y-1 text-muted-foreground list-none ml-4">
+                  <li>Log deletion is permanent and cannot be undone</li>
+                  <li>Only the <code class="bg-muted px-1 rounded">logs</code> table is affected by retention policies</li>
+                  <li>Other data (spans, alert history, etc.) follows separate retention rules</li>
+                  <li>TimescaleDB's global 90-day policy may still apply as a safety net</li>
+              </ul>
+          </CardContent>
+      </Card>
+  </div>
+
+  <h2
+      id="design-decisions"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Key Design Decisions
+  </h2>
+
+  <div class="space-y-4">
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base">Why TimescaleDB?</CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm text-muted-foreground">
+              Native time-series optimizations, automatic compression,
+              built-in retention policies, and PostgreSQL compatibility make
+              it ideal for log storage with high ingestion rates.
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base">Why Fastify?</CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm text-muted-foreground">
+              Excellent performance, native TypeScript support, schema
+              validation, plugin ecosystem, and lower overhead compared to
+              Express make it perfect for high-throughput log ingestion.
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base">Why SvelteKit 5?</CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm text-muted-foreground">
+              Modern reactivity with Runes, excellent performance, built-in
+              SSR, file-based routing, and minimal bundle size provide the
+              best developer and user experience.
+          </CardContent>
+      </Card>
+  </div>
+</DocsLayout>

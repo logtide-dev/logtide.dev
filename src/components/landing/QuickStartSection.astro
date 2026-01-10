@@ -1,0 +1,72 @@
+---
+import CodeBlock from '../docs/CodeBlock.astro';
+
+const code = `// Install: npm install @logward/sdk
+import { LogWard } from '@logward/sdk'
+
+const logger = new LogWard({
+  apiKey: 'lw_xxxx',
+  service: 'my-api'
+})
+
+logger.info('User signed up', {
+  userId: 'usr_123',
+  plan: 'pro'
+})`;
+
+const steps = [
+  {
+    title: 'Deploy in 5 minutes',
+    description: 'Self-host with Docker Compose or sign up for the free cloud. No complex infrastructure required.',
+  },
+  {
+    title: 'Get your API key',
+    description: 'Create an organization and project. Generate a scoped API key for your application.',
+  },
+  {
+    title: 'Send your logs',
+    description: 'Use our SDKs (Node.js, Python, PHP, Kotlin), OpenTelemetry, or the HTTP API directly.',
+  },
+  {
+    title: 'Search & Alert',
+    description: 'Full-text search, real-time streaming, and alerts via Email, Slack, or Discord webhooks.',
+  },
+];
+---
+
+<section class="bg-muted/30 px-6 py-24" aria-labelledby="quickstart-heading">
+  <div class="mx-auto max-w-6xl">
+    <div class="grid items-center gap-12 lg:grid-cols-2">
+      <!-- Left column: Steps -->
+      <div>
+        <span class="text-sm font-medium uppercase tracking-wider text-primary">Quick Start</span>
+        <h2 id="quickstart-heading" class="mb-4 mt-2 text-3xl font-bold md:text-4xl">Get started in minutes</h2>
+        <p class="mb-10 text-lg text-muted-foreground">
+          From zero to production-ready log management.
+        </p>
+
+        <ol class="m-0 list-none space-y-6 p-0">
+          {steps.map((step, i) => (
+            <li class="flex items-start gap-4">
+              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary font-bold text-white" aria-hidden="true">
+                {i + 1}
+              </span>
+              <div class="pt-1">
+                <h3 class="mb-1 font-semibold">{step.title}</h3>
+                <p class="text-sm text-muted-foreground">{step.description}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <!-- Right column: Code example -->
+      <figure class="relative" aria-label="Code example showing how to use the LogWard SDK">
+        <div class="absolute -inset-4 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 blur-xl" aria-hidden="true"></div>
+        <div class="relative shadow-2xl">
+          <CodeBlock code={code} lang="typescript" title="app.ts" />
+        </div>
+      </figure>
+    </div>
+  </div>
+</section>

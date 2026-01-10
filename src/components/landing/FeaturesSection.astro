@@ -1,0 +1,66 @@
+---
+const features = [
+  {
+    icon: 'lock',
+    title: 'GDPR Compliant',
+    description: 'Keep logs on your servers or use our EU-based cloud. Full data ownership and privacy control.',
+  },
+  {
+    icon: 'gauge',
+    title: 'Lightweight',
+    description: 'Built on TimescaleDB & Fastify. Lower memory footprint compared to Java-based stacks like ELK.',
+  },
+  {
+    icon: 'shield',
+    title: 'Security Built-in',
+    description: 'Sigma rules engine for threat detection. Turn your logs into a SIEM without extra tools.',
+  },
+  {
+    icon: 'git-branch',
+    title: 'OpenTelemetry Native',
+    description: 'OTLP ingestion for logs and traces. Distributed tracing with service dependency graphs.',
+  },
+];
+
+const iconPaths: Record<string, string> = {
+  lock: 'M12 1a5 5 0 00-5 5v4H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2v-9a2 2 0 00-2-2h-2V6a5 5 0 00-5-5zm3 9V6a3 3 0 10-6 0v4h6z',
+  gauge: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2V7zm0 8h2v2h-2v-2z',
+  shield: 'M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z',
+  'git-branch': 'M6 3a3 3 0 100 6 3 3 0 000-6zM6 15a3 3 0 100 6 3 3 0 000-6zM18 3a3 3 0 100 6 3 3 0 000-6zM6 9v6M15 6H9',
+};
+---
+
+<section class="relative overflow-hidden px-6 py-24" aria-labelledby="why-logward-heading">
+  <!-- Background decorations -->
+  <div class="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5" aria-hidden="true"></div>
+  <div class="absolute left-1/4 top-0 h-96 w-96 rounded-full bg-primary/10 blur-3xl" aria-hidden="true"></div>
+  <div class="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-primary/5 blur-3xl" aria-hidden="true"></div>
+
+  <div class="relative mx-auto max-w-6xl">
+    <div class="mb-16 text-center">
+      <span class="text-sm font-medium uppercase tracking-wider text-primary">Why Choose Us</span>
+      <h2 id="why-logward-heading" class="mb-4 mt-2 text-3xl font-bold md:text-4xl">Built Different</h2>
+      <p class="mx-auto max-w-2xl text-lg text-muted-foreground">
+        For developers and European SMBs who need data ownership without ElasticSearch complexity.
+      </p>
+    </div>
+
+    <div class="grid gap-6 md:grid-cols-2">
+      {features.map((feature) => (
+        <article class="group rounded-2xl border border-border bg-card/80 p-8 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5">
+          <div class="flex items-start gap-5">
+            <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 transition-transform group-hover:scale-110" aria-hidden="true">
+              <svg class="h-7 w-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d={iconPaths[feature.icon]} />
+              </svg>
+            </div>
+            <div>
+              <h3 class="mb-2 text-xl font-semibold">{feature.title}</h3>
+              <p class="text-muted-foreground">{feature.description}</p>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

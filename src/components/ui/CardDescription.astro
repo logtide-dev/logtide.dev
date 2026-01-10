@@ -1,0 +1,6 @@
+---
+const { class: className = "" } = Astro.props;
+---
+<p class:list={["text-sm text-muted-foreground", className]}>
+  <slot />
+</p>
