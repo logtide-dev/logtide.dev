@@ -40,7 +40,7 @@ const headings = [
               </Button>
           </a>
           <a
-              href="https://www.npmjs.com/package/@logtide-dev/sdk-node"
+              href="https://www.npmjs.com/package/@logtide/sdk-node"
               target="_blank"
               rel="noopener noreferrer"
           >
@@ -68,13 +68,13 @@ const headings = [
       <Code
           lang="bash"
           theme="one-dark-pro"
-          code={`npm install @logtide-dev/sdk-node
+          code={`npm install @logtide/sdk-node
 
 # or with pnpm
-pnpm add @logtide-dev/sdk-node
+pnpm add @logtide/sdk-node
 
 # or with yarn
-yarn add @logtide-dev/sdk-node`}
+yarn add @logtide/sdk-node`}
       />
   </div>
 
@@ -89,7 +89,7 @@ yarn add @logtide-dev/sdk-node`}
       <Code
           lang="typescript"
           theme="one-dark-pro"
-          code={`import { LogTideClient } from '@logtide-dev/sdk-node';
+          code={`import { LogTideClient } from '@logtide/sdk-node';
 
 const client = new LogTideClient({
 apiUrl: 'http://localhost:8080',
@@ -237,7 +237,7 @@ client.error('api', 'Operation failed', error);
               lang="typescript"
               theme="one-dark-pro"
               code={`import express from 'express';
-import { createExpressMiddleware } from '@logtide-dev/sdk-node';
+import { createExpressMiddleware } from '@logtide/sdk-node';
 
 const app = express();
 
@@ -263,7 +263,7 @@ res.json({ users: [] });
               lang="typescript"
               theme="one-dark-pro"
               code={`import Fastify from 'fastify';
-import { fastifyLogTidePlugin } from '@logtide-dev/sdk-node';
+import { fastifyLogTidePlugin } from '@logtide/sdk-node';
 
 const fastify = Fastify();
 
