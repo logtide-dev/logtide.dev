@@ -1,8 +1,8 @@
 {
-  "name": "@logward/website",
+  "name": "@logtide/website",
   "type": "module",
   "version": "0.1.0",
-  "description": "LogWard website and documentation",
+  "description": "LogTide website and documentation",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",

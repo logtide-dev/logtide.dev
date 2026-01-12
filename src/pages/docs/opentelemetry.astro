@@ -39,7 +39,7 @@ const headings = [
   </div>
 
   <p class="text-lg text-muted-foreground mb-8">
-      LogWard supports native OpenTelemetry Protocol (OTLP) for log ingestion,
+      LogTide supports native OpenTelemetry Protocol (OTLP) for log ingestion,
       allowing you to send logs from any OpenTelemetry-instrumented application.
   </p>
 
@@ -84,8 +84,8 @@ const headings = [
               <h4 class="font-semibold mb-2">Full Endpoint URLs</h4>
               <div class="grid gap-2 text-sm">
                   <div>
-                      <span class="text-muted-foreground">LogWard Cloud:</span>
-                      <code class="ml-2 font-mono bg-background/50 px-1 rounded">https://api.logward.dev/api/v1/otlp/logs</code>
+                      <span class="text-muted-foreground">LogTide Cloud:</span>
+                      <code class="ml-2 font-mono bg-background/50 px-1 rounded">https://api.logtide.dev/api/v1/otlp/logs</code>
                   </div>
                   <div>
                       <span class="text-muted-foreground">Self-hosted (default):</span>
@@ -113,7 +113,7 @@ const headings = [
 
   <div class="mb-8">
       <p class="mb-4 text-muted-foreground">
-          OTLP log records are automatically mapped to LogWard's format:
+          OTLP log records are automatically mapped to LogTide's format:
       </p>
 
       <div class="overflow-x-auto">
@@ -121,7 +121,7 @@ const headings = [
               <thead class="bg-muted">
                   <tr>
                       <th class="px-4 py-2 text-left border-b border-border">OTLP Field</th>
-                      <th class="px-4 py-2 text-left border-b border-border">LogWard Field</th>
+                      <th class="px-4 py-2 text-left border-b border-border">LogTide Field</th>
                       <th class="px-4 py-2 text-left border-b border-border">Notes</th>
                   </tr>
               </thead>
@@ -175,7 +175,7 @@ const headings = [
 
   <div class="mb-8">
       <p class="mb-4 text-muted-foreground">
-          OTLP severity numbers (0-24) are mapped to LogWard levels:
+          OTLP severity numbers (0-24) are mapped to LogTide levels:
       </p>
 
       <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -229,7 +229,7 @@ const headings = [
 
       <Code
           lang="bash"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`npm install @opentelemetry/sdk-node @opentelemetry/api-logs \
 @opentelemetry/sdk-logs @opentelemetry/exporter-logs-otlp-http`}
       />
@@ -238,7 +238,7 @@ const headings = [
 
       <Code
           lang="typescript"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`import { NodeSDK } from '@opentelemetry/sdk-node';
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http';
 import { BatchLogRecordProcessor } from '@opentelemetry/sdk-logs';
@@ -248,7 +248,7 @@ import { logs, SeverityNumber } from '@opentelemetry/api-logs';
 
 // Configure the OTLP exporter
 // Self-hosted: http://your-server:8080/api/v1/otlp/logs
-// Cloud: https://api.logward.dev/api/v1/otlp/logs
+// Cloud: https://api.logtide.dev/api/v1/otlp/logs
 const logExporter = new OTLPLogExporter({
 url: 'http://your-server:8080/api/v1/otlp/logs',
 headers: {
@@ -293,7 +293,7 @@ attributes: {
 
       <Code
           lang="bash"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`pip install opentelemetry-sdk opentelemetry-exporter-otlp-proto-http`}
       />
 
@@ -301,7 +301,7 @@ attributes: {
 
       <Code
           lang="python"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`from opentelemetry import _logs
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
@@ -316,7 +316,7 @@ resource = Resource.create({
 
 # Configure the OTLP exporter
 # Self-hosted: http://your-server:8080/api/v1/otlp/logs
-# Cloud: https://api.logward.dev/api/v1/otlp/logs
+# Cloud: https://api.logtide.dev/api/v1/otlp/logs
 exporter = OTLPLogExporter(
   endpoint="http://your-server:8080/api/v1/otlp/logs",
   headers={"X-API-Key": "your-api-key-here"},
@@ -336,7 +336,7 @@ handler = LoggingHandler(
 logging.getLogger().addHandler(handler)
 logging.getLogger().setLevel(logging.DEBUG)
 
-# Now all logs will be sent to LogWard
+# Now all logs will be sent to LogTide
 logging.info("Application started", extra={"user.id": "12345"})
 logging.warning("High memory usage", extra={"memory.percent": 85})
 logging.error("Database connection failed", extra={"db.host": "localhost"})`}
@@ -355,7 +355,7 @@ logging.error("Database connection failed", extra={"db.host": "localhost"})`}
 
       <Code
           lang="bash"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`go get go.opentelemetry.io/otel
 go get go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp
 go get go.opentelemetry.io/otel/sdk/log`}
@@ -365,7 +365,7 @@ go get go.opentelemetry.io/otel/sdk/log`}
 
       <Code
           lang="go"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`package main
 
 import (
@@ -384,7 +384,7 @@ func main() {
 
   // Create the OTLP exporter
   // Self-hosted: your-server:8080 (with WithInsecure())
-  // Cloud: api.logward.dev (HTTPS by default)
+  // Cloud: api.logtide.dev (HTTPS by default)
   exporter, err := otlploghttp.New(ctx,
       otlploghttp.WithEndpoint("your-server:8080"),
       otlploghttp.WithURLPath("/api/v1/otlp/logs"),
@@ -426,12 +426,12 @@ func main() {
   <div class="mb-8">
       <p class="mb-4 text-muted-foreground">
           You can use the OpenTelemetry Collector to aggregate logs from multiple
-          services before sending to LogWard.
+          services before sending to LogTide.
       </p>
 
       <Code
           lang="yaml"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`# otel-collector-config.yaml
 receivers:
   otlp:
@@ -447,9 +447,9 @@ processors:
     send_batch_size: 100
 
 exporters:
-  otlphttp/logward:
+  otlphttp/logtide:
     # Self-hosted: http://your-server:8080
-    # Cloud: https://api.logward.dev
+    # Cloud: https://api.logtide.dev
     endpoint: http://your-server:8080
     headers:
       X-API-Key: your-api-key-here
@@ -461,14 +461,14 @@ service:
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlphttp/logward]`}
+      exporters: [otlphttp/logtide]`}
       />
 
       <p class="mt-6 mb-4 text-muted-foreground">Docker Compose configuration:</p>
 
       <Code
           lang="yaml"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`version: '3.8'
 
 services:
@@ -492,13 +492,13 @@ services:
 
   <div class="mb-8">
       <p class="mb-4 text-muted-foreground">
-          Fluent Bit can forward logs to LogWard using the OpenTelemetry output plugin.
+          Fluent Bit can forward logs to LogTide using the OpenTelemetry output plugin.
           Both JSON and Protobuf formats are supported:
       </p>
 
       <Code
           lang="ini"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`[SERVICE]
   Flush        1
   Log_Level    info
@@ -512,7 +512,7 @@ services:
   Name         opentelemetry
   Match        *
   # Self-hosted (HTTP): Host your-server, Port 8080, Tls Off
-  # Cloud (HTTPS): Host api.logward.dev, Port 443, Tls On
+  # Cloud (HTTPS): Host api.logtide.dev, Port 443, Tls On
   Host         your-server
   Port         8080
   Uri          /api/v1/otlp/logs
@@ -522,7 +522,7 @@ services:
       />
 
       <p class="mt-4 text-sm text-muted-foreground">
-          <strong>Note:</strong> LogWard supports both Protobuf (default) and JSON encoding.
+          <strong>Note:</strong> LogTide supports both Protobuf (default) and JSON encoding.
           To use JSON instead, add <code class="bg-muted px-1 rounded">Logs_encoding json</code> to the OUTPUT section.
       </p>
   </div>
@@ -536,7 +536,7 @@ services:
 
   <div class="mb-8">
       <p class="mb-4 text-muted-foreground">
-          When sending logs with trace context, LogWard automatically extracts
+          When sending logs with trace context, LogTide automatically extracts
           and indexes <code class="bg-muted px-1 rounded">trace_id</code> and <code class="bg-muted px-1 rounded">span_id</code> fields.
           This enables:
       </p>
@@ -579,7 +579,7 @@ services:
 
       <Code
           lang="typescript"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`import { trace, context } from '@opentelemetry/api';
 import { logs, SeverityNumber } from '@opentelemetry/api-logs';
 
@@ -699,8 +699,8 @@ span.end();`}
 
       <Code
           lang="bash"
-          theme="github-dark"
-          code={`# LogWard Backend - Enable OTLP debug logging
+          theme="one-dark-pro"
+          code={`# LogTide Backend - Enable OTLP debug logging
 # Shows raw protobuf structure for debugging parsing issues
 OTLP_DEBUG=true
 
@@ -713,7 +713,7 @@ logging.basicConfig(level=logging.DEBUG)`}
       />
 
       <p class="mt-4 text-sm text-muted-foreground">
-          When <code class="bg-muted px-1 rounded">OTLP_DEBUG=true</code> is set on the LogWard backend,
+          When <code class="bg-muted px-1 rounded">OTLP_DEBUG=true</code> is set on the LogTide backend,
           it will log the raw protobuf structure of incoming log records,
           which helps diagnose parsing or field mapping issues.
       </p>
@@ -728,7 +728,7 @@ logging.basicConfig(level=logging.DEBUG)`}
 
   <div class="mb-8">
       <p class="mb-4 text-muted-foreground">
-          If you're currently using LogWard's custom SDKs, you can migrate to
+          If you're currently using LogTide's custom SDKs, you can migrate to
           OpenTelemetry for standardized instrumentation:
       </p>
 
@@ -740,10 +740,10 @@ logging.basicConfig(level=logging.DEBUG)`}
               <CardContent>
                   <Code
                       lang="typescript"
-                      theme="github-dark"
-                      code={`import { LogWardClient } from '@logward-dev/sdk-node';
+                      theme="one-dark-pro"
+                      code={`import { LogTideClient } from '@logtide-dev/sdk-node';
 
-const client = new LogWardClient({
+const client = new LogTideClient({
 apiKey: 'your-key'
 });
 
@@ -761,7 +761,7 @@ userId: '123'
               <CardContent>
                   <Code
                       lang="typescript"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`import { logs, SeverityNumber } from '@opentelemetry/api-logs';
 
 const logger = logs.getLogger('my-logger');

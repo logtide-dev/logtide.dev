@@ -21,25 +21,25 @@ const headings = [
 ];
 
 const installCode = `# 1. Create project directory
-mkdir logward && cd logward
+mkdir logtide && cd logtide
 
 # 2. Download configuration files
-curl -O https://raw.githubusercontent.com/logward-dev/logward/main/docker/docker-compose.yml
-curl -O https://raw.githubusercontent.com/logward-dev/logward/main/docker/.env.example
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/docker-compose.yml
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/.env.example
 mv .env.example .env
 
 # 3. Configure secure passwords (IMPORTANT!)
 nano .env
 # Change: DB_PASSWORD, REDIS_PASSWORD, API_KEY_SECRET
 
-# 4. Start LogWard
+# 4. Start LogTide
 docker compose up -d
 
 # 5. Access the dashboard
 # Frontend: http://localhost:3000
 # API: http://localhost:8080`;
 
-const curlCloudCode = `curl -X POST https://api.logward.dev/api/v1/ingest \\
+const curlCloudCode = `curl -X POST https://api.logtide.dev/api/v1/ingest \\
   -H "X-API-Key: lp_your_api_key_here" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -47,7 +47,7 @@ const curlCloudCode = `curl -X POST https://api.logward.dev/api/v1/ingest \\
       "time": "2025-01-23T10:30:00Z",
       "service": "my-app",
       "level": "info",
-      "message": "Hello from LogWard Cloud!",
+      "message": "Hello from LogTide Cloud!",
       "metadata": { "environment": "production" }
     }]
   }'`;
@@ -60,7 +60,7 @@ const curlSelfHostedCode = `curl -X POST http://localhost:8080/api/v1/ingest \\
       "time": "2025-01-23T10:30:00Z",
       "service": "my-app",
       "level": "info",
-      "message": "Hello from LogWard!",
+      "message": "Hello from LogTide!",
       "metadata": { "environment": "production" }
     }]
   }'`;
@@ -69,7 +69,7 @@ const pythonCode = `import requests
 from datetime import datetime, timezone
 
 # Configuration
-API_URL = "https://api.logward.dev/api/v1/ingest"  # or http://localhost:8080 for self-hosted
+API_URL = "https://api.logtide.dev/api/v1/ingest"  # or http://localhost:8080 for self-hosted
 API_KEY = "lp_your_api_key_here"
 
 # Send a log
@@ -93,7 +93,7 @@ response = requests.post(
 print(f"Status: {response.status_code}")`;
 
 const nodejsCode = `// Node.js 18+ (native fetch) or install node-fetch
-const API_URL = "https://api.logward.dev/api/v1/ingest"; // or http://localhost:8080
+const API_URL = "https://api.logtide.dev/api/v1/ingest"; // or http://localhost:8080
 const API_KEY = "lp_your_api_key_here";
 
 async function sendLog() {
@@ -131,8 +131,8 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
-      LOGWARD_API_KEY: lp_your_api_key_here
-      LOGWARD_API_HOST: api.logward.dev  # or backend for self-hosted`;
+      LOGTIDE_API_KEY: lp_your_api_key_here
+      LOGTIDE_API_HOST: api.logtide.dev  # or backend for self-hosted`;
 
 const otelInstallCode = `# Install OpenTelemetry packages (Node.js example)
 npm install @opentelemetry/api-logs @opentelemetry/sdk-logs \\
@@ -144,7 +144,7 @@ import { LoggerProvider, BatchLogRecordProcessor } from '@opentelemetry/sdk-logs
 
 // Configure exporter
 const exporter = new OTLPLogExporter({
-  url: 'https://api.logward.dev/api/v1/otlp/logs', // or localhost:8080
+  url: 'https://api.logtide.dev/api/v1/otlp/logs', // or localhost:8080
   headers: { 'X-API-Key': 'lp_your_api_key_here' },
 });
 
@@ -207,10 +207,10 @@ logger.emit({
           </li>
           <li class="flex items-start gap-2">
             <Icon name="lucide:check-circle" class="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-            <span>API: <code class="bg-muted px-1 py-0.5 rounded font-mono">api.logward.dev</code></span>
+            <span>API: <code class="bg-muted px-1 py-0.5 rounded font-mono">api.logtide.dev</code></span>
           </li>
         </ul>
-        <a href="https://logward.dev" target="_blank" rel="noopener noreferrer" class="inline-block w-full">
+        <a href="https://logtide.dev" target="_blank" rel="noopener noreferrer" class="inline-block w-full">
           <Button class="w-full">Start Free →</Button>
         </a>
       </CardContent>
@@ -282,7 +282,7 @@ logger.emit({
 
     <div>
       <h3 id="installation" class="text-lg font-semibold mb-3 scroll-mt-24">Installation (2 minutes)</h3>
-      <Code lang="bash" theme="github-dark" code={installCode} />
+      <Code lang="bash" theme="one-dark-pro" code={installCode} />
     </div>
 
     <Card class="bg-muted/50">
@@ -363,11 +363,11 @@ logger.emit({
       <CardContent class="text-sm text-muted-foreground">
         <p class="mb-2">Pre-built images are available from:</p>
         <ul class="space-y-1 ml-4">
-          <li><strong>Docker Hub:</strong> <code class="bg-background px-1 rounded">logward/backend</code>, <code class="bg-background px-1 rounded">logward/frontend</code></li>
-          <li><strong>GitHub:</strong> <code class="bg-background px-1 rounded">ghcr.io/logward-dev/logward-backend</code></li>
+          <li><strong>Docker Hub:</strong> <code class="bg-background px-1 rounded">logtide/backend</code>, <code class="bg-background px-1 rounded">logtide/frontend</code></li>
+          <li><strong>GitHub:</strong> <code class="bg-background px-1 rounded">ghcr.io/logtide-dev/logtide-backend</code></li>
         </ul>
         <p class="mt-3 text-xs">
-          Pin versions in production: <code class="bg-background px-1 rounded">LOGWARD_BACKEND_IMAGE=logward/backend:0.4.0</code>
+          Pin versions in production: <code class="bg-background px-1 rounded">LOGTIDE_BACKEND_IMAGE=logtide/backend:0.4.0</code>
         </p>
       </CardContent>
     </Card>
@@ -411,7 +411,7 @@ logger.emit({
     <div>
       <h3 id="send-first-log" class="text-lg font-semibold mb-2 scroll-mt-24">4. Send Your First Log</h3>
       <p class="text-muted-foreground mb-3">
-        Choose your preferred method to start sending logs to LogWard:
+        Choose your preferred method to start sending logs to LogTide:
       </p>
 
       <Tabs defaultValue="curl" class="w-full">
@@ -443,12 +443,12 @@ logger.emit({
             The simplest way to test log ingestion using curl:
           </p>
           <div>
-            <h4 class="text-sm font-semibold mb-2">Cloud (api.logward.dev)</h4>
-            <Code lang="bash" theme="github-dark" code={curlCloudCode} />
+            <h4 class="text-sm font-semibold mb-2">Cloud (api.logtide.dev)</h4>
+            <Code lang="bash" theme="one-dark-pro" code={curlCloudCode} />
           </div>
           <div>
             <h4 class="text-sm font-semibold mb-2">Self-Hosted</h4>
-            <Code lang="bash" theme="github-dark" code={curlSelfHostedCode} />
+            <Code lang="bash" theme="one-dark-pro" code={curlSelfHostedCode} />
           </div>
         </TabsContent>
 
@@ -456,7 +456,7 @@ logger.emit({
           <p class="text-sm text-muted-foreground">
             Send logs from Python using the requests library (no SDK needed):
           </p>
-          <Code lang="python" theme="github-dark" code={pythonCode} />
+          <Code lang="python" theme="one-dark-pro" code={pythonCode} />
           <p class="text-xs text-muted-foreground">
             For production use, consider the <a href="/docs/sdks/python" class="text-primary underline">Python SDK</a> with retry logic and batching.
           </p>
@@ -466,7 +466,7 @@ logger.emit({
           <p class="text-sm text-muted-foreground">
             Send logs from Node.js using fetch (no SDK needed):
           </p>
-          <Code lang="javascript" theme="github-dark" code={nodejsCode} />
+          <Code lang="javascript" theme="one-dark-pro" code={nodejsCode} />
           <p class="text-xs text-muted-foreground">
             For production use, consider the <a href="/docs/sdks/nodejs" class="text-primary underline">Node.js SDK</a> with circuit breaker and batching.
           </p>
@@ -476,7 +476,7 @@ logger.emit({
           <p class="text-sm text-muted-foreground">
             Automatically collect logs from Docker containers using Fluent Bit:
           </p>
-          <Code lang="yaml" theme="github-dark" code={dockerCode} />
+          <Code lang="yaml" theme="one-dark-pro" code={dockerCode} />
           <p class="text-xs text-muted-foreground">
             See the full <a href="/docs/no-sdk-setup" class="text-primary underline">No-SDK Setup guide</a> for complete Fluent Bit configuration.
             For ARM64/Raspberry Pi, use <code class="bg-muted px-1 rounded">cr.fluentbit.io/fluent/fluent-bit:4.2.2</code>.
@@ -487,8 +487,8 @@ logger.emit({
           <p class="text-sm text-muted-foreground">
             Use OpenTelemetry for vendor-neutral instrumentation:
           </p>
-          <Code lang="bash" theme="github-dark" code={otelInstallCode} />
-          <Code lang="typescript" theme="github-dark" code={otelCode} />
+          <Code lang="bash" theme="one-dark-pro" code={otelInstallCode} />
+          <Code lang="typescript" theme="one-dark-pro" code={otelCode} />
           <p class="text-xs text-muted-foreground">
             See the full <a href="/docs/opentelemetry" class="text-primary underline">OpenTelemetry guide</a> for Python, Go, and collector setup.
           </p>
@@ -556,7 +556,7 @@ logger.emit({
           </CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground">
-          Understand how LogWard works under the hood
+          Understand how LogTide works under the hood
         </CardContent>
       </Card>
     </a>

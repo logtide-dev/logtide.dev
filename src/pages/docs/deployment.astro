@@ -19,12 +19,12 @@ const headings = [
 
 <DocsLayout
   title="Deployment Guide"
-  description="Deploy LogWard on your infrastructure using pre-built Docker images or build from source."
+  description="Deploy LogTide on your infrastructure using pre-built Docker images or build from source."
   headings={headings}
 >
   <h1 class="text-3xl font-bold mb-4">Deployment Guide</h1>
   <p class="text-lg text-muted-foreground mb-8">
-      Deploy LogWard on your infrastructure using pre-built Docker images or build from source.
+      Deploy LogTide on your infrastructure using pre-built Docker images or build from source.
   </p>
 
   <h2
@@ -54,19 +54,19 @@ const headings = [
           <h3 id="quick-start" class="text-lg font-semibold mb-3 scroll-mt-24">Quick Start (2 Minutes)</h3>
           <Code
               lang="bash"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# Create project directory
-mkdir logward && cd logward
+mkdir logtide && cd logtide
 
 # Download docker-compose.yml and environment template
-curl -O https://raw.githubusercontent.com/logward-dev/logward/main/docker/docker-compose.yml
-curl -O https://raw.githubusercontent.com/logward-dev/logward/main/docker/.env.example
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/docker-compose.yml
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/.env.example
 mv .env.example .env
 
 # Edit .env with secure passwords
 nano .env
 
-# Start LogWard
+# Start LogTide
 docker compose up -d`}
           />
       </div>
@@ -113,28 +113,28 @@ docker compose up -d`}
           </p>
           <Code
               lang="bash"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# Download Fluent Bit configuration files
-curl -O https://raw.githubusercontent.com/logward-dev/logward/main/docker/fluent-bit.conf
-curl -O https://raw.githubusercontent.com/logward-dev/logward/main/docker/parsers.conf
-curl -O https://raw.githubusercontent.com/logward-dev/logward/main/docker/extract_container_id.lua
-curl -O https://raw.githubusercontent.com/logward-dev/logward/main/docker/wrap_logs.lua
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/fluent-bit.conf
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/parsers.conf
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/extract_container_id.lua
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/wrap_logs.lua
 
-# Add your LogWard API key to .env
+# Add your LogTide API key to .env
 echo "FLUENT_BIT_API_KEY=your_api_key_here" >> .env
 
 # Start with logging profile enabled
 docker compose --profile logging up -d`}
           />
           <p class="text-sm text-muted-foreground mt-3">
-              This profile is optional. Without it, LogWard runs without the Fluent Bit container.
+              This profile is optional. Without it, LogTide runs without the Fluent Bit container.
           </p>
       </div>
 
       <div>
           <h3 id="arm64-raspberry-pi" class="text-lg font-semibold mb-3 scroll-mt-24">ARM64 / Raspberry Pi Support</h3>
           <p class="text-sm text-muted-foreground mb-3">
-              LogWard images (<code class="bg-muted px-1 rounded">logward/backend</code>, <code class="bg-muted px-1 rounded">logward/frontend</code>) are built for both <code class="bg-muted px-1 rounded">linux/amd64</code> and <code class="bg-muted px-1 rounded">linux/arm64</code>,
+              LogTide images (<code class="bg-muted px-1 rounded">logtide/backend</code>, <code class="bg-muted px-1 rounded">logtide/frontend</code>) are built for both <code class="bg-muted px-1 rounded">linux/amd64</code> and <code class="bg-muted px-1 rounded">linux/arm64</code>,
               so they work natively on Raspberry Pi 3/4/5 (64-bit OS).
           </p>
           <p class="text-sm text-muted-foreground mb-3">
@@ -143,7 +143,7 @@ docker compose --profile logging up -d`}
           </p>
           <Code
               lang="bash"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# For Raspberry Pi / ARM64, use the official multi-arch registry
 FLUENT_BIT_IMAGE=cr.fluentbit.io/fluent/fluent-bit:4.2.2
 
@@ -180,27 +180,27 @@ FLUENT_BIT_IMAGE=myregistry/fluent-bit-arm64:latest`}
                   </thead>
                   <tbody>
                       <tr>
-                          <td class="p-3 border-b border-border font-mono text-xs">logward/backend</td>
+                          <td class="p-3 border-b border-border font-mono text-xs">logtide/backend</td>
                           <td class="p-3 border-b border-border">
-                              <a href="https://hub.docker.com/r/logward/backend" class="text-primary hover:underline" target="_blank">Docker Hub</a>
+                              <a href="https://hub.docker.com/r/logtide/backend" class="text-primary hover:underline" target="_blank">Docker Hub</a>
                           </td>
                       </tr>
                       <tr>
-                          <td class="p-3 border-b border-border font-mono text-xs">logward/frontend</td>
+                          <td class="p-3 border-b border-border font-mono text-xs">logtide/frontend</td>
                           <td class="p-3 border-b border-border">
-                              <a href="https://hub.docker.com/r/logward/frontend" class="text-primary hover:underline" target="_blank">Docker Hub</a>
+                              <a href="https://hub.docker.com/r/logtide/frontend" class="text-primary hover:underline" target="_blank">Docker Hub</a>
                           </td>
                       </tr>
                       <tr>
-                          <td class="p-3 border-b border-border font-mono text-xs">ghcr.io/logward-dev/logward-backend</td>
+                          <td class="p-3 border-b border-border font-mono text-xs">ghcr.io/logtide-dev/logtide-backend</td>
                           <td class="p-3 border-b border-border">
-                              <a href="https://github.com/logward-dev/logward/pkgs/container/logward-backend" class="text-primary hover:underline" target="_blank">GitHub Container Registry</a>
+                              <a href="https://github.com/logtide-dev/logtide/pkgs/container/logtide-backend" class="text-primary hover:underline" target="_blank">GitHub Container Registry</a>
                           </td>
                       </tr>
                       <tr>
-                          <td class="p-3 border-b border-border font-mono text-xs">ghcr.io/logward-dev/logward-frontend</td>
+                          <td class="p-3 border-b border-border font-mono text-xs">ghcr.io/logtide-dev/logtide-frontend</td>
                           <td class="p-3">
-                              <a href="https://github.com/logward-dev/logward/pkgs/container/logward-frontend" class="text-primary hover:underline" target="_blank">GitHub Container Registry</a>
+                              <a href="https://github.com/logtide-dev/logtide/pkgs/container/logtide-frontend" class="text-primary hover:underline" target="_blank">GitHub Container Registry</a>
                           </td>
                       </tr>
                   </tbody>
@@ -221,10 +221,10 @@ FLUENT_BIT_IMAGE=myregistry/fluent-bit-arm64:latest`}
               <p>Always pin to a specific version in production instead of using <code class="bg-muted px-1 rounded">latest</code>:</p>
               <Code
                   lang="bash"
-                  theme="github-dark"
+                  theme="one-dark-pro"
                   code={`# In your .env file
-LOGWARD_BACKEND_IMAGE=logward/backend:0.4.0
-LOGWARD_FRONTEND_IMAGE=logward/frontend:0.4.0`}
+LOGTIDE_BACKEND_IMAGE=logtide/backend:0.4.0
+LOGTIDE_FRONTEND_IMAGE=logtide/frontend:0.4.0`}
               />
           </CardContent>
       </Card>
@@ -265,11 +265,11 @@ LOGWARD_FRONTEND_IMAGE=logward/frontend:0.4.0`}
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
               <p class="mb-3">
-                  LogWard automatically detects the correct API URL based on how you access the frontend:
+                  LogTide automatically detects the correct API URL based on how you access the frontend:
               </p>
               <ul class="list-none space-y-1">
                   <li><strong>Via IP:3000</strong> (e.g., <code class="bg-muted px-1 rounded">http://192.168.1.100:3000</code>) → API auto-detected at <code class="bg-muted px-1 rounded">http://192.168.1.100:8080</code></li>
-                  <li><strong>Via domain on port 80/443</strong> (e.g., <code class="bg-muted px-1 rounded">https://logward.example.com</code>) → Uses relative URLs (assumes reverse proxy)</li>
+                  <li><strong>Via domain on port 80/443</strong> (e.g., <code class="bg-muted px-1 rounded">https://logtide.example.com</code>) → Uses relative URLs (assumes reverse proxy)</li>
               </ul>
               <p class="mt-3">
                   No <code class="bg-muted px-1 rounded">PUBLIC_API_URL</code> configuration needed for these scenarios!
@@ -281,7 +281,7 @@ LOGWARD_FRONTEND_IMAGE=logward/frontend:0.4.0`}
           <h3 id="vps-deployment" class="text-lg font-semibold mb-3 scroll-mt-24">Example: VPS Deployment (No Config Needed)</h3>
           <Code
               lang="bash"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# Server IP: 192.168.1.100
 
 # .env configuration - no PUBLIC_API_URL needed!
@@ -308,7 +308,7 @@ API_KEY_SECRET=your_32_character_secret_key_here
               </CardHeader>
               <CardContent class="text-sm text-muted-foreground">
                   <p>
-                      When using a domain (port 80/443), LogWard assumes a reverse proxy is in place and uses relative URLs (<code class="bg-muted px-1 rounded">/api/</code>).
+                      When using a domain (port 80/443), LogTide assumes a reverse proxy is in place and uses relative URLs (<code class="bg-muted px-1 rounded">/api/</code>).
                       Your reverse proxy <strong>must</strong> route both the frontend and the API, otherwise API calls will fail with 404.
                   </p>
               </CardContent>
@@ -318,10 +318,10 @@ API_KEY_SECRET=your_32_character_secret_key_here
           </p>
           <Code
               lang="nginx"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`server {
   listen 443 ssl;
-  server_name logward.example.com;
+  server_name logtide.example.com;
 
   # Frontend
   location / {
@@ -357,13 +357,13 @@ API_KEY_SECRET=your_32_character_secret_key_here
           </p>
           <Code
               lang="bash"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# .env configuration
-PUBLIC_API_URL=https://api.logward.example.com
+PUBLIC_API_URL=https://api.logtide.example.com
 
 # Access points:
-# Frontend: https://logward.example.com
-# API: https://api.logward.example.com`}
+# Frontend: https://logtide.example.com
+# API: https://api.logtide.example.com`}
           />
       </div>
 
@@ -403,8 +403,8 @@ PUBLIC_API_URL=https://api.logward.example.com
                               <td class="p-3 border-b border-border text-muted-foreground">When backend is not on :8080</td>
                           </tr>
                           <tr>
-                              <td class="p-3">LogWard Cloud</td>
-                              <td class="p-3 font-mono text-xs">https://api.logward.dev</td>
+                              <td class="p-3">LogTide Cloud</td>
+                              <td class="p-3 font-mono text-xs">https://api.logtide.dev</td>
                               <td class="p-3 text-muted-foreground">Pre-configured</td>
                           </tr>
                       </tbody>
@@ -432,7 +432,7 @@ PUBLIC_API_URL=https://api.logward.example.com
               </div>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              LogWard is designed for horizontal scaling. Backend and worker services are
+              LogTide is designed for horizontal scaling. Backend and worker services are
               stateless - all state is stored in PostgreSQL and Redis. For high availability,
               use the Traefik overlay to run multiple backend instances behind a load balancer.
           </CardContent>
@@ -446,9 +446,9 @@ PUBLIC_API_URL=https://api.logward.example.com
           </p>
           <Code
               lang="bash"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# Download Traefik overlay (adds load balancer)
-curl -O https://raw.githubusercontent.com/logward-dev/logward/main/docker/docker-compose.traefik.yml
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/docker-compose.traefik.yml
 
 # Start with horizontal scaling support
 docker compose -f docker-compose.yml -f docker-compose.traefik.yml up -d
@@ -479,7 +479,7 @@ docker compose ps`}
                   <li><strong>Without Traefik:</strong> Frontend at <code class="bg-muted px-1 rounded">:3000</code>, API at <code class="bg-muted px-1 rounded">:8080</code></li>
               </ul>
               <p class="mt-2">
-                  The <code class="bg-muted px-1 rounded">LOGWARD_PORT</code> environment variable controls the Traefik port (default: 3080).
+                  The <code class="bg-muted px-1 rounded">LOGTIDE_PORT</code> environment variable controls the Traefik port (default: 3080).
               </p>
           </CardContent>
       </Card>
@@ -576,7 +576,7 @@ docker compose ps`}
               </div>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              Deploy LogWard on any Kubernetes cluster using our official Helm chart.
+              Deploy LogTide on any Kubernetes cluster using our official Helm chart.
               Includes auto-scaling, health probes, Ingress support, and Prometheus monitoring.
           </CardContent>
       </Card>
@@ -585,14 +585,14 @@ docker compose ps`}
           <h3 id="helm-quick-install" class="text-lg font-semibold mb-3 scroll-mt-24">Quick Install</h3>
           <Code
               lang="bash"
-              theme="github-dark"
-              code={`# Add the LogWard Helm repository
-helm repo add logward https://logward-dev.github.io/logward-helm-chart
+              theme="one-dark-pro"
+              code={`# Add the LogTide Helm repository
+helm repo add logtide https://logtide-dev.github.io/logtide-helm-chart
 helm repo update
 
-# Install LogWard
-helm install logward logward/logward \
---namespace logward \
+# Install LogTide
+helm install logtide logtide/logtide \
+--namespace logtide \
 --create-namespace \
 --set timescaledb.auth.password=<your-db-password> \
 --set redis.auth.password=<your-redis-password>`}
@@ -653,15 +653,15 @@ helm install logward logward/logward \
           <h3 id="helm-ingress" class="text-lg font-semibold mb-3 scroll-mt-24">Enable Ingress</h3>
           <Code
               lang="bash"
-              theme="github-dark"
-              code={`helm install logward logward/logward \
---namespace logward \
+              theme="one-dark-pro"
+              code={`helm install logtide logtide/logtide \
+--namespace logtide \
 --create-namespace \
 --set timescaledb.auth.password=<password> \
 --set redis.auth.password=<password> \
 --set ingress.enabled=true \
 --set ingress.className=nginx \
---set ingress.hosts[0].host=logward.example.com \
+--set ingress.hosts[0].host=logtide.example.com \
 --set ingress.hosts[0].paths[0].path=/ \
 --set ingress.hosts[0].paths[0].pathType=Prefix \
 --set ingress.hosts[0].paths[0].service=frontend`}
@@ -675,15 +675,15 @@ helm install logward logward/logward \
           </p>
           <Code
               lang="bash"
-              theme="github-dark"
-              code={`helm install logward logward/logward \
---namespace logward \
+              theme="one-dark-pro"
+              code={`helm install logtide logtide/logtide \
+--namespace logtide \
 --create-namespace \
 --set timescaledb.enabled=false \
 --set externalDatabase.host=your-db.region.rds.amazonaws.com \
 --set externalDatabase.port=5432 \
---set externalDatabase.database=logward \
---set externalDatabase.username=logward \
+--set externalDatabase.database=logtide \
+--set externalDatabase.username=logtide \
 --set externalDatabase.password=<password> \
 --set redis.auth.password=<password>`}
           />
@@ -696,7 +696,7 @@ helm install logward logward/logward \
                   <p class="text-sm font-medium mb-2">AWS EKS</p>
                   <Code
                       lang="yaml"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`# values-eks.yaml
 global:
 storageClass: gp3
@@ -713,7 +713,7 @@ annotations:
                   <p class="text-sm font-medium mb-2">GCP GKE</p>
                   <Code
                       lang="yaml"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`# values-gke.yaml
 global:
 storageClass: standard-rwo
@@ -738,13 +738,13 @@ className: gce`}
           <CardContent class="text-sm text-muted-foreground">
               <ul class="space-y-2">
                   <li>
-                      <a href="https://artifacthub.io/packages/helm/logward/logward" class="text-primary hover:underline" target="_blank">
+                      <a href="https://artifacthub.io/packages/helm/logtide/logtide" class="text-primary hover:underline" target="_blank">
                           Artifact Hub →
                       </a>
                       <span class="text-muted-foreground ml-1">Browse chart versions and values</span>
                   </li>
                   <li>
-                      <a href="https://github.com/logward-dev/logward-helm-chart" class="text-primary hover:underline" target="_blank">
+                      <a href="https://github.com/logtide-dev/logtide-helm-chart" class="text-primary hover:underline" target="_blank">
                           GitHub Repository →
                       </a>
                       <span class="text-muted-foreground ml-1">Source code and issues</span>
@@ -781,10 +781,10 @@ className: gce`}
           <h3 id="clone-build" class="text-lg font-semibold mb-3 scroll-mt-24">Clone and Build</h3>
           <Code
               lang="bash"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# Clone the repository
-git clone https://github.com/logward-dev/logward.git
-cd logward/docker
+git clone https://github.com/logtide-dev/logtide.git
+cd logtide/docker
 
 # Copy environment template
 cp ../.env.example .env
@@ -807,7 +807,7 @@ docker compose up -d --build`}
                       Services Running
                   </p>
                   <p class="text-sm text-muted-foreground">
-                      Access LogWard at <code class="bg-muted px-1 rounded">http://your-server-ip:3000</code>
+                      Access LogTide at <code class="bg-muted px-1 rounded">http://your-server-ip:3000</code>
                   </p>
               </div>
           </div>
@@ -827,7 +827,7 @@ docker compose up -d --build`}
           <h3 id="health-checks" class="text-lg font-semibold mb-3 scroll-mt-24">Health Checks</h3>
           <Code
               lang="bash"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# Check all services status
 docker compose ps
 
@@ -838,7 +838,7 @@ curl http://localhost:8080/health
 curl http://localhost:3080/health
 
 # Check database
-docker compose exec postgres psql -U logward -d logward -c "SELECT COUNT(*) FROM logs;"`}
+docker compose exec postgres psql -U logtide -d logtide -c "SELECT COUNT(*) FROM logs;"`}
           />
       </div>
 
@@ -846,7 +846,7 @@ docker compose exec postgres psql -U logward -d logward -c "SELECT COUNT(*) FROM
           <h3 id="common-commands" class="text-lg font-semibold mb-3 scroll-mt-24">Common Commands</h3>
           <Code
               lang="bash"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# Restart a service
 docker compose restart backend
 
@@ -866,12 +866,12 @@ docker compose up -d`}
           <h3 id="database-backup" class="text-lg font-semibold mb-3 scroll-mt-24">Database Backup</h3>
           <Code
               lang="bash"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# Create backup
-docker compose exec postgres pg_dump -U logward logward > backup_$(date +%Y%m%d).sql
+docker compose exec postgres pg_dump -U logtide logtide > backup_$(date +%Y%m%d).sql
 
 # Restore from backup
-docker compose exec -T postgres psql -U logward logward < backup_20250115.sql`}
+docker compose exec -T postgres psql -U logtide logtide < backup_20250115.sql`}
           />
       </div>
   </div>

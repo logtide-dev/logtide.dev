@@ -4,7 +4,7 @@ import icon from 'astro-icon';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://logward.dev',
+  site: 'https://logtide.dev',
   integrations: [
     tailwind({
       applyBaseStyles: false,
@@ -15,7 +15,7 @@ export default defineConfig({
     shikiConfig: {
       themes: {
         light: 'github-light',
-        dark: 'github-dark',
+        dark: 'one-dark-pro',
       },
     },
   },

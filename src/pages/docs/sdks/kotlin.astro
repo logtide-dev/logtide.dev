@@ -24,14 +24,14 @@ const headings = [
 
 <DocsLayout
   title="Kotlin SDK"
-  description="Official Kotlin SDK for LogWard with coroutines support and Ktor/Spring Boot integration."
+  description="Official Kotlin SDK for LogTide with coroutines support and Ktor/Spring Boot integration."
   headings={headings}
 >
   <div class="flex items-center justify-between mb-4">
       <h1 class="text-3xl font-bold">Kotlin SDK</h1>
       <div class="flex items-center gap-2">
           <a
-              href="https://github.com/logward-dev/logward-sdk-kotlin"
+              href="https://github.com/logtide-dev/logtide-sdk-kotlin"
               target="_blank"
               rel="noopener noreferrer"
           >
@@ -41,7 +41,7 @@ const headings = [
               </Button>
           </a>
           <a
-              href="https://central.sonatype.com/artifact/io.github.logward-dev/logward-sdk-kotlin"
+              href="https://central.sonatype.com/artifact/io.github.logtide-dev/logtide-sdk-kotlin"
               target="_blank"
               rel="noopener noreferrer"
           >
@@ -54,7 +54,7 @@ const headings = [
   </div>
 
   <p class="text-lg text-muted-foreground mb-8">
-      Official Kotlin SDK for LogWard with coroutines support, automatic
+      Official Kotlin SDK for LogTide with coroutines support, automatic
       batching, retry logic, circuit breaker, query API, and middleware
       integrations for Ktor, Spring Boot, and Jakarta Servlet.
   </p>
@@ -71,9 +71,9 @@ const headings = [
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Gradle (Kotlin DSL)</h3>
           <Code
               lang="kotlin"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`dependencies {
-  implementation("io.github.logward-dev:logward-sdk-kotlin:0.2.0")
+  implementation("io.github.logtide-dev:logtide-sdk-kotlin:0.2.0")
 }`}
           />
       </div>
@@ -82,9 +82,9 @@ const headings = [
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Gradle (Groovy)</h3>
           <Code
               lang="groovy"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`dependencies {
-  implementation 'io.github.logward-dev:logward-sdk-kotlin:0.2.0'
+  implementation 'io.github.logtide-dev:logtide-sdk-kotlin:0.2.0'
 }`}
           />
       </div>
@@ -93,10 +93,10 @@ const headings = [
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Maven</h3>
           <Code
               lang="xml"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`<dependency>
-  <groupId>io.github.logward-dev</groupId>
-  <artifactId>logward-sdk-kotlin</artifactId>
+  <groupId>io.github.logtide-dev</groupId>
+  <artifactId>logtide-sdk-kotlin</artifactId>
   <version>0.2.0</version>
 </dependency>`}
           />
@@ -113,12 +113,12 @@ const headings = [
   <div class="mb-8">
       <Code
           lang="kotlin"
-          theme="github-dark"
-          code={`import dev.logward.sdk.LogWardClient
-import dev.logward.sdk.models.LogWardClientOptions
+          theme="one-dark-pro"
+          code={`import dev.logtide.sdk.LogTideClient
+import dev.logtide.sdk.models.LogTideClientOptions
 
-val client = LogWardClient(
-  LogWardClientOptions(
+val client = LogTideClient(
+  LogTideClientOptions(
       apiUrl = "http://localhost:8080",
       apiKey = "lp_your_api_key_here"
   )
@@ -186,8 +186,8 @@ runBlocking {
   <div class="mb-8">
       <Code
           lang="kotlin"
-          theme="github-dark"
-          code={`val client = LogWardClient(LogWardClientOptions(
+          theme="one-dark-pro"
+          code={`val client = LogTideClient(LogTideClientOptions(
   // Required
   apiUrl = "http://localhost:8080",
   apiKey = "lp_your_api_key",
@@ -228,7 +228,7 @@ runBlocking {
           <h3 id="basic-logging" class="text-lg font-semibold mb-3 scroll-mt-24">Basic Logging</h3>
           <Code
               lang="kotlin"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`// Log levels: debug, info, warn, error, critical
 client.debug("service-name", "Debug message", mapOf("detail" to "value"))
 client.info("api-gateway", "Request received", mapOf("method" to "GET", "path" to "/users"))
@@ -244,7 +244,7 @@ client.critical("system", "Out of memory", mapOf("used" to "95%"))`}
           </h3>
           <Code
               lang="kotlin"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`// Automatically serializes exception details
 try {
   database.connect()
@@ -259,7 +259,7 @@ try {
           <h3 id="trace-context" class="text-lg font-semibold mb-3 scroll-mt-24">Trace ID Context</h3>
           <Code
               lang="kotlin"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`// Manual trace ID
 client.withTraceId("550e8400-e29b-41d4-a716-446655440000") {
   client.info("api", "Processing request")
@@ -298,12 +298,12 @@ client.withTraceId { // generates UUID
           </p>
           <Code
               lang="kotlin"
-              theme="github-dark"
-              code={`import dev.logward.sdk.middleware.LogWardPlugin
+              theme="one-dark-pro"
+              code={`import dev.logtide.sdk.middleware.LogTidePlugin
 import io.ktor.server.application.*
 
 fun Application.module() {
-  install(LogWardPlugin) {
+  install(LogTidePlugin) {
       apiUrl = "http://localhost:8080"
       apiKey = "lp_your_api_key_here"
       serviceName = "ktor-app"
@@ -326,7 +326,7 @@ fun Application.module() {
 // Access client manually in routes
 routing {
   get("/api/custom") {
-      val client = call.application.attributes[LogWardClientKey]
+      val client = call.application.attributes[LogTideClientKey]
       client.info("my-service", "Custom business logic executed",
           mapOf("userId" to 123, "action" to "custom_operation"))
       call.respondText("OK")
@@ -343,28 +343,28 @@ routing {
           </p>
           <Code
               lang="kotlin"
-              theme="github-dark"
-              code={`import dev.logward.sdk.LogWardClient
-import dev.logward.sdk.middleware.LogWardInterceptor
-import dev.logward.sdk.models.LogWardClientOptions
+              theme="one-dark-pro"
+              code={`import dev.logtide.sdk.LogTideClient
+import dev.logtide.sdk.middleware.LogTideInterceptor
+import dev.logtide.sdk.models.LogTideClientOptions
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
-class LogWardConfig : WebMvcConfigurer {
+class LogTideConfig : WebMvcConfigurer {
 
   @Bean
-  fun logWardClient() = LogWardClient(
-      LogWardClientOptions(
+  fun logTideClient() = LogTideClient(
+      LogTideClientOptions(
           apiUrl = "http://localhost:8080",
           apiKey = "lp_your_api_key_here"
       )
   )
 
   @Bean
-  fun logWardInterceptor(client: LogWardClient) = LogWardInterceptor(
+  fun logTideInterceptor(client: LogTideClient) = LogTideInterceptor(
       client = client,
       serviceName = "spring-boot-app",
       logRequests = true,
@@ -373,7 +373,7 @@ class LogWardConfig : WebMvcConfigurer {
   )
 
   override fun addInterceptors(registry: InterceptorRegistry) {
-      registry.addInterceptor(logWardInterceptor(logWardClient()))
+      registry.addInterceptor(logTideInterceptor(logTideClient()))
   }
 }`}
           />
@@ -387,21 +387,21 @@ class LogWardConfig : WebMvcConfigurer {
           </p>
           <Code
               lang="kotlin"
-              theme="github-dark"
-              code={`import dev.logward.sdk.LogWardClient
-import dev.logward.sdk.middleware.LogWardFilter
-import dev.logward.sdk.models.LogWardClientOptions
+              theme="one-dark-pro"
+              code={`import dev.logtide.sdk.LogTideClient
+import dev.logtide.sdk.middleware.LogTideFilter
+import dev.logtide.sdk.models.LogTideClientOptions
 
 // Create client
-val client = LogWardClient(
-  LogWardClientOptions(
+val client = LogTideClient(
+  LogTideClientOptions(
       apiUrl = "http://localhost:8080",
       apiKey = "lp_your_api_key_here"
   )
 )
 
 // Create filter
-val filter = LogWardFilter(
+val filter = LogTideFilter(
   client = client,
   serviceName = "servlet-app",
   logRequests = true,
@@ -410,7 +410,7 @@ val filter = LogWardFilter(
 )
 
 // Add to servlet context
-servletContext.addFilter("logWard", filter)`}
+servletContext.addFilter("logTide", filter)`}
           />
       </div>
   </div>
@@ -427,7 +427,7 @@ servletContext.addFilter("logWard", filter)`}
           <h3 id="basic-query" class="text-lg font-semibold mb-3 scroll-mt-24">Basic Query</h3>
           <Code
               lang="kotlin"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`// Search logs
 val result = client.query(
   service = "api-gateway",
@@ -448,7 +448,7 @@ result.logs.forEach { log ->
           <h3 id="full-text-search" class="text-lg font-semibold mb-3 scroll-mt-24">Full-Text Search</h3>
           <Code
               lang="kotlin"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`val result = client.query(
   q = "timeout OR connection",  // Full-text search
   level = "error",
@@ -461,7 +461,7 @@ result.logs.forEach { log ->
           <h3 id="get-logs-by-trace-id" class="text-lg font-semibold mb-3 scroll-mt-24">Get Logs by Trace ID</h3>
           <Code
               lang="kotlin"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`val logs = client.getLogsByTraceId(
   traceId = "550e8400-e29b-41d4-a716-446655440000"
 )
@@ -484,7 +484,7 @@ logs.forEach { log ->
   <div class="mb-8">
       <Code
           lang="kotlin"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`// Stream logs in real-time
 client.liveTail(
   service = "api-gateway",
@@ -508,7 +508,7 @@ client.liveTail(
   <div class="mb-8">
       <Code
           lang="kotlin"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`// Get internal metrics
 val metrics = client.getMetrics()
 

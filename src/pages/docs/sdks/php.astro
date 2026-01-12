@@ -22,14 +22,14 @@ const headings = [
 
 <DocsLayout
   title="PHP SDK"
-  description="Official PHP SDK for LogWard with strict types, batching, and PSR-15 middleware."
+  description="Official PHP SDK for LogTide with strict types, batching, and PSR-15 middleware."
   headings={headings}
 >
   <div class="flex items-center justify-between mb-4">
       <h1 class="text-3xl font-bold">PHP SDK</h1>
       <div class="flex items-center gap-2">
           <a
-              href="https://github.com/logward-dev/logward-sdk-php"
+              href="https://github.com/logtide-dev/logtide-sdk-php"
               target="_blank"
               rel="noopener noreferrer"
           >
@@ -39,7 +39,7 @@ const headings = [
               </Button>
           </a>
           <a
-              href="https://packagist.org/packages/logward/sdk-php"
+              href="https://packagist.org/packages/logtide/sdk-php"
               target="_blank"
               rel="noopener noreferrer"
           >
@@ -52,7 +52,7 @@ const headings = [
   </div>
 
   <p class="text-lg text-muted-foreground mb-8">
-      Official PHP SDK for LogWard with strict types, automatic batching,
+      Official PHP SDK for LogTide with strict types, automatic batching,
       retry logic, and Laravel/Symfony/PSR-15 middleware.
   </p>
 
@@ -65,7 +65,7 @@ const headings = [
 
   <div class="mb-8">
       <p class="mb-3 text-muted-foreground">Requires PHP 8.1 or higher</p>
-      <Code lang="bash" theme="github-dark" code={`composer require logward/sdk-php`} />
+      <Code lang="bash" theme="one-dark-pro" code={`composer require logtide/sdk-php`} />
   </div>
 
   <h2
@@ -78,13 +78,13 @@ const headings = [
   <div class="mb-8">
       <Code
           lang="php"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`<?php
 
-use LogWard\\SDK\\LogWardClient;
-use LogWard\\SDK\\Models\\LogWardClientOptions;
+use LogTide\\SDK\\LogTideClient;
+use LogTide\\SDK\\Models\\LogTideClientOptions;
 
-$client = new LogWardClient(new LogWardClientOptions(
+$client = new LogTideClient(new LogTideClientOptions(
   apiUrl: 'http://localhost:8080',
   apiKey: 'lp_your_api_key_here',
 ));
@@ -143,10 +143,10 @@ $client->error('database', 'Connection failed', new PDOException('Timeout'));
   <div class="mb-8">
       <Code
           lang="php"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`<?php
 
-$client = new LogWardClient(new LogWardClientOptions(
+$client = new LogTideClient(new LogTideClientOptions(
   // Required
   apiUrl: 'http://localhost:8080',
   apiKey: 'lp_your_api_key',
@@ -186,7 +186,7 @@ $client = new LogWardClient(new LogWardClientOptions(
           <h3 id="basic-logging" class="text-lg font-semibold mb-3 scroll-mt-24">Basic Logging</h3>
           <Code
               lang="php"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`<?php
 
 // Log levels: debug, info, warn, error, critical
@@ -202,7 +202,7 @@ $client->critical('system', 'Out of memory', ['used' => '95%']);`}
           <h3 id="scoped-trace-id" class="text-lg font-semibold mb-3 scroll-mt-24">Scoped Trace ID</h3>
           <Code
               lang="php"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`<?php
 
 // All logs within this scope have the same trace_id
@@ -226,19 +226,19 @@ $client->withTraceId('550e8400-e29b-41d4-a716-446655440000', function() use ($cl
           <h3 id="laravel-middleware" class="text-lg font-semibold mb-3 scroll-mt-24">Laravel Middleware</h3>
           <Code
               lang="php"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`<?php
 
 // app/Http/Kernel.php
 protected $middleware = [
   // ... other middleware
-  \\LogWard\\SDK\\Middleware\\LaravelLogWardMiddleware::class,
+  \\LogTide\\SDK\\Middleware\\LaravelLogTideMiddleware::class,
 ];
 
 // config/services.php
-'logward' => [
-  'api_url' => env('LOGWARD_API_URL', 'http://localhost'),
-  'api_key' => env('LOGWARD_API_KEY'),
+'logtide' => [
+  'api_url' => env('LOGTIDE_API_URL', 'http://localhost'),
+  'api_key' => env('LOGTIDE_API_KEY'),
 ],`}
           />
       </div>
@@ -247,24 +247,24 @@ protected $middleware = [
           <h3 id="symfony-subscriber" class="text-lg font-semibold mb-3 scroll-mt-24">Symfony Event Subscriber</h3>
           <Code
               lang="php"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`<?php
 
 // config/services.yaml
 services:
-  LogWard\\SDK\\Middleware\\SymfonyLogWardSubscriber:
+  LogTide\\SDK\\Middleware\\SymfonyLogTideSubscriber:
       arguments:
-          $client: '@LogWard\\SDK\\LogWardClient'
+          $client: '@LogTide\\SDK\\LogTideClient'
       tags:
           - { name: kernel.event_subscriber }
   
-  LogWard\\SDK\\LogWardClient:
+  LogTide\\SDK\\LogTideClient:
       arguments:
           $options: !service
-              class: LogWard\\SDK\\Models\\LogWardClientOptions
+              class: LogTide\\SDK\\Models\\LogTideClientOptions
               arguments:
-                  $apiUrl: '%env(LOGWARD_API_URL)%'
-                  $apiKey: '%env(LOGWARD_API_KEY)%'
+                  $apiUrl: '%env(LOGTIDE_API_URL)%'
+                  $apiKey: '%env(LOGTIDE_API_KEY)%'
 `}
           />
       </div>
@@ -273,12 +273,12 @@ services:
           <h3 id="psr15-middleware" class="text-lg font-semibold mb-3 scroll-mt-24">PSR-15 Middleware</h3>
           <Code
               lang="php"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`<?php
 
-use LogWard\\SDK\\Middleware\\Psr15LogWardMiddleware;
+use LogTide\\SDK\\Middleware\\Psr15LogTideMiddleware;
 
-$middleware = new Psr15LogWardMiddleware($client);
+$middleware = new Psr15LogTideMiddleware($client);
 
 // Add to your PSR-15 middleware stack
 $app->pipe($middleware);`}
@@ -296,7 +296,7 @@ $app->pipe($middleware);`}
   <div class="mb-8">
       <Code
           lang="php"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`<?php
 
 // Search logs

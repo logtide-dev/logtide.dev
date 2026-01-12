@@ -13,9 +13,9 @@ const headings = [
   { text: "Why Migrate from Splunk?", slug: "why-migrate", depth: 2 },
   { text: "Feature Comparison", slug: "feature-comparison", depth: 2 },
   { text: "Step 1: Inventory Your Splunk Setup", slug: "step-1", depth: 2 },
-  { text: "Step 2: Deploy LogWard", slug: "step-2", depth: 2 },
+  { text: "Step 2: Deploy LogTide", slug: "step-2", depth: 2 },
   { text: "Step 3: Replace Universal Forwarder", slug: "step-3", depth: 2 },
-  { text: "Step 4: Query Migration (SPL to LogWard)", slug: "step-4", depth: 2 },
+  { text: "Step 4: Query Migration (SPL to LogTide)", slug: "step-4", depth: 2 },
   { text: "Step 5: Alert Migration", slug: "step-5", depth: 2 },
   { text: "Step 6: Security Detection Migration", slug: "step-6", depth: 2 },
   { text: "Concept Mapping", slug: "concept-mapping", depth: 2 },
@@ -26,7 +26,7 @@ const headings = [
 
 <DocsLayout
   title="Migrate from Splunk"
-  description="Replace Splunk's expensive licensing model with LogWard's self-hosted solution."
+  description="Replace Splunk's expensive licensing model with LogTide's self-hosted solution."
   headings={headings}
 >
   <div class="flex items-center justify-between mb-4">
@@ -43,7 +43,7 @@ const headings = [
   </div>
 
   <p class="text-lg text-muted-foreground mb-8">
-      Replace Splunk's expensive licensing model with LogWard's self-hosted solution.
+      Replace Splunk's expensive licensing model with LogTide's self-hosted solution.
       Get native Sigma rules support for security detection without vendor lock-in.
   </p>
 
@@ -63,7 +63,7 @@ const headings = [
                       <h3 class="font-semibold mb-1">Eliminate License Costs</h3>
                       <p class="text-sm text-muted-foreground">
                           Splunk charges per GB/day indexed. Enterprise customers often pay
-                          $50K-$500K+/year. LogWard is open-source with only infrastructure costs.
+                          $50K-$500K+/year. LogTide is open-source with only infrastructure costs.
                       </p>
                   </div>
               </div>
@@ -93,7 +93,7 @@ const headings = [
                       <h3 class="font-semibold mb-1">Simpler Architecture</h3>
                       <p class="text-sm text-muted-foreground">
                           No more indexer clusters, search heads, or deployment servers.
-                          LogWard runs as a single Docker Compose stack.
+                          LogTide runs as a single Docker Compose stack.
                       </p>
                   </div>
               </div>
@@ -129,7 +129,7 @@ const headings = [
               <tr>
                   <th class="px-4 py-3 text-left border-b border-border">Feature</th>
                   <th class="px-4 py-3 text-left border-b border-border">Splunk</th>
-                  <th class="px-4 py-3 text-left border-b border-border">LogWard</th>
+                  <th class="px-4 py-3 text-left border-b border-border">LogTide</th>
               </tr>
           </thead>
           <tbody>
@@ -234,7 +234,7 @@ const headings = [
 
       <Code
           lang="bash"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`# Export saved searches (alerts)
 curl -k -u admin:password \
 "https://splunk:8089/servicesNS/-/-/saved/searches?output_mode=json" \
@@ -255,7 +255,7 @@ curl -k -u admin:password \
       id="step-2"
       class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
   >
-      Step 2: Deploy LogWard
+      Step 2: Deploy LogTide
   </h2>
 
   <div class="mb-8">
@@ -266,10 +266,10 @@ curl -k -u admin:password \
 
       <Code
           lang="bash"
-          theme="github-dark"
-          code={`# Clone LogWard
-git clone https://github.com/logward-dev/logward.git
-cd logward/docker
+          theme="one-dark-pro"
+          code={`# Clone LogTide
+git clone https://github.com/logtide-dev/logtide.git
+cd logtide/docker
 
 # Configure
 cp .env.example .env
@@ -296,7 +296,7 @@ curl http://localhost:8080/health`}
 
   <div class="mb-8">
       <p class="mb-4">
-          Replace Splunk Universal Forwarder with Fluent Bit to send logs to LogWard.
+          Replace Splunk Universal Forwarder with Fluent Bit to send logs to LogTide.
       </p>
 
       <div class="grid md:grid-cols-2 gap-4 mb-6">
@@ -307,7 +307,7 @@ curl http://localhost:8080/health`}
               <CardContent>
                   <Code
                       lang="ini"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`# inputs.conf
 [monitor:///var/log/app/*.log]
 index = main
@@ -330,7 +330,7 @@ server = splunk-indexer:9997`}
               <CardContent>
                   <Code
                       lang="ini"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`[SERVICE]
   Flush         1
   Log_Level     info
@@ -343,7 +343,7 @@ server = splunk-indexer:9997`}
 [OUTPUT]
   Name          http
   Match         *
-  Host          logward.internal
+  Host          logtide.internal
   Port          8080
   URI           /api/v1/ingest
   Format        json
@@ -355,7 +355,7 @@ server = splunk-indexer:9997`}
 
       <h3 class="text-lg font-semibold mb-3">HEC Migration</h3>
       <p class="mb-4">
-          If you're using Splunk HTTP Event Collector, migrate to LogWard's HTTP API:
+          If you're using Splunk HTTP Event Collector, migrate to LogTide's HTTP API:
       </p>
 
       <div class="grid md:grid-cols-2 gap-4">
@@ -366,7 +366,7 @@ server = splunk-indexer:9997`}
               <CardContent>
                   <Code
                       lang="bash"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`curl -X POST \ 
 "https://splunk:8088/services/collector" \ 
 -H "Authorization: Splunk HEC_TOKEN" \ 
@@ -381,14 +381,14 @@ server = splunk-indexer:9997`}
 
           <Card>
               <CardHeader class="pb-2">
-                  <CardTitle class="text-base">After (LogWard API)</CardTitle>
+                  <CardTitle class="text-base">After (LogTide API)</CardTitle>
               </CardHeader>
               <CardContent>
                   <Code
                       lang="bash"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`curl -X POST \ 
-"http://logward:8080/api/v1/ingest" \ 
+"http://logtide:8080/api/v1/ingest" \ 
 -H "X-API-Key: lp_xxx" \ 
 -H "Content-Type: application/json" \ 
 -d '{ 
@@ -408,12 +408,12 @@ server = splunk-indexer:9997`}
       id="step-4"
       class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
   >
-      Step 4: Query Migration (SPL to LogWard)
+      Step 4: Query Migration (SPL to LogTide)
   </h2>
 
   <div class="mb-8">
       <p class="mb-4">
-          Splunk uses SPL (Search Processing Language). LogWard uses REST API parameters.
+          Splunk uses SPL (Search Processing Language). LogTide uses REST API parameters.
           Here's how to translate common SPL queries:
       </p>
 
@@ -422,7 +422,7 @@ server = splunk-indexer:9997`}
               <thead class="bg-muted">
                   <tr>
                       <th class="px-4 py-2 text-left border-b border-border">SPL Query</th>
-                      <th class="px-4 py-2 text-left border-b border-border">LogWard API</th>
+                      <th class="px-4 py-2 text-left border-b border-border">LogTide API</th>
                   </tr>
               </thead>
               <tbody>
@@ -460,7 +460,7 @@ server = splunk-indexer:9997`}
 
   <div class="mb-8">
       <p class="mb-4">
-          Convert Splunk saved searches (alerts) to LogWard alert rules:
+          Convert Splunk saved searches (alerts) to LogTide alert rules:
       </p>
 
       <div class="grid md:grid-cols-2 gap-4 mb-6">
@@ -471,7 +471,7 @@ server = splunk-indexer:9997`}
               <CardContent>
                   <Code
                       lang="ini"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`# savedsearches.conf
 [High Error Rate]
 search = index=main level=ERROR
@@ -487,12 +487,12 @@ action.email.to = team@example.com`}
 
           <Card>
               <CardHeader class="pb-2">
-                  <CardTitle class="text-base">LogWard Alert Rule</CardTitle>
+                  <CardTitle class="text-base">LogTide Alert Rule</CardTitle>
               </CardHeader>
               <CardContent>
                   <Code
                       lang="json"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`{
 "name": "High Error Rate",
 "enabled": true,
@@ -518,7 +518,7 @@ action.email.to = team@example.com`}
 
   <div class="mb-8">
       <p class="mb-4">
-          If you're using Splunk Enterprise Security, migrate to LogWard's Sigma-based detection:
+          If you're using Splunk Enterprise Security, migrate to LogTide's Sigma-based detection:
       </p>
 
       <Card class="mb-4">
@@ -549,7 +549,7 @@ action.email.to = team@example.com`}
 
       <Code
           lang="yaml"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`title: Suspicious PowerShell Command
 status: stable
 level: high
@@ -570,7 +570,7 @@ tags:
       />
 
       <p class="mt-4">
-          Import Sigma rules via the LogWard UI at <code class="bg-muted px-1 rounded">/dashboard/security/sigma</code>.
+          Import Sigma rules via the LogTide UI at <code class="bg-muted px-1 rounded">/dashboard/security/sigma</code>.
       </p>
   </div>
 
@@ -586,7 +586,7 @@ tags:
           <thead class="bg-muted">
               <tr>
                   <th class="px-4 py-2 text-left border-b border-border">Splunk Term</th>
-                  <th class="px-4 py-2 text-left border-b border-border">LogWard Equivalent</th>
+                  <th class="px-4 py-2 text-left border-b border-border">LogTide Equivalent</th>
                   <th class="px-4 py-2 text-left border-b border-border">Notes</th>
               </tr>
           </thead>
@@ -594,7 +594,7 @@ tags:
               <tr>
                   <td class="px-4 py-2 border-b border-border">Index</td>
                   <td class="px-4 py-2 border-b border-border">Project</td>
-                  <td class="px-4 py-2 border-b border-border">One Splunk index = One LogWard project</td>
+                  <td class="px-4 py-2 border-b border-border">One Splunk index = One LogTide project</td>
               </tr>
               <tr>
                   <td class="px-4 py-2 border-b border-border">Sourcetype</td>
@@ -656,7 +656,7 @@ tags:
               </CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              Splunk auto-extracts fields with props.conf. LogWard expects JSON logs.
+              Splunk auto-extracts fields with props.conf. LogTide expects JSON logs.
               Use Fluent Bit parsers to structure logs before sending, or update your
               application to emit JSON.
           </CardContent>
@@ -671,7 +671,7 @@ tags:
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
               Complex SPL with pipes, stats, and evals need to be rethought.
-              Use LogWard's aggregation API for time-series stats. For complex
+              Use LogTide's aggregation API for time-series stats. For complex
               transformations, consider processing in your application.
           </CardContent>
       </Card>
@@ -684,7 +684,7 @@ tags:
               </CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              LogWard uses <code class="bg-muted px-1 rounded">time</code> field (ISO 8601 format), not <code class="bg-muted px-1 rounded">_time</code>.
+              LogTide uses <code class="bg-muted px-1 rounded">time</code> field (ISO 8601 format), not <code class="bg-muted px-1 rounded">_time</code>.
               Ensure your log shipper sets the correct timestamp field.
           </CardContent>
       </Card>

@@ -15,7 +15,7 @@ const migrations = [
       slug: "datadog",
       difficulty: "Medium",
       estimatedTime: "4-8 hours",
-      description: "Migrate from Datadog's proprietary platform to LogWard and save up to 90% on log costs.",
+      description: "Migrate from Datadog's proprietary platform to LogTide and save up to 90% on log costs.",
       highlights: ["No per-GB pricing", "Self-hosted", "Full SIEM included"]
   },
   {
@@ -23,15 +23,15 @@ const migrations = [
       slug: "splunk",
       difficulty: "Medium",
       estimatedTime: "6-12 hours",
-      description: "Replace Splunk Universal Forwarder with LogWard's lightweight SDK and native Sigma rules.",
-      highlights: ["SPL to LogWard query mapping", "Sigma rules support", "No license fees"]
+      description: "Replace Splunk Universal Forwarder with LogTide's lightweight SDK and native Sigma rules.",
+      highlights: ["SPL to LogTide query mapping", "Sigma rules support", "No license fees"]
   },
   {
       name: "ELK Stack",
       slug: "elk",
       difficulty: "Easy",
       estimatedTime: "3-6 hours",
-      description: "Simplify your ELK (Elasticsearch, Logstash, Kibana) stack with LogWard's all-in-one solution.",
+      description: "Simplify your ELK (Elasticsearch, Logstash, Kibana) stack with LogTide's all-in-one solution.",
       highlights: ["No cluster management", "Built-in SIEM", "Similar query syntax"]
   },
   {
@@ -47,7 +47,7 @@ const migrations = [
       slug: "loki",
       difficulty: "Easy",
       estimatedTime: "4-6 hours",
-      description: "Move from Loki to LogWard for built-in alerting, SIEM capabilities, and richer querying.",
+      description: "Move from Loki to LogTide for built-in alerting, SIEM capabilities, and richer querying.",
       highlights: ["Built-in alerting", "No Prometheus dependency", "Full-text search"]
   }
 ];
@@ -81,7 +81,7 @@ function getDifficultyColor(difficulty: string): string {
 }
 
 const headings = [
-  { text: "Why Migrate to LogWard?", slug: "why-migrate", depth: 2 },
+  { text: "Why Migrate to LogTide?", slug: "why-migrate", depth: 2 },
   { text: "Choose Your Migration Path", slug: "migration-guides", depth: 2 },
   { text: "General Migration Process", slug: "migration-process", depth: 2 },
   { text: "Need Help?", slug: "need-help", depth: 2 }
@@ -90,12 +90,12 @@ const headings = [
 
 <DocsLayout
   title="Migration Guides"
-  description="Step-by-step guides to migrate from your current log management platform to LogWard."
+  description="Step-by-step guides to migrate from your current log management platform to LogTide."
   headings={headings}
 >
   <h1 class="text-3xl font-bold mb-4">Migration Guides</h1>
   <p class="text-lg text-muted-foreground mb-8">
-      Step-by-step guides to migrate from your current log management platform to LogWard.
+      Step-by-step guides to migrate from your current log management platform to LogTide.
       Each guide includes feature comparisons, SDK migration examples, and alert conversion strategies.
   </p>
 
@@ -103,7 +103,7 @@ const headings = [
       id="why-migrate"
       class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
   >
-      Why Migrate to LogWard?
+      Why Migrate to LogTide?
   </h2>
 
   <div class="mb-8 grid md:grid-cols-2 gap-4">
@@ -201,9 +201,9 @@ const headings = [
                           2
                       </div>
                       <div>
-                          <h3 id="deploy-logward" class="font-semibold mb-1 scroll-mt-24">Deploy LogWard</h3>
+                          <h3 id="deploy-logtide" class="font-semibold mb-1 scroll-mt-24">Deploy LogTide</h3>
                           <p class="text-sm text-muted-foreground">
-                              Set up LogWard using Docker Compose. Create your organization, project, and generate an API key.
+                              Set up LogTide using Docker Compose. Create your organization, project, and generate an API key.
                               See the <a href="/docs/deployment" class="text-primary hover:underline">Deployment Guide</a> for details.
                           </p>
                       </div>
@@ -237,7 +237,7 @@ const headings = [
                       <div>
                           <h3 id="migrate-alerts-dashboards" class="font-semibold mb-1 scroll-mt-24">Migrate Alerts & Dashboards</h3>
                           <p class="text-sm text-muted-foreground">
-                              Convert your alert rules to LogWard's format. Recreate critical dashboards.
+                              Convert your alert rules to LogTide's format. Recreate critical dashboards.
                               Test notifications (email, Slack, webhooks).
                           </p>
                       </div>
@@ -254,7 +254,7 @@ const headings = [
                       <div>
                           <h3 id="cutover-cleanup" class="font-semibold mb-1 scroll-mt-24">Cutover & Cleanup</h3>
                           <p class="text-sm text-muted-foreground">
-                              Once validated, update production configs to use LogWard exclusively.
+                              Once validated, update production configs to use LogTide exclusively.
                               Decommission the old platform and remove unused agents.
                           </p>
                       </div>
@@ -281,7 +281,7 @@ const headings = [
                   <li class="flex items-center gap-2">
                       <Icon name="lucide:check" class="w-4 h-4 text-green-500" />
                       <span>
-                          <a href="https://github.com/logward-dev/logward/issues" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">
+                          <a href="https://github.com/logtide-dev/logtide/issues" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">
                               Open a GitHub issue
                           </a> for bugs or feature requests
                       </span>
@@ -289,7 +289,7 @@ const headings = [
                   <li class="flex items-center gap-2">
                       <Icon name="lucide:check" class="w-4 h-4 text-green-500" />
                       <span>
-                          <a href="https://github.com/logward-dev/logward/discussions" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">
+                          <a href="https://github.com/logtide-dev/logtide/discussions" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">
                               Join GitHub Discussions
                           </a> for questions and community support
                       </span>

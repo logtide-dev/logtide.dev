@@ -23,14 +23,14 @@ const headings = [
 
 <DocsLayout
   title="Go SDK"
-  description="Official Go SDK for LogWard with batching, retry logic, and OpenTelemetry integration."
+  description="Official Go SDK for LogTide with batching, retry logic, and OpenTelemetry integration."
   headings={headings}
 >
   <div class="flex items-center justify-between mb-4">
       <h1 class="text-3xl font-bold">Go SDK</h1>
       <div class="flex items-center gap-2">
           <a
-              href="https://github.com/logward-dev/logward-sdk-go"
+              href="https://github.com/logtide-dev/logtide-sdk-go"
               target="_blank"
               rel="noopener noreferrer"
           >
@@ -40,7 +40,7 @@ const headings = [
               </Button>
           </a>
           <a
-              href="https://pkg.go.dev/github.com/logward-dev/logward-sdk-go"
+              href="https://pkg.go.dev/github.com/logtide-dev/logtide-sdk-go"
               target="_blank"
               rel="noopener noreferrer"
           >
@@ -53,7 +53,7 @@ const headings = [
   </div>
 
   <p class="text-lg text-muted-foreground mb-8">
-      Official Go SDK for LogWard with automatic batching, retry logic,
+      Official Go SDK for LogTide with automatic batching, retry logic,
       circuit breaker pattern, and native OpenTelemetry integration.
   </p>
 
@@ -67,8 +67,8 @@ const headings = [
   <div class="mb-8">
       <Code
           lang="bash"
-          theme="github-dark"
-          code={`go get github.com/logward-dev/logward-sdk-go`}
+          theme="one-dark-pro"
+          code={`go get github.com/logtide-dev/logtide-sdk-go`}
       />
   </div>
 
@@ -82,18 +82,18 @@ const headings = [
   <div class="mb-8">
       <Code
           lang="go"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`package main
 
 import (
   "context"
-  "github.com/logward-dev/logward-sdk-go"
+  "github.com/logtide-dev/logtide-sdk-go"
 )
 
 func main() {
-  client, err := logward.New(
-      logward.WithAPIKey("lp_your_api_key"),
-      logward.WithService("my-service"),
+  client, err := logtide.New(
+      logtide.WithAPIKey("lp_your_api_key"),
+      logtide.WithService("my-service"),
   )
   if err != nil {
       panic(err)
@@ -147,26 +147,26 @@ func main() {
   <div class="mb-8">
       <Code
           lang="go"
-          theme="github-dark"
-          code={`client, err := logward.New(
+          theme="one-dark-pro"
+          code={`client, err := logtide.New(
   // Required
-  logward.WithAPIKey("lp_your_api_key"),
-  logward.WithService("my-service"),
+  logtide.WithAPIKey("lp_your_api_key"),
+  logtide.WithService("my-service"),
 
   // Optional - API
-  logward.WithBaseURL("https://api.logward.dev"),
+  logtide.WithBaseURL("https://api.logtide.dev"),
 
   // Optional - Performance
-  logward.WithBatchSize(100),              // Max logs per batch (default: 100)
-  logward.WithFlushInterval(5*time.Second), // Flush interval (default: 5s)
-  logward.WithTimeout(30*time.Second),      // HTTP timeout (default: 30s)
+  logtide.WithBatchSize(100),              // Max logs per batch (default: 100)
+  logtide.WithFlushInterval(5*time.Second), // Flush interval (default: 5s)
+  logtide.WithTimeout(30*time.Second),      // HTTP timeout (default: 30s)
 
   // Optional - Reliability
-  logward.WithRetry(3, 1*time.Second, 60*time.Second), // maxRetries, delay, maxDelay
-  logward.WithCircuitBreaker(5, 30*time.Second),       // threshold, timeout
+  logtide.WithRetry(3, 1*time.Second, 60*time.Second), // maxRetries, delay, maxDelay
+  logtide.WithCircuitBreaker(5, 30*time.Second),       // threshold, timeout
 
   // Optional - Metadata
-  logward.WithGlobalMetadata(map[string]any{
+  logtide.WithGlobalMetadata(map[string]any{
       "environment": "production",
       "version":     "1.0.0",
   }),
@@ -186,7 +186,7 @@ func main() {
           <h3 id="basic-logging" class="text-lg font-semibold mb-3 scroll-mt-24">Basic Logging</h3>
           <Code
               lang="go"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`ctx := context.Background()
 
 // Log levels: Debug, Info, Warn, Error, Critical
@@ -202,9 +202,9 @@ client.Critical(ctx, "Out of memory", map[string]any{"used": "95%"})`}
           <h3 id="with-trace-id" class="text-lg font-semibold mb-3 scroll-mt-24">With Trace ID</h3>
           <Code
               lang="go"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`// Add trace ID to context
-ctx := logward.WithTraceID(context.Background(), "550e8400-e29b-41d4-a716-446655440000")
+ctx := logtide.WithTraceID(context.Background(), "550e8400-e29b-41d4-a716-446655440000")
 
 // All logs will include the trace ID
 client.Info(ctx, "Processing request", nil)
@@ -223,15 +223,15 @@ client.Info(ctx, "Query executed", nil)`}
   <div class="mb-8">
       <Code
           lang="go"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`err := client.Info(ctx, "message", nil)
 if err != nil {
   switch {
-  case errors.Is(err, logward.ErrClientClosed):
+  case errors.Is(err, logtide.ErrClientClosed):
       // Client was closed, logs won't be sent
-  case errors.Is(err, logward.ErrCircuitOpen):
+  case errors.Is(err, logtide.ErrCircuitOpen):
       // Circuit breaker is open, too many failures
-  case errors.Is(err, logward.ErrInvalidAPIKey):
+  case errors.Is(err, logtide.ErrInvalidAPIKey):
       // Invalid API key configuration
   default:
       // Other error
@@ -251,7 +251,7 @@ if err != nil {
   <div class="mb-8">
       <Code
           lang="go"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`import (
   "go.opentelemetry.io/otel"
 )
@@ -287,8 +287,8 @@ func handleRequest(ctx context.Context) {
           <h3 id="standard-library" class="text-lg font-semibold mb-3 scroll-mt-24">Standard Library</h3>
           <Code
               lang="go"
-              theme="github-dark"
-              code={`func LoggingMiddleware(client *logward.Client) func(http.Handler) http.Handler {
+              theme="one-dark-pro"
+              code={`func LoggingMiddleware(client *logtide.Client) func(http.Handler) http.Handler {
   return func(next http.Handler) http.Handler {
       return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
           start := time.Now()
@@ -319,8 +319,8 @@ http.ListenAndServe(":8080", handler)`}
           <h3 id="gin-framework" class="text-lg font-semibold mb-3 scroll-mt-24">Gin Framework</h3>
           <Code
               lang="go"
-              theme="github-dark"
-              code={`func GinLoggingMiddleware(client *logward.Client) gin.HandlerFunc {
+              theme="one-dark-pro"
+              code={`func GinLoggingMiddleware(client *logtide.Client) gin.HandlerFunc {
   return func(c *gin.Context) {
       start := time.Now()
 
@@ -392,7 +392,7 @@ r.Use(GinLoggingMiddleware(client))`}
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
               Check for specific errors like <code class="bg-muted px-1 rounded">ErrCircuitOpen</code> to implement
-              fallback logging strategies when LogWard is unavailable.
+              fallback logging strategies when LogTide is unavailable.
           </CardContent>
       </Card>
   </div>

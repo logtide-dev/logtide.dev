@@ -19,7 +19,7 @@ const headings = [
 ---
 
 <DocsLayout
-  title="LogWard Documentation"
+  title="LogTide Documentation"
   description="Privacy-first log management. Self-hosted or use our cloud."
   headings={headings}
 >
@@ -27,11 +27,11 @@ const headings = [
   <!-- Hero Section -->
   <div class="mb-12">
     <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
-      LogWard Documentation
+      LogTide Documentation
     </h1>
     <p class="text-xl text-muted-foreground">
       Privacy-first log management. Self-hosted or use our cloud at
-      <code class="px-2 py-1 bg-muted rounded">api.logward.dev</code>.
+      <code class="px-2 py-1 bg-muted rounded">api.logtide.dev</code>.
     </p>
   </div>
 
@@ -68,10 +68,10 @@ const headings = [
             </li>
             <li class="flex items-start gap-2">
               <Icon name="lucide:check-circle" class="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-              <span>API endpoint: <code class="bg-muted px-1 py-0.5 rounded text-xs font-mono">api.logward.dev</code></span>
+              <span>API endpoint: <code class="bg-muted px-1 py-0.5 rounded text-xs font-mono">api.logtide.dev</code></span>
             </li>
           </ul>
-          <a href="https://logward.dev" target="_blank">
+          <a href="https://logtide.dev" target="_blank">
             <Button variant="default" size="sm" class="gap-1">
               Sign Up Free
               <Icon name="lucide:arrow-right" class="w-3 h-3" />
@@ -134,19 +134,19 @@ const headings = [
             Cloud: Start in 2 Minutes
           </CardTitle>
           <CardDescription>
-            Use LogWard Cloud - no installation needed
+            Use LogTide Cloud - no installation needed
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Code
             lang="bash"
-            theme="github-dark"
-            code={`# 1. Sign up at https://logward.dev
+            theme="one-dark-pro"
+            code={`# 1. Sign up at https://logtide.dev
 # 2. Create an organization and project
 # 3. Generate an API key
 # 4. Start sending logs:
 
-curl -X POST https://api.logward.dev/api/v1/ingest \
+curl -X POST https://api.logtide.dev/api/v1/ingest \
   -H "X-API-Key: lp_your_api_key_here" \
   -H "Content-Type: application/json" \
   -d '{
@@ -154,7 +154,7 @@ curl -X POST https://api.logward.dev/api/v1/ingest \
       "time": "2025-01-23T10:30:00Z",
       "service": "my-app",
       "level": "info",
-      "message": "Hello from LogWard Cloud!"
+      "message": "Hello from LogTide Cloud!"
     }]
   }'`}
           />
@@ -168,7 +168,7 @@ curl -X POST https://api.logward.dev/api/v1/ingest \
             Self-Hosted: Deploy in 2 Minutes
           </CardTitle>
           <CardDescription>
-            Run LogWard on your infrastructure with pre-built Docker images
+            Run LogTide on your infrastructure with pre-built Docker images
           </CardDescription>
         </CardHeader>
         <CardContent class="space-y-4">
@@ -177,10 +177,10 @@ curl -X POST https://api.logward.dev/api/v1/ingest \
           </p>
           <Code
             lang="bash"
-            theme="github-dark"
-            code={`mkdir logward && cd logward
-curl -O https://raw.githubusercontent.com/logward-dev/logward/main/docker/docker-compose.yml
-curl -O https://raw.githubusercontent.com/logward-dev/logward/main/docker/.env.example
+            theme="one-dark-pro"
+            code={`mkdir logtide && cd logtide
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/docker-compose.yml
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/.env.example
 mv .env.example .env`}
           />
           <p class="text-sm text-muted-foreground">
@@ -188,17 +188,17 @@ mv .env.example .env`}
           </p>
           <Code
             lang="bash"
-            theme="github-dark"
+            theme="one-dark-pro"
             code={`DB_PASSWORD=your_secure_db_password
 REDIS_PASSWORD=your_secure_redis_password
 API_KEY_SECRET=your_32_character_secret_key_here`}
           />
           <p class="text-sm text-muted-foreground">
-            3. Start LogWard:
+            3. Start LogTide:
           </p>
           <Code
             lang="bash"
-            theme="github-dark"
+            theme="one-dark-pro"
             code={`docker compose up -d
 
 # Frontend: http://localhost:3000
@@ -312,25 +312,25 @@ API_KEY_SECRET=your_32_character_secret_key_here`}
     </h3>
 
     <p class="text-muted-foreground mb-4">
-      After setting up LogWard, you can start sending logs immediately.
+      After setting up LogTide, you can start sending logs immediately.
       Here's a quick curl example:
     </p>
 
     <div class="space-y-4">
       <Code
         lang="bash"
-        theme="github-dark"
+        theme="one-dark-pro"
         code={`# Cloud
-curl -X POST https://api.logward.dev/api/v1/ingest \
+curl -X POST https://api.logtide.dev/api/v1/ingest \
   -H "X-API-Key: lp_your_api_key_here" \
   -H "Content-Type: application/json" \
-  -d '{"logs": [{"time": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'", "service": "my-app", "level": "info", "message": "Hello LogWard!"}]}'
+  -d '{"logs": [{"time": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'", "service": "my-app", "level": "info", "message": "Hello LogTide!"}]}'
 
 # Self-Hosted (replace with your host)
 curl -X POST http://localhost:8080/api/v1/ingest \
   -H "X-API-Key: lp_your_api_key_here" \
   -H "Content-Type: application/json" \
-  -d '{"logs": [{"time": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'", "service": "my-app", "level": "info", "message": "Hello LogWard!"}]}'`}
+  -d '{"logs": [{"time": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'", "service": "my-app", "level": "info", "message": "Hello LogTide!"}]}'`}
       />
 
       <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">

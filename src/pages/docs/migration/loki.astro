@@ -12,9 +12,9 @@ import { Icon } from 'astro-icon/components';
 const headings = [
   { text: "Why Migrate from Loki?", slug: "why-migrate", depth: 2 },
   { text: "Feature Comparison", slug: "feature-comparison", depth: 2 },
-  { text: "Step 1: Deploy LogWard", slug: "step-1", depth: 2 },
+  { text: "Step 1: Deploy LogTide", slug: "step-1", depth: 2 },
   { text: "Step 2: Replace Promtail with Fluent Bit", slug: "step-2", depth: 2 },
-  { text: "Step 3: Query Migration (LogQL to LogWard)", slug: "step-3", depth: 2 },
+  { text: "Step 3: Query Migration (LogQL to LogTide)", slug: "step-3", depth: 2 },
   { text: "Step 4: Create Alert Rules", slug: "step-4", depth: 2 },
   { text: "Step 5: Enable SIEM Features", slug: "step-5", depth: 2 },
   { text: "Concept Mapping", slug: "concept-mapping", depth: 2 },
@@ -25,7 +25,7 @@ const headings = [
 
 <DocsLayout
   title="Migrate from Grafana Loki"
-  description="Move from Loki to LogWard for built-in alerting, SIEM capabilities, and richer querying."
+  description="Move from Loki to LogTide for built-in alerting, SIEM capabilities, and richer querying."
   headings={headings}
 >
   <div class="flex items-center justify-between mb-4">
@@ -42,7 +42,7 @@ const headings = [
   </div>
 
   <p class="text-lg text-muted-foreground mb-8">
-      Migrate from Grafana Loki to LogWard for built-in alerting, SIEM capabilities,
+      Migrate from Grafana Loki to LogTide for built-in alerting, SIEM capabilities,
       and richer full-text search without needing separate tools for visualization and alerting.
   </p>
 
@@ -62,7 +62,7 @@ const headings = [
                       <h3 class="font-semibold mb-1">Built-in Alerting</h3>
                       <p class="text-sm text-muted-foreground">
                           Loki requires Prometheus AlertManager or Grafana Alerting for alerts.
-                          LogWard has native alert rules with email/webhook support.
+                          LogTide has native alert rules with email/webhook support.
                       </p>
                   </div>
               </div>
@@ -77,7 +77,7 @@ const headings = [
                       <h3 class="font-semibold mb-1">True Full-text Search</h3>
                       <p class="text-sm text-muted-foreground">
                           Loki uses label-based indexing with limited search.
-                          LogWard indexes log content for fast full-text search.
+                          LogTide indexes log content for fast full-text search.
                       </p>
                   </div>
               </div>
@@ -92,7 +92,7 @@ const headings = [
                       <h3 class="font-semibold mb-1">All-in-One Solution</h3>
                       <p class="text-sm text-muted-foreground">
                           No need for Grafana, Prometheus, or AlertManager.
-                          LogWard includes UI, alerting, and SIEM in one package.
+                          LogTide includes UI, alerting, and SIEM in one package.
                       </p>
                   </div>
               </div>
@@ -106,7 +106,7 @@ const headings = [
                   <div>
                       <h3 class="font-semibold mb-1">Security Detection</h3>
                       <p class="text-sm text-muted-foreground">
-                          Loki is pure log aggregation. LogWard includes Sigma rules,
+                          Loki is pure log aggregation. LogTide includes Sigma rules,
                           incident management, and MITRE ATT&CK mapping.
                       </p>
                   </div>
@@ -128,7 +128,7 @@ const headings = [
               <tr>
                   <th class="px-4 py-3 text-left border-b border-border">Feature</th>
                   <th class="px-4 py-3 text-left border-b border-border">Grafana Loki</th>
-                  <th class="px-4 py-3 text-left border-b border-border">LogWard</th>
+                  <th class="px-4 py-3 text-left border-b border-border">LogTide</th>
               </tr>
           </thead>
           <tbody>
@@ -195,7 +195,7 @@ const headings = [
       id="step-1"
       class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
   >
-      Step 1: Deploy LogWard
+      Step 1: Deploy LogTide
   </h2>
 
   <div class="mb-8">
@@ -205,10 +205,10 @@ const headings = [
 
       <Code
           lang="bash"
-          theme="github-dark"
-          code={`# Clone LogWard
-git clone https://github.com/logward-dev/logward.git
-cd logward/docker
+          theme="one-dark-pro"
+          code={`# Clone LogTide
+git clone https://github.com/logtide-dev/logtide.git
+cd logtide/docker
 
 # Configure
 cp .env.example .env
@@ -235,7 +235,7 @@ curl http://localhost:8080/health`}
 
   <div class="mb-8">
       <p class="mb-4">
-          Promtail is Loki's log shipper. Replace it with Fluent Bit to send logs to LogWard:
+          Promtail is Loki's log shipper. Replace it with Fluent Bit to send logs to LogTide:
       </p>
 
       <div class="grid md:grid-cols-2 gap-4 mb-6">
@@ -246,7 +246,7 @@ curl http://localhost:8080/health`}
               <CardContent>
                   <Code
                       lang="yaml"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`# promtail-config.yaml
 server:
 http_listen_port: 9080
@@ -276,7 +276,7 @@ scrape_configs:
               <CardContent>
                   <Code
                       lang="ini"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`# fluent-bit.conf
 [SERVICE]
   Flush        1
@@ -290,7 +290,7 @@ scrape_configs:
 [OUTPUT]
   Name         http
   Match        *
-  Host         logward.internal
+  Host         logtide.internal
   Port         8080
   URI          /api/v1/ingest
   Format       json
@@ -304,7 +304,7 @@ scrape_configs:
 
       <Code
           lang="yaml"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`# docker-compose.yml
 services:
 fluent-bit:
@@ -313,9 +313,9 @@ fluent-bit:
     - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
     - /var/log:/var/log:ro
   environment:
-    - LOGWARD_API_KEY=lp_your_api_key
+    - LOGTIDE_API_KEY=lp_your_api_key
   depends_on:
-    - logward`}
+    - logtide`}
       />
   </div>
 
@@ -323,12 +323,12 @@ fluent-bit:
       id="step-3"
       class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
   >
-      Step 3: Query Migration (LogQL to LogWard)
+      Step 3: Query Migration (LogQL to LogTide)
   </h2>
 
   <div class="mb-8">
       <p class="mb-4">
-          LogQL queries translate to LogWard REST API parameters:
+          LogQL queries translate to LogTide REST API parameters:
       </p>
 
       <div class="overflow-x-auto mb-6">
@@ -336,7 +336,7 @@ fluent-bit:
               <thead class="bg-muted">
                   <tr>
                       <th class="px-4 py-2 text-left border-b border-border">LogQL</th>
-                      <th class="px-4 py-2 text-left border-b border-border">LogWard API</th>
+                      <th class="px-4 py-2 text-left border-b border-border">LogTide API</th>
                   </tr>
               </thead>
               <tbody>
@@ -369,7 +369,7 @@ fluent-bit:
               <h3 class="font-semibold mb-2">Key Difference: Full-text Search</h3>
               <p class="text-sm text-muted-foreground">
                   Loki requires regex patterns (<code class="bg-muted px-1 rounded">|~</code>) to search log content because
-                  it doesn't index log bodies. LogWard indexes everything, so you can search
+                  it doesn't index log bodies. LogTide indexes everything, so you can search
                   any text with the <code class="bg-muted px-1 rounded">q</code> parameter without regex overhead.
               </p>
           </CardContent>
@@ -385,7 +385,7 @@ fluent-bit:
 
   <div class="mb-8">
       <p class="mb-4">
-          Loki alerting requires Grafana or Prometheus AlertManager. LogWard has native alerts:
+          Loki alerting requires Grafana or Prometheus AlertManager. LogTide has native alerts:
       </p>
 
       <div class="grid md:grid-cols-2 gap-4">
@@ -396,7 +396,7 @@ fluent-bit:
               <CardContent>
                   <Code
                       lang="yaml"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`# Grafana alert rule
 groups:
 - name: app-alerts
@@ -416,12 +416,12 @@ groups:
 
           <Card>
               <CardHeader class="pb-2">
-                  <CardTitle class="text-base">LogWard Alert Rule</CardTitle>
+                  <CardTitle class="text-base">LogTide Alert Rule</CardTitle>
               </CardHeader>
               <CardContent>
                   <Code
                       lang="json"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`{
 "name": "High Error Rate",
 "enabled": true,
@@ -440,7 +440,7 @@ groups:
       </div>
 
       <p class="mt-4">
-          Create alerts via the LogWard UI at <code class="bg-muted px-1 rounded">/dashboard/alerts</code> or via the API.
+          Create alerts via the LogTide UI at <code class="bg-muted px-1 rounded">/dashboard/alerts</code> or via the API.
       </p>
   </div>
 
@@ -453,12 +453,12 @@ groups:
 
   <div class="mb-8">
       <p class="mb-4">
-          LogWard includes SIEM capabilities that Loki doesn't have:
+          LogTide includes SIEM capabilities that Loki doesn't have:
       </p>
 
       <Card class="mb-4">
           <CardContent class="pt-4">
-              <h3 class="font-semibold mb-3">Security Features in LogWard</h3>
+              <h3 class="font-semibold mb-3">Security Features in LogTide</h3>
               <ul class="space-y-2 text-sm text-muted-foreground">
                   <li class="flex items-center gap-2">
                       <Icon name="lucide:check" class="w-4 h-4 text-green-500" />
@@ -497,7 +497,7 @@ groups:
           <thead class="bg-muted">
               <tr>
                   <th class="px-4 py-2 text-left border-b border-border">Loki Term</th>
-                  <th class="px-4 py-2 text-left border-b border-border">LogWard Equivalent</th>
+                  <th class="px-4 py-2 text-left border-b border-border">LogTide Equivalent</th>
                   <th class="px-4 py-2 text-left border-b border-border">Notes</th>
               </tr>
           </thead>
@@ -529,7 +529,7 @@ groups:
               </tr>
               <tr>
                   <td class="px-4 py-2 border-b border-border">Grafana</td>
-                  <td class="px-4 py-2 border-b border-border">LogWard UI</td>
+                  <td class="px-4 py-2 border-b border-border">LogTide UI</td>
                   <td class="px-4 py-2 border-b border-border">Built-in web interface</td>
               </tr>
               <tr>
@@ -540,7 +540,7 @@ groups:
               <tr>
                   <td class="px-4 py-2">N/A</td>
                   <td class="px-4 py-2">Sigma Rules + SIEM</td>
-                  <td class="px-4 py-2">LogWard exclusive</td>
+                  <td class="px-4 py-2">LogTide exclusive</td>
               </tr>
           </tbody>
       </table>
@@ -562,7 +562,7 @@ groups:
               </CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              Loki has strict label cardinality limits. LogWard is more flexible -
+              Loki has strict label cardinality limits. LogTide is more flexible -
               use the <code class="bg-muted px-1 rounded">service</code> field for core identity and put variable
               data in <code class="bg-muted px-1 rounded">metadata</code> JSON (not indexed, no cardinality issues).
           </CardContent>
@@ -576,9 +576,9 @@ groups:
               </CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              LogWard doesn't have Grafana-style custom dashboards yet.
+              LogTide doesn't have Grafana-style custom dashboards yet.
               Use the SIEM dashboard for security metrics. For custom visualizations,
-              you can query the LogWard API from external tools.
+              you can query the LogTide API from external tools.
           </CardContent>
       </Card>
 
@@ -591,7 +591,7 @@ groups:
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
               Loki uses pipeline stages (<code class="bg-muted px-1 rounded">| json</code>, <code class="bg-muted px-1 rounded">| logfmt</code>).
-              LogWard expects JSON logs - structure your logs in your application
+              LogTide expects JSON logs - structure your logs in your application
               or use Fluent Bit parsers before sending.
           </CardContent>
       </Card>

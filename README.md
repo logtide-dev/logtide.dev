@@ -1,6 +1,6 @@
-# LogWard Website
+# LogTide Website
 
-The official website and documentation for [LogWard](https://logward.dev).
+The official website and documentation for [LogTide](https://logtide.dev).
 
 ## Tech Stack
 

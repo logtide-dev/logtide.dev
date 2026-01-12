@@ -12,7 +12,7 @@ import { Icon } from 'astro-icon/components';
 const headings = [
   { text: "Why Migrate from SigNoz?", slug: "why-migrate", depth: 2 },
   { text: "Feature Comparison", slug: "feature-comparison", depth: 2 },
-  { text: "Step 1: Deploy LogWard", slug: "step-1", depth: 2 },
+  { text: "Step 1: Deploy LogTide", slug: "step-1", depth: 2 },
   { text: "Step 2: Update OpenTelemetry Endpoint", slug: "step-2", depth: 2 },
   { text: "Step 3: Migrate Alerts", slug: "step-3", depth: 2 },
   { text: "Step 4: Enable Security Features", slug: "step-4", depth: 2 },
@@ -41,7 +41,7 @@ const headings = [
   </div>
 
   <p class="text-lg text-muted-foreground mb-8">
-      Migrate from SigNoz to LogWard for enhanced security capabilities including
+      Migrate from SigNoz to LogTide for enhanced security capabilities including
       Sigma detection rules, incident management, and MITRE ATT&CK mapping.
       Both platforms support OpenTelemetry, making the transition seamless.
   </p>
@@ -61,7 +61,7 @@ const headings = [
                   <div>
                       <h3 class="font-semibold mb-1">Built-in SIEM</h3>
                       <p class="text-sm text-muted-foreground">
-                          LogWard includes Sigma detection rules, incident management, and
+                          LogTide includes Sigma detection rules, incident management, and
                           MITRE ATT&CK mapping. SigNoz focuses on observability, not security.
                       </p>
                   </div>
@@ -76,7 +76,7 @@ const headings = [
                   <div>
                       <h3 class="font-semibold mb-1">Simpler Architecture</h3>
                       <p class="text-sm text-muted-foreground">
-                          SigNoz uses ClickHouse which requires tuning. LogWard uses
+                          SigNoz uses ClickHouse which requires tuning. LogTide uses
                           PostgreSQL/TimescaleDB for easier operations.
                       </p>
                   </div>
@@ -107,7 +107,7 @@ const headings = [
                       <h3 class="font-semibold mb-1">Threat Detection</h3>
                       <p class="text-sm text-muted-foreground">
                           Security-focused organizations need detection capabilities.
-                          LogWard's Sigma rules provide enterprise-grade threat detection.
+                          LogTide's Sigma rules provide enterprise-grade threat detection.
                       </p>
                   </div>
               </div>
@@ -128,7 +128,7 @@ const headings = [
               <tr>
                   <th class="px-4 py-3 text-left border-b border-border">Feature</th>
                   <th class="px-4 py-3 text-left border-b border-border">SigNoz</th>
-                  <th class="px-4 py-3 text-left border-b border-border">LogWard</th>
+                  <th class="px-4 py-3 text-left border-b border-border">LogTide</th>
               </tr>
           </thead>
           <tbody>
@@ -195,7 +195,7 @@ const headings = [
       id="step-1"
       class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
   >
-      Step 1: Deploy LogWard
+      Step 1: Deploy LogTide
   </h2>
 
   <div class="mb-8">
@@ -205,10 +205,10 @@ const headings = [
 
       <Code
           lang="bash"
-          theme="github-dark"
-          code={`# Clone LogWard
-git clone https://github.com/logward-dev/logward.git
-cd logward/docker
+          theme="one-dark-pro"
+          code={`# Clone LogTide
+git clone https://github.com/logtide-dev/logtide.git
+cd logtide/docker
 
 # Configure
 cp .env.example .env
@@ -248,7 +248,7 @@ curl http://localhost:8080/health`}
               <CardContent>
                   <Code
                       lang="typescript"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`const logExporter = new OTLPLogExporter({
 url: 'http://signoz:4318/v1/logs',
 headers: {},
@@ -259,14 +259,14 @@ headers: {},
 
           <Card>
               <CardHeader class="pb-2">
-                  <CardTitle class="text-base">After (LogWard)</CardTitle>
+                  <CardTitle class="text-base">After (LogTide)</CardTitle>
               </CardHeader>
               <CardContent>
                   <Code
                       lang="typescript"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`const logExporter = new OTLPLogExporter({
-url: 'http://logward:8080/api/v1/otlp/logs',
+url: 'http://logtide:8080/api/v1/otlp/logs',
 headers: {
   'X-API-Key': 'lp_your_api_key'
 },
@@ -286,7 +286,7 @@ headers: {
               <CardContent>
                   <Code
                       lang="python"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`exporter = OTLPLogExporter(
   endpoint="http://signoz:4318/v1/logs",
 )`}
@@ -296,14 +296,14 @@ headers: {
 
           <Card>
               <CardHeader class="pb-2">
-                  <CardTitle class="text-base">After (LogWard)</CardTitle>
+                  <CardTitle class="text-base">After (LogTide)</CardTitle>
               </CardHeader>
               <CardContent>
                   <Code
                       lang="python"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`exporter = OTLPLogExporter(
-  endpoint="http://logward:8080/api/v1/otlp/logs",
+  endpoint="http://logtide:8080/api/v1/otlp/logs",
   headers={"X-API-Key": "lp_your_api_key"},
 )`}
                   />
@@ -325,7 +325,7 @@ headers: {
               <CardContent>
                   <Code
                       lang="yaml"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`exporters:
 otlp:
   endpoint: signoz-otel-collector:4317
@@ -342,22 +342,22 @@ pipelines:
 
           <Card>
               <CardHeader class="pb-2">
-                  <CardTitle class="text-base">After (LogWard)</CardTitle>
+                  <CardTitle class="text-base">After (LogTide)</CardTitle>
               </CardHeader>
               <CardContent>
                   <Code
                       lang="yaml"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`exporters:
-otlphttp/logward:
-  endpoint: http://logward:8080
+otlphttp/logtide:
+  endpoint: http://logtide:8080
   headers:
     X-API-Key: lp_your_api_key
 
 service:
 pipelines:
   logs:
-    exporters: [otlphttp/logward]`}
+    exporters: [otlphttp/logtide]`}
                   />
               </CardContent>
           </Card>
@@ -373,7 +373,7 @@ pipelines:
 
   <div class="mb-8">
       <p class="mb-4">
-          SigNoz and LogWard have similar alert concepts. Convert your alert rules:
+          SigNoz and LogTide have similar alert concepts. Convert your alert rules:
       </p>
 
       <div class="grid md:grid-cols-2 gap-4">
@@ -384,7 +384,7 @@ pipelines:
               <CardContent>
                   <Code
                       lang="yaml"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`name: High Error Rate
 description: Errors exceeded threshold
 severity: critical
@@ -403,12 +403,12 @@ channels:
 
           <Card>
               <CardHeader class="pb-2">
-                  <CardTitle class="text-base">LogWard Alert Rule</CardTitle>
+                  <CardTitle class="text-base">LogTide Alert Rule</CardTitle>
               </CardHeader>
               <CardContent>
                   <Code
                       lang="json"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`{
 "name": "High Error Rate",
 "enabled": true,
@@ -435,7 +435,7 @@ channels:
 
   <div class="mb-8">
       <p class="mb-4">
-          LogWard's key advantage over SigNoz is built-in security capabilities:
+          LogTide's key advantage over SigNoz is built-in security capabilities:
       </p>
 
       <Card class="mb-4">
@@ -466,7 +466,7 @@ channels:
 
       <Code
           lang="yaml"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`title: Multiple Failed Login Attempts
 status: stable
 level: medium
@@ -496,7 +496,7 @@ tags:
           <thead class="bg-muted">
               <tr>
                   <th class="px-4 py-2 text-left border-b border-border">SigNoz Term</th>
-                  <th class="px-4 py-2 text-left border-b border-border">LogWard Equivalent</th>
+                  <th class="px-4 py-2 text-left border-b border-border">LogTide Equivalent</th>
                   <th class="px-4 py-2 text-left border-b border-border">Notes</th>
               </tr>
           </thead>
@@ -534,12 +534,12 @@ tags:
               <tr>
                   <td class="px-4 py-2 border-b border-border">N/A</td>
                   <td class="px-4 py-2 border-b border-border">Sigma Rules</td>
-                  <td class="px-4 py-2 border-b border-border">LogWard exclusive</td>
+                  <td class="px-4 py-2 border-b border-border">LogTide exclusive</td>
               </tr>
               <tr>
                   <td class="px-4 py-2">N/A</td>
                   <td class="px-4 py-2">Incidents</td>
-                  <td class="px-4 py-2">LogWard exclusive</td>
+                  <td class="px-4 py-2">LogTide exclusive</td>
               </tr>
           </tbody>
       </table>
@@ -561,7 +561,7 @@ tags:
               </CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              SigNoz uses standard OTLP port 4317/4318. LogWard uses <code class="bg-muted px-1 rounded">/api/v1/otlp/logs</code>
+              SigNoz uses standard OTLP port 4317/4318. LogTide uses <code class="bg-muted px-1 rounded">/api/v1/otlp/logs</code>
               on the main API port (8080). Update your endpoint URLs accordingly.
           </CardContent>
       </Card>
@@ -574,7 +574,7 @@ tags:
               </CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              Unlike SigNoz, LogWard requires an API key. Add <code class="bg-muted px-1 rounded">X-API-Key</code> header
+              Unlike SigNoz, LogTide requires an API key. Add <code class="bg-muted px-1 rounded">X-API-Key</code> header
               to all OTLP requests. The API key is project-scoped and starts with <code class="bg-muted px-1 rounded">lp_</code>.
           </CardContent>
       </Card>
@@ -587,8 +587,8 @@ tags:
               </CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              LogWard currently focuses on logs. Metrics support is on the roadmap.
-              Continue using your existing metrics solution (Prometheus, etc.) alongside LogWard.
+              LogTide currently focuses on logs. Metrics support is on the roadmap.
+              Continue using your existing metrics solution (Prometheus, etc.) alongside LogTide.
           </CardContent>
       </Card>
   </div>

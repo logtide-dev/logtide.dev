@@ -1,10 +1,10 @@
 ---
 import CodeBlock from '../docs/CodeBlock.astro';
 
-const code = `// Install: npm install @logward/sdk
-import { LogWard } from '@logward/sdk'
+const code = `// Install: npm install @logtide/sdk
+import { LogTide } from '@logtide/sdk'
 
-const logger = new LogWard({
+const logger = new LogTide({
   apiKey: 'lw_xxxx',
   service: 'my-api'
 })
@@ -61,7 +61,7 @@ const steps = [
       </div>
 
       <!-- Right column: Code example -->
-      <figure class="relative" aria-label="Code example showing how to use the LogWard SDK">
+      <figure class="relative" aria-label="Code example showing how to use the LogTide SDK">
         <div class="absolute -inset-4 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 blur-xl" aria-hidden="true"></div>
         <div class="relative shadow-2xl">
           <CodeBlock code={code} lang="typescript" title="app.ts" />

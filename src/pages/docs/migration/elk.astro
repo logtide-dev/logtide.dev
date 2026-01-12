@@ -13,9 +13,9 @@ const headings = [
   { text: "Why Migrate from ELK?", slug: "why-migrate", depth: 2 },
   { text: "Feature Comparison", slug: "feature-comparison", depth: 2 },
   { text: "Step 1: Inventory Your ELK Setup", slug: "step-1", depth: 2 },
-  { text: "Step 2: Deploy LogWard", slug: "step-2", depth: 2 },
+  { text: "Step 2: Deploy LogTide", slug: "step-2", depth: 2 },
   { text: "Step 3: Replace Beats/Logstash", slug: "step-3", depth: 2 },
-  { text: "Step 4: Query Migration (Elasticsearch to LogWard)", slug: "step-4", depth: 2 },
+  { text: "Step 4: Query Migration (Elasticsearch to LogTide)", slug: "step-4", depth: 2 },
   { text: "Step 5: Alert Migration", slug: "step-5", depth: 2 },
   { text: "Concept Mapping", slug: "concept-mapping", depth: 2 },
   { text: "Common Issues", slug: "troubleshooting", depth: 2 },
@@ -25,7 +25,7 @@ const headings = [
 
 <DocsLayout
   title="Migrate from ELK Stack"
-  description="Simplify your ELK (Elasticsearch, Logstash, Kibana) stack with LogWard's all-in-one solution."
+  description="Simplify your ELK (Elasticsearch, Logstash, Kibana) stack with LogTide's all-in-one solution."
   headings={headings}
 >
   <div class="flex items-center justify-between mb-4">
@@ -43,7 +43,7 @@ const headings = [
 
   <p class="text-lg text-muted-foreground mb-8">
       Simplify your logging infrastructure by replacing the complex ELK (Elasticsearch, Logstash, Kibana)
-      stack with LogWard's all-in-one solution. No more cluster management or version compatibility issues.
+      stack with LogTide's all-in-one solution. No more cluster management or version compatibility issues.
   </p>
 
   <h2
@@ -62,7 +62,7 @@ const headings = [
                       <h3 class="font-semibold mb-1">Dramatically Simpler</h3>
                       <p class="text-sm text-muted-foreground">
                           No more managing Elasticsearch clusters, Logstash pipelines, and Kibana.
-                          LogWard is a single Docker Compose deployment.
+                          LogTide is a single Docker Compose deployment.
                       </p>
                   </div>
               </div>
@@ -76,7 +76,7 @@ const headings = [
                   <div>
                       <h3 class="font-semibold mb-1">Lower Resource Usage</h3>
                       <p class="text-sm text-muted-foreground">
-                          Elasticsearch requires significant RAM (heap size). LogWard with TimescaleDB
+                          Elasticsearch requires significant RAM (heap size). LogTide with TimescaleDB
                           uses resources more efficiently with better compression.
                       </p>
                   </div>
@@ -92,7 +92,7 @@ const headings = [
                       <h3 class="font-semibold mb-1">Built-in SIEM</h3>
                       <p class="text-sm text-muted-foreground">
                           ELK requires additional components (SIEM, Security) for threat detection.
-                          LogWard includes Sigma rules and incident management.
+                          LogTide includes Sigma rules and incident management.
                       </p>
                   </div>
               </div>
@@ -106,7 +106,7 @@ const headings = [
                   <div>
                       <h3 class="font-semibold mb-1">No Version Headaches</h3>
                       <p class="text-sm text-muted-foreground">
-                          ELK components must be version-matched. LogWard is a single versioned
+                          ELK components must be version-matched. LogTide is a single versioned
                           release with all components guaranteed compatible.
                       </p>
                   </div>
@@ -128,7 +128,7 @@ const headings = [
               <tr>
                   <th class="px-4 py-3 text-left border-b border-border">Feature</th>
                   <th class="px-4 py-3 text-left border-b border-border">ELK Stack</th>
-                  <th class="px-4 py-3 text-left border-b border-border">LogWard</th>
+                  <th class="px-4 py-3 text-left border-b border-border">LogTide</th>
               </tr>
           </thead>
           <tbody>
@@ -233,7 +233,7 @@ const headings = [
 
       <Code
           lang="bash"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`# Export all saved objects from Kibana
 curl -X POST "http://kibana:5601/api/saved_objects/_export" \
 -H "kbn-xsrf: true" \
@@ -249,13 +249,13 @@ curl -X POST "http://kibana:5601/api/saved_objects/_export" \
       id="step-2"
       class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
   >
-      Step 2: Deploy LogWard
+      Step 2: Deploy LogTide
   </h2>
 
   <div class="mb-8">
       <p class="mb-4">
           See the <a href="/docs/deployment" class="text-primary hover:underline">Deployment Guide</a>. 
-          LogWard requires far fewer resources than ELK:
+          LogTide requires far fewer resources than ELK:
       </p>
 
       <div class="grid md:grid-cols-2 gap-4 mb-6">
@@ -275,7 +275,7 @@ curl -X POST "http://kibana:5601/api/saved_objects/_export" \
 
           <Card>
               <CardHeader class="pb-2">
-                  <CardTitle class="text-base">LogWard Requirements</CardTitle>
+                  <CardTitle class="text-base">LogTide Requirements</CardTitle>
               </CardHeader>
               <CardContent class="text-sm">
                   <ul class="space-y-1">
@@ -290,10 +290,10 @@ curl -X POST "http://kibana:5601/api/saved_objects/_export" \
 
       <Code
           lang="bash"
-          theme="github-dark"
-          code={`# Clone and start LogWard
-git clone https://github.com/logward-dev/logward.git
-cd logward/docker
+          theme="one-dark-pro"
+          code={`# Clone and start LogTide
+git clone https://github.com/logtide-dev/logtide.git
+cd logtide/docker
 cp .env.example .env
 docker compose up -d
 
@@ -324,7 +324,7 @@ curl http://localhost:8080/health`}
               <CardContent>
                   <Code
                       lang="yaml"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`# filebeat.yml
 filebeat.inputs:
 - type: log
@@ -345,7 +345,7 @@ index: "app-logs-%{+yyyy.MM.dd}"}`}
               <CardContent>
                   <Code
                       lang="ini"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`# fluent-bit.conf
 [INPUT]
   Name tail
@@ -355,7 +355,7 @@ index: "app-logs-%{+yyyy.MM.dd}"}`}
 [OUTPUT]
   Name http
   Match *
-  Host logward.internal
+  Host logtide.internal
   Port 8080
   URI /api/v1/ingest
   Format json
@@ -375,7 +375,7 @@ index: "app-logs-%{+yyyy.MM.dd}"}`}
               <CardContent>
                   <Code
                       lang="ruby"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`# logstash.conf
 input {
 beats { port => 5044 }
@@ -404,7 +404,7 @@ elasticsearch {
               <CardContent>
                   <Code
                       lang="ini"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`# fluent-bit.conf
 [INPUT]
   Name forward
@@ -420,7 +420,7 @@ elasticsearch {
 [OUTPUT]
   Name http
   Match *
-  Host logward.internal
+  Host logtide.internal
   Port 8080
   URI /api/v1/ingest
   Format json
@@ -435,12 +435,12 @@ elasticsearch {
       id="step-4"
       class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
   >
-      Step 4: Query Migration (Elasticsearch to LogWard)
+      Step 4: Query Migration (Elasticsearch to LogTide)
   </h2>
 
   <div class="mb-8">
       <p class="mb-4">
-          Elasticsearch Query DSL translates to LogWard REST API parameters:
+          Elasticsearch Query DSL translates to LogTide REST API parameters:
       </p>
 
       <div class="overflow-x-auto mb-6">
@@ -448,7 +448,7 @@ elasticsearch {
               <thead class="bg-muted">
                   <tr>
                       <th class="px-4 py-2 text-left border-b border-border">Elasticsearch Query</th>
-                      <th class="px-4 py-2 text-left border-b border-border">LogWard API</th>
+                      <th class="px-4 py-2 text-left border-b border-border">LogTide API</th>
                   </tr>
               </thead>
               <tbody>
@@ -483,7 +483,7 @@ elasticsearch {
               <thead class="bg-muted">
                   <tr>
                       <th class="px-4 py-2 text-left border-b border-border">KQL</th>
-                      <th class="px-4 py-2 text-left border-b border-border">LogWard</th>
+                      <th class="px-4 py-2 text-left border-b border-border">LogTide</th>
                   </tr>
               </thead>
               <tbody>
@@ -517,7 +517,7 @@ elasticsearch {
 
   <div class="mb-8">
       <p class="mb-4">
-          Convert Elasticsearch Watcher or ElastAlert rules to LogWard alert rules:
+          Convert Elasticsearch Watcher or ElastAlert rules to LogTide alert rules:
       </p>
 
       <div class="grid md:grid-cols-2 gap-4">
@@ -528,7 +528,7 @@ elasticsearch {
               <CardContent>
                   <Code
                       lang="json"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`{
 "trigger": {
   "schedule": { "interval": "5m" }
@@ -563,12 +563,12 @@ elasticsearch {
 
           <Card>
               <CardHeader class="pb-2">
-                  <CardTitle class="text-base">LogWard Alert Rule</CardTitle>
+                  <CardTitle class="text-base">LogTide Alert Rule</CardTitle>
               </CardHeader>
               <CardContent>
                   <Code
                       lang="json"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`{
 "name": "High Error Rate",
 "enabled": true,
@@ -597,7 +597,7 @@ elasticsearch {
           <thead class="bg-muted">
               <tr>
                   <th class="px-4 py-2 text-left border-b border-border">ELK Term</th>
-                  <th class="px-4 py-2 text-left border-b border-border">LogWard Equivalent</th>
+                  <th class="px-4 py-2 text-left border-b border-border">LogTide Equivalent</th>
                   <th class="px-4 py-2 text-left border-b border-border">Notes</th>
               </tr>
           </thead>
@@ -634,7 +634,7 @@ elasticsearch {
               </tr>
               <tr>
                   <td class="px-4 py-2 border-b border-border">Kibana</td>
-                  <td class="px-4 py-2 border-b border-border">LogWard UI</td>
+                  <td class="px-4 py-2 border-b border-border">LogTide UI</td>
                   <td class="px-4 py-2 border-b border-border">Built-in web interface</td>
               </tr>
               <tr>
@@ -684,7 +684,7 @@ elasticsearch {
               </CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              LogWard doesn't have Kibana-style drag-and-drop dashboards yet.
+              LogTide doesn't have Kibana-style drag-and-drop dashboards yet.
               Use the SIEM dashboard for security metrics, and the Query API
               for custom integrations with tools like Grafana.
           </CardContent>
@@ -699,7 +699,7 @@ elasticsearch {
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
               Elasticsearch ILM is replaced by TimescaleDB retention policies.
-              Configure retention per-project in LogWard settings. Compression
+              Configure retention per-project in LogTide settings. Compression
               is automatic.
           </CardContent>
       </Card>

@@ -23,12 +23,12 @@ const headings = [
 
 <DocsLayout
   title="No-SDK Setup"
-  description="Use LogWard without installing any SDK. Just print to stdout - works with any language."
+  description="Use LogTide without installing any SDK. Just print to stdout - works with any language."
   headings={headings}
 >
   <h1 class="text-3xl font-bold mb-4">No-SDK Setup</h1>
   <p class="text-lg text-muted-foreground mb-8">
-      Use LogWard without installing any SDK. Just print to stdout - works
+      Use LogTide without installing any SDK. Just print to stdout - works
       with any language (Go, Rust, Python, Java, .NET, Ruby, PHP).
   </p>
 
@@ -40,7 +40,7 @@ const headings = [
                   No SDK Required
               </p>
               <p class="text-sm text-muted-foreground">
-                  LogWard supports <strong>stdout-based logging</strong> via Fluent
+                  LogTide supports <strong>stdout-based logging</strong> via Fluent
                   Bit (self-hosted) or Docker logging drivers (cloud). Simply write
                   to stdout/stderr and your logs will be automatically ingested.
               </p>
@@ -58,12 +58,12 @@ const headings = [
   <div class="mb-8 grid md:grid-cols-2 gap-6">
       <Card>
           <CardHeader>
-              <CardTitle class="text-base">Cloud (api.logward.dev)</CardTitle>
+              <CardTitle class="text-base">Cloud (api.logtide.dev)</CardTitle>
           </CardHeader>
           <CardContent class="text-sm">
               <p class="text-muted-foreground mb-3">
                   Use Docker's Fluentd logging driver to send logs directly to
-                  LogWard Cloud.
+                  LogTide Cloud.
               </p>
               <ul class="space-y-2 ml-2">
                   <li class="flex items-start gap-2">
@@ -88,7 +88,7 @@ const headings = [
           </CardHeader>
           <CardContent class="text-sm">
               <p class="text-muted-foreground mb-3">
-                  Add Fluent Bit to your LogWard installation to collect logs
+                  Add Fluent Bit to your LogTide installation to collect logs
                   from all Docker containers automatically.
               </p>
               <ul class="space-y-2 ml-2">
@@ -118,7 +118,7 @@ const headings = [
 
   <div class="mb-8 space-y-4">
       <p>
-          LogWard uses <strong>Fluent Bit</strong> to automatically collect logs
+          LogTide uses <strong>Fluent Bit</strong> to automatically collect logs
           from Docker containers:
       </p>
 
@@ -181,7 +181,7 @@ const headings = [
               </CardHeader>
               <CardContent class="text-sm text-muted-foreground">
                   Fluent Bit tails container logs, adds metadata (container
-                  name, service), and formats for LogWard.
+                  name, service), and formats for LogTide.
               </CardContent>
           </Card>
 
@@ -195,7 +195,7 @@ const headings = [
                       </div>
                       <div>
                           <CardTitle class="text-base"
-                              >Logs sent to LogWard API</CardTitle
+                              >Logs sent to LogTide API</CardTitle
                           >
                       </div>
                   </div>
@@ -217,7 +217,7 @@ const headings = [
 
   <div class="mb-8 space-y-6">
       <p class="text-muted-foreground">
-          For LogWard Cloud, configure your Docker containers to use the
+          For LogTide Cloud, configure your Docker containers to use the
           Fluentd logging driver:
       </p>
 
@@ -231,14 +231,14 @@ const headings = [
           </p>
           <Code
               lang="yaml"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`services:
 my-app:
   image: my-app:latest
   logging:
     driver: fluentd
     options:
-      fluentd-address: api.logward.dev:24224
+      fluentd-address: api.logtide.dev:24224
       fluentd-async: "true"
       tag: "lp_your_api_key_here.{{.Name}}"
       labels: "service"
@@ -257,10 +257,10 @@ my-app:
                       Coming Soon
                   </p>
                   <p class="text-sm text-muted-foreground">
-                      LogWard Cloud is currently in beta. Sign up at
+                      LogTide Cloud is currently in beta. Sign up at
                       <a
                           href="/register"
-                          class="text-primary underline">logward.dev</a
+                          class="text-primary underline">logtide.dev</a
                       >
                       to get early access and we'll notify you when Fluentd logging
                       driver support is available.
@@ -281,7 +281,7 @@ my-app:
       <div>
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">1. Generate API Key</h3>
           <p class="text-sm text-muted-foreground mb-3">
-              Create an API key in your LogWard project settings.
+              Create an API key in your LogTide project settings.
           </p>
       </div>
 
@@ -294,7 +294,7 @@ my-app:
           </p>
           <Code
               lang="bash"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# In docker/.env
 FLUENT_BIT_API_KEY=lp_your_api_key_here`}
           />
@@ -302,7 +302,7 @@ FLUENT_BIT_API_KEY=lp_your_api_key_here`}
 
       <div>
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">3. Restart Fluent Bit</h3>
-          <Code lang="bash" theme="github-dark" code={`docker compose restart fluent-bit`} />
+          <Code lang="bash" theme="one-dark-pro" code={`docker compose restart fluent-bit`} />
       </div>
 
       <div class="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
@@ -316,7 +316,7 @@ FLUENT_BIT_API_KEY=lp_your_api_key_here`}
                   </p>
                   <p class="text-sm text-muted-foreground">
                       All Docker containers now automatically send logs to
-                      LogWard. No code changes needed!
+                      LogTide. No code changes needed!
                   </p>
               </div>
           </div>
@@ -340,7 +340,7 @@ FLUENT_BIT_API_KEY=lp_your_api_key_here`}
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Go</h3>
           <Code
               lang="go"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`package main
 
 import (
@@ -369,7 +369,7 @@ func main() {
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Rust</h3>
           <Code
               lang="rust"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`use log::{info, error};
 use env_logger;
 
@@ -393,7 +393,7 @@ fn main() {
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Python</h3>
           <Code
               lang="python"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`import logging
 import json
 
@@ -416,7 +416,7 @@ print(json.dumps(log_data))`}
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Java</h3>
           <Code
               lang="java"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -446,7 +446,7 @@ public class App {
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">.NET (C#)</h3>
           <Code
               lang="csharp"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`using Serilog;
 using Serilog.Formatting.Json;
 using System;
@@ -480,7 +480,7 @@ class Program
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Ruby</h3>
           <Code
               lang="ruby"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`require 'logger'
 require 'json'
 
@@ -503,7 +503,7 @@ puts log_data.to_json`}
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">PHP</h3>
           <Code
               lang="php"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`<?php
 // Simple logging
 error_log("Application started");
@@ -536,19 +536,19 @@ echo json_encode($logData) . "\n";
 
       <Code
           lang="yaml"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`# Add this service to your docker-compose.yml
 fluent-bit:
 image: fluent/fluent-bit:4.2.2  # For ARM64/Raspberry Pi: cr.fluentbit.io/fluent/fluent-bit:4.2.2
-container_name: logward-fluent-bit
+container_name: logtide-fluent-bit
 volumes:
   - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
   - ./parsers.conf:/fluent-bit/etc/parsers.conf:ro
   - /var/lib/docker/containers:/var/lib/docker/containers:ro
   - /var/run/docker.sock:/var/run/docker.sock:ro
 environment:
-  LOGWARD_API_KEY: \${FLUENT_BIT_API_KEY}
-  LOGWARD_API_HOST: backend
+  LOGTIDE_API_KEY: \${FLUENT_BIT_API_KEY}
+  LOGTIDE_API_HOST: backend
 depends_on:
   - backend
 restart: unless-stopped`}
@@ -584,7 +584,7 @@ restart: unless-stopped`}
                   <li class="flex items-start gap-2">
                       <Icon name="lucide:check-circle" class="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                       <span
-                          >Sends to LogWard API with automatic retries (3x)</span
+                          >Sends to LogTide API with automatic retries (3x)</span
                       >
                   </li>
                   <li class="flex items-start gap-2">
@@ -605,7 +605,7 @@ restart: unless-stopped`}
 
   <div class="mb-8 space-y-6">
       <p class="text-muted-foreground">
-          If you want to customize Fluent Bit or use it outside of LogWard's
+          If you want to customize Fluent Bit or use it outside of LogTide's
           Docker Compose setup, here's the complete configuration:
       </p>
 
@@ -613,12 +613,12 @@ restart: unless-stopped`}
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">fluent-bit.conf</h3>
           <p class="text-sm text-muted-foreground mb-3">
               Main configuration file for Fluent Bit. This collects Docker
-              container logs and sends them to LogWard:
+              container logs and sends them to LogTide:
           </p>
           <Code
               lang="bash"
-              theme="github-dark"
-              code={`# Fluent Bit Configuration for LogWard
+              theme="one-dark-pro"
+              code={`# Fluent Bit Configuration for LogTide
 
 [SERVICE]
   # Flush logs every 5 seconds
@@ -655,7 +655,7 @@ restart: unless-stopped`}
   Reserve_Data        On
   Preserve_Key        On
 
-# Add required fields for LogWard API
+# Add required fields for LogTide API
 [FILTER]
   Name                modify
   Match               docker.*
@@ -675,16 +675,16 @@ restart: unless-stopped`}
   Remove_key          container_name
 
 # =============================================================================
-# OUTPUT - Send to LogWard
+# OUTPUT - Send to LogTide
 # =============================================================================
 [OUTPUT]
   Name                http
   Match               docker.*
-  Host                \${LOGWARD_API_HOST}
+  Host                \${LOGTIDE_API_HOST}
   Port                8080
   URI                 /api/v1/ingest/single
   Format              json_lines
-  Header              X-API-Key \${LOGWARD_API_KEY}
+  Header              X-API-Key \${LOGTIDE_API_KEY}
   Header              Content-Type application/json
   # Date/time settings
   Json_date_key       time
@@ -703,7 +703,7 @@ restart: unless-stopped`}
           </p>
           <Code
               lang="bash"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# Fluent Bit Parsers Configuration
 
 # Parser for Docker JSON logs
@@ -730,11 +730,11 @@ restart: unless-stopped`}
           </h3>
           <p class="text-sm text-muted-foreground mb-3">
               Lua script to extract container ID from file path (used in
-              LogWard's setup for metadata enrichment):
+              LogTide's setup for metadata enrichment):
           </p>
           <Code
               lang="lua"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`-- Extract container ID from Docker log file path
 -- Path format: /var/lib/docker/containers/<container_id>/<container_id>-json.log
 
@@ -766,11 +766,11 @@ end`}
           </h3>
           <p class="text-sm text-muted-foreground mb-3">
               If you want to add Fluent Bit to your own project (not using
-              LogWard's Docker Compose):
+              LogTide's Docker Compose):
           </p>
           <Code
               lang="yaml"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`services:
   fluent-bit:
     image: fluent/fluent-bit:4.2.2  # For ARM64/Raspberry Pi: cr.fluentbit.io/fluent/fluent-bit:4.2.2
@@ -786,13 +786,13 @@ end`}
       # Docker socket (read-only)
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
-      # For LogWard Cloud
-      LOGWARD_API_KEY: lp_your_api_key_here
-      LOGWARD_API_HOST: api.logward.dev
+      # For LogTide Cloud
+      LOGTIDE_API_KEY: lp_your_api_key_here
+      LOGTIDE_API_HOST: api.logtide.dev
 
       # Or for self-hosted
-      # LOGWARD_API_KEY: lp_your_api_key_here
-      # LOGWARD_API_HOST: localhost  # or your server IP
+      # LOGTIDE_API_KEY: lp_your_api_key_here
+      # LOGTIDE_API_HOST: localhost  # or your server IP
     restart: unless-stopped
     networks:
       - your-network
@@ -819,6 +819,6 @@ networks:
                           • Fluent Bit needs access to <code class="bg-muted px-1 rounded">/var/lib/docker/containers</code> to read container logs
                       </li>
                       <li>
-                          • The <code class="bg-muted px-1 rounded">LOGWARD_API_KEY</code> environment
+                          • The <code class="bg-muted px-1 rounded">LOGTIDE_API_KEY</code> environment
                           variable is used in the configuration via
                           <code class="bg-muted px-1 rounded">{"$"}{

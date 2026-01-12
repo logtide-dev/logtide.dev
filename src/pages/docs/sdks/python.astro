@@ -22,14 +22,14 @@ const headings = [
 
 <DocsLayout
   title="Python SDK"
-  description="Official Python SDK for LogWard with type hints, batching, and middleware."
+  description="Official Python SDK for LogTide with type hints, batching, and middleware."
   headings={headings}
 >
   <div class="flex items-center justify-between mb-4">
       <h1 class="text-3xl font-bold">Python SDK</h1>
       <div class="flex items-center gap-2">
           <a
-              href="https://github.com/logward-dev/logward-sdk-python"
+              href="https://github.com/logtide-dev/logtide-sdk-python"
               target="_blank"
               rel="noopener noreferrer"
           >
@@ -39,7 +39,7 @@ const headings = [
               </Button>
           </a>
           <a
-              href="https://pypi.org/project/logward-sdk/"
+              href="https://pypi.org/project/logtide-sdk/"
               target="_blank"
               rel="noopener noreferrer"
           >
@@ -52,7 +52,7 @@ const headings = [
   </div>
 
   <p class="text-lg text-muted-foreground mb-8">
-      Official Python SDK for LogWard with full type hints support, automatic
+      Official Python SDK for LogTide with full type hints support, automatic
       batching, retry logic, and Flask/Django/FastAPI middleware.
   </p>
 
@@ -66,11 +66,11 @@ const headings = [
   <div class="mb-8">
       <Code
           lang="bash"
-          theme="github-dark"
-          code={`pip install logward-sdk
+          theme="one-dark-pro"
+          code={`pip install logtide-sdk
 
 # or with poetry
-poetry add logward-sdk`}
+poetry add logtide-sdk`}
       />
   </div>
 
@@ -84,10 +84,10 @@ poetry add logward-sdk`}
   <div class="mb-8">
       <Code
           lang="python"
-          theme="github-dark"
-          code={`from logward_sdk import LogWardClient
+          theme="one-dark-pro"
+          code={`from logtide_sdk import LogTideClient
 
-client = LogWardClient(
+client = LogTideClient(
   api_url="http://localhost:8080",
   api_key="lp_your_api_key_here"
 )
@@ -149,8 +149,8 @@ atexit.register(client.close)`}
   <div class="mb-8">
       <Code
           lang="python"
-          theme="github-dark"
-          code={`client = LogWardClient(
+          theme="one-dark-pro"
+          code={`client = LogTideClient(
   # Required
   api_url="http://localhost:8080",
   api_key="lp_your_api_key",
@@ -190,7 +190,7 @@ atexit.register(client.close)`}
           <h3 id="basic-logging" class="text-lg font-semibold mb-3 scroll-mt-24">Basic Logging</h3>
           <Code
               lang="python"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# Log levels: debug, info, warn, error, critical
 client.debug("service-name", "Debug message", {"detail": "value"})
 client.info("api-gateway", "Request received", {"method": "GET", "path": "/users"})
@@ -206,7 +206,7 @@ client.critical("system", "Out of memory", {"used": "95%"})`}
           </h3>
           <Code
               lang="python"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# Scoped trace ID
 with client.trace_context("550e8400-e29b-41d4-a716-446655440000"):
   client.info("api", "Processing request")
@@ -228,14 +228,14 @@ with client.trace_context("550e8400-e29b-41d4-a716-446655440000"):
           <h3 id="flask-middleware" class="text-lg font-semibold mb-3 scroll-mt-24">Flask Middleware</h3>
           <Code
               lang="python"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`from flask import Flask
-from logward_sdk.middleware import FlaskLogWardMiddleware
+from logtide_sdk.middleware import FlaskLogTideMiddleware
 
 app = Flask(__name__)
 
-# Add LogWard middleware
-app.wsgi_app = FlaskLogWardMiddleware(
+# Add LogTide middleware
+app.wsgi_app = FlaskLogTideMiddleware(
   app.wsgi_app,
   client=client,
   include_headers=True,
@@ -254,17 +254,17 @@ def get_users():
           <h3 id="django-middleware" class="text-lg font-semibold mb-3 scroll-mt-24">Django Middleware</h3>
           <Code
               lang="python"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# settings.py
 MIDDLEWARE = [
   # ... other middleware
-  'logward_sdk.middleware.DjangoLogWardMiddleware',
+  'logtide_sdk.middleware.DjangoLogTideMiddleware',
 ]
 
 # Configure client globally
-from logward_sdk import LogWardClient
+from logtide_sdk import LogTideClient
 
-LOGWARD_CLIENT = LogWardClient(
+LOGTIDE_CLIENT = LogTideClient(
   api_url="http://localhost:8080",
   api_key="lp_your_api_key"
 )`}
@@ -275,15 +275,15 @@ LOGWARD_CLIENT = LogWardClient(
           <h3 id="fastapi-middleware" class="text-lg font-semibold mb-3 scroll-mt-24">FastAPI Middleware</h3>
           <Code
               lang="python"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`from fastapi import FastAPI
-from logward_sdk.middleware import FastAPILogWardMiddleware
+from logtide_sdk.middleware import FastAPILogTideMiddleware
 
 app = FastAPI()
 
-# Add LogWard middleware
+# Add LogTide middleware
 app.add_middleware(
-  FastAPILogWardMiddleware,
+  FastAPILogTideMiddleware,
   client=client,
   include_headers=True,
   include_response_time=True
@@ -308,7 +308,7 @@ async def get_users():
   <div class="mb-8">
       <Code
           lang="python"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`# Search logs
 result = client.query(
   service="api-gateway",

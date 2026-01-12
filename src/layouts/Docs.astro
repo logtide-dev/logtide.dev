@@ -20,8 +20,8 @@ interface Props {
 
 const { title: propTitle, description: propDescription, headings: propHeadings = [], frontmatter } = Astro.props;
 
-const title = frontmatter?.title || propTitle || 'LogWard Documentation';
-const description = frontmatter?.description || propDescription || 'LogWard Documentation';
+const title = frontmatter?.title || propTitle || 'LogTide Documentation';
+const description = frontmatter?.description || propDescription || 'LogTide Documentation';
 
 // Normalize headings from MDX (slug/depth) or manual (id/level)
 const headings = propHeadings.map(h => ({
@@ -36,7 +36,7 @@ const isIndexPage = indexPages.includes(pathname);
 const filePath = isIndexPage
   ? `src/pages${pathname}/index.astro`
   : `src/pages${pathname}.astro`;
-const editUrl = `https://github.com/logward-dev/logward.dev/edit/main/${filePath}`;
+const editUrl = `https://github.com/logtide-dev/logtide.dev/edit/main/${filePath}`;
 let lastUpdated: string | null = null;
 try {
   const gitDate = execSync(`git log -1 --format="%ci" -- ${filePath}`, { encoding: 'utf-8' }).trim();
@@ -69,7 +69,7 @@ try {
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
-    <title>{title} | LogWard Docs</title>
+    <title>{title} | LogTide Docs</title>
     <ViewTransitions />
     <script is:inline>
       // Theme detection (runs before page renders to prevent flash)

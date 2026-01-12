@@ -25,12 +25,12 @@ const headings = [
 
 <DocsLayout
   title="Authentication"
-  description="LogWard authentication methods including local, OIDC, and LDAP."
+  description="LogTide authentication methods including local, OIDC, and LDAP."
   headings={headings}
 >
   <h1 class="text-3xl font-bold mb-4">Authentication</h1>
   <p class="text-lg text-muted-foreground mb-8">
-      LogWard supports multiple authentication methods including local email/password,
+      LogTide supports multiple authentication methods including local email/password,
       OpenID Connect (OIDC) for SSO, and LDAP for enterprise directory integration.
   </p>
 
@@ -163,12 +163,12 @@ const headings = [
                       <tr>
                           <td class="p-3 border-b border-border font-mono text-xs">Issuer URL</td>
                           <td class="p-3 border-b border-border">OIDC discovery endpoint (without <code class="bg-muted px-1 rounded">/.well-known/openid-configuration</code>)</td>
-                          <td class="p-3 border-b border-border font-mono text-xs">https://auth.example.com/application/o/logward/</td>
+                          <td class="p-3 border-b border-border font-mono text-xs">https://auth.example.com/application/o/logtide/</td>
                       </tr>
                       <tr>
                           <td class="p-3 border-b border-border font-mono text-xs">Client ID</td>
                           <td class="p-3 border-b border-border">Application client ID from your identity provider</td>
-                          <td class="p-3 border-b border-border font-mono text-xs">logward-client-id</td>
+                          <td class="p-3 border-b border-border font-mono text-xs">logtide-client-id</td>
                       </tr>
                       <tr>
                           <td class="p-3 border-b border-border font-mono text-xs">Client Secret</td>
@@ -178,7 +178,7 @@ const headings = [
                       <tr>
                           <td class="p-3 border-b border-border font-mono text-xs">Redirect URI</td>
                           <td class="p-3 border-b border-border">Callback URL (optional, auto-generated if empty)</td>
-                          <td class="p-3 border-b border-border font-mono text-xs">https://logward.example.com/api/v1/auth/providers/my-oidc/callback</td>
+                          <td class="p-3 border-b border-border font-mono text-xs">https://logtide.example.com/api/v1/auth/providers/my-oidc/callback</td>
                       </tr>
                       <tr>
                           <td class="p-3 border-b border-border font-mono text-xs">Scopes</td>
@@ -203,7 +203,7 @@ const headings = [
       <div>
           <h3 id="authentik-setup" class="text-lg font-semibold mb-3 scroll-mt-24">Example: Authentik Setup</h3>
           <p class="text-sm text-muted-foreground mb-3">
-              Configure LogWard as an OAuth2/OIDC application in Authentik:
+              Configure LogTide as an OAuth2/OIDC application in Authentik:
           </p>
           <ol class="list-none space-y-2 text-sm text-muted-foreground mb-4">
               <li>In Authentik, go to <strong>Applications &gt; Applications</strong> and create a new application</li>
@@ -212,20 +212,20 @@ const headings = [
                       <li><strong>Client type:</strong> Confidential</li>
                       <li><strong>Client ID:</strong> (auto-generated or custom)</li>
                       <li><strong>Client Secret:</strong> (auto-generated)</li>
-                      <li><strong>Redirect URIs:</strong> <code class="bg-muted px-1 rounded">https://your-logward.com/api/v1/auth/providers/authentik/callback</code></li>
+                      <li><strong>Redirect URIs:</strong> <code class="bg-muted px-1 rounded">https://your-logtide.com/api/v1/auth/providers/authentik/callback</code></li>
                   </ul>
               </li>
               <li>Note the <strong>OpenID Configuration Issuer</strong> URL from the provider overview</li>
-              <li>In LogWard Admin, add a new OIDC provider with these values</li>
+              <li>In LogTide Admin, add a new OIDC provider with these values</li>
           </ol>
           <Code
               lang="json"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`{
-"issuerUrl": "https://auth.example.com/application/o/logward/",
+"issuerUrl": "https://auth.example.com/application/o/logtide/",
 "clientId": "your-client-id",
 "clientSecret": "your-client-secret",
-"redirectUri": "https://logward.example.com/api/v1/auth/providers/authentik/callback",
+"redirectUri": "https://logtide.example.com/api/v1/auth/providers/authentik/callback",
 "scopes": ["openid", "email", "profile"]
 }`}
           />
@@ -237,15 +237,15 @@ const headings = [
               <li>In Keycloak Admin Console, create a new client in your realm</li>
               <li>Set <strong>Client type:</strong> to "OpenID Connect"</li>
               <li>Set <strong>Client authentication</strong> to "On" (confidential client)</li>
-              <li>Add <strong>Valid redirect URI:</strong> <code class="bg-muted px-1 rounded">https://your-logward.com/api/v1/auth/providers/keycloak/callback</code></li>
+              <li>Add <strong>Valid redirect URI:</strong> <code class="bg-muted px-1 rounded">https://your-logtide.com/api/v1/auth/providers/keycloak/callback</code></li>
               <li>Copy Client ID and Client Secret from the Credentials tab</li>
           </ol>
           <Code
               lang="json"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`{
 "issuerUrl": "https://keycloak.example.com/realms/your-realm",
-"clientId": "logward",
+"clientId": "logtide",
 "clientSecret": "your-client-secret"
 }`}
           />
@@ -262,8 +262,8 @@ const headings = [
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
               <p>
-                  The redirect URI configured in your identity provider must exactly match what LogWard uses.
-                  The format is: <code class="bg-muted px-1 rounded">https://your-logward-domain/api/v1/auth/providers/&#123;slug&#125;/callback</code>
+                  The redirect URI configured in your identity provider must exactly match what LogTide uses.
+                  The format is: <code class="bg-muted px-1 rounded">https://your-logtide-domain/api/v1/auth/providers/&#123;slug&#125;/callback</code>
               </p>
               <p class="mt-2">
                   If you're using a reverse proxy, ensure the backend API is accessible at <code class="bg-muted px-1 rounded">/api/</code>.
@@ -341,7 +341,7 @@ const headings = [
           <h3 id="openldap-setup" class="text-lg font-semibold mb-3 scroll-mt-24">Example: OpenLDAP Setup</h3>
           <Code
               lang="json"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`{
 "serverUrl": "ldap://ldap.example.com:389",
 "bindDn": "cn=admin,dc=example,dc=com",
@@ -358,7 +358,7 @@ const headings = [
           <h3 id="active-directory-setup" class="text-lg font-semibold mb-3 scroll-mt-24">Example: Active Directory Setup</h3>
           <Code
               lang="json"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`{
 "serverUrl": "ldaps://ad.example.com:636",
 "bindDn": "CN=Service Account,OU=Service Accounts,DC=example,DC=com",
@@ -407,7 +407,7 @@ const headings = [
               When a user authenticates via OIDC or LDAP for the first time:
           </p>
           <ol class="list-none space-y-2 text-sm text-muted-foreground">
-              <li>A new LogWard account is automatically created using their email and name from the identity provider</li>
+              <li>A new LogTide account is automatically created using their email and name from the identity provider</li>
               <li>The external identity is linked to the new account</li>
               <li>User is redirected to the onboarding flow to create or join an organization</li>
           </ol>
@@ -486,7 +486,7 @@ const headings = [
           <CardContent class="text-sm text-muted-foreground">
               <p>
                   For production deployments with OIDC, set <code class="bg-muted px-1 rounded">FRONTEND_URL</code> to your actual frontend domain
-                  (e.g., <code class="bg-muted px-1 rounded">https://logward.example.com</code>). This ensures users are redirected correctly after SSO authentication.
+                  (e.g., <code class="bg-muted px-1 rounded">https://logtide.example.com</code>). This ensures users are redirected correctly after SSO authentication.
               </p>
           </CardContent>
       </Card>
@@ -501,7 +501,7 @@ const headings = [
 
   <div class="mb-12 space-y-6">
       <p class="text-muted-foreground">
-          For single-user deployments, LogWard supports an <strong>auth-free mode</strong> that
+          For single-user deployments, LogTide supports an <strong>auth-free mode</strong> that
           bypasses authentication entirely. This is ideal for personal setups where you're the only user
           and don't need login protection.
       </p>
@@ -518,8 +518,8 @@ const headings = [
           <CardContent class="text-sm text-muted-foreground">
               <p>
                   Auth-free mode disables all authentication. <strong>Only use this for private, single-user deployments</strong>
-                  where the LogWard instance is not exposed to the internet. Anyone with network access to your
-                  LogWard instance will have full admin access.
+                  where the LogTide instance is not exposed to the internet. Anyone with network access to your
+                  LogTide instance will have full admin access.
               </p>
           </CardContent>
       </Card>
@@ -608,7 +608,7 @@ const headings = [
   <div class="mb-12 space-y-6">
       <p class="text-muted-foreground">
           For automated deployments (Docker, Kubernetes, etc.), you can create an initial admin user
-          using environment variables. This allows you to deploy LogWard without needing to manually
+          using environment variables. This allows you to deploy LogTide without needing to manually
           create the first account.
       </p>
 
@@ -648,10 +648,10 @@ const headings = [
           <h3 id="initial-admin-example" class="text-lg font-semibold mb-3 scroll-mt-24">Docker Compose Example</h3>
           <Code
               lang="yaml"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`services:
 backend:
-  image: logward/backend:latest
+  image: logtide/backend:latest
   environment:
     # Initial admin (only creates user if no users exist)
     INITIAL_ADMIN_EMAIL: admin@example.com
@@ -682,17 +682,17 @@ backend:
       <div>
           <h3 id="auto-generated-credentials" class="text-lg font-semibold mb-3 scroll-mt-24">Auto-Generated Credentials</h3>
           <p class="text-sm text-muted-foreground mb-3">
-              If you don't configure <code class="bg-muted px-1 rounded">INITIAL_ADMIN_*</code> environment variables, LogWard will
-              automatically create a <code class="bg-muted px-1 rounded">system@logward.internal</code> admin account with a randomly
+              If you don't configure <code class="bg-muted px-1 rounded">INITIAL_ADMIN_*</code> environment variables, LogTide will
+              automatically create a <code class="bg-muted px-1 rounded">system@logtide.internal</code> admin account with a randomly
               generated password. The credentials are printed to the console on first startup:
           </p>
           <Code
               lang="text"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`╔════════════════════════════════════════════════════════════════╗
 ║  INITIAL ADMIN CREDENTIALS (save these!)                       ║
 ╠════════════════════════════════════════════════════════════════╣
-║  Email:    system@logward.internal                             ║
+║  Email:    system@logtide.internal                             ║
 ║  Password: xY7k2mN9pQ4rS1tU...                                 ║
 ╠════════════════════════════════════════════════════════════════╣
 ║  Change your password after first login!                       ║
@@ -862,7 +862,7 @@ backend:
                       <ul class="list-none space-y-1">
                           <li>Verify Client ID and Client Secret are correct</li>
                           <li>Check that the client is configured as "Confidential" in your IdP</li>
-                          <li>Some providers require POST-based client authentication (LogWard uses this by default)</li>
+                          <li>Some providers require POST-based client authentication (LogTide uses this by default)</li>
                       </ul>
                   </CardContent>
               </Card>
@@ -873,7 +873,7 @@ backend:
                   </CardHeader>
                   <CardContent class="text-sm text-muted-foreground">
                       <ul class="list-none space-y-1">
-                          <li>The redirect URI in LogWard must exactly match what's configured in your IdP</li>
+                          <li>The redirect URI in LogTide must exactly match what's configured in your IdP</li>
                           <li>Check for trailing slashes, http vs https, and port numbers</li>
                           <li>Format: <code class="bg-muted px-1 rounded">https://&#123;domain&#125;/api/v1/auth/providers/&#123;slug&#125;/callback</code></li>
                       </ul>
@@ -974,7 +974,7 @@ backend:
                   </CardHeader>
                   <CardContent class="text-sm text-muted-foreground">
                       <ul class="list-none space-y-1">
-                          <li>Check firewall rules between LogWard and the LDAP server</li>
+                          <li>Check firewall rules between LogTide and the LDAP server</li>
                           <li>Verify the server URL and port (389 for LDAP, 636 for LDAPS)</li>
                           <li>For LDAPS, ensure the server certificate is valid</li>
                       </ul>
@@ -1003,7 +1003,7 @@ backend:
           </p>
           <Code
               lang="yaml"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# Authentik for testing OIDC integration
 # Run: docker compose -f docker-compose.authentik.yml up -d
 # Access: http://localhost:9000 (admin setup on first visit)
@@ -1085,7 +1085,7 @@ authentik-templates:`}
           />
           <p class="text-sm text-muted-foreground mt-3">
               After starting, visit <code class="bg-muted px-1 rounded">http://localhost:9000</code> to set up the admin account,
-              then create an OAuth2/OIDC application for LogWard.
+              then create an OAuth2/OIDC application for LogTide.
           </p>
       </div>
 
@@ -1096,7 +1096,7 @@ authentik-templates:`}
           </p>
           <Code
               lang="yaml"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# OpenLDAP for testing LDAP integration
 # Run: docker compose -f docker-compose.ldap.yml up -d
 # Admin UI: http://localhost:8090
@@ -1104,7 +1104,7 @@ authentik-templates:`}
 services:
 openldap:
   image: osixia/openldap:1.5.0
-  container_name: logward-openldap
+  container_name: logtide-openldap
   environment:
     LDAP_ORGANISATION: "Example Inc"
     LDAP_DOMAIN: "example.org"
@@ -1122,7 +1122,7 @@ openldap:
 
 phpldapadmin:
   image: osixia/phpldapadmin:0.9.0
-  container_name: logward-phpldapadmin
+  container_name: logtide-phpldapadmin
   environment:
     PHPLDAPADMIN_LDAP_HOSTS: openldap
     PHPLDAPADMIN_HTTPS: "false"
@@ -1144,7 +1144,7 @@ ldap-config:`}
           </p>
           <Code
               lang="text"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# test-user.ldif
 dn: ou=users,dc=example,dc=org
 objectClass: organizationalUnit
@@ -1169,12 +1169,12 @@ userPassword: testpassword`}
           </p>
           <Code
               lang="bash"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# Copy file to container
-docker cp test-user.ldif logward-openldap:/tmp/test-user.ldif
+docker cp test-user.ldif logtide-openldap:/tmp/test-user.ldif
 
 # Apply LDIF
-docker exec logward-openldap ldapadd -x -D "cn=admin,dc=example,dc=org" -w adminpassword -f /tmp/test-user.ldif`}
+docker exec logtide-openldap ldapadd -x -D "cn=admin,dc=example,dc=org" -w adminpassword -f /tmp/test-user.ldif`}
           />
           <p class="text-sm text-muted-foreground mt-3">
               Test credentials: <code class="bg-muted px-1 rounded">testuser</code> / <code class="bg-muted px-1 rounded">testpassword</code>
@@ -1186,12 +1186,12 @@ docker exec logward-openldap ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin
               <div class="flex items-start gap-3">
                   <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5" />
                   <div>
-                      <CardTitle class="text-base">LogWard Provider Configuration</CardTitle>
+                      <CardTitle class="text-base">LogTide Provider Configuration</CardTitle>
                   </div>
               </div>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              <p class="mb-2">For the OpenLDAP test setup, use these values in LogWard:</p>
+              <p class="mb-2">For the OpenLDAP test setup, use these values in LogTide:</p>
               <ul class="list-none space-y-1">
                   <li><strong>Server URL:</strong> <code class="bg-muted px-1 rounded">ldap://localhost:389</code></li>
                   <li><strong>Bind DN:</strong> <code class="bg-muted px-1 rounded">cn=admin,dc=example,dc=org</code></li>

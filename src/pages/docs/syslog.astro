@@ -56,7 +56,7 @@ const headings = [
 
   <div class="mb-8 space-y-4">
       <p class="text-muted-foreground">
-          LogWard can receive syslog messages via Fluent Bit, which acts as a
+          LogTide can receive syslog messages via Fluent Bit, which acts as a
           syslog server listening on port 514 (UDP/TCP). This allows you to
           centralize logs from:
       </p>
@@ -110,7 +110,7 @@ const headings = [
   <div class="mb-8 space-y-6">
       <p class="text-muted-foreground">
           Add syslog inputs to your Fluent Bit configuration. Create these files
-          in your LogWard directory alongside <code class="bg-muted px-1 rounded">docker-compose.yml</code>.
+          in your LogTide directory alongside <code class="bg-muted px-1 rounded">docker-compose.yml</code>.
       </p>
 
       <div>
@@ -120,8 +120,8 @@ const headings = [
           </p>
           <Code
               lang="ini"
-              theme="github-dark"
-              code={`# Fluent Bit Configuration for LogWard
+              theme="one-dark-pro"
+              code={`# Fluent Bit Configuration for LogTide
 # Supports Docker container logs AND syslog from network devices
 
 [SERVICE]
@@ -222,16 +222,16 @@ const headings = [
   Remove_key          pid
 
 # =============================================================================
-# OUTPUT - Send to LogWard API
+# OUTPUT - Send to LogTide API
 # =============================================================================
 [OUTPUT]
   Name                http
   Match               docker.*
-  Host                \${LOGWARD_API_HOST}
+  Host                \${LOGTIDE_API_HOST}
   Port                8080
   URI                 /api/v1/ingest/single
   Format              json_lines
-  Header              X-API-Key \${LOGWARD_API_KEY}
+  Header              X-API-Key \${LOGTIDE_API_KEY}
   Header              Content-Type application/json
   Json_date_key       time
   Json_date_format    iso8601
@@ -241,11 +241,11 @@ const headings = [
 [OUTPUT]
   Name                http
   Match               syslog.*
-  Host                \${LOGWARD_API_HOST}
+  Host                \${LOGTIDE_API_HOST}
   Port                8080
   URI                 /api/v1/ingest/single
   Format              json_lines
-  Header              X-API-Key \${LOGWARD_API_KEY}
+  Header              X-API-Key \${LOGTIDE_API_KEY}
   Header              Content-Type application/json
   Json_date_key       time
   Json_date_format    iso8601
@@ -261,7 +261,7 @@ const headings = [
           </p>
           <Code
               lang="ini"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# Fluent Bit Parsers Configuration
 
 # =============================================================================
@@ -313,19 +313,19 @@ const headings = [
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">map_syslog_level.lua</h3>
           <p class="text-sm text-muted-foreground mb-3">
               Lua script to convert syslog severity (0-7) to log levels.
-              <strong>Note:</strong> LogWard automatically normalizes syslog levels server-side,
+              <strong>Note:</strong> LogTide automatically normalizes syslog levels server-side,
               so you can send levels like "notice", "emergency", "warning" etc. and they will be
-              mapped to LogWard's 5 levels (debug, info, warn, error, critical).
+              mapped to LogTide's 5 levels (debug, info, warn, error, critical).
           </p>
           <Code
               lang="lua"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`-- Map syslog priority/severity to log level
 -- Syslog severity levels (from RFC 3164/5424):
 -- 0 = Emergency, 1 = Alert, 2 = Critical, 3 = Error
 -- 4 = Warning, 5 = Notice, 6 = Informational, 7 = Debug
 --
--- LogWard automatically maps these to its 5 levels:
+-- LogTide automatically maps these to its 5 levels:
 -- emergency/alert/critical -> critical
 -- error -> error
 -- warning -> warn
@@ -349,7 +349,7 @@ function map_syslog_level(tag, timestamp, record)
       local severity = pri % 8
 
       -- Map severity number to log level string
-      -- LogWard will normalize these to its 5 levels
+      -- LogTide will normalize these to its 5 levels
       local level_map = {
           [0] = "emergency",
           [1] = "alert",
@@ -404,7 +404,7 @@ end`}
           </p>
           <Code
               lang="lua"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`-- Extract container ID from Docker log filepath
 -- Path format: /var/lib/docker/containers/CONTAINER_ID/CONTAINER_ID-json.log
 
@@ -440,13 +440,13 @@ end`}
 
       <Code
           lang="yaml"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`services:
 # ... your other services (postgres, redis, backend, frontend) ...
 
 fluent-bit:
   image: fluent/fluent-bit:4.2.2  # For ARM64: cr.fluentbit.io/fluent/fluent-bit:4.2.2
-  container_name: logward-fluent-bit
+  container_name: logtide-fluent-bit
   ports:
     - "514:514/udp"  # Syslog UDP
     - "514:514/tcp"  # Syslog TCP
@@ -461,8 +461,8 @@ fluent-bit:
     - /var/lib/docker/containers:/var/lib/docker/containers:ro
     - /var/run/docker.sock:/var/run/docker.sock:ro
   environment:
-    LOGWARD_API_KEY: \${FLUENT_BIT_API_KEY}
-    LOGWARD_API_HOST: backend
+    LOGTIDE_API_KEY: \${FLUENT_BIT_API_KEY}
+    LOGTIDE_API_HOST: backend
   depends_on:
     backend:
       condition: service_healthy
@@ -495,23 +495,23 @@ fluent-bit:
 
   <div class="mb-8 space-y-6">
       <p class="text-muted-foreground">
-          Configure Proxmox to send syslog messages to LogWard via rsyslog:
+          Configure Proxmox to send syslog messages to LogTide via rsyslog:
       </p>
 
       <div>
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">1. Install rsyslog (if not installed)</h3>
-          <Code lang="bash" theme="github-dark" code={`apt install rsyslog -y`}/>
+          <Code lang="bash" theme="one-dark-pro" code={`apt install rsyslog -y`}/>
       </div>
 
       <div>
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">2. Create rsyslog configuration</h3>
           <p class="text-sm text-muted-foreground mb-3">
-              Create <code class="bg-muted px-1 rounded">/etc/rsyslog.d/50-logward.conf</code>:
+              Create <code class="bg-muted px-1 rounded">/etc/rsyslog.d/50-logtide.conf</code>:
           </p>
           <Code
               lang="bash"
-              theme="github-dark"
-              code={`# Replace with your LogWard server IP
+              theme="one-dark-pro"
+              code={`# Replace with your LogTide server IP
 *.* @@10.0.0.100:514`}
           />
           <p class="text-sm text-muted-foreground mt-2">
@@ -523,7 +523,7 @@ fluent-bit:
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">3. Restart rsyslog</h3>
           <Code
               lang="bash"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`systemctl restart rsyslog
 systemctl status rsyslog`}
           />
@@ -533,11 +533,11 @@ systemctl status rsyslog`}
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">4. Test the connection</h3>
           <Code
               lang="bash"
-              theme="github-dark"
-              code={`logger -t proxmox-test "Test log from Proxmox to LogWard"`}
+              theme="one-dark-pro"
+              code={`logger -t proxmox-test "Test log from Proxmox to LogTide"`}
           />
           <p class="text-sm text-muted-foreground mt-2">
-              Check LogWard - you should see the test message with service "proxmox-test".
+              Check LogTide - you should see the test message with service "proxmox-test".
           </p>
       </div>
   </div>
@@ -551,7 +551,7 @@ systemctl status rsyslog`}
 
   <div class="mb-8 space-y-6">
       <p class="text-muted-foreground">
-          Configure ESXi to forward syslog to LogWard:
+          Configure ESXi to forward syslog to LogTide:
       </p>
 
       <div>
@@ -559,7 +559,7 @@ systemctl status rsyslog`}
           <ol class="list-none space-y-2 text-sm ml-4 text-muted-foreground">
               <li>Navigate to <strong>Host → Manage → System → Advanced Settings</strong></li>
               <li>Find <code class="bg-muted px-1 rounded">Syslog.global.logHost</code></li>
-              <li>Set value to: <code class="bg-muted px-1 rounded">udp://YOUR_LOGWARD_IP:514</code> or <code class="bg-muted px-1 rounded">tcp://YOUR_LOGWARD_IP:514</code></li>
+              <li>Set value to: <code class="bg-muted px-1 rounded">udp://YOUR_LOGTIDE_IP:514</code> or <code class="bg-muted px-1 rounded">tcp://YOUR_LOGTIDE_IP:514</code></li>
               <li>Click Save</li>
           </ol>
       </div>
@@ -568,7 +568,7 @@ systemctl status rsyslog`}
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Via SSH/CLI</h3>
           <Code
               lang="bash"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# Enable SSH on ESXi first, then:
 esxcli system syslog config set --loghost='tcp://10.0.0.100:514'
 esxcli system syslog reload`}
@@ -604,7 +604,7 @@ esxcli system syslog reload`}
           <ol class="list-none space-y-2 text-sm ml-4 text-muted-foreground">
               <li>Go to <strong>Settings → System → Remote Logging</strong></li>
               <li>Enable <strong>Remote Syslog Server</strong></li>
-              <li>Enter your LogWard server IP and port 514</li>
+              <li>Enter your LogTide server IP and port 514</li>
               <li>Select log level (Info recommended)</li>
           </ol>
       </div>
@@ -614,7 +614,7 @@ esxcli system syslog reload`}
           <ol class="list-none space-y-2 text-sm ml-4 text-muted-foreground">
               <li>Go to <strong>Status → System Logs → Settings</strong></li>
               <li>Check <strong>Enable Remote Logging</strong></li>
-              <li>Enter your LogWard server IP in <strong>Remote log servers</strong></li>
+              <li>Enter your LogTide server IP in <strong>Remote log servers</strong></li>
               <li>Select which logs to send (firewall, system, etc.)</li>
           </ol>
       </div>
@@ -622,17 +622,17 @@ esxcli system syslog reload`}
       <div>
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Linux Servers (rsyslog)</h3>
           <p class="text-sm text-muted-foreground mb-3">
-              Same as Proxmox - create <code class="bg-muted px-1 rounded">/etc/rsyslog.d/50-logward.conf</code>:
+              Same as Proxmox - create <code class="bg-muted px-1 rounded">/etc/rsyslog.d/50-logtide.conf</code>:
           </p>
           <Code
               lang="bash"
-              theme="github-dark"
-              code={`# Forward all logs to LogWard (TCP)
-*.* @@YOUR_LOGWARD_IP:514
+              theme="one-dark-pro"
+              code={`# Forward all logs to LogTide (TCP)
+*.* @@YOUR_LOGTIDE_IP:514
 
 # Or forward only specific facilities/severities:
-# auth,authpriv.* @@YOUR_LOGWARD_IP:514    # Auth logs only
-# *.err @@YOUR_LOGWARD_IP:514              # Errors and above only`}
+# auth,authpriv.* @@YOUR_LOGTIDE_IP:514    # Auth logs only
+# *.err @@YOUR_LOGTIDE_IP:514              # Errors and above only`}
           />
       </div>
 
@@ -641,7 +641,7 @@ esxcli system syslog reload`}
           <ol class="list-none space-y-2 text-sm ml-4 text-muted-foreground">
               <li>Go to <strong>Control Panel → Log Center → Log Sending</strong></li>
               <li>Check <strong>Send logs to a syslog server</strong></li>
-              <li>Enter your LogWard server IP</li>
+              <li>Enter your LogTide server IP</li>
               <li>Select format: BSD (RFC 3164) or IETF (RFC 5424)</li>
           </ol>
       </div>
@@ -666,14 +666,14 @@ esxcli system syslog reload`}
                       The rsyslog <code class="bg-muted px-1 rounded">omhttp</code> module (for sending logs directly via HTTP)
                       is <strong>not available in default rsyslog packages</strong> on many distributions,
                       including Debian 13 (Trixie), Ubuntu, and some RHEL-based systems. This is a
-                      known upstream limitation, not a LogWard issue.
+                      known upstream limitation, not a LogTide issue.
                   </p>
               </div>
           </div>
       </div>
 
       <p class="text-muted-foreground">
-          If you need to send syslog messages directly to LogWard's HTTP API without using
+          If you need to send syslog messages directly to LogTide's HTTP API without using
           Fluent Bit's syslog input, you have several options:
       </p>
 
@@ -681,7 +681,7 @@ esxcli system syslog reload`}
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Option 1: Use Fluent Bit (Recommended)</h3>
           <p class="text-sm text-muted-foreground mb-3">
               The simplest solution is to use Fluent Bit as described in this guide. Fluent Bit
-              receives syslog messages on port 514 and forwards them to LogWard's HTTP API.
+              receives syslog messages on port 514 and forwards them to LogTide's HTTP API.
               This is the recommended approach.
           </p>
       </div>
@@ -694,7 +694,7 @@ esxcli system syslog reload`}
           </p>
           <Code
               lang="bash"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# Install Vector (Debian/Ubuntu)
 curl --proto '=https' --tlsv1.2 -sSf https://sh.vector.dev | bash
 
@@ -707,8 +707,8 @@ sudo apt install vector`}
           </p>
           <Code
               lang="toml"
-              theme="github-dark"
-              code={`# Vector configuration for rsyslog → LogWard
+              theme="one-dark-pro"
+              code={`# Vector configuration for rsyslog → LogTide
 
 [sources.rsyslog]
 type = "syslog"
@@ -719,7 +719,7 @@ mode = "tcp"  # or "udp"
 type = "remap"
 inputs = ["rsyslog"]
 source = '''
-# Transform syslog fields to LogWard format
+# Transform syslog fields to LogTide format
 .message = string!(.message)
 .level = downcase(string(.severity) ?? "info")
 .service = string(.appname) ?? string(.hostname) ?? "syslog"
@@ -739,19 +739,19 @@ del(.facility)
 del(.procid)
 '''
 
-[sinks.logward]
+[sinks.logtide]
 type = "http"
 inputs = ["format_logs"]
-uri = "http://YOUR_LOGWARD_HOST:8080/api/v1/ingest/single"
+uri = "http://YOUR_LOGTIDE_HOST:8080/api/v1/ingest/single"
 encoding.codec = "json"
 
-[sinks.logward.request]
+[sinks.logtide.request]
 headers.X-API-Key = "lp_your_api_key_here"
 headers.Content-Type = "application/json"`}
           />
           <Code
               lang="bash"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# Start Vector
 sudo systemctl enable vector
 sudo systemctl start vector
@@ -771,7 +771,7 @@ vector --version`}
           </p>
           <Code
               lang="bash"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# Install build dependencies (Debian/Ubuntu)
 sudo apt install build-essential pkg-config libestr-dev libfastjson-dev \
 zlib1g-dev libcurl4-openssl-dev uuid-dev libgcrypt20-dev
@@ -799,8 +799,8 @@ sudo make install`}
           </p>
           <Code
               lang="bash"
-              theme="github-dark"
-              code={`# /etc/rsyslog.d/50-logward.conf
+              theme="one-dark-pro"
+              code={`# /etc/rsyslog.d/50-logtide.conf
 # Forward all logs to local Fluent Bit syslog input
 *.* @@127.0.0.1:5514`}
           />
@@ -831,7 +831,7 @@ sudo make install`}
                   Check Fluent Bit logs: <code class="bg-muted px-1 rounded">docker compose logs fluent-bit</code>
               </li>
               <li>
-                  Test connectivity from source: <code class="bg-muted px-1 rounded">nc -zv YOUR_LOGWARD_IP 514</code>
+                  Test connectivity from source: <code class="bg-muted px-1 rounded">nc -zv YOUR_LOGTIDE_IP 514</code>
               </li>
               <li>
                   Check firewall allows port 514 (TCP/UDP)
@@ -851,12 +851,12 @@ sudo make install`}
           </p>
           <Code
               lang="bash"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`# UDP test
-echo "<14>Test syslog message from terminal" | nc -u -w1 YOUR_LOGWARD_IP 514
+echo "<14>Test syslog message from terminal" | nc -u -w1 YOUR_LOGTIDE_IP 514
 
 # TCP test
-echo "<14>Test syslog message from terminal" | nc -w1 YOUR_LOGWARD_IP 514`}
+echo "<14>Test syslog message from terminal" | nc -w1 YOUR_LOGTIDE_IP 514`}
           />
       </div>
 
@@ -885,7 +885,7 @@ echo "<14>Test syslog message from terminal" | nc -w1 YOUR_LOGWARD_IP 514`}
           </p>
           <Code
               lang="yaml"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`services:
 fluent-bit:
   environment:
@@ -899,7 +899,7 @@ fluent-bit:
           </p>
           <Code
               lang="ini"
-              theme="github-dark"
+              theme="one-dark-pro"
               code={`[PARSER]
   Name        syslog-rfc3164
   ...
@@ -924,8 +924,8 @@ fluent-bit:
 
   <div class="mb-8 space-y-4">
       <p class="text-muted-foreground">
-          Once syslog is flowing into LogWard, you can use Sigma rules to detect
-          security threats. LogWard supports the industry-standard Sigma format
+          Once syslog is flowing into LogTide, you can use Sigma rules to detect
+          security threats. LogTide supports the industry-standard Sigma format
           for log detection rules.
       </p>
 
@@ -936,7 +936,7 @@ fluent-bit:
           <CardContent>
               <Code
                   lang="yaml"
-                  theme="github-dark"
+                  theme="one-dark-pro"
                   code={`title: SSH Authentication Failure
 status: stable
 logsource:
@@ -967,7 +967,7 @@ level: medium`}
                   You're All Set!
               </p>
               <p class="text-sm text-muted-foreground">
-                  Your infrastructure logs are now flowing into LogWard. Use the
+                  Your infrastructure logs are now flowing into LogTide. Use the
                   search and filter features to explore your logs, set up alerts
                   for important events, and enable Sigma rules for security monitoring.
               </p>
@@ -979,11 +979,11 @@ level: medium`}
       <p class="text-sm text-muted-foreground">
           This guide was inspired by Brandon Lee's excellent article
           <a
-              href="https://www.virtualizationhowto.com/2025/12/logward-is-the-lightweight-syslog-server-every-home-lab-needs-in-2025/"
+              href="https://www.virtualizationhowto.com/2025/12/logtide-is-the-lightweight-syslog-server-every-home-lab-needs-in-2025/"
               target="_blank"
               rel="noopener noreferrer"
               class="text-primary hover:underline"
-          >"LogWard Is the Lightweight Syslog Server Every Home Lab Needs in 2025"</a>
+          >"LogTide Is the Lightweight Syslog Server Every Home Lab Needs in 2025"</a>
           on VirtualizationHowto.
       </p>
   </div>

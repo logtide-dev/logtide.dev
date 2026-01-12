@@ -13,7 +13,7 @@ const headings = [
   { text: "Why Migrate from Datadog?", slug: "why-migrate", depth: 2 },
   { text: "Feature Comparison", slug: "feature-comparison", depth: 2 },
   { text: "Step 1: Inventory Your Datadog Setup", slug: "step-1", depth: 2 },
-  { text: "Step 2: Deploy LogWard", slug: "step-2", depth: 2 },
+  { text: "Step 2: Deploy LogTide", slug: "step-2", depth: 2 },
   { text: "Step 3: SDK Migration", slug: "step-3", depth: 2 },
   { text: "Step 4: Alert Migration", slug: "step-4", depth: 2 },
   { text: "Step 5: Parallel Ingestion (Validation)", slug: "step-5", depth: 2 },
@@ -26,7 +26,7 @@ const headings = [
 
 <DocsLayout
   title="Migrate from Datadog"
-  description="Migrate from Datadog's proprietary platform to LogWard and save up to 90% on log costs."
+  description="Migrate from Datadog's proprietary platform to LogTide and save up to 90% on log costs."
   headings={headings}
 >
   <div class="flex items-center justify-between mb-4">
@@ -43,7 +43,7 @@ const headings = [
   </div>
 
   <p class="text-lg text-muted-foreground mb-8">
-      Migrate from Datadog's proprietary platform to LogWard and save up to 90% on log management costs
+      Migrate from Datadog's proprietary platform to LogTide and save up to 90% on log management costs
       while gaining full data ownership and built-in SIEM capabilities.
   </p>
 
@@ -63,7 +63,7 @@ const headings = [
                       <h3 class="font-semibold mb-1">Massive Cost Savings</h3>
                       <p class="text-sm text-muted-foreground">
                           Datadog charges $0.10-$1.70/GB for log ingestion. A 500 GB/day deployment
-                          can cost $15,000+/month. LogWard is self-hosted with zero per-GB fees.
+                          can cost $15,000+/month. LogTide is self-hosted with zero per-GB fees.
                       </p>
                   </div>
               </div>
@@ -129,7 +129,7 @@ const headings = [
               <tr>
                   <th class="px-4 py-3 text-left border-b border-border">Feature</th>
                   <th class="px-4 py-3 text-left border-b border-border">Datadog</th>
-                  <th class="px-4 py-3 text-left border-b border-border">LogWard</th>
+                  <th class="px-4 py-3 text-left border-b border-border">LogTide</th>
               </tr>
           </thead>
           <tbody>
@@ -246,7 +246,7 @@ const headings = [
 
       <Code
           lang="bash"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`# Export all log monitors
 curl -X GET "https://api.datadoghq.com/api/v1/monitor" \
 -H "DD-API-KEY: $DD_API_KEY" \
@@ -263,27 +263,27 @@ curl -X GET "https://api.datadoghq.com/api/v1/dashboard" \
       id="step-2"
       class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
   >
-      Step 2: Deploy LogWard
+      Step 2: Deploy LogTide
   </h2>
 
   <div class="mb-8">
       <p class="mb-4">
-          Follow the <a href="/docs/deployment" class="text-primary hover:underline">Deployment Guide</a> to set up LogWard.
+          Follow the <a href="/docs/deployment" class="text-primary hover:underline">Deployment Guide</a> to set up LogTide.
           Here's a quick start:
       </p>
 
       <Code
           lang="bash"
-          theme="github-dark"
+          theme="one-dark-pro"
           code={`# Clone and configure
-git clone https://github.com/logward-dev/logward.git
-cd logward/docker
+git clone https://github.com/logtide-dev/logtide.git
+cd logtide/docker
 
 # Copy and edit environment
 cp .env.example .env
 # Edit .env: Set PUBLIC_API_URL, database passwords, etc.
 
-# Start LogWard
+# Start LogTide
 docker compose up -d
 
 # Verify deployment
@@ -329,7 +329,7 @@ curl http://localhost:8080/health`}
 
   <div class="mb-8">
       <p class="mb-4">
-          Replace Datadog SDK with LogWard SDK. The API is similar, making migration straightforward.
+          Replace Datadog SDK with LogTide SDK. The API is similar, making migration straightforward.
       </p>
 
       <h3 class="text-lg font-semibold mb-3">Node.js Migration</h3>
@@ -342,7 +342,7 @@ curl http://localhost:8080/health`}
               <CardContent>
                   <Code
                       lang="typescript"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`import { datadogLogs } from '@datadog/browser-logs';
 
 datadogLogs.init({
@@ -362,16 +362,16 @@ email: 'user@example.com'
 
           <Card>
               <CardHeader class="pb-2">
-                  <CardTitle class="text-base">After (LogWard)</CardTitle>
+                  <CardTitle class="text-base">After (LogTide)</CardTitle>
               </CardHeader>
               <CardContent>
                   <Code
                       lang="typescript"
-                      theme="github-dark"
-                      code={`import { LogWardClient } from '@logward-dev/sdk-node';
+                      theme="one-dark-pro"
+                      code={`import { LogTideClient } from '@logtide-dev/sdk-node';
 
-const client = new LogWardClient({
-apiUrl: 'http://logward.internal:8080',
+const client = new LogTideClient({
+apiUrl: 'http://logtide.internal:8080',
 apiKey: 'lp_xxx',
 globalMetadata: { env: 'production' }
 });
@@ -395,7 +395,7 @@ email: 'user@example.com'
               <CardContent>
                   <Code
                       lang="python"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`from datadog import initialize, statsd
 from ddtrace import tracer
 
@@ -411,16 +411,16 @@ def process_request():
 
           <Card>
               <CardHeader class="pb-2">
-                  <CardTitle class="text-base">After (LogWard)</CardTitle>
+                  <CardTitle class="text-base">After (LogTide)</CardTitle>
               </CardHeader>
               <CardContent>
                   <Code
                       lang="python"
-                      theme="github-dark"
-                      code={`from logward_sdk import LogWardClient
+                      theme="one-dark-pro"
+                      code={`from logtide_sdk import LogTideClient
 
-client = LogWardClient(
-  api_url='http://logward.internal:8080',
+client = LogTideClient(
+  api_url='http://logtide.internal:8080',
   api_key='lp_xxx',
   global_metadata={'env': 'production'}
 )
@@ -440,7 +440,7 @@ def process_request():
               <thead class="bg-muted">
                   <tr>
                       <th class="px-4 py-2 text-left border-b border-border">Datadog</th>
-                      <th class="px-4 py-2 text-left border-b border-border">LogWard</th>
+                      <th class="px-4 py-2 text-left border-b border-border">LogTide</th>
                   </tr>
               </thead>
               <tbody>
@@ -478,7 +478,7 @@ def process_request():
 
   <div class="mb-8">
       <p class="mb-4">
-          Convert your Datadog monitors to LogWard alert rules. Here's how the formats map:
+          Convert your Datadog monitors to LogTide alert rules. Here's how the formats map:
       </p>
 
       <div class="grid md:grid-cols-2 gap-4 mb-6">
@@ -489,7 +489,7 @@ def process_request():
               <CardContent>
                   <Code
                       lang="json"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`{
 "name": "High Error Rate",
 "type": "log alert",
@@ -506,12 +506,12 @@ def process_request():
 
           <Card>
               <CardHeader class="pb-2">
-                  <CardTitle class="text-base">LogWard Alert Rule</CardTitle>
+                  <CardTitle class="text-base">LogTide Alert Rule</CardTitle>
               </CardHeader>
               <CardContent>
                   <Code
                       lang="json"
-                      theme="github-dark"
+                      theme="one-dark-pro"
                       code={`{
 "name": "High Error Rate",
 "enabled": true,
@@ -527,12 +527,12 @@ def process_request():
           </Card>
       </div>
 
-      <p class="mb-4">Create alert rules via the LogWard API:</p>
+      <p class="mb-4">Create alert rules via the LogTide API:</p>
 
       <Code
           lang="bash"
-          theme="github-dark"
-          code={`curl -X POST "http://logward.internal:8080/api/v1/alerts" \
+          theme="one-dark-pro"
+          code={`curl -X POST "http://logtide.internal:8080/api/v1/alerts" \
 -H "Authorization: Bearer YOUR_SESSION_TOKEN" \
 -H "Content-Type: application/json" \
 -d '{ 
@@ -568,14 +568,14 @@ def process_request():
           <CardContent>
               <Code
                   lang="typescript"
-                  theme="github-dark"
+                  theme="one-dark-pro"
                   code={`import { datadogLogs } from '@datadog/browser-logs';
-import { LogWardClient } from '@logward-dev/sdk-node';
+import { LogTideClient } from '@logtide-dev/sdk-node';
 
 // Initialize both
 datadogLogs.init({ clientToken: 'xxx', site: 'datadoghq.com' });
-const logward = new LogWardClient({
-apiUrl: 'http://logward.internal:8080',
+const logtide = new LogTideClient({
+apiUrl: 'http://logtide.internal:8080',
 apiKey: 'lp_xxx'
 });
 
@@ -584,8 +584,8 @@ function log(level: string, service: string, message: string, meta?: object) {
 // Send to Datadog
 datadogLogs.logger[level](message, { service, ...meta });
 
-// Send to LogWard
-logward[level](service, message, meta);
+// Send to LogTide
+logtide[level](service, message, meta);
 }
 
 // Usage
@@ -630,7 +630,7 @@ log('info', 'api', 'Request processed', { userId: 123 });`}
       <ol class="space-y-3 text-sm mb-4 text-muted-foreground">
           <li class="flex items-start gap-3">
               <span class="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-semibold">1</span>
-              <span>Update production configs to use LogWard SDK only (remove Datadog SDK)</span>
+              <span>Update production configs to use LogTide SDK only (remove Datadog SDK)</span>
           </li>
           <li class="flex items-start gap-3">
               <span class="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-semibold">2</span>
@@ -638,7 +638,7 @@ log('info', 'api', 'Request processed', { userId: 123 });`}
           </li>
           <li class="flex items-start gap-3">
               <span class="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-semibold">3</span>
-              <span>Update team runbooks and documentation to reference LogWard URLs</span>
+              <span>Update team runbooks and documentation to reference LogTide URLs</span>
           </li>
           <li class="flex items-start gap-3">
               <span class="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-semibold">4</span>
@@ -659,7 +659,7 @@ log('info', 'api', 'Request processed', { userId: 123 });`}
           <thead class="bg-muted">
               <tr>
                   <th class="px-4 py-2 text-left border-b border-border">Datadog Term</th>
-                  <th class="px-4 py-2 text-left border-b border-border">LogWard Equivalent</th>
+                  <th class="px-4 py-2 text-left border-b border-border">LogTide Equivalent</th>
                   <th class="px-4 py-2 text-left border-b border-border">Notes</th>
               </tr>
           </thead>
@@ -682,7 +682,7 @@ log('info', 'api', 'Request processed', { userId: 123 });`}
               <tr>
                   <td class="px-4 py-2 border-b border-border">Log Pipeline</td>
                   <td class="px-4 py-2 border-b border-border">N/A (automatic)</td>
-                  <td class="px-4 py-2 border-b border-border">LogWard auto-parses JSON</td>
+                  <td class="px-4 py-2 border-b border-border">LogTide auto-parses JSON</td>
               </tr>
               <tr>
                   <td class="px-4 py-2 border-b border-border">Monitor</td>
@@ -720,7 +720,7 @@ log('info', 'api', 'Request processed', { userId: 123 });`}
           <CardHeader>
               <CardTitle class="text-base flex items-center gap-2">
                   <Icon name="lucide:alert-circle" class="w-4 h-4 text-yellow-500" />
-                  Logs not appearing in LogWard
+                  Logs not appearing in LogTide
               </CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
@@ -741,7 +741,7 @@ log('info', 'api', 'Request processed', { userId: 123 });`}
               </CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              LogWard expects ISO 8601 timestamps in UTC. Datadog may use Unix epoch.
+              LogTide expects ISO 8601 timestamps in UTC. Datadog may use Unix epoch.
               Ensure your SDK is sending ISO format: <code class="bg-muted px-1 rounded">2025-01-15T12:00:00Z</code>
           </CardContent>
       </Card>
@@ -754,7 +754,7 @@ log('info', 'api', 'Request processed', { userId: 123 });`}
               </CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              In Datadog, service is often auto-detected. In LogWard, you must explicitly
+              In Datadog, service is often auto-detected. In LogTide, you must explicitly
               pass the service name as the first argument: <code class="bg-muted px-1 rounded">client.info('my-service', 'message')</code>
           </CardContent>
       </Card>
