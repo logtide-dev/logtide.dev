@@ -1,0 +1,81 @@
+---
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, ORG_SCHEMA } from '../config/seo';
+
+interface Props {
+  title: string;
+  description?: string;
+  type?: 'website' | 'article';
+  ogImage?: string | null;
+  breadcrumbs?: Array<{ name: string; url: string }>;
+}
+
+const {
+  title,
+  description = SITE_DESCRIPTION,
+  type = 'website',
+  ogImage = null,
+  breadcrumbs = []
+} = Astro.props;
+
+// Compute canonical URL - remove trailing slash for consistency
+const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
+const canonicalURL = `${SITE_URL}${pathname}`;
+
+const isHomepage = pathname === '/';
+
+// JSON-LD Schemas
+const schemas: object[] = [];
+
+// Organization schema (all pages)
+schemas.push({
+  "@context": "https://schema.org",
+  ...ORG_SCHEMA
+});
+
+// WebSite schema (homepage only)
+if (isHomepage) {
+  schemas.push({
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": SITE_NAME,
+    "url": SITE_URL,
+    "description": SITE_DESCRIPTION
+  });
+}
+
+// BreadcrumbList schema (if breadcrumbs provided)
+if (breadcrumbs.length > 0) {
+  schemas.push({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": breadcrumbs.map((crumb, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "name": crumb.name,
+      "item": `${SITE_URL}${crumb.url.startsWith('/') ? crumb.url : '/' + crumb.url}`
+    }))
+  });
+}
+---
+
+<!-- Canonical URL -->
+<link rel="canonical" href={canonicalURL} />
+
+<!-- Open Graph -->
+<meta property="og:type" content={type} />
+<meta property="og:url" content={canonicalURL} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:site_name" content={SITE_NAME} />
+{ogImage && <meta property="og:image" content={ogImage} />}
+
+<!-- Twitter -->
+<meta name="twitter:card" content={ogImage ? "summary_large_image" : "summary"} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{ogImage && <meta name="twitter:image" content={ogImage} />}
+
+<!-- JSON-LD Structured Data -->
+{schemas.map(schema => (
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+))}

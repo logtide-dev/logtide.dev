@@ -1,4 +1,6 @@
 ---
+import SEO from '../components/SEO.astro';
+
 interface Props {
   title: string;
   description: string;
@@ -13,14 +15,7 @@ const { title, description } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:image" content="https://logtide.dev/og-image.png" />
-    <meta property="og:url" content="https://logtide.dev" />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <SEO title={title} description={description} type="website" ogImage="https://logtide.dev/images/default.png" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
