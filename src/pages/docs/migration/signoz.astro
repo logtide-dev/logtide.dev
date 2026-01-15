@@ -266,7 +266,7 @@ headers: {},
                       lang="typescript"
                       theme="one-dark-pro"
                       code={`const logExporter = new OTLPLogExporter({
-url: 'http://logtide:8080/api/v1/otlp/logs',
+url: 'http://logtide:8080/v1/otlp/logs',
 headers: {
   'X-API-Key': 'lp_your_api_key'
 },
@@ -303,7 +303,7 @@ headers: {
                       lang="python"
                       theme="one-dark-pro"
                       code={`exporter = OTLPLogExporter(
-  endpoint="http://logtide:8080/api/v1/otlp/logs",
+  endpoint="http://logtide:8080/v1/otlp/logs",
   headers={"X-API-Key": "lp_your_api_key"},
 )`}
                   />
@@ -561,7 +561,7 @@ tags:
               </CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              SigNoz uses standard OTLP port 4317/4318. LogTide uses <code class="bg-muted px-1 rounded">/api/v1/otlp/logs</code>
+              SigNoz uses standard OTLP port 4317/4318. LogTide uses <code class="bg-muted px-1 rounded">/v1/otlp/logs</code>
               on the main API port (8080). Update your endpoint URLs accordingly.
           </CardContent>
       </Card>

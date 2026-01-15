@@ -144,7 +144,7 @@ import { LoggerProvider, BatchLogRecordProcessor } from '@opentelemetry/sdk-logs
 
 // Configure exporter
 const exporter = new OTLPLogExporter({
-  url: 'https://api.logtide.dev/api/v1/otlp/logs', // or localhost:8080
+  url: 'https://api.logtide.dev/v1/otlp/logs', // or localhost:8080
   headers: { 'X-API-Key': 'lp_your_api_key_here' },
 });
 

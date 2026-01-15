@@ -62,7 +62,7 @@ const headings = [
               <div class="grid gap-3 text-sm">
                   <div class="flex justify-between">
                       <span class="text-muted-foreground">Endpoint Path:</span>
-                      <code class="font-mono bg-muted px-1 rounded">/api/v1/otlp/logs</code>
+                      <code class="font-mono bg-muted px-1 rounded">/v1/otlp/logs</code>
                   </div>
                   <div class="flex justify-between">
                       <span class="text-muted-foreground">Content Types:</span>
@@ -85,15 +85,15 @@ const headings = [
               <div class="grid gap-2 text-sm">
                   <div>
                       <span class="text-muted-foreground">LogTide Cloud:</span>
-                      <code class="ml-2 font-mono bg-background/50 px-1 rounded">https://api.logtide.dev/api/v1/otlp/logs</code>
+                      <code class="ml-2 font-mono bg-background/50 px-1 rounded">https://api.logtide.dev/v1/otlp/logs</code>
                   </div>
                   <div>
                       <span class="text-muted-foreground">Self-hosted (default):</span>
-                      <code class="ml-2 font-mono bg-background/50 px-1 rounded">http://your-server:8080/api/v1/otlp/logs</code>
+                      <code class="ml-2 font-mono bg-background/50 px-1 rounded">http://your-server:8080/v1/otlp/logs</code>
                   </div>
                   <div>
                       <span class="text-muted-foreground">Self-hosted (with TLS):</span>
-                      <code class="ml-2 font-mono bg-background/50 px-1 rounded">https://your-server:443/api/v1/otlp/logs</code>
+                      <code class="ml-2 font-mono bg-background/50 px-1 rounded">https://your-server:443/v1/otlp/logs</code>
                   </div>
               </div>
               <p class="text-xs text-muted-foreground mt-3">
@@ -247,10 +247,10 @@ import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
 import { logs, SeverityNumber } from '@opentelemetry/api-logs';
 
 // Configure the OTLP exporter
-// Self-hosted: http://your-server:8080/api/v1/otlp/logs
-// Cloud: https://api.logtide.dev/api/v1/otlp/logs
+// Self-hosted: http://your-server:8080/v1/otlp/logs
+// Cloud: https://api.logtide.dev/v1/otlp/logs
 const logExporter = new OTLPLogExporter({
-url: 'http://your-server:8080/api/v1/otlp/logs',
+url: 'http://your-server:8080/v1/otlp/logs',
 headers: {
   'X-API-Key': 'your-api-key-here',
 },
@@ -315,10 +315,10 @@ resource = Resource.create({
 })
 
 # Configure the OTLP exporter
-# Self-hosted: http://your-server:8080/api/v1/otlp/logs
-# Cloud: https://api.logtide.dev/api/v1/otlp/logs
+# Self-hosted: http://your-server:8080/v1/otlp/logs
+# Cloud: https://api.logtide.dev/v1/otlp/logs
 exporter = OTLPLogExporter(
-  endpoint="http://your-server:8080/api/v1/otlp/logs",
+  endpoint="http://your-server:8080/v1/otlp/logs",
   headers={"X-API-Key": "your-api-key-here"},
 )
 
@@ -387,7 +387,7 @@ func main() {
   // Cloud: api.logtide.dev (HTTPS by default)
   exporter, err := otlploghttp.New(ctx,
       otlploghttp.WithEndpoint("your-server:8080"),
-      otlploghttp.WithURLPath("/api/v1/otlp/logs"),
+      otlploghttp.WithURLPath("/v1/otlp/logs"),
       otlploghttp.WithInsecure(), // Remove for HTTPS
       otlploghttp.WithHeaders(map[string]string{
           "X-API-Key": "your-api-key-here",
@@ -515,7 +515,7 @@ services:
   # Cloud (HTTPS): Host api.logtide.dev, Port 443, Tls On
   Host         your-server
   Port         8080
-  Uri          /api/v1/otlp/logs
+  Uri          /v1/otlp/logs
   Log_response_payload True
   Tls          Off
   Header       X-API-Key your-api-key-here`}
@@ -658,7 +658,7 @@ span.end();`}
               <CardContent class="text-sm text-muted-foreground">
                   <ul class="list-none pl-4 space-y-1">
                       <li>Check that your API key is valid and has ingestion permissions</li>
-                      <li>Verify you're sending to <code class="bg-muted px-1 rounded">/api/v1/otlp/logs</code></li>
+                      <li>Verify you're sending to <code class="bg-muted px-1 rounded">/v1/otlp/logs</code></li>
                       <li>Both <code class="bg-muted px-1 rounded">application/json</code> and <code class="bg-muted px-1 rounded">application/x-protobuf</code> are supported</li>
                       <li>Check rate limits (default: 200 req/min per API key)</li>
                   </ul>
