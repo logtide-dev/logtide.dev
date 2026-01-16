@@ -16,6 +16,7 @@ import { Code } from 'astro:components';
 const headings = [
   { text: "Deployment Options", slug: "deployment-options", depth: 2 },
   { text: "Self-Hosted Quick Start", slug: "self-hosted", depth: 2 },
+  { text: "Troubleshooting", slug: "troubleshooting", depth: 2 },
   { text: "First Steps", slug: "first-steps", depth: 2 },
   { text: "Next Steps", slug: "next", depth: 2 }
 ];
@@ -371,6 +372,55 @@ logger.emit({
         </p>
       </CardContent>
     </Card>
+  </div>
+
+  <h2
+    id="troubleshooting"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Troubleshooting
+  </h2>
+
+  <div class="mb-8 space-y-6">
+    <div>
+      <h3 id="failed-to-fetch" class="text-lg font-semibold mb-2 scroll-mt-24">
+        "Failed to Fetch" Error on First Access
+      </h3>
+      <p class="text-muted-foreground mb-3">
+        If you see a "Failed to Fetch" error when accessing the dashboard for the first time,
+        the frontend cannot reach the backend API. This typically happens with Docker orchestrators
+        (Portainer, Komodo, etc.) or non-standard network setups.
+      </p>
+      <p class="text-muted-foreground mb-3">
+        <strong>How auto-detection works:</strong> When you access via <code class="bg-muted px-1 py-0.5 rounded font-mono">http://192.168.1.100:3000</code>,
+        the frontend assumes the API is at <code class="bg-muted px-1 py-0.5 rounded font-mono">http://192.168.1.100:8080</code>.
+        If you access via a reverse proxy on port 80/443, it uses relative URLs.
+      </p>
+      <p class="text-muted-foreground mb-3">
+        <strong>Fix:</strong> If auto-detection fails, explicitly set the API URL in your <code class="bg-muted px-1 py-0.5 rounded font-mono">.env</code> file:
+      </p>
+      <Code lang="bash" theme="one-dark-pro" code={`# Set this to your Docker host's accessible address
+PUBLIC_API_URL=http://your-docker-host:8080`} />
+      <p class="text-sm text-muted-foreground mt-3">
+        Then restart the frontend: <code class="bg-muted px-1 py-0.5 rounded font-mono">docker compose restart frontend</code>
+      </p>
+    </div>
+
+    <div>
+      <h3 id="containers-not-healthy" class="text-lg font-semibold mb-2 scroll-mt-24">
+        Containers Not Starting / Unhealthy
+      </h3>
+      <p class="text-muted-foreground mb-3">
+        Check container logs to identify the issue:
+      </p>
+      <Code lang="bash" theme="one-dark-pro" code={`# Check all container status
+docker compose ps
+
+# View logs for a specific service
+docker compose logs backend
+docker compose logs postgres
+docker compose logs redis`} />
+    </div>
   </div>
 
   <h2

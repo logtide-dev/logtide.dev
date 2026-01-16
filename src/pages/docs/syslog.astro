@@ -14,6 +14,7 @@ const headings = [
   { text: "Proxmox VE Setup", slug: "proxmox", depth: 2 },
   { text: "VMware ESXi Setup", slug: "esxi", depth: 2 },
   { text: "Other Devices", slug: "other-devices", depth: 2 },
+  { text: "Multi-Server Setup", slug: "multi-server", depth: 2 },
   { text: "Rsyslog HTTP Forwarding (Advanced)", slug: "rsyslog-http", depth: 2 },
   { text: "Troubleshooting", slug: "troubleshooting", depth: 2 },
   { text: "Security Detection with Sigma Rules", slug: "sigma-rules", depth: 2 }
@@ -435,18 +436,63 @@ end`}
 
   <div class="mb-8 space-y-6">
       <p class="text-muted-foreground">
-          Add Fluent Bit to your <code class="bg-muted px-1 rounded">docker-compose.yml</code> with syslog ports exposed:
+          The default LogTide <code class="bg-muted px-1 rounded">docker-compose.yml</code> already includes
+          Fluent Bit with syslog support. It uses Docker Compose profiles, so it doesn't start by default.
       </p>
 
-      <Code
-          lang="yaml"
-          theme="one-dark-pro"
-          code={`services:
-# ... your other services (postgres, redis, backend, frontend) ...
+      <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+          <div class="flex items-start gap-3">
+              <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+              <div>
+                  <p class="font-semibold text-blue-600 dark:text-blue-400 mb-1">
+                      Enable Fluent Bit with Docker Profiles
+                  </p>
+                  <p class="text-sm text-muted-foreground mb-2">
+                      Fluent Bit is configured with <code class="bg-muted px-1 rounded">profiles: [logging]</code>
+                      so it doesn't start by default. To enable it:
+                  </p>
+                  <Code lang="bash" theme="one-dark-pro" code={`# Option 1: Start with profile flag
+docker compose --profile logging up -d
 
-fluent-bit:
+# Option 2: Add to your .env file (recommended)
+COMPOSE_PROFILES=logging`} />
+              </div>
+          </div>
+      </div>
+
+      <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
+          <div class="flex items-start gap-3">
+              <Icon name="lucide:key" class="w-5 h-5 text-yellow-500 mt-0.5 flex-shrink-0" />
+              <div>
+                  <p class="font-semibold text-yellow-600 dark:text-yellow-400 mb-1">
+                      Required: Set FLUENT_BIT_API_KEY
+                  </p>
+                  <p class="text-sm text-muted-foreground mb-2">
+                      Fluent Bit needs an API key to send logs to LogTide. Before starting:
+                  </p>
+                  <ol class="text-sm text-muted-foreground list-decimal ml-4 space-y-1">
+                      <li>Create a project in LogTide dashboard (or use an existing one)</li>
+                      <li>Go to <strong>Project Settings → API Keys → Generate new key</strong></li>
+                      <li>Add to your <code class="bg-muted px-1 rounded">.env</code> file:</li>
+                  </ol>
+                  <Code lang="bash" theme="one-dark-pro" code={`FLUENT_BIT_API_KEY=lp_your_api_key_here`} />
+              </div>
+          </div>
+      </div>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Fluent Bit Configuration in docker-compose.yml</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+              Here's the Fluent Bit service configuration (already included in the default compose file):
+          </p>
+          <Code
+              lang="yaml"
+              theme="one-dark-pro"
+              code={`fluent-bit:
   image: fluent/fluent-bit:4.2.2  # For ARM64: cr.fluentbit.io/fluent/fluent-bit:4.2.2
   container_name: logtide-fluent-bit
+  profiles:
+    - logging  # Only starts with --profile logging or COMPOSE_PROFILES=logging
   ports:
     - "514:514/udp"  # Syslog UDP
     - "514:514/tcp"  # Syslog TCP
@@ -457,17 +503,19 @@ fluent-bit:
     # Lua scripts
     - ./extract_container_id.lua:/fluent-bit/etc/extract_container_id.lua:ro
     - ./map_syslog_level.lua:/fluent-bit/etc/map_syslog_level.lua:ro
+    - ./wrap_logs.lua:/fluent-bit/etc/wrap_logs.lua:ro
     # Docker logs access
     - /var/lib/docker/containers:/var/lib/docker/containers:ro
     - /var/run/docker.sock:/var/run/docker.sock:ro
   environment:
     LOGTIDE_API_KEY: \${FLUENT_BIT_API_KEY}
     LOGTIDE_API_HOST: backend
+    SYSLOG_TZ_OFFSET: \${SYSLOG_TZ_OFFSET:-0}  # Timezone offset for RFC3164
   depends_on:
-    backend:
-      condition: service_healthy
+    - backend
   restart: unless-stopped`}
-      />
+          />
+      </div>
 
       <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
           <div class="flex items-start gap-3">
@@ -644,6 +692,162 @@ esxcli system syslog reload`}
               <li>Enter your LogTide server IP</li>
               <li>Select format: BSD (RFC 3164) or IETF (RFC 5424)</li>
           </ol>
+      </div>
+  </div>
+
+  <h2
+      id="multi-server"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Multi-Server Setup
+  </h2>
+
+  <div class="mb-8 space-y-6">
+      <p class="text-muted-foreground">
+          When collecting syslog from multiple servers, you may want to distinguish logs by source
+          or apply different parsing rules per server.
+      </p>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Separating Logs by Server</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+              By default, syslog logs use the <strong>ident field</strong> (program name) as the service name,
+              with hostname as fallback. You have two options to separate servers:
+          </p>
+
+          <Card class="mb-4">
+              <CardHeader>
+                  <CardTitle class="text-base">Option A: Separate Projects per Server (Recommended)</CardTitle>
+              </CardHeader>
+              <CardContent class="text-sm text-muted-foreground">
+                  <p class="mb-2">Create a separate LogTide project for each server or server group:</p>
+                  <ol class="list-decimal ml-4 space-y-1">
+                      <li>Create projects: "unraid-01", "proxmox-cluster", "network-devices", etc.</li>
+                      <li>Generate an API key for each project</li>
+                      <li>Run separate Fluent Bit instances with different API keys, or use routing rules</li>
+                  </ol>
+                  <p class="mt-2">This provides full isolation with separate dashboards and alert rules per server.</p>
+              </CardContent>
+          </Card>
+
+          <Card>
+              <CardHeader>
+                  <CardTitle class="text-base">Option B: Use Hostname as Service Name</CardTitle>
+              </CardHeader>
+              <CardContent class="text-sm text-muted-foreground">
+                  <p class="mb-2">Modify <code class="bg-muted px-1 rounded">map_syslog_level.lua</code> to use hostname as service:</p>
+                  <Code
+                      lang="lua"
+                      theme="one-dark-pro"
+                      code={`-- Change the service assignment logic in map_syslog_level.lua:
+if record["host"] and record["host"] ~= "-" then
+    record["service"] = record["host"]  -- Use hostname as service
+elseif record["ident"] and record["ident"] ~= "-" then
+    record["service"] = record["ident"]
+else
+    record["service"] = "syslog"
+end`}
+                  />
+                  <p class="mt-2">This way logs from <code class="bg-muted px-1 rounded">unraid-01</code> will appear with service="unraid-01".</p>
+              </CardContent>
+          </Card>
+      </div>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Per-Server Custom Parsing</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+              Some devices (like Unraid) may not follow standard RFC3164 format exactly.
+              You can route logs from different servers through different parsers.
+          </p>
+
+          <Card class="mb-4">
+              <CardHeader>
+                  <CardTitle class="text-base">Option A: Different Ports per Server</CardTitle>
+              </CardHeader>
+              <CardContent class="text-sm text-muted-foreground">
+                  <p class="mb-2">Assign different ports to different servers and apply custom parsers:</p>
+                  <Code
+                      lang="ini"
+                      theme="one-dark-pro"
+                      code={`# fluent-bit.conf - Unraid on port 5514
+[INPUT]
+    Name        syslog
+    Parser      syslog-unraid    # Custom parser
+    Listen      0.0.0.0
+    Port        5514
+    Mode        udp
+    Tag         syslog.unraid
+
+# Proxmox on port 5515 (standard format)
+[INPUT]
+    Name        syslog
+    Parser      syslog-rfc3164
+    Listen      0.0.0.0
+    Port        5515
+    Mode        udp
+    Tag         syslog.proxmox`}
+                  />
+                  <p class="mt-2">
+                      Don't forget to expose additional ports in <code class="bg-muted px-1 rounded">docker-compose.yml</code>:
+                      <code class="bg-muted px-1 rounded ml-1">- "5514:5514/udp"</code>
+                  </p>
+              </CardContent>
+          </Card>
+
+          <Card class="mb-4">
+              <CardHeader>
+                  <CardTitle class="text-base">Option B: Route by Hostname with rewrite_tag</CardTitle>
+              </CardHeader>
+              <CardContent class="text-sm text-muted-foreground">
+                  <p class="mb-2">If all devices must use port 514, use Fluent Bit's rewrite_tag filter:</p>
+                  <Code
+                      lang="ini"
+                      theme="one-dark-pro"
+                      code={`# Rewrite tag based on hostname pattern
+[FILTER]
+    Name          rewrite_tag
+    Match         syslog.*
+    Rule          $host ^unraid.* syslog.unraid false
+    Rule          $host ^proxmox.* syslog.proxmox false
+    Rule          $host ^pfsense.* syslog.firewall false
+
+# Apply Unraid-specific processing
+[FILTER]
+    Name          lua
+    Match         syslog.unraid
+    script        /fluent-bit/etc/parse_unraid.lua
+    call          parse_unraid
+
+# Apply standard processing to Proxmox
+[FILTER]
+    Name          lua
+    Match         syslog.proxmox
+    script        /fluent-bit/etc/map_syslog_level.lua
+    call          map_syslog_level`}
+                  />
+              </CardContent>
+          </Card>
+
+          <Card>
+              <CardHeader>
+                  <CardTitle class="text-base">Example: Custom Unraid Parser</CardTitle>
+              </CardHeader>
+              <CardContent class="text-sm text-muted-foreground">
+                  <p class="mb-2">Add to <code class="bg-muted px-1 rounded">parsers.conf</code>:</p>
+                  <Code
+                      lang="ini"
+                      theme="one-dark-pro"
+                      code={`# Custom parser for Unraid syslog format
+[PARSER]
+    Name        syslog-unraid
+    Format      regex
+    Regex       ^(?<time>[A-Z][a-z]{2} [ ]?[0-9]{1,2} [0-9:]+) (?<host>[^ ]+) (?<ident>[^:]+): (?<message>.*)$
+    Time_Key    time
+    Time_Format %b %d %H:%M:%S
+    Time_Keep   On`}
+                  />
+              </CardContent>
+          </Card>
       </div>
   </div>
 
