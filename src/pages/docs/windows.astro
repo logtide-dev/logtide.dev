@@ -1,0 +1,957 @@
+---
+import DocsLayout from '../../layouts/Docs.astro';
+import Card from '../../components/ui/Card.astro';
+import CardHeader from '../../components/ui/CardHeader.astro';
+import CardTitle from '../../components/ui/CardTitle.astro';
+import CardContent from '../../components/ui/CardContent.astro';
+import Badge from '../../components/ui/Badge.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Overview", slug: "overview", depth: 2 },
+  { text: "Option 1: OpenTelemetry Collector", slug: "otel-collector", depth: 2 },
+  { text: "Option 2: Fluent Bit for Windows", slug: "fluent-bit", depth: 2 },
+  { text: "Option 3: NXLog", slug: "nxlog", depth: 2 },
+  { text: "Collecting Windows Event Logs", slug: "event-logs", depth: 2 },
+  { text: "Collecting IIS Logs", slug: "iis-logs", depth: 2 },
+  { text: "Collecting Application Logs", slug: "app-logs", depth: 2 },
+  { text: "Security Monitoring", slug: "security", depth: 2 },
+  { text: "Troubleshooting", slug: "troubleshooting", depth: 2 }
+];
+---
+
+<DocsLayout
+  title="Windows Endpoint Monitoring"
+  description="Collect logs from Windows servers and workstations using OpenTelemetry Collector, Fluent Bit, or NXLog."
+  headings={headings}
+>
+  <h1 class="text-3xl font-bold mb-4">Windows Endpoint Monitoring</h1>
+  <p class="text-lg text-muted-foreground mb-8">
+      Collect logs from Windows servers and workstations including Event Logs, IIS,
+      and application logs. Perfect for SIEM labs and enterprise monitoring.
+  </p>
+
+  <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-8">
+      <div class="flex items-start gap-3">
+          <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+          <div>
+              <p class="font-semibold text-blue-600 dark:text-blue-400 mb-1">
+                  SIEM Lab Ready
+              </p>
+              <p class="text-sm text-muted-foreground">
+                  This guide covers Windows log collection for security monitoring and SIEM use cases.
+                  All methods use LogTide's native <a href="/docs/opentelemetry" class="text-primary underline">OpenTelemetry (OTLP) endpoint</a>
+                  for log ingestion.
+              </p>
+          </div>
+      </div>
+  </div>
+
+  <h2
+      id="overview"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Overview
+  </h2>
+
+  <div class="mb-8 space-y-4">
+      <p class="text-muted-foreground">
+          LogTide can receive logs from Windows endpoints through several methods.
+          All options send logs via OTLP (OpenTelemetry Protocol) or HTTP to LogTide's API.
+      </p>
+
+      <div class="grid md:grid-cols-3 gap-4">
+          <Card>
+              <CardHeader>
+                  <CardTitle class="flex items-center gap-2 text-base">
+                      <Icon name="lucide:radio" class="w-4 h-4 text-primary" />
+                      OpenTelemetry Collector
+                  </CardTitle>
+              </CardHeader>
+              <CardContent class="text-sm text-muted-foreground">
+                  <p class="mb-2">Official CNCF project with native Windows support.</p>
+                  <Badge variant="outline" class="text-green-600 border-green-600">Recommended</Badge>
+              </CardContent>
+          </Card>
+
+          <Card>
+              <CardHeader>
+                  <CardTitle class="flex items-center gap-2 text-base">
+                      <Icon name="lucide:wind" class="w-4 h-4 text-primary" />
+                      Fluent Bit
+                  </CardTitle>
+              </CardHeader>
+              <CardContent class="text-sm text-muted-foreground">
+                  <p class="mb-2">Lightweight agent with Windows Event Log support.</p>
+                  <Badge variant="outline">Popular</Badge>
+              </CardContent>
+          </Card>
+
+          <Card>
+              <CardHeader>
+                  <CardTitle class="flex items-center gap-2 text-base">
+                      <Icon name="lucide:file-text" class="w-4 h-4 text-primary" />
+                      NXLog
+                  </CardTitle>
+              </CardHeader>
+              <CardContent class="text-sm text-muted-foreground">
+                  <p class="mb-2">Enterprise-grade log collector with free Community Edition.</p>
+                  <Badge variant="outline">Alternative</Badge>
+              </CardContent>
+          </Card>
+      </div>
+  </div>
+
+  <h2
+      id="otel-collector"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Option 1: OpenTelemetry Collector
+  </h2>
+
+  <div class="mb-8 space-y-6">
+      <p class="text-muted-foreground">
+          The OpenTelemetry Collector is the recommended approach for Windows log collection.
+          It supports Windows Event Logs natively and sends data directly to LogTide's OTLP endpoint.
+      </p>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">1. Download the Collector</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+              Download the latest Windows release from the
+              <a href="https://github.com/open-telemetry/opentelemetry-collector-releases/releases"
+                 target="_blank" rel="noopener noreferrer" class="text-primary underline">
+                  OpenTelemetry Collector releases page
+              </a>. Choose the <code class="bg-muted px-1 rounded">otelcol-contrib</code> distribution
+              which includes the Windows Event Log receiver.
+          </p>
+          <Code
+              lang="powershell"
+              theme="one-dark-pro"
+              code={`# Download using PowerShell (adjust version as needed)
+$version = "0.96.0"
+$url = "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v$version/otelcol-contrib_$($version)_windows_amd64.tar.gz"
+Invoke-WebRequest -Uri $url -OutFile "otelcol-contrib.tar.gz"
+
+# Extract
+tar -xzf otelcol-contrib.tar.gz
+
+# Move to Program Files
+New-Item -ItemType Directory -Force -Path "C:\\Program Files\\OpenTelemetry Collector"
+Move-Item otelcol-contrib.exe "C:\\Program Files\\OpenTelemetry Collector\\"`}
+          />
+      </div>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">2. Create Configuration File</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+              Create <code class="bg-muted px-1 rounded">C:\Program Files\OpenTelemetry Collector\config.yaml</code>:
+          </p>
+          <Code
+              lang="yaml"
+              theme="one-dark-pro"
+              code={`# OpenTelemetry Collector Configuration for Windows
+# Sends logs to LogTide via OTLP
+
+receivers:
+  # Windows Event Log receiver
+  windowseventlog:
+    channel: Application
+
+  windowseventlog/security:
+    channel: Security
+
+  windowseventlog/system:
+    channel: System
+
+processors:
+  # Batch logs for efficient transmission
+  batch:
+    timeout: 5s
+    send_batch_size: 100
+
+  # Add resource attributes
+  resource:
+    attributes:
+      - key: host.name
+        from_attribute: computer
+        action: upsert
+      - key: service.name
+        value: "windows-eventlog"
+        action: insert
+
+exporters:
+  # Send to LogTide Cloud
+  otlphttp/logtide:
+    endpoint: https://api.logtide.dev
+    headers:
+      X-API-Key: "lp_your_api_key_here"
+
+  # Or send to self-hosted LogTide
+  # otlphttp/logtide:
+  #   endpoint: http://your-logtide-server:8080
+  #   headers:
+  #     X-API-Key: "lp_your_api_key_here"
+  #   tls:
+  #     insecure: true
+
+service:
+  pipelines:
+    logs:
+      receivers:
+        - windowseventlog
+        - windowseventlog/security
+        - windowseventlog/system
+      processors: [resource, batch]
+      exporters: [otlphttp/logtide]`}
+          />
+      </div>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">3. Install as Windows Service</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+              Run PowerShell as Administrator:
+          </p>
+          <Code
+              lang="powershell"
+              theme="one-dark-pro"
+              code={`# Create the Windows service
+sc.exe create "OpenTelemetry Collector" binPath= "\"C:\\Program Files\\OpenTelemetry Collector\\otelcol-contrib.exe\" --config=\"C:\\Program Files\\OpenTelemetry Collector\\config.yaml\"" start= auto
+
+# Start the service
+sc.exe start "OpenTelemetry Collector"
+
+# Check status
+sc.exe query "OpenTelemetry Collector"`}
+          />
+      </div>
+
+      <div class="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
+          <div class="flex items-start gap-3">
+              <Icon name="lucide:check-circle" class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+              <div>
+                  <p class="font-semibold text-green-600 dark:text-green-400 mb-1">
+                      Verify Installation
+                  </p>
+                  <p class="text-sm text-muted-foreground">
+                      After starting the service, check LogTide for incoming logs.
+                      You should see Windows Event Logs appearing within a few seconds.
+                      Filter by <code class="bg-muted px-1 rounded">service:windows-eventlog</code> to find them.
+                  </p>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <h2
+      id="fluent-bit"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Option 2: Fluent Bit for Windows
+  </h2>
+
+  <div class="mb-8 space-y-6">
+      <p class="text-muted-foreground">
+          Fluent Bit has native Windows support and can collect Windows Event Logs,
+          file-based logs, and more.
+      </p>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">1. Download and Install</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+              Download the Windows installer from
+              <a href="https://docs.fluentbit.io/manual/installation/windows"
+                 target="_blank" rel="noopener noreferrer" class="text-primary underline">
+                  Fluent Bit's official download page
+              </a>.
+          </p>
+          <Code
+              lang="powershell"
+              theme="one-dark-pro"
+              code={`# Download using PowerShell (adjust version as needed)
+$version = "3.2.2"
+$url = "https://packages.fluentbit.io/windows/fluent-bit-$version-win64.exe"
+Invoke-WebRequest -Uri $url -OutFile "fluent-bit-installer.exe"
+
+# Run installer (or use silent install)
+.\\fluent-bit-installer.exe /S`}
+          />
+      </div>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">2. Configure Fluent Bit</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+              Edit <code class="bg-muted px-1 rounded">C:\Program Files\fluent-bit\conf\fluent-bit.conf</code>:
+          </p>
+          <Code
+              lang="ini"
+              theme="one-dark-pro"
+              code={`[SERVICE]
+    Flush        5
+    Daemon       Off
+    Log_Level    info
+
+# =============================================================================
+# INPUT - Windows Event Logs
+# =============================================================================
+[INPUT]
+    Name         winlog
+    Channels     Application,System,Security
+    Interval_Sec 1
+    Tag          windows.eventlog
+
+# =============================================================================
+# FILTER - Add metadata
+# =============================================================================
+[FILTER]
+    Name         record_modifier
+    Match        windows.*
+    Record       service windows-eventlog
+    Record       hostname \${COMPUTERNAME}
+
+[FILTER]
+    Name         lua
+    Match        windows.*
+    script       C:\\Program Files\\fluent-bit\\conf\\map_level.lua
+    call         map_windows_level
+
+# =============================================================================
+# OUTPUT - Send to LogTide via OTLP
+# =============================================================================
+[OUTPUT]
+    Name         opentelemetry
+    Match        *
+    # LogTide Cloud
+    Host         api.logtide.dev
+    Port         443
+    Uri          /v1/otlp/logs
+    Tls          On
+    Header       X-API-Key lp_your_api_key_here
+
+    # For self-hosted LogTide, use:
+    # Host         your-logtide-server
+    # Port         8080
+    # Tls          Off`}
+          />
+      </div>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">3. Create Level Mapping Script</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+              Create <code class="bg-muted px-1 rounded">C:\Program Files\fluent-bit\conf\map_level.lua</code>:
+          </p>
+          <Code
+              lang="lua"
+              theme="one-dark-pro"
+              code={`-- Map Windows Event Log levels to LogTide levels
+-- Windows levels: 1=Critical, 2=Error, 3=Warning, 4=Information, 5=Verbose
+
+function map_windows_level(tag, timestamp, record)
+    local level_map = {
+        [1] = "critical",
+        [2] = "error",
+        [3] = "warn",
+        [4] = "info",
+        [5] = "debug"
+    }
+
+    local win_level = record["Level"] or record["level"] or 4
+    record["level"] = level_map[win_level] or "info"
+
+    -- Use Message field as the log message
+    if record["Message"] then
+        record["message"] = record["Message"]
+    end
+
+    -- Extract source/provider as service if available
+    if record["SourceName"] then
+        record["service"] = record["SourceName"]
+    end
+
+    return 1, timestamp, record
+end`}
+          />
+      </div>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">4. Start the Service</h3>
+          <Code
+              lang="powershell"
+              theme="one-dark-pro"
+              code={`# Start Fluent Bit service
+sc.exe start fluent-bit
+
+# Or restart if already running
+sc.exe stop fluent-bit
+sc.exe start fluent-bit
+
+# Check status
+sc.exe query fluent-bit`}
+          />
+      </div>
+  </div>
+
+  <h2
+      id="nxlog"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Option 3: NXLog
+  </h2>
+
+  <div class="mb-8 space-y-6">
+      <p class="text-muted-foreground">
+          NXLog Community Edition is a free, enterprise-grade log collector with excellent
+          Windows support. It can send logs to LogTide's HTTP API.
+      </p>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">1. Download and Install</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+              Download NXLog Community Edition from
+              <a href="https://nxlog.co/downloads/nxlog-ce"
+                 target="_blank" rel="noopener noreferrer" class="text-primary underline">
+                  nxlog.co
+              </a> and run the installer.
+          </p>
+      </div>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">2. Configure NXLog</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+              Edit <code class="bg-muted px-1 rounded">C:\Program Files\nxlog\conf\nxlog.conf</code>:
+          </p>
+          <Code
+              lang="apacheconf"
+              theme="one-dark-pro"
+              code={`## NXLog Configuration for LogTide
+
+define ROOT C:\\Program Files\\nxlog
+define CERTDIR %ROOT%\\cert
+define CONFDIR %ROOT%\\conf
+define LOGDIR %ROOT%\\data
+
+Moduledir %ROOT%\\modules
+CacheDir %ROOT%\\data
+Pidfile %ROOT%\\data\\nxlog.pid
+SpoolDir %ROOT%\\data
+LogFile %ROOT%\\data\\nxlog.log
+
+<Extension json>
+    Module      xm_json
+</Extension>
+
+# Windows Event Log input
+<Input eventlog>
+    Module      im_msvistalog
+    Query       <QueryList>\\
+                    <Query Id="0">\\
+                        <Select Path="Application">*</Select>\\
+                        <Select Path="System">*</Select>\\
+                        <Select Path="Security">*</Select>\\
+                    </Query>\\
+                </QueryList>
+</Input>
+
+# Transform to LogTide format
+<Processor transform>
+    Module      pm_null
+    <Exec>
+        # Map Windows level to LogTide level
+        if $EventType == "ERROR" $level = "error";
+        else if $EventType == "WARNING" $level = "warn";
+        else if $EventType == "CRITICAL" $level = "critical";
+        else $level = "info";
+
+        # Set required fields
+        $service = $SourceName;
+        $message = $Message;
+        $time = strftime($EventTime, "%Y-%m-%dT%H:%M:%SZ");
+
+        # Add metadata
+        $metadata = to_json({"EventID": $EventID, "Channel": $Channel, "Computer": $Computer});
+    </Exec>
+</Processor>
+
+# Output to LogTide HTTP API
+<Output logtide>
+    Module      om_http
+    URL         https://api.logtide.dev/api/v1/ingest/single
+    # For self-hosted: http://your-server:8080/api/v1/ingest/single
+
+    AddHeader   X-API-Key: lp_your_api_key_here
+    AddHeader   Content-Type: application/json
+
+    <Exec>
+        # Format as JSON for LogTide
+        $raw_event = to_json({"time": $time, "level": $level, "service": $service, "message": $message, "metadata": $metadata});
+    </Exec>
+</Output>
+
+# Route: eventlog -> transform -> logtide
+<Route 1>
+    Path        eventlog => transform => logtide
+</Route>`}
+          />
+      </div>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">3. Start NXLog Service</h3>
+          <Code
+              lang="powershell"
+              theme="one-dark-pro"
+              code={`# Start NXLog service
+net start nxlog
+
+# Check status
+sc.exe query nxlog`}
+          />
+      </div>
+  </div>
+
+  <h2
+      id="event-logs"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Collecting Windows Event Logs
+  </h2>
+
+  <div class="mb-8 space-y-6">
+      <p class="text-muted-foreground">
+          Windows Event Logs are the primary source for system and security monitoring.
+          Here are the key channels to collect for SIEM use cases:
+      </p>
+
+      <div class="overflow-x-auto">
+          <table class="w-full text-sm border border-border rounded-lg">
+              <thead class="bg-muted">
+                  <tr>
+                      <th class="px-4 py-2 text-left border-b border-border">Channel</th>
+                      <th class="px-4 py-2 text-left border-b border-border">Description</th>
+                      <th class="px-4 py-2 text-left border-b border-border">SIEM Priority</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr>
+                      <td class="px-4 py-2 border-b border-border font-mono text-xs">Security</td>
+                      <td class="px-4 py-2 border-b border-border text-muted-foreground">Logon events, privilege use, audit policy changes</td>
+                      <td class="px-4 py-2 border-b border-border"><Badge class="bg-red-500 border-red-500 text-white">Critical</Badge></td>
+                  </tr>
+                  <tr>
+                      <td class="px-4 py-2 border-b border-border font-mono text-xs">System</td>
+                      <td class="px-4 py-2 border-b border-border text-muted-foreground">Service starts/stops, driver issues, hardware events</td>
+                      <td class="px-4 py-2 border-b border-border"><Badge class="bg-yellow-500 border-yellow-500 text-white">High</Badge></td>
+                  </tr>
+                  <tr>
+                      <td class="px-4 py-2 border-b border-border font-mono text-xs">Application</td>
+                      <td class="px-4 py-2 border-b border-border text-muted-foreground">Application errors, warnings, and information</td>
+                      <td class="px-4 py-2 border-b border-border"><Badge variant="outline">Medium</Badge></td>
+                  </tr>
+                  <tr>
+                      <td class="px-4 py-2 border-b border-border font-mono text-xs">Microsoft-Windows-Sysmon/Operational</td>
+                      <td class="px-4 py-2 border-b border-border text-muted-foreground">Process creation, network connections, file changes (requires Sysmon)</td>
+                      <td class="px-4 py-2 border-b border-border"><Badge class="bg-red-500 border-red-500 text-white">Critical</Badge></td>
+                  </tr>
+                  <tr>
+                      <td class="px-4 py-2 border-b border-border font-mono text-xs">Microsoft-Windows-PowerShell/Operational</td>
+                      <td class="px-4 py-2 border-b border-border text-muted-foreground">PowerShell script execution, module loading</td>
+                      <td class="px-4 py-2 border-b border-border"><Badge class="bg-red-500 border-red-500 text-white">Critical</Badge></td>
+                  </tr>
+                  <tr>
+                      <td class="px-4 py-2 font-mono text-xs">Microsoft-Windows-Windows Defender/Operational</td>
+                      <td class="px-4 py-2 text-muted-foreground">Antivirus detections, scan results</td>
+                      <td class="px-4 py-2"><Badge class="bg-yellow-500 border-yellow-500 text-white">High</Badge></td>
+                  </tr>
+              </tbody>
+          </table>
+      </div>
+
+      <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
+          <div class="flex items-start gap-3">
+              <Icon name="lucide:shield" class="w-5 h-5 text-yellow-500 mt-0.5 flex-shrink-0" />
+              <div>
+                  <p class="font-semibold text-yellow-600 dark:text-yellow-400 mb-1">
+                      Install Sysmon for Enhanced Visibility
+                  </p>
+                  <p class="text-sm text-muted-foreground">
+                      For security monitoring, install
+                      <a href="https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon"
+                         target="_blank" rel="noopener noreferrer" class="text-primary underline">
+                          Microsoft Sysmon
+                      </a> to capture process creation, network connections, and file modifications.
+                      Use the <a href="https://github.com/SwiftOnSecurity/sysmon-config"
+                         target="_blank" rel="noopener noreferrer" class="text-primary underline">
+                          SwiftOnSecurity config
+                      </a> as a starting point.
+                  </p>
+              </div>
+          </div>
+      </div>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Extended Event Log Collection (OpenTelemetry)</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+              To collect additional channels with OpenTelemetry Collector, add more receivers:
+          </p>
+          <Code
+              lang="yaml"
+              theme="one-dark-pro"
+              code={`receivers:
+  # Sysmon logs (requires Sysmon installed)
+  windowseventlog/sysmon:
+    channel: Microsoft-Windows-Sysmon/Operational
+
+  # PowerShell logs
+  windowseventlog/powershell:
+    channel: Microsoft-Windows-PowerShell/Operational
+
+  # Windows Defender
+  windowseventlog/defender:
+    channel: Microsoft-Windows-Windows Defender/Operational
+
+  # Remote Desktop
+  windowseventlog/rdp:
+    channel: Microsoft-Windows-TerminalServices-LocalSessionManager/Operational
+
+service:
+  pipelines:
+    logs:
+      receivers:
+        - windowseventlog
+        - windowseventlog/security
+        - windowseventlog/system
+        - windowseventlog/sysmon
+        - windowseventlog/powershell
+        - windowseventlog/defender
+        - windowseventlog/rdp
+      processors: [resource, batch]
+      exporters: [otlphttp/logtide]`}
+          />
+      </div>
+  </div>
+
+  <h2
+      id="iis-logs"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Collecting IIS Logs
+  </h2>
+
+  <div class="mb-8 space-y-6">
+      <p class="text-muted-foreground">
+          IIS (Internet Information Services) logs can be collected using file-based input.
+          By default, IIS logs are stored in <code class="bg-muted px-1 rounded">C:\inetpub\logs\LogFiles</code>.
+      </p>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Fluent Bit IIS Configuration</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+              Add this to your Fluent Bit configuration:
+          </p>
+          <Code
+              lang="ini"
+              theme="one-dark-pro"
+              code={`# IIS Log Collection
+[INPUT]
+    Name         tail
+    Path         C:\\inetpub\\logs\\LogFiles\\W3SVC*\\*.log
+    Tag          iis.access
+    Read_from_Head  False
+    Refresh_Interval 5
+    Skip_Long_Lines  On
+
+    # Skip IIS comment lines (start with #)
+    Exclude_Path *.old
+
+[FILTER]
+    Name         parser
+    Match        iis.*
+    Key_Name     log
+    Parser       iis_log
+
+[FILTER]
+    Name         record_modifier
+    Match        iis.*
+    Record       service iis
+    Record       level info
+
+[OUTPUT]
+    Name         opentelemetry
+    Match        iis.*
+    Host         api.logtide.dev
+    Port         443
+    Uri          /v1/otlp/logs
+    Tls          On
+    Header       X-API-Key lp_your_api_key_here`}
+          />
+      </div>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">IIS Parser</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+              Add this parser to your parsers config:
+          </p>
+          <Code
+              lang="ini"
+              theme="one-dark-pro"
+              code={`# IIS W3C Log Format Parser
+[PARSER]
+    Name        iis_log
+    Format      regex
+    Regex       ^(?<date>[^ ]+) (?<time>[^ ]+) (?<s_ip>[^ ]+) (?<cs_method>[^ ]+) (?<cs_uri_stem>[^ ]+) (?<cs_uri_query>[^ ]+) (?<s_port>[^ ]+) (?<cs_username>[^ ]+) (?<c_ip>[^ ]+) (?<cs_user_agent>[^ ]+) (?<cs_referer>[^ ]+) (?<sc_status>[^ ]+) (?<sc_substatus>[^ ]+) (?<sc_win32_status>[^ ]+) (?<time_taken>[^ ]+)$
+    Time_Key    time
+    Time_Format %H:%M:%S`}
+          />
+      </div>
+  </div>
+
+  <h2
+      id="app-logs"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Collecting Application Logs
+  </h2>
+
+  <div class="mb-8 space-y-6">
+      <p class="text-muted-foreground">
+          For custom application logs stored in files, use the tail input:
+      </p>
+
+      <Code
+          lang="ini"
+          theme="one-dark-pro"
+          code={`# Custom application log files
+[INPUT]
+    Name         tail
+    Path         C:\\Apps\\MyApp\\logs\\*.log
+    Tag          app.myapp
+    Read_from_Head  False
+    Refresh_Interval 5
+
+    # For JSON formatted logs
+    Parser       json
+
+[INPUT]
+    Name         tail
+    Path         C:\\Apps\\AnotherApp\\logs\\app.log
+    Tag          app.anotherapp
+    Read_from_Head  False
+
+    # For plain text logs
+    Multiline    On
+    Parser_Firstline multiline_start
+
+[FILTER]
+    Name         record_modifier
+    Match        app.myapp
+    Record       service myapp
+
+[FILTER]
+    Name         record_modifier
+    Match        app.anotherapp
+    Record       service anotherapp`}
+      />
+  </div>
+
+  <h2
+      id="security"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Security Monitoring
+  </h2>
+
+  <div class="mb-8 space-y-6">
+      <p class="text-muted-foreground">
+          Once Windows logs are flowing into LogTide, you can use Sigma rules for
+          security detection. Here are some example queries for common security events:
+      </p>
+
+      <div class="grid md:grid-cols-2 gap-4">
+          <Card>
+              <CardHeader>
+                  <CardTitle class="text-base">Failed Logins</CardTitle>
+              </CardHeader>
+              <CardContent class="text-sm">
+                  <p class="text-muted-foreground mb-2">Event ID 4625 - Failed login attempts</p>
+                  <Code
+                      lang="text"
+                      theme="one-dark-pro"
+                      code={`service:windows-eventlog AND metadata.EventID:4625`}
+                  />
+              </CardContent>
+          </Card>
+
+          <Card>
+              <CardHeader>
+                  <CardTitle class="text-base">New Services</CardTitle>
+              </CardHeader>
+              <CardContent class="text-sm">
+                  <p class="text-muted-foreground mb-2">Event ID 7045 - New service installed</p>
+                  <Code
+                      lang="text"
+                      theme="one-dark-pro"
+                      code={`service:windows-eventlog AND metadata.EventID:7045`}
+                  />
+              </CardContent>
+          </Card>
+
+          <Card>
+              <CardHeader>
+                  <CardTitle class="text-base">Process Creation (Sysmon)</CardTitle>
+              </CardHeader>
+              <CardContent class="text-sm">
+                  <p class="text-muted-foreground mb-2">Sysmon Event ID 1 - Process created</p>
+                  <Code
+                      lang="text"
+                      theme="one-dark-pro"
+                      code={`service:Sysmon AND metadata.EventID:1`}
+                  />
+              </CardContent>
+          </Card>
+
+          <Card>
+              <CardHeader>
+                  <CardTitle class="text-base">PowerShell Execution</CardTitle>
+              </CardHeader>
+              <CardContent class="text-sm">
+                  <p class="text-muted-foreground mb-2">PowerShell script block logging</p>
+                  <Code
+                      lang="text"
+                      theme="one-dark-pro"
+                      code={`service:PowerShell AND level:warn`}
+                  />
+              </CardContent>
+          </Card>
+      </div>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Example Sigma Rule: Suspicious PowerShell</h3>
+          <Code
+              lang="yaml"
+              theme="one-dark-pro"
+              code={`title: Suspicious PowerShell Command
+status: stable
+logsource:
+    product: windows
+    service: powershell
+detection:
+    selection:
+        message|contains:
+            - 'Invoke-Expression'
+            - 'IEX'
+            - 'DownloadString'
+            - 'EncodedCommand'
+            - '-enc'
+    condition: selection
+level: high`}
+          />
+      </div>
+  </div>
+
+  <h2
+      id="troubleshooting"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Troubleshooting
+  </h2>
+
+  <div class="mb-8 space-y-4">
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base flex items-center gap-2">
+                  <Icon name="lucide:alert-circle" class="w-4 h-4 text-yellow-500" />
+                  Logs not appearing in LogTide?
+              </CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm text-muted-foreground">
+              <ul class="space-y-2 list-none pl-0">
+                  <li>• Check service is running: <code class="bg-muted px-1 rounded">sc.exe query "service-name"</code></li>
+                  <li>• Verify API key is correct in config file</li>
+                  <li>• Check logs: OpenTelemetry logs to Windows Event Log, Fluent Bit to <code class="bg-muted px-1 rounded">C:\Program Files\fluent-bit\log</code></li>
+                  <li>• Test network connectivity to LogTide endpoint</li>
+                  <li>• Ensure Windows Firewall allows outbound HTTPS (443) or HTTP (8080)</li>
+              </ul>
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base flex items-center gap-2">
+                  <Icon name="lucide:alert-circle" class="w-4 h-4 text-yellow-500" />
+                  Security channel access denied?
+              </CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm text-muted-foreground">
+              <p class="mb-2">
+                  The Security event log requires elevated permissions. Ensure the service runs as:
+              </p>
+              <ul class="space-y-1 list-none pl-0">
+                  <li>• Local System account, or</li>
+                  <li>• A user in the "Event Log Readers" group</li>
+              </ul>
+              <Code
+                  lang="powershell"
+                  theme="one-dark-pro"
+                  code={`# Add service account to Event Log Readers
+net localgroup "Event Log Readers" "NT AUTHORITY\\LOCAL SERVICE" /add`}
+              />
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base flex items-center gap-2">
+                  <Icon name="lucide:alert-circle" class="w-4 h-4 text-yellow-500" />
+                  High CPU or memory usage?
+              </CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm text-muted-foreground">
+              <ul class="space-y-2 list-none pl-0">
+                  <li>• Increase batch size and timeout to reduce API calls</li>
+                  <li>• Filter out noisy/unnecessary event IDs</li>
+                  <li>• Use XPath queries to limit collected events</li>
+              </ul>
+          </CardContent>
+      </Card>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Test Log Ingestion</h3>
+          <p class="text-sm text-muted-foreground mb-2">
+              Generate a test event to verify the pipeline:
+          </p>
+          <Code
+              lang="powershell"
+              theme="one-dark-pro"
+              code={`# Write a test event to Application log
+Write-EventLog -LogName Application -Source "Application" -EventId 1000 -EntryType Information -Message "Test log message for LogTide"
+
+# Check LogTide for the message (filter by service:Application)`}
+          />
+      </div>
+  </div>
+
+  <div class="bg-green-500/10 border border-green-500/20 rounded-lg p-4 mb-8">
+      <div class="flex items-start gap-3">
+          <Icon name="lucide:check-circle" class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+          <div>
+              <p class="font-semibold text-green-600 dark:text-green-400 mb-1">
+                  You're All Set!
+              </p>
+              <p class="text-sm text-muted-foreground">
+                  Your Windows endpoint is now sending logs to LogTide. Use the search
+                  and filter features to explore your logs, set up alerts for important
+                  events, and enable Sigma rules for security monitoring.
+              </p>
+          </div>
+      </div>
+  </div>
+
+  <div class="border-t border-border pt-6 mt-8">
+      <p class="text-sm text-muted-foreground">
+          <strong>Related documentation:</strong>
+          <a href="/docs/opentelemetry" class="text-primary hover:underline ml-2">OpenTelemetry Integration</a> •
+          <a href="/docs/syslog" class="text-primary hover:underline ml-2">Syslog Integration</a> •
+          <a href="/docs/api" class="text-primary hover:underline ml-2">API Reference</a>
+      </p>
+  </div>
+</DocsLayout>
