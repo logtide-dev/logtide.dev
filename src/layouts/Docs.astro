@@ -63,18 +63,40 @@ const getOgImage = () => {
     '/docs/sdks/csharp': `${SITE_URL}/docs/images/sdks/csharp.png`,
   };
 
-  // Section pages
+  // Section pages - extended mapping
   const sectionImageMap: Record<string, string> = {
+    '/docs': `${SITE_URL}/docs/images/sections/getting_started.png`,
     '/docs/getting-started': `${SITE_URL}/docs/images/sections/getting_started.png`,
     '/docs/api': `${SITE_URL}/docs/images/sections/api_references.png`,
     '/docs/sdks': `${SITE_URL}/docs/images/sections/sdks.png`,
     '/docs/migration': `${SITE_URL}/docs/images/sections/migration.png`,
     '/docs/authentication': `${SITE_URL}/docs/images/sections/authentication.png`,
+    '/docs/architecture': `${SITE_URL}/docs/images/sections/guides.png`,
+    '/docs/deployment': `${SITE_URL}/docs/images/sections/guides.png`,
+    '/docs/contributing': `${SITE_URL}/docs/images/sections/guides.png`,
+    '/docs/no-sdk-setup': `${SITE_URL}/docs/images/sections/getting_started.png`,
+    '/docs/syslog': `${SITE_URL}/docs/images/sections/guides.png`,
+    '/docs/opentelemetry': `${SITE_URL}/docs/images/sections/guides.png`,
+    '/docs/windows': `${SITE_URL}/docs/images/sections/guides.png`,
+  };
+
+  // Migration subpages
+  const migrationImageMap: Record<string, string> = {
+    '/docs/migration/datadog': `${SITE_URL}/docs/images/sections/migration.png`,
+    '/docs/migration/splunk': `${SITE_URL}/docs/images/sections/migration.png`,
+    '/docs/migration/elk': `${SITE_URL}/docs/images/sections/migration.png`,
+    '/docs/migration/signoz': `${SITE_URL}/docs/images/sections/migration.png`,
+    '/docs/migration/loki': `${SITE_URL}/docs/images/sections/migration.png`,
   };
 
   // Check SDK pages first
   if (sdkImageMap[pathname]) {
     return sdkImageMap[pathname];
+  }
+
+  // Check migration subpages
+  if (migrationImageMap[pathname]) {
+    return migrationImageMap[pathname];
   }
 
   // Check section pages
@@ -87,16 +109,33 @@ const getOgImage = () => {
 };
 
 const ogImage = getOgImage();
+
+// Get dates from git for SEO schema
 let lastUpdated: string | null = null;
+let dateModifiedISO: string | null = null;
+let datePublishedISO: string | null = null;
+
 try {
-  const gitDate = execSync(`git log -1 --format="%ci" -- ${filePath}`, { encoding: 'utf-8' }).trim();
-  if (gitDate) {
-    const date = new Date(gitDate);
+  // Get last modified date
+  const gitDateModified = execSync(`git log -1 --format="%ci" -- ${filePath}`, { encoding: 'utf-8' }).trim();
+  if (gitDateModified) {
+    const date = new Date(gitDateModified);
     lastUpdated = date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
     });
+    dateModifiedISO = date.toISOString();
+  }
+
+  // Get first commit date (date published)
+  const gitDateCreated = execSync(`git log --follow --format="%ci" --diff-filter=A -- ${filePath}`, { encoding: 'utf-8' }).trim();
+  if (gitDateCreated) {
+    const lines = gitDateCreated.split('\n');
+    const firstDate = lines[lines.length - 1] || lines[0];
+    if (firstDate) {
+      datePublishedISO = new Date(firstDate).toISOString();
+    }
   }
 } catch {
   // Git command failed (not a git repo, file not committed, etc.)
@@ -115,6 +154,8 @@ try {
       type="article"
       ogImage={ogImage}
       breadcrumbs={seoBreadcrumbs}
+      datePublished={datePublishedISO}
+      dateModified={dateModifiedISO}
     />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />

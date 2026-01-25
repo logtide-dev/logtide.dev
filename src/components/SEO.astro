@@ -1,5 +1,5 @@
 ---
-import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, ORG_SCHEMA } from '../config/seo';
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, ORG_SCHEMA, TWITTER_HANDLE, OG_LOCALE } from '../config/seo';
 
 interface Props {
   title: string;
@@ -7,6 +7,9 @@ interface Props {
   type?: 'website' | 'article';
   ogImage?: string | null;
   breadcrumbs?: Array<{ name: string; url: string }>;
+  datePublished?: string | null;
+  dateModified?: string | null;
+  author?: string;
 }
 
 const {
@@ -14,7 +17,10 @@ const {
   description = SITE_DESCRIPTION,
   type = 'website',
   ogImage = null,
-  breadcrumbs = []
+  breadcrumbs = [],
+  datePublished = null,
+  dateModified = null,
+  author = SITE_NAME
 } = Astro.props;
 
 // Compute canonical URL - remove trailing slash for consistency
@@ -56,10 +62,55 @@ if (breadcrumbs.length > 0) {
     }))
   });
 }
+
+// TechArticle schema (for documentation pages with dates)
+if (type === 'article' && (datePublished || dateModified)) {
+  const articleSchema: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": title,
+    "description": description,
+    "url": canonicalURL,
+    "author": {
+      "@type": "Organization",
+      "name": author
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": SITE_NAME,
+      "url": SITE_URL,
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${SITE_URL}/logo/purple.png`
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": canonicalURL
+    }
+  };
+
+  if (datePublished) {
+    articleSchema.datePublished = datePublished;
+  }
+  if (dateModified) {
+    articleSchema.dateModified = dateModified;
+  }
+  if (ogImage) {
+    articleSchema.image = ogImage;
+  }
+
+  schemas.push(articleSchema);
+}
 ---
 
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
+
+<!-- Additional SEO meta tags -->
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+<meta name="author" content={SITE_NAME} />
+<meta name="generator" content="Astro" />
 
 <!-- Open Graph -->
 <meta property="og:type" content={type} />
@@ -67,13 +118,18 @@ if (breadcrumbs.length > 0) {
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:site_name" content={SITE_NAME} />
+<meta property="og:locale" content={OG_LOCALE} />
 {ogImage && <meta property="og:image" content={ogImage} />}
+{ogImage && <meta property="og:image:alt" content={title} />}
 
 <!-- Twitter -->
 <meta name="twitter:card" content={ogImage ? "summary_large_image" : "summary"} />
+<meta name="twitter:site" content={TWITTER_HANDLE} />
+<meta name="twitter:creator" content={TWITTER_HANDLE} />
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
 {ogImage && <meta name="twitter:image" content={ogImage} />}
+{ogImage && <meta name="twitter:image:alt" content={title} />}
 
 <!-- JSON-LD Structured Data -->
 {schemas.map(schema => (
