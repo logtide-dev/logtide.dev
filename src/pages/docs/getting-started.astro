@@ -17,6 +17,9 @@ const headings = [
   { text: "Deployment Options", slug: "deployment-options", depth: 2 },
   { text: "Self-Hosted Quick Start", slug: "self-hosted", depth: 2 },
   { text: "Troubleshooting", slug: "troubleshooting", depth: 2 },
+  { text: "Containers Not Starting", slug: "containers-not-healthy", depth: 3 },
+  { text: "Backend Config Errors", slug: "config-errors", depth: 3 },
+  { text: "Fluent Bit Errors", slug: "fluent-bit-errors", depth: 3 },
   { text: "First Steps", slug: "first-steps", depth: 2 },
   { text: "Next Steps", slug: "next", depth: 2 }
 ];
@@ -29,16 +32,25 @@ curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/docker
 curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/.env.example
 mv .env.example .env
 
-# 3. Configure secure passwords (IMPORTANT!)
+# 3. Configure your .env file (IMPORTANT!)
 nano .env
-# Change: DB_PASSWORD, REDIS_PASSWORD, API_KEY_SECRET
+# Required changes:
+#   - DB_PASSWORD: set a secure password
+#   - REDIS_PASSWORD: set a secure password
+#   - API_KEY_SECRET: run "openssl rand -base64 32" and paste the result
+#   - PUBLIC_API_URL: set to http://YOUR_SERVER_IP:8080 (if accessing remotely)
 
 # 4. Start LogTide
 docker compose up -d
 
 # 5. Access the dashboard
 # Frontend: http://localhost:3000
-# API: http://localhost:8080`;
+# API: http://localhost:8080
+
+# Optional: Enable Docker log collection
+# Download Fluent Bit configs and restart with --profile logging
+# curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/{fluent-bit.conf,parsers.conf,extract_container_id.lua,map_syslog_level.lua,wrap_logs.lua}
+# docker compose --profile logging up -d`;
 
 const curlCloudCode = `curl -X POST https://api.logtide.dev/api/v1/ingest \\
   -H "X-API-Key: lp_your_api_key_here" \\
@@ -323,7 +335,7 @@ logger.emit({
     <div>
       <h3 id="required-configuration" class="text-lg font-semibold mb-3 scroll-mt-24">Required Configuration</h3>
       <p class="text-muted-foreground mb-3">
-        Edit your <code class="bg-muted px-1 py-0.5 rounded font-mono">.env</code> file and set secure values for these variables:
+        Edit your <code class="bg-muted px-1 py-0.5 rounded font-mono">.env</code> file and set these variables:
       </p>
       <div class="overflow-x-auto">
         <table class="w-full text-sm border border-border rounded-lg">
@@ -343,12 +355,24 @@ logger.emit({
               <td class="p-3 border-b border-border">Redis password</td>
             </tr>
             <tr>
-              <td class="p-3 font-mono text-xs">API_KEY_SECRET</td>
-              <td class="p-3">Encryption key (32+ characters)</td>
+              <td class="p-3 border-b border-border font-mono text-xs">API_KEY_SECRET</td>
+              <td class="p-3 border-b border-border">Encryption key (32+ characters). Generate with: <code class="bg-background px-1 rounded">openssl rand -base64 32</code></td>
+            </tr>
+            <tr class="bg-amber-500/10">
+              <td class="p-3 font-mono text-xs">PUBLIC_API_URL</td>
+              <td class="p-3"><strong>Required for remote access.</strong> Set to <code class="bg-background px-1 rounded">http://YOUR_SERVER_IP:8080</code> if accessing from another machine</td>
             </tr>
           </tbody>
         </table>
       </div>
+      <Card class="mt-4 border-amber-500/50 bg-amber-500/10">
+        <CardContent class="pt-4 text-sm">
+          <p class="flex items-start gap-2">
+            <Icon name="lucide:alert-triangle" class="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
+            <span><strong>Accessing from another machine?</strong> You must set <code class="bg-background px-1 rounded">PUBLIC_API_URL</code> to your server's IP address (e.g., <code class="bg-background px-1 rounded">http://192.168.1.100:8080</code>). Without this, the frontend will try to reach <code class="bg-background px-1 rounded">localhost:8080</code> which won't work remotely.</span>
+          </p>
+        </CardContent>
+      </Card>
       <p class="text-sm text-muted-foreground mt-3">
         Database migrations run automatically on first start.
       </p>
@@ -368,7 +392,7 @@ logger.emit({
           <li><strong>GitHub:</strong> <code class="bg-background px-1 rounded">ghcr.io/logtide-dev/logtide-backend</code></li>
         </ul>
         <p class="mt-3 text-xs">
-          Pin versions in production: <code class="bg-background px-1 rounded">LOGTIDE_BACKEND_IMAGE=logtide/backend:0.4.0</code>
+          Pin versions in production: <code class="bg-background px-1 rounded">LOGTIDE_BACKEND_IMAGE=logtide/backend:0.4.2</code>
         </p>
       </CardContent>
     </Card>
@@ -382,29 +406,65 @@ logger.emit({
   </h2>
 
   <div class="mb-8 space-y-6">
-    <div>
-      <h3 id="failed-to-fetch" class="text-lg font-semibold mb-2 scroll-mt-24">
-        "Failed to Fetch" Error on First Access
-      </h3>
-      <p class="text-muted-foreground mb-3">
-        If you see a "Failed to Fetch" error when accessing the dashboard for the first time,
-        the frontend cannot reach the backend API. This typically happens with Docker orchestrators
-        (Portainer, Komodo, etc.) or non-standard network setups.
-      </p>
-      <p class="text-muted-foreground mb-3">
-        <strong>How auto-detection works:</strong> When you access via <code class="bg-muted px-1 py-0.5 rounded font-mono">http://192.168.1.100:3000</code>,
-        the frontend assumes the API is at <code class="bg-muted px-1 py-0.5 rounded font-mono">http://192.168.1.100:8080</code>.
-        If you access via a reverse proxy on port 80/443, it uses relative URLs.
-      </p>
-      <p class="text-muted-foreground mb-3">
-        <strong>Fix:</strong> If auto-detection fails, explicitly set the API URL in your <code class="bg-muted px-1 py-0.5 rounded font-mono">.env</code> file:
-      </p>
-      <Code lang="bash" theme="one-dark-pro" code={`# Set this to your Docker host's accessible address
-PUBLIC_API_URL=http://your-docker-host:8080`} />
-      <p class="text-sm text-muted-foreground mt-3">
-        Then restart the frontend: <code class="bg-muted px-1 py-0.5 rounded font-mono">docker compose restart frontend</code>
-      </p>
-    </div>
+    <Card class="border-destructive/50 bg-destructive/5">
+      <CardHeader>
+        <CardTitle class="text-lg flex items-center gap-2">
+          <Icon name="lucide:alert-circle" class="w-5 h-5 text-destructive" />
+          "Failed to Fetch" or CORS Errors
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="space-y-4">
+        <p class="text-muted-foreground">
+          <strong>This is the most common issue.</strong> If you see "Failed to fetch", "Network Error", or CORS errors in the browser console,
+          the frontend cannot reach the backend API.
+        </p>
+
+        <div class="space-y-2">
+          <p class="font-semibold">Symptoms:</p>
+          <ul class="space-y-1 ml-6 text-muted-foreground text-sm">
+            <li>• Login page shows "Failed to fetch" or "Network Error"</li>
+            <li>• Browser console shows <code class="bg-background px-1 rounded">CORS</code> errors or requests to <code class="bg-background px-1 rounded">localhost:8080</code></li>
+            <li>• Firefox shows "TypeError: NetworkError when attempting to fetch resource"</li>
+          </ul>
+        </div>
+
+        <div class="space-y-2">
+          <p class="font-semibold">Cause:</p>
+          <p class="text-muted-foreground text-sm">
+            You're accessing LogTide from a different machine than where it's running. The frontend defaults to <code class="bg-background px-1 rounded">localhost:8080</code>
+            which only works when your browser is on the same machine as Docker.
+          </p>
+        </div>
+
+        <div class="space-y-2">
+          <p class="font-semibold">Solution:</p>
+          <p class="text-muted-foreground text-sm mb-2">
+            Set <code class="bg-background px-1 rounded">PUBLIC_API_URL</code> in your <code class="bg-background px-1 rounded">.env</code> file to your server's IP:
+          </p>
+          <Code lang="bash" theme="one-dark-pro" code={`# Replace with your server's actual IP address
+PUBLIC_API_URL=http://192.168.1.100:8080`} />
+          <p class="text-muted-foreground text-sm mt-2">
+            Then restart the frontend:
+          </p>
+          <Code lang="bash" theme="one-dark-pro" code={`docker compose restart frontend`} />
+        </div>
+
+        <div class="space-y-2">
+          <p class="font-semibold">Verify the backend is running:</p>
+          <p class="text-muted-foreground text-sm mb-2">
+            Before blaming the frontend, confirm the API is accessible:
+          </p>
+          <Code lang="bash" theme="one-dark-pro" code={`# From your local machine (replace IP with your server's IP)
+curl http://192.168.1.100:8080/health
+
+# Expected response:
+# {"status":"ok","timestamp":"...","version":"0.4.2"}`} />
+          <p class="text-muted-foreground text-sm mt-2">
+            If this fails, the backend isn't running correctly — check the logs with <code class="bg-background px-1 rounded">docker compose logs backend</code>.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
 
     <div>
       <h3 id="containers-not-healthy" class="text-lg font-semibold mb-2 scroll-mt-24">
@@ -420,6 +480,55 @@ docker compose ps
 docker compose logs backend
 docker compose logs postgres
 docker compose logs redis`} />
+    </div>
+
+    <div>
+      <h3 id="config-errors" class="text-lg font-semibold mb-2 scroll-mt-24">
+        Backend Configuration Errors
+      </h3>
+      <p class="text-muted-foreground mb-3">
+        If the backend container keeps restarting or fails health checks, check the logs for configuration errors:
+      </p>
+      <Code lang="bash" theme="one-dark-pro" code={`docker compose logs backend | head -50`} />
+      <p class="text-muted-foreground mt-3 mb-3">
+        <strong>Common issues:</strong>
+      </p>
+      <ul class="space-y-2 ml-6 text-muted-foreground">
+        <li class="flex items-start gap-2">
+          <Icon name="lucide:alert-circle" class="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
+          <span><strong>API_KEY_SECRET too short:</strong> Must be at least 32 characters. Generate with: <code class="bg-muted px-1 py-0.5 rounded font-mono">openssl rand -base64 32</code></span>
+        </li>
+        <li class="flex items-start gap-2">
+          <Icon name="lucide:alert-circle" class="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
+          <span><strong>Empty DB_PASSWORD or REDIS_PASSWORD:</strong> These must be set in your <code class="bg-muted px-1 py-0.5 rounded font-mono">.env</code> file</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <Icon name="lucide:alert-circle" class="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
+          <span><strong>Invalid DATABASE_URL:</strong> Check that DB_USER, DB_PASSWORD, and DB_NAME are all set correctly</span>
+        </li>
+      </ul>
+    </div>
+
+    <div>
+      <h3 id="fluent-bit-errors" class="text-lg font-semibold mb-2 scroll-mt-24">
+        Fluent Bit Volume Mount Errors
+      </h3>
+      <p class="text-muted-foreground mb-3">
+        If you see errors about mounting files when using <code class="bg-muted px-1 py-0.5 rounded font-mono">--profile logging</code>,
+        you need to download the Fluent Bit configuration files first:
+      </p>
+      <Code lang="bash" theme="one-dark-pro" code={`# Download all required Fluent Bit config files
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/fluent-bit.conf
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/parsers.conf
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/extract_container_id.lua
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/map_syslog_level.lua
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/wrap_logs.lua
+
+# Now start with logging profile
+docker compose --profile logging up -d`} />
+      <p class="text-sm text-muted-foreground mt-3">
+        These files must be in the same directory as your <code class="bg-muted px-1 py-0.5 rounded font-mono">docker-compose.yml</code>.
+      </p>
     </div>
   </div>
 
