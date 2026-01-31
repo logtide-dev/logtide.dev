@@ -1,0 +1,245 @@
+---
+import { getCollection } from 'astro:content';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import SEO from '../../components/SEO.astro';
+import Card from '../../components/ui/Card.astro';
+import CardHeader from '../../components/ui/CardHeader.astro';
+import CardTitle from '../../components/ui/CardTitle.astro';
+import CardDescription from '../../components/ui/CardDescription.astro';
+import CardContent from '../../components/ui/CardContent.astro';
+import DifficultyBadge from '../../components/content/DifficultyBadge.astro';
+import ArrowRight from '../../components/ui/ArrowRight.astro';
+import { ViewTransitions } from 'astro:transitions';
+import { Icon } from 'astro-icon/components';
+
+// Get all published use cases
+const allUseCases = await getCollection('use-cases', ({ data }) => !data.draft);
+
+// Group by category
+const categories = {
+  'compliance': { label: 'Compliance & Privacy', icon: 'lucide:shield-check', items: [] as typeof allUseCases },
+  'performance': { label: 'Performance & Optimization', icon: 'lucide:gauge', items: [] as typeof allUseCases },
+  'security': { label: 'Security & Monitoring', icon: 'lucide:lock', items: [] as typeof allUseCases },
+  'cost': { label: 'Cost Optimization', icon: 'lucide:wallet', items: [] as typeof allUseCases },
+  'operations': { label: 'Operations & DevOps', icon: 'lucide:settings', items: [] as typeof allUseCases },
+};
+
+// Sort use cases into categories
+allUseCases.forEach((useCase) => {
+  const cat = categories[useCase.data.category];
+  if (cat) {
+    cat.items.push(useCase);
+  }
+});
+
+// Sort items alphabetically within each category
+Object.values(categories).forEach((cat) => {
+  cat.items.sort((a, b) => a.data.title.localeCompare(b.data.title));
+});
+
+// Filter out empty categories
+const populatedCategories = Object.entries(categories).filter(([, cat]) => cat.items.length > 0);
+
+const title = 'Use Cases | LogTide';
+const description = 'Real-world logging scenarios and how to solve them with LogTide. GDPR compliance, security monitoring, cost optimization, and more.';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <SEO
+      title={title}
+      description={description}
+      type="website"
+      ogImage="https://logtide.dev/docs/images/sections/guides.png"
+    />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <title>{title}</title>
+    <ViewTransitions />
+    <script is:inline>
+      (function() {
+        function applyTheme() {
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const theme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        }
+        applyTheme();
+        document.addEventListener('astro:after-swap', applyTheme);
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen bg-background text-foreground antialiased">
+    <Header />
+
+    <main class="mx-auto max-w-6xl px-6 py-16">
+      <!-- Hero Section -->
+      <div class="text-center mb-16">
+        <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
+          Use Cases
+        </h1>
+        <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Real-world logging scenarios and how to solve them with LogTide.
+          Each guide includes problem analysis, implementation steps, and best practices.
+        </p>
+      </div>
+
+      <!-- Benefits -->
+      <div class="grid md:grid-cols-3 gap-6 mb-16">
+        <div class="p-6 rounded-xl bg-card border border-border">
+          <div class="p-3 rounded-lg bg-primary/10 w-fit mb-4">
+            <Icon name="lucide:shield-check" class="w-6 h-6 text-primary" />
+          </div>
+          <h3 class="font-semibold mb-2">Privacy-First</h3>
+          <p class="text-sm text-muted-foreground">
+            Self-hosted, GDPR compliant. Your logs never leave your infrastructure.
+          </p>
+        </div>
+        <div class="p-6 rounded-xl bg-card border border-border">
+          <div class="p-3 rounded-lg bg-primary/10 w-fit mb-4">
+            <Icon name="lucide:zap" class="w-6 h-6 text-primary" />
+          </div>
+          <h3 class="font-semibold mb-2">Production-Ready</h3>
+          <p class="text-sm text-muted-foreground">
+            Complete examples with Docker, Kubernetes, and enterprise deployment guides.
+          </p>
+        </div>
+        <div class="p-6 rounded-xl bg-card border border-border">
+          <div class="p-3 rounded-lg bg-primary/10 w-fit mb-4">
+            <Icon name="lucide:git-branch" class="w-6 h-6 text-primary" />
+          </div>
+          <h3 class="font-semibold mb-2">Open Source</h3>
+          <p class="text-sm text-muted-foreground">
+            AGPLv3 licensed. No vendor lock-in, full transparency, community-driven.
+          </p>
+        </div>
+      </div>
+
+      <!-- Categories -->
+      {populatedCategories.map(([key, category]) => (
+        <section class="mb-12">
+          <h2
+            id={key}
+            class="text-2xl font-semibold mb-6 flex items-center gap-3"
+          >
+            <div class="p-2 rounded-lg bg-primary/10">
+              <Icon name={category.icon} class="w-6 h-6 text-primary" />
+            </div>
+            {category.label}
+          </h2>
+
+          <div class="grid gap-4 md:grid-cols-2">
+            {category.items.map((useCase) => (
+              <a href={`/use-cases/${useCase.slug}`} class="block group">
+                <Card class="h-full transition-all hover:border-primary/50 hover:shadow-lg">
+                  <CardHeader class="pb-2">
+                    <div class="flex items-center justify-between mb-2">
+                      <DifficultyBadge difficulty={useCase.data.difficulty} />
+                      {useCase.data.industries.length > 0 && (
+                        <span class="text-xs text-muted-foreground">
+                          {useCase.data.industries.slice(0, 2).join(', ')}
+                        </span>
+                      )}
+                    </div>
+                    <CardTitle class="text-lg group-hover:text-primary transition-colors flex items-center gap-2">
+                      {useCase.data.title}
+                      <ArrowRight class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </CardTitle>
+                    <CardDescription class="line-clamp-2">{useCase.data.description}</CardDescription>
+                  </CardHeader>
+                  {useCase.data.highlights.length > 0 && (
+                    <CardContent class="pt-0">
+                      <div class="flex flex-wrap gap-2">
+                        {useCase.data.highlights.slice(0, 3).map((highlight) => (
+                          <span class="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                            <Icon name="lucide:check" class="w-3 h-3 text-green-500" />
+                            {highlight}
+                          </span>
+                        ))}
+                      </div>
+                    </CardContent>
+                  )}
+                </Card>
+              </a>
+            ))}
+          </div>
+        </section>
+      ))}
+
+      {populatedCategories.length === 0 && (
+        <Card class="text-center py-16">
+          <CardContent>
+            <Icon name="lucide:lightbulb" class="w-16 h-16 mx-auto text-muted-foreground mb-6" />
+            <h2 class="text-xl font-semibold mb-2">Use case guides coming soon</h2>
+            <p class="text-muted-foreground mb-6">
+              We're working on adding real-world use case guides. Check back later or
+            </p>
+            <a
+              href="https://github.com/logtide-dev/logtide"
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              <Icon name="simple-icons:github" class="w-4 h-4" />
+              Contribute on GitHub
+            </a>
+          </CardContent>
+        </Card>
+      )}
+
+      <!-- CTA -->
+      <div class="mt-16 text-center p-8 rounded-2xl bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20">
+        <h2 class="text-2xl font-semibold mb-4">Have a specific scenario?</h2>
+        <p class="text-muted-foreground mb-6 max-w-xl mx-auto">
+          We're always adding new use case guides. Tell us about your logging challenges and we'll help.
+        </p>
+        <a
+          href="https://github.com/logtide-dev/logtide/discussions"
+          target="_blank"
+          rel="noopener"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium"
+        >
+          Start a Discussion
+          <Icon name="lucide:message-circle" class="w-4 h-4" />
+        </a>
+      </div>
+    </main>
+
+    <Footer />
+  </body>
+</html>
+
+<style is:global>
+  @import '../../styles/tailwind.css';
+  @import '../../styles/custom.css';
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  .header-container,
+  .footer-container {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+</style>

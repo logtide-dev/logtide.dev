@@ -1,0 +1,78 @@
+---
+import { getCollection } from 'astro:content';
+import Card from '../ui/Card.astro';
+import CardHeader from '../ui/CardHeader.astro';
+import CardTitle from '../ui/CardTitle.astro';
+import CardDescription from '../ui/CardDescription.astro';
+import DifficultyBadge from './DifficultyBadge.astro';
+import CategoryBadge from './CategoryBadge.astro';
+import ArrowRight from '../ui/ArrowRight.astro';
+
+interface Props {
+  type: 'use-cases' | 'integrations';
+  currentSlug: string;
+  currentCategory?: string;
+  limit?: number;
+}
+
+const { type, currentSlug, currentCategory, limit = 3 } = Astro.props;
+
+const collection = await getCollection(type, ({ data }) => !data.draft);
+
+// Filter out current entry and prioritize same category
+const otherEntries = collection
+  .filter((entry) => entry.slug !== currentSlug)
+  .sort((a, b) => {
+    // Prioritize same category
+    const aMatch = currentCategory && a.data.category === currentCategory ? 1 : 0;
+    const bMatch = currentCategory && b.data.category === currentCategory ? 1 : 0;
+    if (aMatch !== bMatch) return bMatch - aMatch;
+    // Then sort alphabetically
+    return a.data.title.localeCompare(b.data.title);
+  })
+  .slice(0, limit);
+
+const sectionTitle = type === 'use-cases' ? 'More Use Cases' : 'More Integrations';
+const sectionUrl = type === 'use-cases' ? '/use-cases' : '/integrations';
+const urlPrefix = type === 'use-cases' ? '/use-cases' : '/integrations';
+---
+
+{otherEntries.length > 0 && (
+  <aside class="more-from-section mt-12 pt-8 border-t border-border">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-semibold">{sectionTitle}</h2>
+      <a
+        href={sectionUrl}
+        class="text-sm text-primary hover:underline inline-flex items-center gap-1"
+      >
+        View all
+        <ArrowRight class="w-4 h-4" />
+      </a>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-3">
+      {otherEntries.map((entry) => (
+        <a href={`${urlPrefix}/${entry.slug}`} class="block group">
+          <Card class="h-full transition-all hover:border-primary/50 hover:shadow-md">
+            <CardHeader class="pb-2">
+              <div class="flex items-center gap-2 mb-2">
+                <CategoryBadge
+                  category={entry.data.category}
+                  type={type === 'use-cases' ? 'use-case' : 'integration'}
+                />
+                <DifficultyBadge difficulty={entry.data.difficulty} showIcon={false} />
+              </div>
+              <CardTitle class="text-base group-hover:text-primary transition-colors flex items-center gap-1">
+                {entry.data.title}
+                <ArrowRight class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+              </CardTitle>
+              <CardDescription class="text-sm line-clamp-2 mt-1">
+                {entry.data.description}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </a>
+      ))}
+    </div>
+  </aside>
+)}
