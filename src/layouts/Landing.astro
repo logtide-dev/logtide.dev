@@ -31,11 +31,17 @@ const { title, description } = Astro.props;
     <script is:inline>
       // Theme detection (runs before page renders to prevent flash)
       (function() {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const theme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
+        function applyTheme() {
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const theme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
         }
+        applyTheme();
+        document.addEventListener('astro:after-swap', applyTheme);
       })();
     </script>
   </head>

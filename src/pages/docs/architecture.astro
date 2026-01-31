@@ -86,7 +86,7 @@ User → Organizations (1:N) → Projects (1:N) → API Keys → Logs
               <p><strong>Framework:</strong> Fastify</p>
               <p><strong>Language:</strong> TypeScript 5</p>
               <p><strong>ORM:</strong> Kysely (type-safe SQL)</p>
-              <p><strong>Queue:</strong> BullMQ + Redis</p>
+              <p><strong>Queue:</strong> BullMQ (Redis) or graphile-worker (PostgreSQL)</p>
               <p><strong>Validation:</strong> Zod schemas</p>
           </CardContent>
       </Card>
@@ -123,7 +123,7 @@ User → Organizations (1:N) → Projects (1:N) → API Keys → Logs
               <CardTitle class="text-base">Infrastructure</CardTitle>
           </CardHeader>
           <CardContent class="text-sm space-y-1 text-muted-foreground">
-              <p><strong>Cache:</strong> Redis 7</p>
+              <p><strong>Cache:</strong> Redis 7 (optional)</p>
               <p><strong>Proxy:</strong> Nginx</p>
               <p><strong>Container:</strong> Docker</p>
               <p><strong>Orchestration:</strong> Docker Compose</p>
