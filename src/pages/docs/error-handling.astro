@@ -1,0 +1,455 @@
+---
+import DocsLayout from '../../layouts/Docs.astro';
+import Card from '../../components/ui/Card.astro';
+import CardHeader from '../../components/ui/CardHeader.astro';
+import CardTitle from '../../components/ui/CardTitle.astro';
+import CardContent from '../../components/ui/CardContent.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Overview", slug: "overview", depth: 2 },
+  { text: "Structured Exceptions", slug: "structured-exceptions", depth: 2 },
+  { text: "StructuredException Interface", slug: "interface", depth: 2 },
+  { text: "SDK Examples", slug: "sdk-examples", depth: 2 },
+  { text: "Fallback Behavior", slug: "fallback", depth: 2 },
+  { text: "Best Practices", slug: "best-practices", depth: 2 }
+];
+---
+
+<DocsLayout
+  title="Error Handling"
+  description="Language-agnostic exception structure for consistent error tracking across all SDKs."
+  headings={headings}
+>
+  <div class="flex items-center gap-3 mb-4">
+    <div class="p-2 bg-red-500/10 rounded-lg">
+      <Icon name="lucide:alert-triangle" class="w-6 h-6 text-red-500" />
+    </div>
+    <h1 class="text-3xl font-bold">Error Handling</h1>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+    LogTide provides a standardized exception structure that works across all programming languages,
+    enabling consistent error tracking, grouping, and analysis.
+  </p>
+
+  <h2
+    id="overview"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Overview
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      When you log errors with LogTide SDKs, exceptions are automatically serialized into a
+      structured format stored in <code class="bg-muted px-1.5 py-0.5 rounded text-sm">metadata.exception</code>.
+      This enables:
+    </p>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:layers" class="w-5 h-5 text-primary mt-0.5" />
+            <div>
+              <h4 class="font-medium mb-1">Stack Trace Parsing</h4>
+              <p class="text-sm text-muted-foreground">Automatic parsing of stack frames with file, function, and line information.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:git-merge" class="w-5 h-5 text-primary mt-0.5" />
+            <div>
+              <h4 class="font-medium mb-1">Error Grouping</h4>
+              <p class="text-sm text-muted-foreground">Similar errors are grouped by fingerprint for easier triage.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:globe" class="w-5 h-5 text-primary mt-0.5" />
+            <div>
+              <h4 class="font-medium mb-1">Language Agnostic</h4>
+              <p class="text-sm text-muted-foreground">Works with Node.js, Python, Go, PHP, Kotlin, C#, Rust, Ruby, and more.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:link" class="w-5 h-5 text-primary mt-0.5" />
+            <div>
+              <h4 class="font-medium mb-1">Exception Chaining</h4>
+              <p class="text-sm text-muted-foreground">Support for nested/caused-by exceptions in languages that support them.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+
+  <h2
+    id="structured-exceptions"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Structured Exceptions
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      When you pass an error to the SDK's logging methods, it automatically serializes
+      the exception into the <code class="bg-muted px-1.5 py-0.5 rounded text-sm">metadata.exception</code> field:
+    </p>
+
+    <Code
+      lang="typescript"
+      theme="one-dark-pro"
+      code={`// SDK automatically serializes the error
+client.error('api', 'Request failed', new Error('Connection timeout'));
+
+// Results in this log structure:
+{
+  "time": "2025-01-30T12:00:00Z",
+  "service": "api",
+  "level": "error",
+  "message": "Request failed",
+  "metadata": {
+    "exception": {
+      "type": "Error",
+      "message": "Connection timeout",
+      "language": "nodejs",
+      "stacktrace": [
+        { "file": "/app/src/api.ts", "function": "handleRequest", "line": 42 },
+        { "file": "/app/src/server.ts", "function": "processRequest", "line": 128 }
+      ],
+      "raw": "Error: Connection timeout\\n    at handleRequest (/app/src/api.ts:42:15)\\n..."
+    }
+  }
+}`}
+    />
+
+    <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5" />
+        <div>
+          <h4 class="font-medium mb-1">Backward Compatibility</h4>
+          <p class="text-sm text-muted-foreground">
+            If you send errors without using the SDK (e.g., via HTTP API with stack traces in the message),
+            LogTide will attempt to parse them using language-specific regex patterns as a fallback.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2
+    id="interface"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    StructuredException Interface
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      The structured exception format is defined as follows. All SDKs serialize errors into this format:
+    </p>
+
+    <Code
+      lang="typescript"
+      theme="one-dark-pro"
+      code={`interface StructuredException {
+  /**
+   * Exception type/class name
+   * @example "TypeError", "NullPointerException", "ValueError"
+   */
+  type: string;
+
+  /**
+   * Human-readable error message
+   */
+  message: string;
+
+  /**
+   * Stack trace as an array of frames (top to bottom)
+   * First frame = where the error was thrown
+   */
+  stacktrace?: StructuredStackFrame[];
+
+  /**
+   * Language hint for better fingerprinting
+   * @example "nodejs", "python", "java", "go", "php", "kotlin", "csharp", "rust", "ruby"
+   */
+  language?: string;
+
+  /**
+   * Inner/cause exception (for wrapped exceptions)
+   * @example Java's "Caused by", JavaScript's error.cause
+   */
+  cause?: StructuredException;
+
+  /**
+   * Additional exception metadata
+   * @example { code: "ECONNREFUSED", errno: -111 }
+   */
+  metadata?: Record<string, unknown>;
+
+  /**
+   * Original raw stack trace as a string (fallback)
+   */
+  raw?: string;
+}
+
+interface StructuredStackFrame {
+  /** File path or module name */
+  file?: string;
+
+  /** Function/method name */
+  function?: string;
+
+  /** Line number (1-based) */
+  line?: number;
+
+  /** Column number */
+  column?: number;
+
+  /** Additional frame metadata */
+  metadata?: Record<string, unknown>;
+}`}
+    />
+  </div>
+
+  <h2
+    id="sdk-examples"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    SDK Examples
+  </h2>
+
+  <div class="mb-8 space-y-6">
+    <div>
+      <h3 id="nodejs-example" class="text-lg font-semibold mb-3 scroll-mt-24 flex items-center gap-2">
+        <Icon name="simple-icons:nodedotjs" class="w-5 h-5 text-green-500" />
+        Node.js
+      </h3>
+      <Code
+        lang="typescript"
+        theme="one-dark-pro"
+        code={`import { LogTideClient } from '@logtide/sdk-node';
+
+const client = new LogTideClient({
+  apiUrl: 'https://logs.example.com',
+  apiKey: 'lp_your_api_key'
+});
+
+try {
+  await riskyOperation();
+} catch (error) {
+  // Error is automatically serialized with stack trace
+  client.error('api', 'Operation failed', error);
+}
+
+// With error.cause (Node.js 16.9+)
+try {
+  await fetchData();
+} catch (error) {
+  throw new Error('Failed to fetch user data', { cause: error });
+}`}
+      />
+    </div>
+
+    <div>
+      <h3 id="python-example" class="text-lg font-semibold mb-3 scroll-mt-24 flex items-center gap-2">
+        <Icon name="simple-icons:python" class="w-5 h-5 text-yellow-500" />
+        Python
+      </h3>
+      <Code
+        lang="python"
+        theme="one-dark-pro"
+        code={`from logtide import LogTideClient
+
+client = LogTideClient(
+    api_url="https://logs.example.com",
+    api_key="lp_your_api_key"
+)
+
+try:
+    risky_operation()
+except Exception as e:
+    # Exception is automatically serialized with traceback
+    client.error("api", "Operation failed", exc=e)
+
+# With exception chaining
+try:
+    fetch_data()
+except IOError as e:
+    raise ValueError("Failed to fetch user data") from e`}
+      />
+    </div>
+
+    <div>
+      <h3 id="go-example" class="text-lg font-semibold mb-3 scroll-mt-24 flex items-center gap-2">
+        <Icon name="simple-icons:go" class="w-5 h-5 text-cyan-500" />
+        Go
+      </h3>
+      <Code
+        lang="go"
+        theme="one-dark-pro"
+        code={`import "github.com/logtide-dev/logtide-sdk-go"
+
+client := logtide.NewClient(logtide.Config{
+    ApiURL: "https://logs.example.com",
+    ApiKey: "lp_your_api_key",
+})
+
+if err := riskyOperation(); err != nil {
+    // Error is serialized with stack trace (if using pkg/errors or similar)
+    client.Error("api", "Operation failed", logtide.WithError(err))
+}
+
+// With wrapped errors
+if err := fetchData(); err != nil {
+    return fmt.Errorf("failed to fetch user data: %w", err)
+}`}
+      />
+    </div>
+
+    <div>
+      <h3 id="manual-example" class="text-lg font-semibold mb-3 scroll-mt-24 flex items-center gap-2">
+        <Icon name="lucide:code" class="w-5 h-5 text-purple-500" />
+        Manual HTTP (No SDK)
+      </h3>
+      <p class="text-sm text-muted-foreground mb-3">
+        If you're not using an SDK, you can manually structure the exception in your metadata:
+      </p>
+      <Code
+        lang="json"
+        theme="one-dark-pro"
+        code={`{
+  "logs": [{
+    "time": "2025-01-30T12:00:00Z",
+    "service": "api",
+    "level": "error",
+    "message": "Request failed",
+    "metadata": {
+      "exception": {
+        "type": "ConnectionError",
+        "message": "Failed to connect to database",
+        "language": "python",
+        "stacktrace": [
+          { "file": "app/db.py", "function": "connect", "line": 45 },
+          { "file": "app/api.py", "function": "handle_request", "line": 123 }
+        ]
+      }
+    }
+  }]
+}`}
+      />
+    </div>
+  </div>
+
+  <h2
+    id="fallback"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Fallback Behavior
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      When LogTide receives an error log, it processes exceptions in this order:
+    </p>
+
+    <ol class="list-decimal list-inside space-y-2 ml-4">
+      <li><strong>Structured metadata.exception</strong> — Preferred. Parsed directly without regex.</li>
+      <li><strong>Text-based parsing</strong> — Falls back to regex parsing of the message field for known stack trace formats.</li>
+    </ol>
+
+    <p>
+      Text-based parsing supports these languages:
+    </p>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+      {['Node.js (V8)', 'Python', 'Java', 'Go', 'PHP'].map(lang => (
+        <div class="flex items-center gap-2 p-2 bg-muted/50 rounded">
+          <Icon name="lucide:check" class="w-4 h-4 text-green-500" />
+          <span class="text-sm">{lang}</span>
+        </div>
+      ))}
+    </div>
+
+    <div class="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 mt-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:alert-circle" class="w-5 h-5 text-amber-500 mt-0.5" />
+        <div>
+          <h4 class="font-medium mb-1">Recommendation</h4>
+          <p class="text-sm text-muted-foreground">
+            For best results, use an official SDK which handles serialization automatically.
+            Text-based parsing may not work for custom log formatters or unsupported languages.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2
+    id="best-practices"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Best Practices
+  </h2>
+
+  <div class="space-y-4">
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-base">1. Always Pass the Error Object</CardTitle>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground">
+        Pass the actual error/exception object to the SDK, not just the message.
+        This preserves the full stack trace and error type.
+      </CardContent>
+    </Card>
+
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-base">2. Use Error Chaining</CardTitle>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground">
+        When wrapping errors, use your language's error chaining mechanism
+        (<code class="bg-muted px-1 rounded">error.cause</code> in JS, <code class="bg-muted px-1 rounded">raise ... from</code> in Python, <code class="bg-muted px-1 rounded">%w</code> in Go)
+        to preserve the original error context.
+      </CardContent>
+    </Card>
+
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-base">3. Add Contextual Metadata</CardTitle>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground">
+        Include relevant context like user ID, request ID, or operation parameters
+        in the metadata to help with debugging.
+      </CardContent>
+    </Card>
+
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-base">4. Use Appropriate Log Levels</CardTitle>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground">
+        Use <code class="bg-muted px-1 rounded">error</code> for recoverable errors and
+        <code class="bg-muted px-1 rounded">critical</code> for unrecoverable/fatal errors.
+        Exception tracking is only enabled for these levels.
+      </CardContent>
+    </Card>
+  </div>
+</DocsLayout>
