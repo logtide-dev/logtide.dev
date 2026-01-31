@@ -1,0 +1,108 @@
+---
+import { getCollection } from 'astro:content';
+
+// Get a few featured items from each collection
+const integrations = await getCollection('integrations', ({ data }) => !data.draft);
+const useCases = await getCollection('use-cases', ({ data }) => !data.draft);
+
+const featuredIntegrations = integrations.slice(0, 3);
+const featuredUseCases = useCases.slice(0, 3);
+---
+
+<section class="relative overflow-hidden border-t border-border bg-muted/30 px-6 py-24" aria-labelledby="explore-heading">
+  <div class="mx-auto max-w-6xl">
+    <div class="mb-12 text-center">
+      <span class="text-sm font-medium uppercase tracking-wider text-primary">Explore</span>
+      <h2 id="explore-heading" class="mb-4 mt-2 text-3xl font-bold md:text-4xl">
+        Integrations & Use Cases
+      </h2>
+      <p class="mx-auto max-w-2xl text-lg text-muted-foreground">
+        See how LogTide integrates with your stack and discover real-world applications.
+      </p>
+    </div>
+
+    <div class="grid gap-8 lg:grid-cols-2">
+      <!-- Integrations -->
+      <div class="rounded-2xl border border-border bg-card/50 p-6">
+        <div class="mb-6 flex items-center justify-between">
+          <h3 class="text-xl font-semibold">Integrations</h3>
+          <a
+            href="/integrations"
+            class="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+          >
+            View all
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+        <div class="space-y-3">
+          {featuredIntegrations.map((item) => (
+            <a
+              href={`/integrations/${item.slug}`}
+              class="group flex items-center gap-4 rounded-xl border border-transparent p-4 transition-all hover:border-border hover:bg-muted/50"
+            >
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                <svg class="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <div class="min-w-0 flex-1">
+                <h4 class="font-medium group-hover:text-primary transition-colors">
+                  {item.data.title}
+                </h4>
+                <p class="truncate text-sm text-muted-foreground">
+                  {item.data.description}
+                </p>
+              </div>
+              <svg class="h-5 w-5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <!-- Use Cases -->
+      <div class="rounded-2xl border border-border bg-card/50 p-6">
+        <div class="mb-6 flex items-center justify-between">
+          <h3 class="text-xl font-semibold">Use Cases</h3>
+          <a
+            href="/use-cases"
+            class="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+          >
+            View all
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+        <div class="space-y-3">
+          {featuredUseCases.map((item) => (
+            <a
+              href={`/use-cases/${item.slug}`}
+              class="group flex items-center gap-4 rounded-xl border border-transparent p-4 transition-all hover:border-border hover:bg-muted/50"
+            >
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                <svg class="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div class="min-w-0 flex-1">
+                <h4 class="font-medium group-hover:text-primary transition-colors">
+                  {item.data.title}
+                </h4>
+                <p class="truncate text-sm text-muted-foreground">
+                  {item.data.description}
+                </p>
+              </div>
+              <svg class="h-5 w-5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
