@@ -1,0 +1,40 @@
+---
+import Badge from '../ui/Badge.astro';
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  category: string;
+  type?: 'integration' | 'use-case';
+  showIcon?: boolean;
+  class?: string;
+}
+
+const { category, type = 'integration', showIcon = true, class: className = '' } = Astro.props;
+
+// Integration category icons and labels
+const integrationConfig: Record<string, { label: string; icon: string }> = {
+  'web-server': { label: 'Web Server', icon: 'lucide:server' },
+  'database': { label: 'Database', icon: 'lucide:database' },
+  'framework': { label: 'Framework', icon: 'lucide:layers' },
+  'container': { label: 'Container', icon: 'lucide:box' },
+  'language': { label: 'Language', icon: 'lucide:code' },
+  'infrastructure': { label: 'Infrastructure', icon: 'lucide:cloud' },
+};
+
+// Use case category icons and labels
+const useCaseConfig: Record<string, { label: string; icon: string }> = {
+  'compliance': { label: 'Compliance', icon: 'lucide:shield-check' },
+  'performance': { label: 'Performance', icon: 'lucide:gauge' },
+  'security': { label: 'Security', icon: 'lucide:lock' },
+  'cost': { label: 'Cost Optimization', icon: 'lucide:wallet' },
+  'operations': { label: 'Operations', icon: 'lucide:settings' },
+};
+
+const config = type === 'integration' ? integrationConfig : useCaseConfig;
+const { label, icon } = config[category] || { label: category, icon: 'lucide:file-text' };
+---
+
+<Badge variant="secondary" class={className}>
+  {showIcon && <Icon name={icon} class="w-3 h-3 mr-1" />}
+  {label}
+</Badge>

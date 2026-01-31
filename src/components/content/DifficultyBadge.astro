@@ -1,0 +1,37 @@
+---
+import Badge from '../ui/Badge.astro';
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  difficulty: 'easy' | 'medium' | 'advanced';
+  showIcon?: boolean;
+  class?: string;
+}
+
+const { difficulty, showIcon = true, class: className = '' } = Astro.props;
+
+const config = {
+  easy: {
+    label: 'Easy',
+    colorClass: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20',
+    icon: 'lucide:zap',
+  },
+  medium: {
+    label: 'Medium',
+    colorClass: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20',
+    icon: 'lucide:gauge',
+  },
+  advanced: {
+    label: 'Advanced',
+    colorClass: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20',
+    icon: 'lucide:flame',
+  },
+};
+
+const { label, colorClass, icon } = config[difficulty];
+---
+
+<Badge variant="outline" class={`${colorClass} ${className}`}>
+  {showIcon && <Icon name={icon} class="w-3 h-3 mr-1" />}
+  {label}
+</Badge>

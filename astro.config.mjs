@@ -30,6 +30,22 @@ export default defineConfig({
         } else if (item.url.includes('/docs/sdks/') || item.url.includes('/docs/api')) {
           item.priority = 0.8;
           item.changefreq = 'weekly';
+        } else if (item.url.includes('/integrations/') && !item.url.endsWith('/integrations/')) {
+          // Individual integration guides - high priority for SEO
+          item.priority = 0.85;
+          item.changefreq = 'weekly';
+        } else if (item.url.endsWith('/integrations/') || item.url.endsWith('/integrations')) {
+          // Integrations index page
+          item.priority = 0.8;
+          item.changefreq = 'weekly';
+        } else if (item.url.includes('/use-cases/') && !item.url.endsWith('/use-cases/')) {
+          // Individual use case pages - high priority for SEO
+          item.priority = 0.8;
+          item.changefreq = 'weekly';
+        } else if (item.url.endsWith('/use-cases/') || item.url.endsWith('/use-cases')) {
+          // Use cases index page
+          item.priority = 0.75;
+          item.changefreq = 'weekly';
         }
         return item;
       },

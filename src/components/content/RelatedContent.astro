@@ -1,0 +1,89 @@
+---
+import { getCollection } from 'astro:content';
+import Card from '../ui/Card.astro';
+import CardHeader from '../ui/CardHeader.astro';
+import CardTitle from '../ui/CardTitle.astro';
+import CardDescription from '../ui/CardDescription.astro';
+import DifficultyBadge from './DifficultyBadge.astro';
+import ArrowRight from '../ui/ArrowRight.astro';
+
+interface Props {
+  integrations?: string[];
+  useCases?: string[];
+  title?: string;
+}
+
+const { integrations = [], useCases = [], title = 'Related Guides' } = Astro.props;
+
+// Fetch related integration entries with validation
+const allIntegrations = await getCollection('integrations');
+const relatedIntegrations = integrations
+  .map((slug) => {
+    const entry = allIntegrations.find((e) => e.slug === slug);
+    if (!entry && import.meta.env.DEV) {
+      console.warn(`[RelatedContent] Integration not found: "${slug}"`);
+    }
+    return entry;
+  })
+  .filter((entry): entry is NonNullable<typeof entry> => entry !== undefined);
+
+// Fetch related use case entries with validation
+const allUseCases = await getCollection('use-cases');
+const relatedUseCases = useCases
+  .map((slug) => {
+    const entry = allUseCases.find((e) => e.slug === slug);
+    if (!entry && import.meta.env.DEV) {
+      console.warn(`[RelatedContent] Use case not found: "${slug}"`);
+    }
+    return entry;
+  })
+  .filter((entry): entry is NonNullable<typeof entry> => entry !== undefined);
+
+const hasRelatedContent = relatedIntegrations.length > 0 || relatedUseCases.length > 0;
+---
+
+{hasRelatedContent && (
+  <aside class="related-content mt-12 pt-8 border-t border-border">
+    <h2 class="text-xl font-semibold mb-6">{title}</h2>
+
+    <div class="grid gap-4 md:grid-cols-2">
+      {relatedIntegrations.map((entry) => (
+        <a href={`/integrations/${entry.slug}`} class="block group">
+          <Card class="h-full transition-all hover:border-primary/50 hover:shadow-md">
+            <CardHeader class="pb-2">
+              <div class="flex items-center justify-between">
+                <CardTitle class="text-base group-hover:text-primary transition-colors flex items-center gap-1">
+                  {entry.data.title}
+                  <ArrowRight class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </CardTitle>
+                <DifficultyBadge difficulty={entry.data.difficulty} showIcon={false} />
+              </div>
+              <CardDescription class="text-sm line-clamp-2">
+                {entry.data.description}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </a>
+      ))}
+
+      {relatedUseCases.map((entry) => (
+        <a href={`/use-cases/${entry.slug}`} class="block group">
+          <Card class="h-full transition-all hover:border-primary/50 hover:shadow-md">
+            <CardHeader class="pb-2">
+              <div class="flex items-center justify-between">
+                <CardTitle class="text-base group-hover:text-primary transition-colors flex items-center gap-1">
+                  {entry.data.title}
+                  <ArrowRight class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </CardTitle>
+                <DifficultyBadge difficulty={entry.data.difficulty} showIcon={false} />
+              </div>
+              <CardDescription class="text-sm line-clamp-2">
+                {entry.data.description}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </a>
+      ))}
+    </div>
+  </aside>
+)}
