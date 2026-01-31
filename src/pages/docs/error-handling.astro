@@ -52,7 +52,7 @@ const headings = [
       <Card>
         <CardContent class="pt-4">
           <div class="flex items-start gap-3">
-            <Icon name="lucide:layers" class="w-5 h-5 text-primary mt-0.5" />
+            <Icon name="lucide:layers" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
             <div>
               <h4 class="font-medium mb-1">Stack Trace Parsing</h4>
               <p class="text-sm text-muted-foreground">Automatic parsing of stack frames with file, function, and line information.</p>
@@ -64,7 +64,7 @@ const headings = [
       <Card>
         <CardContent class="pt-4">
           <div class="flex items-start gap-3">
-            <Icon name="lucide:git-merge" class="w-5 h-5 text-primary mt-0.5" />
+            <Icon name="lucide:git-merge" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
             <div>
               <h4 class="font-medium mb-1">Error Grouping</h4>
               <p class="text-sm text-muted-foreground">Similar errors are grouped by fingerprint for easier triage.</p>
@@ -76,7 +76,7 @@ const headings = [
       <Card>
         <CardContent class="pt-4">
           <div class="flex items-start gap-3">
-            <Icon name="lucide:globe" class="w-5 h-5 text-primary mt-0.5" />
+            <Icon name="lucide:globe" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
             <div>
               <h4 class="font-medium mb-1">Language Agnostic</h4>
               <p class="text-sm text-muted-foreground">Works with Node.js, Python, Go, PHP, Kotlin, C#, Rust, Ruby, and more.</p>
@@ -88,7 +88,7 @@ const headings = [
       <Card>
         <CardContent class="pt-4">
           <div class="flex items-start gap-3">
-            <Icon name="lucide:link" class="w-5 h-5 text-primary mt-0.5" />
+            <Icon name="lucide:link" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
             <div>
               <h4 class="font-medium mb-1">Exception Chaining</h4>
               <p class="text-sm text-muted-foreground">Support for nested/caused-by exceptions in languages that support them.</p>
@@ -141,7 +141,7 @@ client.error('api', 'Request failed', new Error('Connection timeout'));
 
     <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
       <div class="flex items-start gap-3">
-        <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5" />
+        <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
         <div>
           <h4 class="font-medium mb-1">Backward Compatibility</h4>
           <p class="text-sm text-muted-foreground">
@@ -382,7 +382,7 @@ if err := fetchData(); err != nil {
     <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
       {['Node.js (V8)', 'Python', 'Java', 'Go', 'PHP'].map(lang => (
         <div class="flex items-center gap-2 p-2 bg-muted/50 rounded">
-          <Icon name="lucide:check" class="w-4 h-4 text-green-500" />
+          <Icon name="lucide:check" class="w-4 h-4 text-green-500 shrink-0" />
           <span class="text-sm">{lang}</span>
         </div>
       ))}
@@ -390,7 +390,7 @@ if err := fetchData(); err != nil {
 
     <div class="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 mt-4">
       <div class="flex items-start gap-3">
-        <Icon name="lucide:alert-circle" class="w-5 h-5 text-amber-500 mt-0.5" />
+        <Icon name="lucide:alert-circle" class="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
         <div>
           <h4 class="font-medium mb-1">Recommendation</h4>
           <p class="text-sm text-muted-foreground">
