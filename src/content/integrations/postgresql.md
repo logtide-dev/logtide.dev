@@ -117,10 +117,12 @@ Create `/etc/fluent-bit/fluent-bit.conf`:
     Match         postgresql
     Host          YOUR_LOGTIDE_HOST
     Port          443
-    URI           /api/v1/ingest
-    Format        json
+    URI           /api/v1/ingest/single
+    Format        json_lines
     Header        X-API-Key YOUR_API_KEY
-    Header        Content-Type application/json
+    Header        Content-Type application/x-ndjson
+    Json_date_key time
+    Json_date_format iso8601
     tls           On
 ```
 

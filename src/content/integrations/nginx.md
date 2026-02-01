@@ -111,6 +111,14 @@ Create `/etc/fluent-bit/fluent-bit.conf`:
     Name          modify
     Match         nginx.error
     Add           level error
+    Rename        message log_message
+
+# Create message field from request data (for access logs)
+[FILTER]
+    Name          lua
+    Match         nginx.access
+    script        /fluent-bit/etc/nginx_message.lua
+    call          create_message
 
 [OUTPUT]
     Name          http
@@ -118,10 +126,25 @@ Create `/etc/fluent-bit/fluent-bit.conf`:
     Host          YOUR_LOGTIDE_HOST
     Port          443
     URI           /api/v1/ingest/single
-    Format        json
+    Format        json_lines
     Header        X-API-Key YOUR_API_KEY
-    Header        Content-Type application/json
+    Header        Content-Type application/x-ndjson
+    Json_date_key time
+    Json_date_format iso8601
     tls           On
+```
+
+Create `/etc/fluent-bit/nginx_message.lua`:
+
+```lua
+-- Create message from nginx access log fields
+function create_message(tag, timestamp, record)
+    local method = record["request_method"] or "GET"
+    local uri = record["request_uri"] or "/"
+    local status = record["status"] or 0
+    record["message"] = string.format("%s %s %d", method, uri, status)
+    return 1, timestamp, record
+end
 ```
 
 Create `/etc/fluent-bit/parsers.conf`:

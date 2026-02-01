@@ -123,16 +123,21 @@ data:
         Name    modify
         Match   kube.*
         Add     cluster ${CLUSTER_NAME}
+        Add     level info
+        Rename  log message
+        Copy    $kubernetes['container_name'] service
 
     [OUTPUT]
         Name              http
         Match             kube.*
         Host              ${LOGTIDE_HOST}
         Port              443
-        URI               /api/v1/ingest
-        Format            json
+        URI               /api/v1/ingest/single
+        Format            json_lines
         Header            X-API-Key ${LOGTIDE_API_KEY}
-        Header            Content-Type application/json
+        Header            Content-Type application/x-ndjson
+        Json_date_key     time
+        Json_date_format  iso8601
         tls               On
         tls.verify        On
         Retry_Limit       5
@@ -304,10 +309,12 @@ config:
         Match             *
         Host              api.logtide.dev
         Port              443
-        URI               /api/v1/ingest
-        Format            json
+        URI               /api/v1/ingest/single
+        Format            json_lines
         Header            X-API-Key ${LOGTIDE_API_KEY}
-        Header            Content-Type application/json
+        Header            Content-Type application/x-ndjson
+        Json_date_key     time
+        Json_date_format  iso8601
         tls               On
 
   filters: |
@@ -319,6 +326,13 @@ config:
         Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token
         Merge_Log           On
         Labels              On
+
+    [FILTER]
+        Name    modify
+        Match   kube.*
+        Add     level info
+        Rename  log message
+        Copy    $kubernetes['container_name'] service
 
 resources:
   limits:
@@ -363,17 +377,27 @@ Send different namespaces to different LogTide projects:
     Name              http
     Match             kube.var.log.containers.*_production_*
     Host              api.logtide.dev
-    URI               /api/v1/ingest
+    Port              443
+    URI               /api/v1/ingest/single
+    Format            json_lines
     Header            X-API-Key ${LOGTIDE_PRODUCTION_KEY}
-    ...
+    Header            Content-Type application/x-ndjson
+    Json_date_key     time
+    Json_date_format  iso8601
+    tls               On
 
 [OUTPUT]
     Name              http
     Match             kube.var.log.containers.*_staging_*
     Host              api.logtide.dev
-    URI               /api/v1/ingest
+    Port              443
+    URI               /api/v1/ingest/single
+    Format            json_lines
     Header            X-API-Key ${LOGTIDE_STAGING_KEY}
-    ...
+    Header            Content-Type application/x-ndjson
+    Json_date_key     time
+    Json_date_format  iso8601
+    tls               On
 ```
 
 ## Sidecar Pattern
@@ -515,6 +539,18 @@ spec:
 | `fluentbit_filter_records_total` | Records filtered | Compare with input |
 
 ## Troubleshooting
+
+### HTTP 400 "body must be object" error
+
+If you see this error in Fluent Bit logs:
+```
+[error] [output:http:http.0] HTTP status=400
+```
+
+This means the output configuration is incorrect. Make sure you're using:
+- `URI /api/v1/ingest/single` (not `/api/v1/ingest`)
+- `Format json_lines` (not `json`)
+- `Header Content-Type application/x-ndjson`
 
 ### No logs appearing
 

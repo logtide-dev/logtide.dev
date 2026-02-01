@@ -62,9 +62,11 @@ Create a file named `fluent-bit.conf`:
     Host          YOUR_LOGTIDE_HOST
     Port          443
     URI           /api/v1/ingest/single
-    Format        json
+    Format        json_lines
     Header        X-API-Key YOUR_API_KEY
-    Header        Content-Type application/json
+    Header        Content-Type application/x-ndjson
+    Json_date_key time
+    Json_date_format iso8601
     tls           On
 ```
 
@@ -179,6 +181,14 @@ For production, use a more robust configuration with parsing and buffering:
     Add           source docker
     Add           environment production
 
+# Add required fields for LogTide
+[FILTER]
+    Name          modify
+    Match         *
+    Add           level info
+    Rename        log message
+    Copy          container_name service
+
 # Send to LogTide
 [OUTPUT]
     Name          http
@@ -186,9 +196,11 @@ For production, use a more robust configuration with parsing and buffering:
     Host          YOUR_LOGTIDE_HOST
     Port          443
     URI           /api/v1/ingest/single
-    Format        json
+    Format        json_lines
     Header        X-API-Key YOUR_API_KEY
-    Header        Content-Type application/json
+    Header        Content-Type application/x-ndjson
+    Json_date_key time
+    Json_date_format iso8601
     tls           On
     tls.verify    On
     Retry_Limit   5
