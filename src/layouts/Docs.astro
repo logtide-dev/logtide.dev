@@ -116,8 +116,9 @@ let dateModifiedISO: string | null = null;
 let datePublishedISO: string | null = null;
 
 try {
+  const cwd = process.cwd();
   // Get last modified date
-  const gitDateModified = execSync(`git log -1 --format="%ci" -- ${filePath}`, { encoding: 'utf-8' }).trim();
+  const gitDateModified = execSync(`git log -1 --format="%ci" -- ${filePath}`, { encoding: 'utf-8', cwd }).trim();
   if (gitDateModified) {
     const date = new Date(gitDateModified);
     lastUpdated = date.toLocaleDateString('en-US', {
@@ -129,7 +130,7 @@ try {
   }
 
   // Get first commit date (date published)
-  const gitDateCreated = execSync(`git log --follow --format="%ci" --diff-filter=A -- ${filePath}`, { encoding: 'utf-8' }).trim();
+  const gitDateCreated = execSync(`git log --follow --format="%ci" --diff-filter=A -- ${filePath}`, { encoding: 'utf-8', cwd }).trim();
   if (gitDateCreated) {
     const lines = gitDateCreated.split('\n');
     const firstDate = lines[lines.length - 1] || lines[0];
