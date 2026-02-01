@@ -1,0 +1,54 @@
+---
+import Layout from '../layouts/Landing.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Button from '../components/ui/Button.astro';
+---
+
+<Layout
+  title="Page Not Found - LogTide"
+  description="The page you're looking for doesn't exist or has been moved."
+>
+  <Header />
+  <main aria-label="Error page" class="flex min-h-[70vh] flex-col items-center justify-center px-4 py-24">
+    <div class="mx-auto max-w-md text-center">
+      <p class="text-sm font-medium uppercase tracking-wide text-primary">404 Error</p>
+      <h1 class="mt-2 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+        Page not found
+      </h1>
+      <p class="mt-4 text-lg text-muted-foreground">
+        Sorry, the page you're looking for doesn't exist or has been moved.
+      </p>
+
+      <div class="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+        <Button href="/" variant="default">
+          Go to Homepage
+        </Button>
+        <Button href="/docs/" variant="outline">
+          View Documentation
+        </Button>
+      </div>
+
+      <div class="mt-16 border-t border-border pt-10">
+        <p class="text-sm text-muted-foreground">
+          Looking for something specific? Try these:
+        </p>
+        <nav aria-label="Quick links" class="mt-6 flex flex-wrap justify-center gap-x-8 gap-y-3">
+          <a href="/docs/getting-started/" class="text-sm text-primary hover:underline">
+            Getting Started
+          </a>
+          <a href="/integrations/" class="text-sm text-primary hover:underline">
+            Integrations
+          </a>
+          <a href="/use-cases/" class="text-sm text-primary hover:underline">
+            Use Cases
+          </a>
+          <a href="/docs/api/" class="text-sm text-primary hover:underline">
+            API Reference
+          </a>
+        </nav>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>
