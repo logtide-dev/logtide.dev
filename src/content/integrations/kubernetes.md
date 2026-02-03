@@ -11,8 +11,11 @@ highlights:
   - "Multi-cluster support"
 relatedIntegrations:
   - "docker"
+  - "docker-compose"
   - "nginx"
-relatedUseCases: []
+  - "redis"
+relatedUseCases:
+  - "security-monitoring"
 keywords:
   - "kubernetes logging"
   - "k8s centralized logging"

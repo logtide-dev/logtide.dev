@@ -11,6 +11,7 @@ highlights:
   - "Queue job logging"
   - "Exception tracking"
 relatedIntegrations:
+  - "php"
   - "docker"
   - "nginx"
 relatedUseCases:

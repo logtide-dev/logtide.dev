@@ -10,8 +10,10 @@ highlights:
   - "Works with any container"
   - "Auto-discovery of containers"
 relatedIntegrations:
+  - "docker-compose"
   - "nginx"
   - "nodejs"
+  - "systemd"
 relatedUseCases:
   - "gdpr-compliance"
 keywords:
