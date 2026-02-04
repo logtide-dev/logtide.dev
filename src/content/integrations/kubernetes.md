@@ -122,13 +122,25 @@ data:
         Labels              On
         Annotations         Off
 
+    # Extract service name from nested kubernetes metadata
+    [FILTER]
+        Name          nest
+        Match         kube.*
+        Operation     lift
+        Nested_under  kubernetes
+        Add_prefix    k8s_
+
+    [FILTER]
+        Name          modify
+        Match         kube.*
+        Rename        k8s_container_name service
+
     [FILTER]
         Name    modify
         Match   kube.*
         Add     cluster ${CLUSTER_NAME}
         Add     level info
         Rename  log message
-        Copy    $kubernetes['container_name'] service
 
     [OUTPUT]
         Name              http
@@ -330,12 +342,24 @@ config:
         Merge_Log           On
         Labels              On
 
+    # Extract service name from nested kubernetes metadata
+    [FILTER]
+        Name          nest
+        Match         kube.*
+        Operation     lift
+        Nested_under  kubernetes
+        Add_prefix    k8s_
+
+    [FILTER]
+        Name          modify
+        Match         kube.*
+        Rename        k8s_container_name service
+
     [FILTER]
         Name    modify
         Match   kube.*
         Add     level info
         Rename  log message
-        Copy    $kubernetes['container_name'] service
 
 resources:
   limits:
@@ -483,14 +507,66 @@ metadata:
     logtide.dev/team: "payments"
 ```
 
-Then parse in Fluent Bit:
+Then parse in Fluent Bit. Since the Kubernetes metadata is nested, you need to lift the annotations first:
 
 ```ini
+# First, lift the kubernetes object (if not already done)
+[FILTER]
+    Name          nest
+    Match         kube.*
+    Operation     lift
+    Nested_under  kubernetes
+    Add_prefix    k8s_
+
+# Then lift the annotations
+[FILTER]
+    Name          nest
+    Match         kube.*
+    Operation     lift
+    Nested_under  k8s_annotations
+    Add_prefix    annotation_
+
+# Now rename the annotation fields
 [FILTER]
     Name    modify
     Match   kube.*
-    Copy    $kubernetes['annotations']['logtide.dev/service'] service
-    Copy    $kubernetes['annotations']['logtide.dev/team'] team
+    Rename  annotation_logtide.dev/service service
+    Rename  annotation_logtide.dev/team team
+```
+
+Alternatively, use a Lua script for more control:
+
+```ini
+[FILTER]
+    Name          lua
+    Match         kube.*
+    Script        /fluent-bit/scripts/extract_metadata.lua
+    Call          extract_metadata
+```
+
+```lua
+-- extract_metadata.lua
+function extract_metadata(tag, timestamp, record)
+    if record["kubernetes"] then
+        local k8s = record["kubernetes"]
+
+        -- Extract container name as service
+        if k8s["container_name"] then
+            record["service"] = k8s["container_name"]
+        end
+
+        -- Extract custom annotations
+        if k8s["annotations"] then
+            if k8s["annotations"]["logtide.dev/service"] then
+                record["service"] = k8s["annotations"]["logtide.dev/service"]
+            end
+            if k8s["annotations"]["logtide.dev/team"] then
+                record["team"] = k8s["annotations"]["logtide.dev/team"]
+            end
+        end
+    end
+    return 1, timestamp, record
+end
 ```
 
 ## Multi-Cluster Setup
@@ -542,6 +618,29 @@ spec:
 | `fluentbit_filter_records_total` | Records filtered | Compare with input |
 
 ## Troubleshooting
+
+### All logs show "unknown" service
+
+If all your logs appear with service name "unknown" in LogTide, this means the `service` field isn't being extracted properly from the Kubernetes metadata.
+
+The Kubernetes filter nests container information under `kubernetes.container_name`, but LogTide expects `service` at the top level. You need to lift this nested field using the `nest` filter:
+
+```ini
+# Add these filters AFTER the kubernetes filter
+[FILTER]
+    Name          nest
+    Match         kube.*
+    Operation     lift
+    Nested_under  kubernetes
+    Add_prefix    k8s_
+
+[FILTER]
+    Name          modify
+    Match         kube.*
+    Rename        k8s_container_name service
+```
+
+This lifts all fields from the `kubernetes` object to the top level (with `k8s_` prefix) and then renames `k8s_container_name` to `service`.
 
 ### HTTP 400 "body must be object" error
 
