@@ -1,0 +1,228 @@
+---
+import { getCollection } from 'astro:content';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import SEO from '../../components/SEO.astro';
+import Card from '../../components/ui/Card.astro';
+import CardHeader from '../../components/ui/CardHeader.astro';
+import CardTitle from '../../components/ui/CardTitle.astro';
+import CardDescription from '../../components/ui/CardDescription.astro';
+import CardContent from '../../components/ui/CardContent.astro';
+import ArrowRight from '../../components/ui/ArrowRight.astro';
+import { ViewTransitions } from 'astro:transitions';
+import { Icon } from 'astro-icon/components';
+
+// Get all published comparisons
+const allComparisons = await getCollection('comparisons', ({ data }) => !data.draft);
+
+// Sort alphabetically by competitor name
+allComparisons.sort((a, b) => a.data.competitor.localeCompare(b.data.competitor));
+
+const title = 'LogTide vs Competitors | LogTide';
+const description = 'Honest feature, cost, and architecture comparisons between LogTide and popular log management platforms like Datadog, Splunk, ELK, Grafana Loki, and SigNoz.';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <SEO
+      title={title}
+      description={description}
+      type="website"
+      ogImage="https://logtide.dev/docs/images/sections/guides.png"
+    />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <title>{title}</title>
+    <ViewTransitions />
+    <script is:inline>
+      (function() {
+        function applyTheme() {
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const theme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        }
+        applyTheme();
+        document.addEventListener('astro:after-swap', applyTheme);
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen bg-background text-foreground antialiased">
+    <Header />
+
+    <main class="mx-auto max-w-6xl px-6 py-16">
+      <!-- Hero Section -->
+      <div class="text-center mb-16">
+        <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
+          LogTide vs Competitors
+        </h1>
+        <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Honest comparisons between LogTide and popular log management platforms.
+          We compare features, pricing, architecture, and migration paths.
+        </p>
+      </div>
+
+      <!-- Key Differentiators -->
+      <div class="grid md:grid-cols-3 gap-6 mb-16">
+        <div class="p-6 rounded-xl bg-card border border-border">
+          <div class="p-3 rounded-lg bg-primary/10 w-fit mb-4">
+            <Icon name="lucide:dollar-sign" class="w-6 h-6 text-primary" />
+          </div>
+          <h3 class="font-semibold mb-2">Zero Per-GB Fees</h3>
+          <p class="text-sm text-muted-foreground">
+            Self-hosted with no ingestion costs. Pay only for your infrastructure, not per gigabyte.
+          </p>
+        </div>
+        <div class="p-6 rounded-xl bg-card border border-border">
+          <div class="p-3 rounded-lg bg-primary/10 w-fit mb-4">
+            <Icon name="lucide:shield-check" class="w-6 h-6 text-primary" />
+          </div>
+          <h3 class="font-semibold mb-2">Built-in SIEM</h3>
+          <p class="text-sm text-muted-foreground">
+            Sigma detection rules, MITRE ATT&CK mapping, and incident management included at no extra cost.
+          </p>
+        </div>
+        <div class="p-6 rounded-xl bg-card border border-border">
+          <div class="p-3 rounded-lg bg-primary/10 w-fit mb-4">
+            <Icon name="lucide:lock" class="w-6 h-6 text-primary" />
+          </div>
+          <h3 class="font-semibold mb-2">Full Data Ownership</h3>
+          <p class="text-sm text-muted-foreground">
+            Your logs never leave your infrastructure. Complete GDPR compliance with EU data sovereignty.
+          </p>
+        </div>
+      </div>
+
+      <!-- Comparison Cards -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3">
+          <div class="p-2 rounded-lg bg-primary/10">
+            <Icon name="lucide:scale" class="w-6 h-6 text-primary" />
+          </div>
+          Comparisons
+        </h2>
+
+        <div class="grid gap-4 md:grid-cols-2">
+          {allComparisons.map((comparison) => (
+            <a href={`/vs/${comparison.slug}`} class="block group">
+              <Card class="h-full transition-all hover:border-primary/50 hover:shadow-lg">
+                <CardHeader class="pb-2">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-primary">
+                      LogTide vs {comparison.data.competitor}
+                    </span>
+                    <span class="text-xs text-muted-foreground">
+                      {comparison.data.competitorPricing}
+                    </span>
+                  </div>
+                  <CardTitle class="text-lg group-hover:text-primary transition-colors flex items-center gap-2">
+                    {comparison.data.title}
+                    <ArrowRight class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </CardTitle>
+                  <CardDescription class="line-clamp-2">{comparison.data.description}</CardDescription>
+                </CardHeader>
+                {comparison.data.highlights.length > 0 && (
+                  <CardContent class="pt-0">
+                    <div class="flex flex-wrap gap-2">
+                      {comparison.data.highlights.slice(0, 3).map((highlight) => (
+                        <span class="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                          <Icon name="lucide:check" class="w-3 h-3 text-green-500" />
+                          {highlight}
+                        </span>
+                      ))}
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      {allComparisons.length === 0 && (
+        <Card class="text-center py-16">
+          <CardContent>
+            <Icon name="lucide:scale" class="w-16 h-16 mx-auto text-muted-foreground mb-6" />
+            <h2 class="text-xl font-semibold mb-2">Comparison guides coming soon</h2>
+            <p class="text-muted-foreground mb-6">
+              We're working on adding detailed comparison guides. Check back later or
+            </p>
+            <a
+              href="https://github.com/logtide-dev/logtide"
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              <Icon name="simple-icons:github" class="w-4 h-4" />
+              Contribute on GitHub
+            </a>
+          </CardContent>
+        </Card>
+      )}
+
+      <!-- CTA -->
+      <div class="mt-16 text-center p-8 rounded-2xl bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20">
+        <h2 class="text-2xl font-semibold mb-4">Ready to switch?</h2>
+        <p class="text-muted-foreground mb-6 max-w-xl mx-auto">
+          LogTide is free, open-source, and self-hosted. Deploy in minutes and start saving on log management costs.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <a
+            href="https://github.com/logtide-dev/logtide"
+            target="_blank"
+            rel="noopener"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium"
+          >
+            <Icon name="simple-icons:github" class="w-4 h-4" />
+            Deploy LogTide
+          </a>
+          <a
+            href="https://github.com/logtide-dev/logtide/discussions"
+            target="_blank"
+            rel="noopener"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-card border border-border text-foreground rounded-lg hover:bg-muted transition-colors font-medium"
+          >
+            <Icon name="lucide:message-circle" class="w-4 h-4" />
+            Ask a Question
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <Footer />
+  </body>
+</html>
+
+<style is:global>
+  @import '../../styles/tailwind.css';
+  @import '../../styles/custom.css';
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  .header-container,
+  .footer-container {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+</style>

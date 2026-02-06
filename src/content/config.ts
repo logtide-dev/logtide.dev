@@ -99,9 +99,48 @@ const useCases = defineCollection({
   }),
 });
 
+/**
+ * Comparison Pages Collection
+ *
+ * Honest feature/cost/philosophy comparisons with competitors.
+ * Example: LogTide vs Datadog, LogTide vs Splunk
+ */
+const comparisons = defineCollection({
+  type: 'content',
+  schema: z.object({
+    // Required SEO fields
+    title: z.string().min(10).max(70),
+    description: z.string().min(50).max(160),
+
+    // Competitor info
+    competitor: z.string(),
+    competitorUrl: z.string().url().optional(),
+    brandIcon: z.string().optional(),
+
+    // Pricing info
+    competitorPricing: z.string(),
+    logtidePricing: z.string().default('Free (self-hosted)'),
+
+    // Related content
+    migrationDoc: z.string().optional(),
+    relatedIntegrations: z.array(z.string()).default([]),
+    relatedUseCases: z.array(z.string()).default([]),
+
+    // SEO keywords
+    keywords: z.array(z.string()).default([]),
+
+    // Feature highlights for cards
+    highlights: z.array(z.string()).max(4).default([]),
+
+    // Publication metadata
+    draft: z.boolean().default(false),
+  }),
+});
+
 export const collections = {
   integrations,
   'use-cases': useCases,
+  comparisons,
 };
 
 // Export types for use in components

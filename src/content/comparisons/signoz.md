@@ -1,0 +1,156 @@
+---
+title: "LogTide vs SigNoz for Log Management"
+description: "Compare LogTide and SigNoz for log management. Both open-source, both support OpenTelemetry. See where they differ."
+competitor: "SigNoz"
+competitorUrl: "https://signoz.io"
+competitorPricing: "Open-source (+ cloud plans)"
+logtidePricing: "Free (self-hosted)"
+migrationDoc: "/docs/migration/signoz"
+highlights:
+  - "Built-in SIEM & Sigma rules"
+  - "Simpler PostgreSQL backend"
+  - "Native SDKs + OTLP"
+  - "Incident management"
+relatedIntegrations:
+  - "nodejs"
+  - "python"
+relatedUseCases:
+  - "security-monitoring"
+  - "compliance-audit-trail"
+keywords:
+  - "SigNoz alternative"
+  - "SigNoz vs LogTide"
+  - "open source observability"
+  - "OpenTelemetry log management"
+  - "SigNoz SIEM alternative"
+  - "ClickHouse vs TimescaleDB"
+---
+
+SigNoz and LogTide are both open-source, self-hosted platforms that support OpenTelemetry. SigNoz focuses on full observability (metrics, traces, logs). LogTide focuses on log management with built-in SIEM capabilities. Here's how they compare.
+
+## Philosophy Comparison
+
+### SigNoz
+
+SigNoz positions itself as an open-source alternative to Datadog and New Relic, covering all three pillars of observability: metrics, traces, and logs. It's built on ClickHouse for high-performance analytics.
+
+### LogTide
+
+LogTide focuses specifically on log management with security built in. Rather than trying to replace your entire observability stack, LogTide does one thing well: logs + security detection. It's built on PostgreSQL/TimescaleDB for operational simplicity.
+
+## Feature Comparison
+
+| Feature | SigNoz | LogTide |
+|---------|--------|---------|
+| OpenTelemetry | Native OTLP | Native OTLP |
+| Logs | Yes | Yes |
+| Traces | Yes | Yes (via OTLP) |
+| Metrics | Yes | Roadmap |
+| Custom SDKs | OTel only | OTel + Custom (Node.js, Python, Go, etc.) |
+| Alerting | Yes | Yes |
+| Sigma detection rules | No | Built-in |
+| Incident management | No | Built-in |
+| MITRE ATT&CK mapping | No | Built-in |
+| Database | ClickHouse | TimescaleDB (PostgreSQL) |
+| Full-text search | Yes | Yes |
+| Real-time streaming | Yes | Yes (SSE) |
+| Custom dashboards | Yes | SIEM dashboard |
+| Multi-tenancy | Limited | Organizations + Projects |
+
+## Where SigNoz Wins
+
+**Full observability.** SigNoz covers metrics, traces, and logs in a single platform. If you need all three pillars with correlated views, SigNoz is more complete.
+
+**ClickHouse performance.** ClickHouse is purpose-built for analytical queries on large datasets. For high-volume aggregation queries, ClickHouse can outperform PostgreSQL.
+
+**Custom dashboards.** SigNoz has a query builder and dashboard creator for building custom visualizations across metrics, traces, and logs.
+
+**Service maps.** SigNoz auto-generates service dependency maps from trace data, helping you understand your microservice architecture.
+
+## Where LogTide Wins
+
+**Security detection.** LogTide includes Sigma rules, MITRE ATT&CK mapping, and incident management. SigNoz is purely an observability tool with no security capabilities.
+
+**Simpler backend.** ClickHouse requires operational expertise for tuning, merges, and cluster management. LogTide uses PostgreSQL/TimescaleDB, which most teams already know how to operate.
+
+**Native SDKs.** SigNoz relies exclusively on OpenTelemetry SDKs. LogTide provides lightweight, purpose-built SDKs for Node.js, Python, Go, PHP, Kotlin, and C# in addition to OTLP support.
+
+**Multi-tenancy.** LogTide has built-in multi-tenancy with organizations and projects, each with separate API keys and access controls. SigNoz's multi-tenancy is more limited.
+
+**SIEM dashboard.** LogTide provides a security-focused dashboard for threat monitoring, detection rule management, and incident tracking that SigNoz doesn't offer.
+
+## When to Choose SigNoz
+
+- You need metrics, traces, and logs in a single platform
+- You want custom dashboards across all telemetry types
+- Service dependency mapping is important
+- You prefer ClickHouse's analytical performance
+- You don't need security detection or SIEM capabilities
+
+## When to Choose LogTide
+
+- Security detection (Sigma rules, SIEM) is a requirement
+- You want a simpler database backend (PostgreSQL vs ClickHouse)
+- You need native SDKs beyond OpenTelemetry
+- Incident management and MITRE ATT&CK mapping are important
+- You already have a metrics solution (Prometheus, Grafana) and need focused log management
+
+## Migration: Seamless via OpenTelemetry
+
+Since both platforms support OTLP natively, migration is straightforward - just update the endpoint:
+
+```typescript
+// Before (SigNoz)
+const logExporter = new OTLPLogExporter({
+  url: 'http://signoz:4318/v1/logs',
+});
+
+// After (LogTide)
+const logExporter = new OTLPLogExporter({
+  url: 'http://logtide:8080/v1/otlp/logs',
+  headers: { 'X-API-Key': 'lp_your_api_key' },
+});
+```
+
+For OpenTelemetry Collector, update the exporter config:
+
+```yaml
+# Before (SigNoz)
+exporters:
+  otlp:
+    endpoint: signoz-otel-collector:4317
+
+# After (LogTide)
+exporters:
+  otlphttp/logtide:
+    endpoint: http://logtide:8080
+    headers:
+      X-API-Key: lp_your_api_key
+```
+
+## Concept Mapping
+
+| SigNoz | LogTide | Notes |
+|--------|---------|-------|
+| Service | Service | 1:1 mapping (from OTel resource) |
+| Trace | trace_id | Indexed for correlation |
+| Span | span_id | Indexed for correlation |
+| Log attributes | metadata | Stored as JSON |
+| Alert | Alert Rule | Similar configuration |
+| Dashboard | SIEM Dashboard | Security-focused |
+| N/A | Sigma Rules | LogTide exclusive |
+| N/A | Incidents | LogTide exclusive |
+
+## Migration Path
+
+Our migration guide covers updating OTLP endpoints, migrating alerts, and enabling LogTide's security features that aren't available in SigNoz.
+
+[View the full SigNoz migration guide](/docs/migration/signoz)
+
+---
+
+**Ready to add security to your log management?**
+
+- [Deploy LogTide](https://github.com/logtide-dev/logtide) - Free, open-source
+- [Migration Guide](/docs/migration/signoz) - Step-by-step instructions
+- [Join GitHub Discussions](https://github.com/logtide-dev/logtide/discussions) - Get help from the community
