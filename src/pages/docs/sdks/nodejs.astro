@@ -115,7 +115,7 @@ npm install @logtide/elysia     # Elysia`}
           code={`import * as Logtide from '@logtide/core';
 
 Logtide.init({
-  dsn: 'https://lp_abc123@api.logtide.dev/1',
+  dsn: 'https://lp_abc123@api.logtide.dev',
   service: 'api-server',
   environment: process.env.NODE_ENV,
   release: '1.0.0',
@@ -140,7 +140,7 @@ process.on('SIGINT', async () => {
   </div>
 
   <p class="text-muted-foreground mb-4">
-      The DSN (Data Source Name) encodes your API host, project key, and project ID in a single
+      The DSN (Data Source Name) encodes your API host and project key in a single
       connection string. You can find it in your LogTide project settings.
   </p>
 
@@ -157,7 +157,7 @@ process.on('SIGINT', async () => {
           theme="one-dark-pro"
           code={`Logtide.init({
   // Required
-  dsn: 'https://lp_abc123@api.logtide.dev/1',
+  dsn: 'https://lp_abc123@api.logtide.dev',
 
   // Recommended
   service: 'api-server',
@@ -409,7 +409,7 @@ try {
               lang="typescript"
               theme="one-dark-pro"
               code={`Logtide.init({
-  dsn: 'https://lp_abc123@api.logtide.dev/1',
+  dsn: 'https://lp_abc123@api.logtide.dev',
   tracePropagationTargets: [
     /^https:\\/\\/api\\.example\\.com/,
     /^https:\\/\\/payments\\.example\\.com/,
@@ -438,7 +438,7 @@ try {
               lang="typescript"
               theme="one-dark-pro"
               code={`Logtide.init({
-  dsn: 'https://lp_abc123@api.logtide.dev/1',
+  dsn: 'https://lp_abc123@api.logtide.dev',
   integrations: [
     Logtide.consoleIntegration({
       levels: ['warn', 'error'], // Only capture warn and error (default: all)
@@ -459,7 +459,7 @@ console.error('Connection lost'); // → captureLog('error', ...)`}
               lang="typescript"
               theme="one-dark-pro"
               code={`Logtide.init({
-  dsn: 'https://lp_abc123@api.logtide.dev/1',
+  dsn: 'https://lp_abc123@api.logtide.dev',
   integrations: [
     Logtide.globalErrorIntegration(),
   ],

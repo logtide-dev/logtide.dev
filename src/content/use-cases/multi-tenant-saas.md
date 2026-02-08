@@ -136,6 +136,8 @@ import { getTenantContext } from './middleware/tenant-context';
 const baseClient = new LogTideClient({
   apiUrl: process.env.LOGTIDE_API_URL!,
   apiKey: process.env.LOGTIDE_API_KEY!,
+  // Or use a DSN string instead:
+  // dsn: process.env.LOGTIDE_DSN,
   globalMetadata: {
     service: 'saas-platform',
     environment: process.env.NODE_ENV,

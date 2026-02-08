@@ -83,7 +83,7 @@ Define a consistent schema for all audit events:
 
 ```typescript
 // lib/audit-logger.ts
-import { LogTideClient } from '@logtide-dev/sdk-node';
+import { LogTideClient } from '@logtide/sdk-node';
 
 interface AuditEvent {
   // WHO performed the action
@@ -112,6 +112,8 @@ interface AuditEvent {
 const client = new LogTideClient({
   apiUrl: process.env.LOGTIDE_API_URL!,
   apiKey: process.env.LOGTIDE_API_KEY!,
+  // Or use a DSN string instead:
+  // dsn: process.env.LOGTIDE_DSN,
   globalMetadata: {
     service: 'audit',
     environment: process.env.NODE_ENV,
@@ -380,12 +382,14 @@ service:audit AND time:2025-01-15 AND (outcome:failure OR outcome:denied)
 
 ```typescript
 // scripts/generate-audit-report.ts
-import { LogTideClient } from '@logtide-dev/sdk-node';
+import { LogTideClient } from '@logtide/sdk-node';
 
 async function generateAuditReport(startDate: string, endDate: string) {
   const client = new LogTideClient({
     apiUrl: process.env.LOGTIDE_API_URL!,
     apiKey: process.env.LOGTIDE_API_KEY!,
+    // Or use a DSN string instead:
+    // dsn: process.env.LOGTIDE_DSN,
   });
 
   // Authentication summary

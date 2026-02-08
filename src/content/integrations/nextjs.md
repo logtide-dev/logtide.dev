@@ -100,8 +100,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 ```env
 # .env.local
-LOGTIDE_DSN=https://lp_abc123@api.logtide.dev/1
-NEXT_PUBLIC_LOGTIDE_DSN=https://lp_client456@api.logtide.dev/1
+LOGTIDE_DSN=https://lp_abc123@api.logtide.dev
+NEXT_PUBLIC_LOGTIDE_DSN=https://lp_client456@api.logtide.dev
 NEXT_PUBLIC_APP_VERSION=1.0.0
 ```
 

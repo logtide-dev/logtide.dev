@@ -145,11 +145,13 @@ datadogLogs.init({
 datadogLogs.logger.info('User logged in', { userId: 123 });
 
 // After (LogTide)
-import { LogTideClient } from '@logtide-dev/sdk-node';
+import { LogTideClient } from '@logtide/sdk-node';
 
 const client = new LogTideClient({
   apiUrl: 'http://logtide.internal:8080',
   apiKey: 'lp_xxx',
+  // Or use a DSN string instead:
+  // dsn: 'http://lp_xxx@logtide.internal:8080',
 });
 
 client.info('my-app', 'User logged in', { userId: 123 });

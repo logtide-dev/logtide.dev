@@ -741,10 +741,12 @@ logging.basicConfig(level=logging.DEBUG)`}
                   <Code
                       lang="typescript"
                       theme="one-dark-pro"
-                      code={`import { LogTideClient } from '@logtide-dev/sdk-node';
+                      code={`import { LogTideClient } from '@logtide/sdk-node';
 
 const client = new LogTideClient({
-apiKey: 'your-key'
+apiKey: 'your-key',
+// Or use a DSN string instead:
+// dsn: 'http://lp_your_key@localhost:8080',
 });
 
 client.info('api', 'User logged in', {

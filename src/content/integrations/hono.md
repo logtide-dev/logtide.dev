@@ -54,7 +54,7 @@ import * as Logtide from '@logtide/core';
 import { logtide } from '@logtide/hono';
 
 Logtide.init({
-  dsn: 'https://lp_abc123@api.logtide.dev/1',
+  dsn: 'https://lp_abc123@api.logtide.dev',
   service: 'hono-api',
   environment: 'production',
 });

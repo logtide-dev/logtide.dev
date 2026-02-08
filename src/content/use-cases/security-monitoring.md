@@ -65,6 +65,8 @@ import { LogTideClient } from '@logtide/sdk-node';
 const client = new LogTideClient({
   apiUrl: process.env.LOGTIDE_API_URL!,
   apiKey: process.env.LOGTIDE_API_KEY!,
+  // Or use a DSN string instead:
+  // dsn: process.env.LOGTIDE_DSN,
   globalMetadata: {
     service: 'security',
     environment: process.env.NODE_ENV,

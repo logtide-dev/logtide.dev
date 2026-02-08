@@ -100,7 +100,7 @@ Store your DSN in an environment variable:
 
 ```bash
 # .env
-LOGTIDE_DSN=https://lp_abc123@api.logtide.dev/1
+LOGTIDE_DSN=https://lp_abc123@api.logtide.dev
 ```
 
 ## Configuration Options

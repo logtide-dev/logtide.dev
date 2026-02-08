@@ -368,11 +368,13 @@ email: 'user@example.com'
                   <Code
                       lang="typescript"
                       theme="one-dark-pro"
-                      code={`import { LogTideClient } from '@logtide-dev/sdk-node';
+                      code={`import { LogTideClient } from '@logtide/sdk-node';
 
 const client = new LogTideClient({
 apiUrl: 'http://logtide.internal:8080',
 apiKey: 'lp_xxx',
+// Or use a DSN string instead:
+// dsn: 'http://lp_xxx@logtide.internal:8080',
 globalMetadata: { env: 'production' }
 });
 
@@ -570,13 +572,15 @@ def process_request():
                   lang="typescript"
                   theme="one-dark-pro"
                   code={`import { datadogLogs } from '@datadog/browser-logs';
-import { LogTideClient } from '@logtide-dev/sdk-node';
+import { LogTideClient } from '@logtide/sdk-node';
 
 // Initialize both
 datadogLogs.init({ clientToken: 'xxx', site: 'datadoghq.com' });
 const logtide = new LogTideClient({
 apiUrl: 'http://logtide.internal:8080',
-apiKey: 'lp_xxx'
+apiKey: 'lp_xxx',
+// Or use a DSN string instead:
+// dsn: 'http://lp_xxx@logtide.internal:8080',
 });
 
 // Wrapper to send to both

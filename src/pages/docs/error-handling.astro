@@ -249,7 +249,9 @@ interface StructuredStackFrame {
 
 const client = new LogTideClient({
   apiUrl: 'https://logs.example.com',
-  apiKey: 'lp_your_api_key'
+  apiKey: 'lp_your_api_key',
+  // Or use a DSN string instead:
+  // dsn: 'https://lp_your_api_key@logs.example.com',
 });
 
 try {

@@ -128,12 +128,14 @@ export function getContext(): RequestContext | undefined {
 
 ```typescript
 // lib/logger.ts
-import { LogTideClient } from '@logtide-dev/sdk-node';
+import { LogTideClient } from '@logtide/sdk-node';
 import { getContext } from './middleware/correlation';
 
 const client = new LogTideClient({
   apiUrl: process.env.LOGTIDE_API_URL!,
   apiKey: process.env.LOGTIDE_API_KEY!,
+  // Or use a DSN string instead:
+  // dsn: process.env.LOGTIDE_DSN,
 });
 
 function enrichMetadata(metadata: Record<string, unknown> = {}) {

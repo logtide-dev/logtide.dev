@@ -54,7 +54,7 @@ import { AppComponent } from './app/app.component';
 bootstrapApplication(AppComponent, {
   providers: [
     provideLogtide({
-      dsn: 'https://lp_abc123@api.logtide.dev/1',
+      dsn: 'https://lp_abc123@api.logtide.dev',
       service: 'angular-app',
       environment: 'production',
       release: '1.0.0',
@@ -73,7 +73,7 @@ import { getLogtideProviders } from '@logtide/angular';
 @NgModule({
   providers: [
     ...getLogtideProviders({
-      dsn: 'https://lp_abc123@api.logtide.dev/1',
+      dsn: 'https://lp_abc123@api.logtide.dev',
       service: 'angular-app',
       environment: 'production',
     }),

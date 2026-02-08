@@ -147,6 +147,8 @@ class PrivacyLogger {
     this.client = new LogTideClient({
       apiUrl: process.env.LOGTIDE_API_URL!,
       apiKey: process.env.LOGTIDE_API_KEY!,
+      // Or use a DSN string instead:
+      // dsn: process.env.LOGTIDE_DSN,
       globalMetadata: {
         environment: process.env.NODE_ENV,
         dataClassification: 'gdpr-compliant',

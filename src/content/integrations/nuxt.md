@@ -132,8 +132,8 @@ async function handleSubmit() {
 Override configuration at deploy time:
 
 ```bash
-LOGTIDE_DSN=https://lp_abc123@api.logtide.dev/1
-NUXT_PUBLIC_LOGTIDE_DSN=https://lp_client456@api.logtide.dev/1
+LOGTIDE_DSN=https://lp_abc123@api.logtide.dev
+NUXT_PUBLIC_LOGTIDE_DSN=https://lp_client456@api.logtide.dev
 ```
 
 ## Next Steps
