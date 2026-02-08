@@ -12,11 +12,18 @@ const openSourceLinks = [
   { href: 'https://github.com/logtide-dev/logtide/blob/main/LICENSE', label: 'AGPLv3 License', external: true },
   { href: 'https://github.com/logtide-dev/logtide/issues', label: 'Report Issue', external: true },
 ];
+
+const legalLinks = [
+  { href: '/legal/privacy', label: 'Privacy Policy' },
+  { href: '/legal/terms', label: 'Terms of Service' },
+  { href: '/legal/cookies', label: 'Cookie Policy' },
+  { href: '/legal/acceptable-use', label: 'Acceptable Use' },
+];
 ---
 
 <footer class="border-t border-border bg-card/30 py-12">
   <div class="footer-container">
-    <div class="mb-8 grid gap-8 md:grid-cols-4">
+    <div class="mb-8 grid gap-8 md:grid-cols-5">
       <div class="md:col-span-2">
         <img src="/logo/white.svg" alt="LogTide" class="mb-4 hidden h-8 w-auto dark:block" />
         <img src="/logo/dark.svg" alt="LogTide" class="mb-4 block h-8 w-auto dark:hidden" />
@@ -58,11 +65,27 @@ const openSourceLinks = [
           ))}
         </ul>
       </nav>
+
+      <nav aria-label="Legal links">
+        <h4 class="mb-4 font-semibold text-foreground">Legal</h4>
+        <ul class="space-y-2">
+          {legalLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </div>
 
     <div class="flex flex-col items-center justify-between gap-4 border-t border-border pt-8 md:flex-row">
       <p class="text-sm text-muted-foreground">
-        &copy; {new Date().getFullYear()} LogTide. Built with care in Europe.
+        &copy; {new Date().getFullYear()} Solture S.R.L. — LogTide. Built with care in Europe.
       </p>
       <div class="flex items-center gap-2 text-sm text-muted-foreground">
         <span class="flex items-center gap-1">

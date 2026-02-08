@@ -1,0 +1,96 @@
+---
+import ContentPage from '../../layouts/ContentPage.astro';
+
+const title = 'Cookie Policy — LogTide';
+const description = 'LogTide cookie policy. LogTide does not use cookies for tracking or advertising. Learn about our minimal use of browser storage.';
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Cookie Policy', url: '/legal/cookies/' },
+];
+---
+
+<ContentPage title={title} description={description} breadcrumbs={breadcrumbs}>
+  <h1>Cookie Policy</h1>
+  <p class="text-muted-foreground">Last updated: February 2026</p>
+
+  <div class="prose-content">
+    <p>
+      This Cookie Policy explains how LogTide uses cookies and similar technologies. The short version: <strong>we don't use cookies</strong>.
+    </p>
+
+    <h2>1. Our Approach</h2>
+    <p>
+      LogTide is designed with privacy as a core principle. We do not use cookies for tracking, advertising, analytics, or any other purpose. We do not use third-party cookies of any kind.
+    </p>
+
+    <h2>2. Browser Storage We Use</h2>
+    <p>
+      While we do not use cookies, we use <strong>localStorage</strong> (a browser storage mechanism) for the following purposes:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Storage Key</th>
+          <th>Purpose</th>
+          <th>Data Stored</th>
+          <th>Duration</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>theme</code></td>
+          <td>Display preference</td>
+          <td>"light" or "dark"</td>
+          <td>Until cleared by you</td>
+        </tr>
+        <tr>
+          <td><code>logtide_auth</code></td>
+          <td>Authentication (app only)</td>
+          <td>Session token and user info</td>
+          <td>Until logout or 30-day expiry</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      <strong>Important:</strong> localStorage data is stored entirely in your browser and is never sent to third-party servers. It does not track you across websites.
+    </p>
+
+    <h2>3. How localStorage Differs from Cookies</h2>
+    <ul>
+      <li><strong>Cookies</strong> are automatically sent with every HTTP request to the server, enabling tracking across pages and sessions</li>
+      <li><strong>localStorage</strong> is only accessible by JavaScript on the same domain and is never automatically transmitted to any server</li>
+    </ul>
+    <p>
+      By using localStorage instead of cookies, we ensure that no data is sent to our servers beyond what you explicitly submit.
+    </p>
+
+    <h2>4. Third-Party Services</h2>
+    <p>
+      We do not use any third-party services that set cookies or track users on our website. Web fonts are self-hosted and served directly from our servers — no external font services are contacted when you visit our site.
+    </p>
+
+    <h2>5. No Cookie Banner Required</h2>
+    <p>
+      Since LogTide does not use cookies, no cookie consent banner is required under the EU ePrivacy Directive or GDPR. We provide this policy for full transparency about how your browser interacts with our service.
+    </p>
+
+    <h2>6. Self-Hosted Deployments</h2>
+    <p>
+      If you self-host LogTide, cookie behavior depends on your own configuration. The default LogTide installation does not set any cookies.
+    </p>
+
+    <h2>7. Changes to This Policy</h2>
+    <p>
+      If we ever introduce cookies in the future, we will update this policy and implement appropriate consent mechanisms as required by law.
+    </p>
+
+    <h2>8. Contact</h2>
+    <p>For questions about this policy:</p>
+    <ul>
+      <li>Email: <a href="mailto:privacy@logtide.dev">privacy@logtide.dev</a></li>
+      <li>GitHub: <a href="https://github.com/logtide-dev/logtide/issues" target="_blank" rel="noopener noreferrer">logtide-dev/logtide</a></li>
+    </ul>
+  </div>
+</ContentPage>

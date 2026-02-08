@@ -1,0 +1,126 @@
+---
+import ContentPage from '../../layouts/ContentPage.astro';
+
+const title = 'Terms of Service — LogTide';
+const description = 'LogTide terms of service. Read the conditions for using the LogTide log management platform.';
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Terms of Service', url: '/legal/terms/' },
+];
+---
+
+<ContentPage title={title} description={description} breadcrumbs={breadcrumbs}>
+  <h1>Terms of Service</h1>
+  <p class="text-muted-foreground">Last updated: February 2026</p>
+
+  <div class="prose-content">
+    <p>
+      These Terms of Service ("Terms") govern your use of the LogTide platform and website, operated by <strong><a href="https://solture.it" target="_blank" rel="noopener noreferrer">Solture S.R.L.</a></strong> (VAT: IT05078680237). By accessing or using LogTide, you agree to be bound by these Terms.
+    </p>
+
+    <h2>1. Definitions</h2>
+    <ul>
+      <li><strong>"LogTide"</strong> / <strong>"We"</strong> — Solture S.R.L., the company operating the Service</li>
+      <li><strong>"Service"</strong> — the LogTide log management platform, including the cloud-hosted version at <code>app.logtide.dev</code> and the self-hosted software</li>
+      <li><strong>"Website"</strong> — the LogTide website at <code>logtide.dev</code></li>
+      <li><strong>"User"</strong> / <strong>"You"</strong> — any individual or entity using the Service</li>
+      <li><strong>"Your Data"</strong> — any log data, configuration, or content you submit to the Service</li>
+    </ul>
+
+    <h2>2. Account Registration</h2>
+    <ul>
+      <li>You must provide accurate and complete information when creating an account</li>
+      <li>You are responsible for maintaining the security of your account credentials</li>
+      <li>You must notify us immediately of any unauthorized use of your account</li>
+      <li>You must be at least 16 years of age to use the Service</li>
+    </ul>
+
+    <h2>3. Acceptable Use</h2>
+    <p>
+      Your use of the Service is subject to our <a href="/legal/acceptable-use/">Acceptable Use Policy</a>. You agree not to use the Service for any unlawful purpose or in violation of these Terms.
+    </p>
+
+    <h2>4. Your Data</h2>
+    <h3>4.1 Ownership</h3>
+    <p>
+      You retain all rights to Your Data. LogTide does not claim ownership of any data you submit to the Service.
+    </p>
+
+    <h3>4.2 License to Operate</h3>
+    <p>
+      You grant LogTide a limited license to process Your Data solely for the purpose of providing and improving the Service. This license terminates when you delete Your Data or your account.
+    </p>
+
+    <h3>4.3 Data Responsibility</h3>
+    <p>
+      You are responsible for ensuring that Your Data does not violate any applicable laws or third-party rights. You must have the necessary rights and permissions to submit data to the Service.
+    </p>
+
+    <h2>5. Open Source License</h2>
+    <p>
+      The LogTide software is licensed under the <a href="https://github.com/logtide-dev/logtide/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">GNU Affero General Public License v3 (AGPLv3)</a>. The open-source license governs your use of the self-hosted software. These Terms govern your use of the cloud-hosted Service and the Website.
+    </p>
+
+    <h2>6. Service Availability</h2>
+    <ul>
+      <li>We strive to maintain high availability but do not guarantee uninterrupted access to the Service</li>
+      <li>We may perform maintenance that temporarily affects availability, with reasonable advance notice when possible</li>
+      <li>We reserve the right to modify, suspend, or discontinue any part of the Service with reasonable notice</li>
+    </ul>
+
+    <h2>7. Limitation of Liability</h2>
+    <p>
+      To the maximum extent permitted by applicable law:
+    </p>
+    <ul>
+      <li>The Service is provided <strong>"as is"</strong> and <strong>"as available"</strong> without warranties of any kind, whether express or implied</li>
+      <li>LogTide shall not be liable for any indirect, incidental, special, consequential, or punitive damages</li>
+      <li>LogTide's total liability shall not exceed the amount paid by you for the Service in the 12 months preceding the claim</li>
+      <li>These limitations apply regardless of the legal theory (contract, tort, or otherwise)</li>
+    </ul>
+
+    <h2>8. Indemnification</h2>
+    <p>
+      You agree to indemnify and hold harmless LogTide from any claims, damages, or expenses arising from your use of the Service, your violation of these Terms, or your violation of any third-party rights.
+    </p>
+
+    <h2>9. Account Termination</h2>
+    <ul>
+      <li>You may delete your account at any time through the Service settings</li>
+      <li>We may suspend or terminate your account if you violate these Terms or the Acceptable Use Policy</li>
+      <li>Upon termination, your right to access the Service ceases immediately</li>
+      <li>We will delete your account data within 30 days of termination, unless legally required to retain it</li>
+    </ul>
+
+    <h2>10. Intellectual Property</h2>
+    <p>
+      The LogTide name, logo, and branding are the property of LogTide. The LogTide software is open source under AGPLv3, but this does not grant rights to use LogTide trademarks.
+    </p>
+    <p>
+      Website content (documentation, guides, tutorials) is provided for informational purposes. You may reference and link to it but may not reproduce it in bulk without permission.
+    </p>
+
+    <h2>11. Changes to These Terms</h2>
+    <p>
+      We may update these Terms from time to time. We will notify users of material changes via the Website or email. Continued use of the Service after changes take effect constitutes acceptance of the updated Terms.
+    </p>
+
+    <h2>12. Governing Law</h2>
+    <p>
+      These Terms are governed by the laws of Italy and the European Union. Any disputes shall be resolved in the competent courts of Verona, Italy.
+    </p>
+
+    <h2>13. Severability</h2>
+    <p>
+      If any provision of these Terms is found to be unenforceable, the remaining provisions shall continue in full force and effect.
+    </p>
+
+    <h2>14. Contact</h2>
+    <p>For questions about these Terms:</p>
+    <ul>
+      <li><strong><a href="https://solture.it" target="_blank" rel="noopener noreferrer">Solture S.R.L.</a></strong> — VAT: IT05078680237</li>
+      <li>Email: <a href="mailto:legal@logtide.dev">legal@logtide.dev</a></li>
+      <li>GitHub: <a href="https://github.com/logtide-dev/logtide/issues" target="_blank" rel="noopener noreferrer">logtide-dev/logtide</a></li>
+    </ul>
+  </div>
+</ContentPage>

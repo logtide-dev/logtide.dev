@@ -47,6 +47,10 @@ export default defineConfig({
           // Use cases index page
           item.priority = 0.75;
           item.changefreq = 'weekly';
+        } else if (item.url.includes('/legal/')) {
+          // Legal pages - low priority, rarely change
+          item.priority = 0.3;
+          item.changefreq = 'yearly';
         }
         return item;
       },

@@ -1,0 +1,118 @@
+---
+import ContentPage from '../../layouts/ContentPage.astro';
+
+const title = 'Acceptable Use Policy — LogTide';
+const description = 'LogTide acceptable use policy. Guidelines for responsible use of the LogTide log management platform.';
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Acceptable Use Policy', url: '/legal/acceptable-use/' },
+];
+---
+
+<ContentPage title={title} description={description} breadcrumbs={breadcrumbs}>
+  <h1>Acceptable Use Policy</h1>
+  <p class="text-muted-foreground">Last updated: February 2026</p>
+
+  <div class="prose-content">
+    <p>
+      This Acceptable Use Policy ("AUP") defines the rules for using the LogTide platform. It applies to all users of the cloud-hosted service at <code>app.logtide.dev</code>. Self-hosted users are encouraged to adopt similar guidelines.
+    </p>
+
+    <h2>1. Permitted Use</h2>
+    <p>LogTide is designed for legitimate log management, monitoring, and observability purposes, including:</p>
+    <ul>
+      <li>Collecting, storing, and analyzing application and infrastructure logs</li>
+      <li>Setting up alerts and notifications based on log patterns</li>
+      <li>Security monitoring and threat detection using Sigma rules</li>
+      <li>Compliance auditing and log retention</li>
+      <li>Debugging and troubleshooting applications</li>
+    </ul>
+
+    <h2>2. Prohibited Activities</h2>
+    <p>You must not use the Service to:</p>
+
+    <h3>2.1 Illegal or Harmful Activity</h3>
+    <ul>
+      <li>Violate any applicable laws, regulations, or third-party rights</li>
+      <li>Store or transmit data that you do not have the right to collect or process</li>
+      <li>Facilitate illegal activities or process proceeds of crime</li>
+      <li>Violate export control or sanctions regulations</li>
+    </ul>
+
+    <h3>2.2 Abuse of the Service</h3>
+    <ul>
+      <li>Attempt to gain unauthorized access to the Service or other users' data</li>
+      <li>Interfere with or disrupt the Service infrastructure</li>
+      <li>Circumvent rate limits, quotas, or security controls</li>
+      <li>Use the Service for cryptocurrency mining or resource-intensive non-logging tasks</li>
+      <li>Resell or sublicense the cloud Service without authorization</li>
+    </ul>
+
+    <h3>2.3 Harmful Content</h3>
+    <ul>
+      <li>Store malware, viruses, or other malicious code as log data intentionally</li>
+      <li>Use the Service to distribute spam or unsolicited communications</li>
+      <li>Store content that violates intellectual property rights</li>
+    </ul>
+
+    <h3>2.4 Security Violations</h3>
+    <ul>
+      <li>Probe, scan, or test the vulnerability of the Service without authorization</li>
+      <li>Exploit security vulnerabilities instead of reporting them responsibly</li>
+      <li>Attempt to reverse-engineer non-open-source components of the Service</li>
+    </ul>
+
+    <h2>3. Data Compliance</h2>
+    <p>You are responsible for:</p>
+    <ul>
+      <li>Ensuring that log data you send complies with applicable data protection laws (GDPR, CCPA, etc.)</li>
+      <li>Not sending sensitive personal data (health records, financial data, credentials) as log content unless you have appropriate safeguards in place</li>
+      <li>Implementing appropriate data retention policies for your use case</li>
+      <li>Obtaining necessary consents from data subjects whose information may appear in logs</li>
+    </ul>
+
+    <h2>4. Resource Usage</h2>
+    <ul>
+      <li>Use the Service resources reasonably and as intended for log management</li>
+      <li>Do not intentionally generate excessive log volume to abuse the Service</li>
+      <li>We reserve the right to throttle or limit usage that negatively impacts other users</li>
+    </ul>
+
+    <h2>5. Responsible Disclosure</h2>
+    <p>
+      If you discover a security vulnerability in LogTide, we ask that you report it responsibly:
+    </p>
+    <ul>
+      <li>Report vulnerabilities to <a href="mailto:security@logtide.dev">security@logtide.dev</a></li>
+      <li>Allow reasonable time for us to address the issue before public disclosure</li>
+      <li>Do not exploit vulnerabilities to access other users' data</li>
+    </ul>
+
+    <h2>6. Enforcement</h2>
+    <p>
+      Violation of this AUP may result in:
+    </p>
+    <ul>
+      <li>Warning and request to cease the prohibited activity</li>
+      <li>Temporary suspension of your account</li>
+      <li>Permanent termination of your account</li>
+      <li>Reporting to relevant authorities where required by law</li>
+    </ul>
+    <p>
+      We will make reasonable efforts to notify you before taking enforcement action, except where immediate action is necessary to protect the Service or other users.
+    </p>
+
+    <h2>7. Changes to This Policy</h2>
+    <p>
+      We may update this AUP from time to time. Material changes will be communicated via the Website. Continued use of the Service constitutes acceptance of the updated policy.
+    </p>
+
+    <h2>8. Contact</h2>
+    <p>For questions about this policy or to report abuse:</p>
+    <ul>
+      <li>Email: <a href="mailto:legal@logtide.dev">legal@logtide.dev</a></li>
+      <li>Security issues: <a href="mailto:security@logtide.dev">security@logtide.dev</a></li>
+      <li>GitHub: <a href="https://github.com/logtide-dev/logtide/issues" target="_blank" rel="noopener noreferrer">logtide-dev/logtide</a></li>
+    </ul>
+  </div>
+</ContentPage>
