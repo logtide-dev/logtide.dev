@@ -1,0 +1,230 @@
+---
+import DocsLayout from '../../../layouts/Docs.astro';
+import Button from '../../../components/ui/Button.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Installation", slug: "installation", depth: 2 },
+  { text: "Server Hooks", slug: "server-hooks", depth: 2 },
+  { text: "Client-Side Init", slug: "client-init", depth: 2 },
+  { text: "Fetch Instrumentation", slug: "fetch-instrumentation", depth: 2 },
+  { text: "Load Functions", slug: "load-functions", depth: 2 },
+  { text: "Form Actions", slug: "form-actions", depth: 2 },
+  { text: "API Reference", slug: "api-reference", depth: 2 }
+];
+---
+
+<DocsLayout
+  title="SvelteKit SDK"
+  description="LogTide SDK for SvelteKit — server hooks, error handling, fetch instrumentation, and client-side init."
+  headings={headings}
+>
+  <div class="flex items-center justify-between mb-4">
+      <h1 class="text-3xl font-bold">SvelteKit SDK</h1>
+      <div class="flex items-center gap-2">
+          <a href="https://www.npmjs.com/package/@logtide/sveltekit" target="_blank" rel="noopener noreferrer">
+              <Button variant="ghost" size="sm" class="gap-1.5">
+                  <Icon name="simple-icons:npm" class="w-4 h-4" />
+                  npm
+              </Button>
+          </a>
+      </div>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+      <code class="bg-muted px-1 rounded">@logtide/sveltekit</code> integrates LogTide with
+      SvelteKit through server hooks (<code class="bg-muted px-1 rounded">handle</code>, <code class="bg-muted px-1 rounded">handleError</code>,
+      <code class="bg-muted px-1 rounded">handleFetch</code>) and client-side initialization.
+  </p>
+
+  <h2 id="installation" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Installation
+  </h2>
+
+  <div class="mb-8">
+      <Code lang="bash" theme="one-dark-pro" code={`npm install @logtide/sveltekit`} />
+  </div>
+
+  <h2 id="server-hooks" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Server Hooks
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      Wire up LogTide in your <code class="bg-muted px-1 rounded">src/hooks.server.ts</code>:
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`// src/hooks.server.ts
+import * as Logtide from '@logtide/core';
+import { logtideHandle, logtideHandleError } from '@logtide/sveltekit';
+
+Logtide.init({
+  dsn: import.meta.env.LOGTIDE_DSN,
+  service: 'sveltekit-app',
+  environment: import.meta.env.MODE,
+});
+
+// Sequence with other hooks if needed
+export const handle = logtideHandle();
+
+// Capture server-side errors
+export const handleError = logtideHandleError();`}
+      />
+  </div>
+
+  <p class="text-muted-foreground mb-4">
+      To compose with other hooks, use SvelteKit's <code class="bg-muted px-1 rounded">sequence</code>:
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`import { sequence } from '@sveltejs/kit/hooks';
+import { logtideHandle } from '@logtide/sveltekit';
+
+export const handle = sequence(
+  logtideHandle(),
+  ({ event, resolve }) => {
+    // Your custom handle logic
+    return resolve(event);
+  }
+);`}
+      />
+  </div>
+
+  <h2 id="client-init" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Client-Side Init
+  </h2>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`// src/hooks.client.ts
+import * as Logtide from '@logtide/core';
+import { logtideHandleError } from '@logtide/sveltekit';
+
+Logtide.init({
+  dsn: import.meta.env.PUBLIC_LOGTIDE_DSN,
+  environment: import.meta.env.MODE,
+});
+
+export const handleError = logtideHandleError();`}
+      />
+  </div>
+
+  <h2 id="fetch-instrumentation" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Fetch Instrumentation
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      Instrument server-side fetch calls for trace propagation:
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`// src/hooks.server.ts
+import { logtideHandleFetch } from '@logtide/sveltekit';
+
+export const handleFetch = logtideHandleFetch();
+
+// Outgoing fetch requests from load functions now include
+// traceparent headers for end-to-end distributed tracing`}
+      />
+  </div>
+
+  <h2 id="load-functions" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Load Functions
+  </h2>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`// src/routes/users/[id]/+page.server.ts
+import * as Logtide from '@logtide/core';
+import { error } from '@sveltejs/kit';
+
+export async function load({ params, fetch }) {
+  Logtide.captureLog('info', 'Loading user page', {
+    userId: params.id,
+  });
+
+  const res = await fetch('/api/users/' + params.id);
+
+  if (!res.ok) {
+    Logtide.captureLog('warn', 'User not found', { userId: params.id });
+    throw error(404, 'User not found');
+  }
+
+  return { user: await res.json() };
+}`}
+      />
+  </div>
+
+  <h2 id="form-actions" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Form Actions
+  </h2>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`// src/routes/settings/+page.server.ts
+import * as Logtide from '@logtide/core';
+import { fail } from '@sveltejs/kit';
+
+export const actions = {
+  update: async ({ request }) => {
+    const data = await request.formData();
+    const name = data.get('name');
+
+    Logtide.addBreadcrumb({
+      category: 'form',
+      message: 'Settings form submitted',
+    });
+
+    try {
+      await updateSettings({ name });
+      Logtide.captureLog('info', 'Settings updated');
+      return { success: true };
+    } catch (error) {
+      Logtide.captureError(error);
+      return fail(500, { message: 'Update failed' });
+    }
+  },
+};`}
+      />
+  </div>
+
+  <h2 id="api-reference" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      API Reference
+  </h2>
+
+  <div class="mb-8 overflow-x-auto">
+      <table class="w-full text-sm">
+          <thead>
+              <tr>
+                  <th class="text-left p-3 border-b border-border font-semibold">Export</th>
+                  <th class="text-left p-3 border-b border-border font-semibold">Description</th>
+              </tr>
+          </thead>
+          <tbody class="text-muted-foreground">
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">logtideHandle()</code></td><td class="p-3 border-b border-border">Server handle hook — request logging, scoping, trace extraction</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">logtideHandleError()</code></td><td class="p-3 border-b border-border">Error hook — captures errors with context (server + client)</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">logtideHandleFetch()</code></td><td class="p-3 border-b border-border">Fetch hook — injects traceparent headers on outgoing requests</td></tr>
+          </tbody>
+      </table>
+  </div>
+
+  <p class="text-muted-foreground">
+      See the <a href="/docs/sdks/nodejs">JavaScript SDK core docs</a> for the full <code class="bg-muted px-1 rounded">@logtide/core</code> API.
+  </p>
+</DocsLayout>

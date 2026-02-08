@@ -1,0 +1,143 @@
+---
+title: "Nuxt Application Logging Integration"
+description: "Add structured logging to Nuxt applications with a zero-config module, runtime config injection, and server/client support."
+category: "framework"
+difficulty: "easy"
+sdk: "javascript"
+brandIcon: "simple-icons:nuxtdotjs"
+highlights:
+  - "Zero-config module"
+  - "Runtime config injection"
+  - "Server + client capture"
+  - "Composable API"
+relatedIntegrations:
+  - "nodejs"
+  - "docker"
+relatedUseCases: []
+keywords:
+  - "nuxt logging"
+  - "nuxt structured logging"
+  - "nuxt error tracking"
+  - "nuxt module logging"
+  - "vue ssr logging"
+---
+
+LogTide's Nuxt module provides zero-config structured logging for Nuxt applications with automatic server and client initialization, runtime config injection, and Vue composables.
+
+## Why use LogTide with Nuxt?
+
+- **Zero-config**: Add module to nuxt.config.ts and it works
+- **Runtime config**: DSN injected via Nuxt runtime config, overridable at deploy time
+- **Server + client**: Auto-initializes on both sides
+- **Composable API**: `useLogtide()` composable for Vue components
+- **Error capture**: Automatic on server and client
+
+## Prerequisites
+
+- Nuxt 3.x
+- Node.js 18+
+- LogTide instance with a DSN
+
+## Installation
+
+```bash
+npm install @logtide/nuxt
+```
+
+## Quick Start
+
+```typescript
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['@logtide/nuxt'],
+
+  logtide: {
+    dsn: process.env.LOGTIDE_DSN,
+    service: 'nuxt-app',
+    environment: process.env.NODE_ENV,
+  },
+});
+```
+
+That's all you need. The module handles initialization, error capture, and provides composables.
+
+## Configuration
+
+```typescript
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['@logtide/nuxt'],
+
+  logtide: {
+    dsn: process.env.LOGTIDE_DSN,
+    service: 'nuxt-app',
+    environment: process.env.NODE_ENV,
+    release: '1.0.0',
+
+    // Separate client DSN (optional)
+    clientDsn: process.env.NUXT_PUBLIC_LOGTIDE_DSN,
+
+    // Toggle sides (default: both true)
+    clientEnabled: true,
+    serverEnabled: true,
+
+    // Tracing
+    tracesSampleRate: 1.0,
+  },
+});
+```
+
+## Server-Side Usage
+
+```typescript
+// server/api/users/[id].get.ts
+import * as Logtide from '@logtide/core';
+
+export default defineEventHandler(async (event) => {
+  const id = getRouterParam(event, 'id');
+
+  Logtide.captureLog('info', 'Fetching user', { userId: id });
+
+  const user = await getUserById(id);
+  return user;
+});
+```
+
+## Client-Side Usage
+
+```vue
+<script setup>
+import { useLogtide } from '#imports';
+
+const logtide = useLogtide();
+
+async function handleSubmit() {
+  logtide.addBreadcrumb({
+    category: 'ui',
+    message: 'Form submitted',
+  });
+
+  try {
+    await $fetch('/api/submit', { method: 'POST', body: formData });
+    logtide.captureLog('info', 'Form submitted');
+  } catch (error) {
+    logtide.captureError(error);
+  }
+}
+</script>
+```
+
+## Environment Variables
+
+Override configuration at deploy time:
+
+```bash
+LOGTIDE_DSN=https://lp_abc123@api.logtide.dev/1
+NUXT_PUBLIC_LOGTIDE_DSN=https://lp_client456@api.logtide.dev/1
+```
+
+## Next Steps
+
+- [JavaScript SDK](/docs/sdks/nodejs) - Core SDK reference
+- [Nuxt SDK Reference](/docs/sdks/nuxt-sdk) - Full API documentation
+- [Docker Integration](/integrations/docker) - Container deployments

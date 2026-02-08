@@ -1,0 +1,241 @@
+---
+import DocsLayout from '../../../layouts/Docs.astro';
+import Button from '../../../components/ui/Button.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Installation", slug: "installation", depth: 2 },
+  { text: "Quick Start", slug: "quick-start", depth: 2 },
+  { text: "Middleware Options", slug: "middleware-options", depth: 2 },
+  { text: "Request Scoping", slug: "request-scoping", depth: 2 },
+  { text: "Trace Propagation", slug: "trace-propagation", depth: 2 },
+  { text: "Error Handling", slug: "error-handling", depth: 2 },
+  { text: "API Reference", slug: "api-reference", depth: 2 }
+];
+---
+
+<DocsLayout
+  title="Express SDK"
+  description="LogTide SDK for Express.js — automatic request logging, scoped context, and W3C trace propagation."
+  headings={headings}
+>
+  <div class="flex items-center justify-between mb-4">
+      <h1 class="text-3xl font-bold">Express SDK</h1>
+      <div class="flex items-center gap-2">
+          <a href="https://www.npmjs.com/package/@logtide/express" target="_blank" rel="noopener noreferrer">
+              <Button variant="ghost" size="sm" class="gap-1.5">
+                  <Icon name="simple-icons:npm" class="w-4 h-4" />
+                  npm
+              </Button>
+          </a>
+      </div>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+      <code class="bg-muted px-1 rounded">@logtide/express</code> provides Express.js middleware
+      for automatic request/response logging, per-request scoping, and W3C Trace Context propagation.
+  </p>
+
+  <h2 id="installation" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Installation
+  </h2>
+
+  <div class="mb-8">
+      <Code lang="bash" theme="one-dark-pro" code={`npm install @logtide/express`} />
+  </div>
+
+  <p class="text-muted-foreground mb-4">
+      This installs <code class="bg-muted px-1 rounded">@logtide/core</code> as a dependency automatically.
+  </p>
+
+  <h2 id="quick-start" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Quick Start
+  </h2>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`import express from 'express';
+import * as Logtide from '@logtide/core';
+import { logtide } from '@logtide/express';
+
+Logtide.init({
+  dsn: 'https://lp_abc123@api.logtide.dev/1',
+  service: 'api-server',
+  environment: 'production',
+});
+
+const app = express();
+
+// Add LogTide middleware
+app.use(logtide());
+
+app.get('/users/:id', (req, res) => {
+  // Access the request-scoped context
+  req.logtideScope.setTag('userId', req.params.id);
+
+  Logtide.captureLog('info', 'Fetching user', {
+    userId: req.params.id,
+  });
+
+  res.json({ id: req.params.id, name: 'Alice' });
+});
+
+app.listen(3000);`}
+      />
+  </div>
+
+  <h2 id="middleware-options" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Middleware Options
+  </h2>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`app.use(logtide({
+  // Log request/response automatically (default: true)
+  logRequests: true,
+
+  // Include request headers in log metadata (default: false)
+  logHeaders: false,
+
+  // Include request body (default: false, careful with sensitive data)
+  logBody: false,
+
+  // Skip certain requests
+  skip: (req) => req.path === '/health' || req.path === '/ready',
+
+  // Customize the log level based on status code
+  getLogLevel: (req, res) => {
+    if (res.statusCode >= 500) return 'error';
+    if (res.statusCode >= 400) return 'warn';
+    return 'info';
+  },
+}));`}
+      />
+  </div>
+
+  <h2 id="request-scoping" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Request Scoping
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      The middleware creates a new scope for each request. Context set within a request is
+      automatically included in all events captured during that request.
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`app.use((req, res, next) => {
+  // Set user context for the request
+  req.logtideScope.setUser({
+    id: req.user?.id,
+    email: req.user?.email,
+  });
+
+  // Set custom tags
+  req.logtideScope.setTag('tenant', req.headers['x-tenant-id']);
+
+  next();
+});
+
+app.get('/orders', (req, res) => {
+  // This log automatically includes the user and tenant tag
+  Logtide.captureLog('info', 'Fetching orders');
+  res.json([]);
+});`}
+      />
+  </div>
+
+  <h2 id="trace-propagation" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Trace Propagation
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      The middleware extracts incoming <code class="bg-muted px-1 rounded">traceparent</code> headers
+      and continues the trace, or starts a new one. The trace ID is available on the request.
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`app.get('/api/data', (req, res) => {
+  // Access the trace ID for the current request
+  const traceId = req.logtideTraceId;
+
+  // Pass it to downstream services
+  const response = await fetch('https://service-b.internal/data', {
+    headers: {
+      // traceparent is automatically injected if tracePropagationTargets match
+    },
+  });
+
+  // Include trace ID in response for client-side correlation
+  res.set('X-Trace-Id', traceId);
+  res.json(await response.json());
+});`}
+      />
+  </div>
+
+  <h2 id="error-handling" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Error Handling
+  </h2>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`import { logtideErrorHandler } from '@logtide/express';
+
+// Add routes first
+app.get('/users/:id', async (req, res) => {
+  const user = await getUser(req.params.id);
+  if (!user) throw new NotFoundError('User not found');
+  res.json(user);
+});
+
+// Add LogTide error handler AFTER routes
+app.use(logtideErrorHandler());
+
+// Your own error handler can come after
+app.use((err, req, res, next) => {
+  res.status(err.status || 500).json({
+    error: err.message,
+    traceId: req.logtideTraceId,
+  });
+});`}
+      />
+  </div>
+
+  <h2 id="api-reference" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      API Reference
+  </h2>
+
+  <div class="mb-8 overflow-x-auto">
+      <table class="w-full text-sm">
+          <thead>
+              <tr>
+                  <th class="text-left p-3 border-b border-border font-semibold">Export</th>
+                  <th class="text-left p-3 border-b border-border font-semibold">Description</th>
+              </tr>
+          </thead>
+          <tbody class="text-muted-foreground">
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">logtide(options?)</code></td><td class="p-3 border-b border-border">Request middleware — logs requests, creates scopes, extracts traces</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">logtideErrorHandler()</code></td><td class="p-3 border-b border-border">Error middleware — captures errors with request context</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">req.logtideScope</code></td><td class="p-3 border-b border-border">Per-request scope for setting tags, user, extras</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">req.logtideTraceId</code></td><td class="p-3 border-b border-border">Current trace ID for the request</td></tr>
+          </tbody>
+      </table>
+  </div>
+
+  <p class="text-muted-foreground">
+      See the <a href="/docs/sdks/nodejs">JavaScript SDK core docs</a> for the full <code class="bg-muted px-1 rounded">@logtide/core</code> API
+      (scopes, breadcrumbs, spans, configuration).
+  </p>
+</DocsLayout>

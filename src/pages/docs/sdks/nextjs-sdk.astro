@@ -1,0 +1,282 @@
+---
+import DocsLayout from '../../../layouts/Docs.astro';
+import Button from '../../../components/ui/Button.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Installation", slug: "installation", depth: 2 },
+  { text: "Server-Side Setup", slug: "server-setup", depth: 2 },
+  { text: "Client-Side Setup", slug: "client-setup", depth: 2 },
+  { text: "Error Capture", slug: "error-capture", depth: 2 },
+  { text: "Error Boundary", slug: "error-boundary", depth: 2 },
+  { text: "Navigation Tracking", slug: "navigation-tracking", depth: 2 },
+  { text: "Configuration", slug: "configuration", depth: 2 },
+  { text: "API Reference", slug: "api-reference", depth: 2 }
+];
+---
+
+<DocsLayout
+  title="Next.js SDK"
+  description="LogTide SDK for Next.js — instrumentation hook, error boundaries, client-side init, and navigation tracking."
+  headings={headings}
+>
+  <div class="flex items-center justify-between mb-4">
+      <h1 class="text-3xl font-bold">Next.js SDK</h1>
+      <div class="flex items-center gap-2">
+          <a href="https://www.npmjs.com/package/@logtide/nextjs" target="_blank" rel="noopener noreferrer">
+              <Button variant="ghost" size="sm" class="gap-1.5">
+                  <Icon name="simple-icons:npm" class="w-4 h-4" />
+                  npm
+              </Button>
+          </a>
+      </div>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+      <code class="bg-muted px-1 rounded">@logtide/nextjs</code> integrates LogTide with
+      Next.js App Router. It provides server-side instrumentation, client-side error boundaries,
+      and navigation tracking.
+  </p>
+
+  <h2 id="installation" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Installation
+  </h2>
+
+  <div class="mb-8">
+      <Code lang="bash" theme="one-dark-pro" code={`npm install @logtide/nextjs`} />
+  </div>
+
+  <h2 id="server-setup" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Server-Side Setup
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      Use Next.js instrumentation to initialize LogTide on the server. Create or update
+      <code class="bg-muted px-1 rounded">instrumentation.ts</code> in your project root:
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`// instrumentation.ts
+import { registerLogtide } from '@logtide/nextjs/server';
+
+export async function register() {
+  registerLogtide({
+    dsn: process.env.LOGTIDE_DSN!,
+    service: 'nextjs-app',
+    environment: process.env.NODE_ENV,
+    release: process.env.NEXT_PUBLIC_APP_VERSION,
+  });
+}`}
+      />
+  </div>
+
+  <p class="text-muted-foreground mb-4">
+      Enable the instrumentation hook in <code class="bg-muted px-1 rounded">next.config.ts</code>:
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`// next.config.ts
+const nextConfig = {
+  experimental: {
+    instrumentationHook: true,
+  },
+};
+
+export default nextConfig;`}
+      />
+  </div>
+
+  <h2 id="client-setup" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Client-Side Setup
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      Initialize LogTide on the client in your root layout:
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="tsx"
+          theme="one-dark-pro"
+          code={`// app/layout.tsx
+import { initLogtide } from '@logtide/nextjs/client';
+
+initLogtide({
+  dsn: process.env.NEXT_PUBLIC_LOGTIDE_DSN!,
+  environment: process.env.NODE_ENV,
+});
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}`}
+      />
+  </div>
+
+  <h2 id="error-capture" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Error Capture
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      The SDK automatically captures request errors in server components and route handlers
+      via <code class="bg-muted px-1 rounded">captureRequestError</code>:
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`// This is handled automatically by registerLogtide().
+// Server-side errors in API routes, Server Components, and Server Actions
+// are captured with full request context including:
+// - URL, method, headers
+// - Route parameters
+// - User context (if configured)
+// - Breadcrumbs leading to the error`}
+      />
+  </div>
+
+  <h2 id="error-boundary" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Error Boundary
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      Use <code class="bg-muted px-1 rounded">LogtideErrorBoundary</code> to capture client-side
+      React errors:
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="tsx"
+          theme="one-dark-pro"
+          code={`// app/error.tsx
+'use client';
+
+import { LogtideErrorBoundary } from '@logtide/nextjs/client';
+
+export default function ErrorPage({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  return (
+    <LogtideErrorBoundary error={error}>
+      <div>
+        <h2>Something went wrong</h2>
+        <button onClick={reset}>Try again</button>
+      </div>
+    </LogtideErrorBoundary>
+  );
+}`}
+      />
+  </div>
+
+  <h2 id="navigation-tracking" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Navigation Tracking
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      Track client-side navigation events as breadcrumbs:
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="tsx"
+          theme="one-dark-pro"
+          code={`// app/providers.tsx
+'use client';
+
+import { trackNavigation } from '@logtide/nextjs/client';
+import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
+
+export function LogtideNavigationTracker() {
+  const pathname = usePathname();
+
+  useEffect(() => {
+    trackNavigation(pathname);
+  }, [pathname]);
+
+  return null;
+}
+
+// app/layout.tsx
+import { LogtideNavigationTracker } from './providers';
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        <LogtideNavigationTracker />
+        {children}
+      </body>
+    </html>
+  );
+}`}
+      />
+  </div>
+
+  <h2 id="configuration" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Configuration
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      Environment variables for Next.js:
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="bash"
+          theme="one-dark-pro"
+          code={`# .env.local
+
+# Server-side DSN (not exposed to client)
+LOGTIDE_DSN=https://lp_abc123@api.logtide.dev/1
+
+# Client-side DSN (public, limited permissions)
+NEXT_PUBLIC_LOGTIDE_DSN=https://lp_client456@api.logtide.dev/1
+
+# App version
+NEXT_PUBLIC_APP_VERSION=1.0.0`}
+      />
+  </div>
+
+  <h2 id="api-reference" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      API Reference
+  </h2>
+
+  <div class="mb-8 overflow-x-auto">
+      <table class="w-full text-sm">
+          <thead>
+              <tr>
+                  <th class="text-left p-3 border-b border-border font-semibold">Export</th>
+                  <th class="text-left p-3 border-b border-border font-semibold">Module</th>
+                  <th class="text-left p-3 border-b border-border font-semibold">Description</th>
+              </tr>
+          </thead>
+          <tbody class="text-muted-foreground">
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">registerLogtide(options)</code></td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">/server</code></td><td class="p-3 border-b border-border">Initialize in instrumentation.ts, sets up captureRequestError</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">initLogtide(options)</code></td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">/client</code></td><td class="p-3 border-b border-border">Initialize on the client side</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">LogtideErrorBoundary</code></td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">/client</code></td><td class="p-3 border-b border-border">React error boundary that captures errors</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">trackNavigation(pathname)</code></td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">/client</code></td><td class="p-3 border-b border-border">Track route changes as breadcrumbs</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">captureRequestError</code></td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">/server</code></td><td class="p-3 border-b border-border">Automatic server error capture (set up by registerLogtide)</td></tr>
+          </tbody>
+      </table>
+  </div>
+
+  <p class="text-muted-foreground">
+      See the <a href="/docs/sdks/nodejs">JavaScript SDK core docs</a> for the full <code class="bg-muted px-1 rounded">@logtide/core</code> API.
+  </p>
+</DocsLayout>

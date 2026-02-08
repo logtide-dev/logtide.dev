@@ -1,0 +1,232 @@
+---
+import DocsLayout from '../../../layouts/Docs.astro';
+import Button from '../../../components/ui/Button.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Installation", slug: "installation", depth: 2 },
+  { text: "Quick Start", slug: "quick-start", depth: 2 },
+  { text: "Middleware Options", slug: "middleware-options", depth: 2 },
+  { text: "Context Access", slug: "context-access", depth: 2 },
+  { text: "Multi-Runtime", slug: "multi-runtime", depth: 2 },
+  { text: "Error Handling", slug: "error-handling", depth: 2 },
+  { text: "API Reference", slug: "api-reference", depth: 2 }
+];
+---
+
+<DocsLayout
+  title="Hono SDK"
+  description="LogTide SDK for Hono — middleware for Node.js, Bun, Deno, and Cloudflare Workers with trace propagation."
+  headings={headings}
+>
+  <div class="flex items-center justify-between mb-4">
+      <h1 class="text-3xl font-bold">Hono SDK</h1>
+      <div class="flex items-center gap-2">
+          <a href="https://www.npmjs.com/package/@logtide/hono" target="_blank" rel="noopener noreferrer">
+              <Button variant="ghost" size="sm" class="gap-1.5">
+                  <Icon name="simple-icons:npm" class="w-4 h-4" />
+                  npm
+              </Button>
+          </a>
+      </div>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+      <code class="bg-muted px-1 rounded">@logtide/hono</code> provides Hono middleware
+      with automatic request logging, context-based scoping, and support for all Hono runtimes
+      (Node.js, Bun, Deno, Cloudflare Workers).
+  </p>
+
+  <h2 id="installation" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Installation
+  </h2>
+
+  <div class="mb-8">
+      <Code lang="bash" theme="one-dark-pro" code={`npm install @logtide/hono`} />
+  </div>
+
+  <h2 id="quick-start" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Quick Start
+  </h2>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`import { Hono } from 'hono';
+import * as Logtide from '@logtide/core';
+import { logtide } from '@logtide/hono';
+
+Logtide.init({
+  dsn: 'https://lp_abc123@api.logtide.dev/1',
+  service: 'hono-api',
+  environment: 'production',
+});
+
+const app = new Hono();
+
+// Add LogTide middleware
+app.use('*', logtide());
+
+app.get('/users/:id', (c) => {
+  const scope = c.get('logtideScope');
+  scope.setTag('userId', c.req.param('id'));
+
+  Logtide.captureLog('info', 'Fetching user', {
+    userId: c.req.param('id'),
+  });
+
+  return c.json({ id: c.req.param('id'), name: 'Alice' });
+});
+
+export default app;`}
+      />
+  </div>
+
+  <h2 id="middleware-options" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Middleware Options
+  </h2>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`app.use('*', logtide({
+  // Log requests automatically (default: true)
+  logRequests: true,
+
+  // Include request headers (default: false)
+  logHeaders: false,
+
+  // Skip paths
+  skip: (c) => c.req.path === '/health',
+
+  // Custom log level
+  getLogLevel: (c, status) => {
+    if (status >= 500) return 'error';
+    if (status >= 400) return 'warn';
+    return 'info';
+  },
+}));`}
+      />
+  </div>
+
+  <h2 id="context-access" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Context Access
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      The middleware stores the scope and trace ID in Hono's context variables:
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`app.get('/orders', (c) => {
+  // Access the request scope
+  const scope = c.get('logtideScope');
+  scope.setUser({ id: 'user-123' });
+  scope.setTag('module', 'orders');
+
+  // Access the trace ID
+  const traceId = c.get('logtideTraceId');
+
+  Logtide.captureLog('info', 'Listing orders');
+
+  return c.json({
+    orders: [],
+    traceId,
+  });
+});`}
+      />
+  </div>
+
+  <h2 id="multi-runtime" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Multi-Runtime
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      The same code works across all Hono-supported runtimes:
+  </p>
+
+  <div class="mb-8 space-y-6">
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Node.js</h3>
+          <Code
+              lang="typescript"
+              theme="one-dark-pro"
+              code={`import { serve } from '@hono/node-server';
+serve(app, { port: 3000 });`}
+          />
+      </div>
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Bun</h3>
+          <Code
+              lang="typescript"
+              theme="one-dark-pro"
+              code={`export default { port: 3000, fetch: app.fetch };`}
+          />
+      </div>
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Cloudflare Workers</h3>
+          <Code
+              lang="typescript"
+              theme="one-dark-pro"
+              code={`export default app;`}
+          />
+      </div>
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Deno</h3>
+          <Code
+              lang="typescript"
+              theme="one-dark-pro"
+              code={`Deno.serve(app.fetch);`}
+          />
+      </div>
+  </div>
+
+  <h2 id="error-handling" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Error Handling
+  </h2>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`app.onError((err, c) => {
+  // Errors are automatically captured by the middleware,
+  // but you can add custom handling here
+  return c.json({
+    error: err.message,
+    traceId: c.get('logtideTraceId'),
+  }, 500);
+});`}
+      />
+  </div>
+
+  <h2 id="api-reference" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      API Reference
+  </h2>
+
+  <div class="mb-8 overflow-x-auto">
+      <table class="w-full text-sm">
+          <thead>
+              <tr>
+                  <th class="text-left p-3 border-b border-border font-semibold">Export</th>
+                  <th class="text-left p-3 border-b border-border font-semibold">Description</th>
+              </tr>
+          </thead>
+          <tbody class="text-muted-foreground">
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">logtide(options?)</code></td><td class="p-3 border-b border-border">Hono middleware — request logging, scoping, tracing</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">c.get('logtideScope')</code></td><td class="p-3 border-b border-border">Per-request scope via Hono context</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">c.get('logtideTraceId')</code></td><td class="p-3 border-b border-border">Current trace ID via Hono context</td></tr>
+          </tbody>
+      </table>
+  </div>
+
+  <p class="text-muted-foreground">
+      See the <a href="/docs/sdks/nodejs">JavaScript SDK core docs</a> for the full <code class="bg-muted px-1 rounded">@logtide/core</code> API.
+  </p>
+</DocsLayout>

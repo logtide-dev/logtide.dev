@@ -11,26 +11,27 @@ import { Icon } from 'astro-icon/components';
 const headings = [
   { text: "Installation", slug: "installation", depth: 2 },
   { text: "Quick Start", slug: "quick-start", depth: 2 },
-  { text: "Features", slug: "features", depth: 2 },
   { text: "Configuration", slug: "configuration", depth: 2 },
-  { text: "Logging Methods", slug: "logging", depth: 2 },
-  { text: "Middleware Integration", slug: "middleware", depth: 2 },
-  { text: "Query API", slug: "query-api", depth: 2 },
-  { text: "Live Tail (Streaming)", slug: "live-tail", depth: 2 },
+  { text: "Hub API", slug: "hub-api", depth: 2 },
+  { text: "Scopes & Context", slug: "scopes", depth: 2 },
+  { text: "Breadcrumbs", slug: "breadcrumbs", depth: 2 },
+  { text: "Distributed Tracing", slug: "tracing", depth: 2 },
+  { text: "Integrations", slug: "integrations", depth: 2 },
+  { text: "Framework Packages", slug: "framework-packages", depth: 2 },
   { text: "Best Practices", slug: "best-practices", depth: 2 }
 ];
 ---
 
 <DocsLayout
-  title="Node.js SDK"
-  description="Official Node.js SDK for LogTide with TypeScript support, batching, and middleware."
+  title="JavaScript SDK"
+  description="Official JavaScript SDK for LogTide with DSN-based config, distributed tracing, breadcrumbs, and framework integrations."
   headings={headings}
 >
   <div class="flex items-center justify-between mb-4">
-      <h1 class="text-3xl font-bold">Node.js SDK</h1>
+      <h1 class="text-3xl font-bold">JavaScript SDK</h1>
       <div class="flex items-center gap-2">
           <a
-              href="https://github.com/logtide-dev/logtide-sdk-node"
+              href="https://github.com/logtide-dev/logtide-js"
               target="_blank"
               rel="noopener noreferrer"
           >
@@ -40,7 +41,7 @@ const headings = [
               </Button>
           </a>
           <a
-              href="https://www.npmjs.com/package/@logtide/sdk-node"
+              href="https://www.npmjs.com/package/@logtide/core"
               target="_blank"
               rel="noopener noreferrer"
           >
@@ -53,8 +54,9 @@ const headings = [
   </div>
 
   <p class="text-lg text-muted-foreground mb-8">
-      Official Node.js SDK for LogTide with full TypeScript support, automatic
-      batching, retry logic, and Express/Fastify middleware.
+      The <code class="bg-muted px-1 rounded">@logtide/core</code> package is the foundation
+      for all LogTide JavaScript SDKs. It provides DSN-based configuration, automatic batching,
+      distributed tracing (W3C Trace Context), breadcrumbs, scopes, and span management.
   </p>
 
   <h2
@@ -68,13 +70,34 @@ const headings = [
       <Code
           lang="bash"
           theme="one-dark-pro"
-          code={`npm install @logtide/sdk-node
+          code={`npm install @logtide/core
 
 # or with pnpm
-pnpm add @logtide/sdk-node
+pnpm add @logtide/core
 
 # or with yarn
-yarn add @logtide/sdk-node`}
+yarn add @logtide/core`}
+      />
+  </div>
+
+  <p class="text-muted-foreground mb-4">
+      For framework-specific integrations, install the corresponding package instead
+      (it includes <code class="bg-muted px-1 rounded">@logtide/core</code> as a dependency):
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="bash"
+          theme="one-dark-pro"
+          code={`# Framework packages (pick one)
+npm install @logtide/express    # Express.js
+npm install @logtide/fastify    # Fastify
+npm install @logtide/nextjs     # Next.js
+npm install @logtide/nuxt       # Nuxt
+npm install @logtide/sveltekit  # SvelteKit
+npm install @logtide/hono       # Hono
+npm install @logtide/angular    # Angular
+npm install @logtide/elysia     # Elysia`}
       />
   </div>
 
@@ -89,61 +112,37 @@ yarn add @logtide/sdk-node`}
       <Code
           lang="typescript"
           theme="one-dark-pro"
-          code={`import { LogTideClient } from '@logtide/sdk-node';
+          code={`import * as Logtide from '@logtide/core';
 
-const client = new LogTideClient({
-apiUrl: 'http://localhost:8080',
-apiKey: 'lp_your_api_key_here',
+Logtide.init({
+  dsn: 'https://lp_abc123@api.logtide.dev/1',
+  service: 'api-server',
+  environment: process.env.NODE_ENV,
+  release: '1.0.0',
 });
 
-// Send logs
-client.info('api-gateway', 'Server started', { port: 3000 });
-client.error('database', 'Connection failed', new Error('Timeout'));
+// Capture logs
+Logtide.captureLog('info', 'Server started', { port: 3000 });
+
+// Capture errors
+try {
+  await riskyOperation();
+} catch (error) {
+  Logtide.captureError(error);
+}
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
-await client.close();
-process.exit(0);
+  await Logtide.close();
+  process.exit(0);
 });`}
       />
   </div>
 
-  <h2
-      id="features"
-      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
-  >
-      Features
-  </h2>
-
-  <div class="mb-8 grid gap-3">
-      <Card>
-          <CardContent class="pt-4 text-sm">
-              <ul class="space-y-2 list-none pl-0">
-                  <li>
-                      ✅ Automatic batching with configurable size and
-                      interval
-                  </li>
-                  <li>✅ Retry logic with exponential backoff</li>
-                  <li>✅ Circuit breaker pattern for fault tolerance</li>
-                  <li>
-                      ✅ Max buffer size with drop policy to prevent memory
-                      leaks
-                  </li>
-                  <li>✅ Query API for searching and filtering logs</li>
-                  <li>✅ Live tail with Server-Sent Events (SSE)</li>
-                  <li>✅ Trace ID context for distributed tracing</li>
-                  <li>✅ Global metadata added to all logs</li>
-                  <li>✅ Structured error serialization</li>
-                  <li>✅ Internal metrics (logs sent, errors, latency)</li>
-                  <li>
-                      ✅ Express & Fastify middleware for auto-logging HTTP
-                      requests
-                  </li>
-                  <li>✅ Full TypeScript support with strict types</li>
-              </ul>
-          </CardContent>
-      </Card>
-  </div>
+  <p class="text-muted-foreground mb-4">
+      The DSN (Data Source Name) encodes your API host, project key, and project ID in a single
+      connection string. You can find it in your LogTide project settings.
+  </p>
 
   <h2
       id="configuration"
@@ -156,192 +155,415 @@ process.exit(0);
       <Code
           lang="typescript"
           theme="one-dark-pro"
-          code={`const client = new LogTideClient({
-// Required
-apiUrl: 'http://localhost:8080',
-apiKey: 'lp_your_api_key',
+          code={`Logtide.init({
+  // Required
+  dsn: 'https://lp_abc123@api.logtide.dev/1',
 
-// Optional - Performance
-batchSize: 100,              // Max logs per batch (default: 100)
-batchInterval: 5000,         // Flush interval in ms (default: 5000)
-maxBufferSize: 10000,        // Max logs in buffer (default: 10000)
-
-// Optional - Reliability
-maxRetries: 3,               // Max retry attempts (default: 3)
-retryDelay: 1000,            // Initial retry delay in ms (default: 1000)
-circuitBreakerThreshold: 5,  // Failures before circuit opens (default: 5)
-circuitBreakerTimeout: 60000, // Circuit reset timeout in ms (default: 60000)
-
-// Optional - Metadata
-globalMetadata: {            // Added to all logs
+  // Recommended
+  service: 'api-server',
   environment: 'production',
-  version: '1.0.0'
-},
+  release: '1.2.3',
 
-// Optional - Debug
-debug: false                 // Enable debug logging (default: false)
+  // Batching
+  batchSize: 100,              // Max logs per batch (default: 100)
+  flushInterval: 5000,         // Flush interval in ms (default: 5000)
+  maxBufferSize: 10000,        // Max logs in buffer (default: 10000)
+
+  // Reliability
+  maxRetries: 3,               // Retry attempts (default: 3)
+  retryDelay: 1000,            // Initial retry delay in ms (default: 1000)
+  circuitBreakerThreshold: 5,  // Failures before open (default: 5)
+  circuitBreakerTimeout: 60000, // Reset timeout in ms (default: 60000)
+
+  // Tracing
+  tracesSampleRate: 1.0,       // 0.0 to 1.0, sample rate for traces
+  tracePropagationTargets: [   // URLs to propagate trace context to
+    /^https:\\/\\/api\\.example\\.com/,
+  ],
+
+  // Integrations
+  integrations: [
+    Logtide.consoleIntegration(),
+    Logtide.globalErrorIntegration(),
+  ],
+
+  // Hooks
+  beforeSend: (event) => {
+    // Modify or filter events before sending
+    return event;
+  },
+
+  // Debug
+  debug: false,
 });`}
       />
   </div>
 
+  <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Configuration Options</h3>
+
+  <div class="mb-8 overflow-x-auto">
+      <table class="w-full text-sm">
+          <thead>
+              <tr>
+                  <th class="text-left p-3 border-b border-border font-semibold">Option</th>
+                  <th class="text-left p-3 border-b border-border font-semibold">Type</th>
+                  <th class="text-left p-3 border-b border-border font-semibold">Default</th>
+                  <th class="text-left p-3 border-b border-border font-semibold">Description</th>
+              </tr>
+          </thead>
+          <tbody class="text-muted-foreground">
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">dsn</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border">—</td><td class="p-3 border-b border-border">Data Source Name (required)</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">service</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">'app'</code></td><td class="p-3 border-b border-border">Service name for log grouping</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">environment</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border">—</td><td class="p-3 border-b border-border">Deployment environment (production, staging, etc.)</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">release</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border">—</td><td class="p-3 border-b border-border">App version for release tracking</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">batchSize</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">100</code></td><td class="p-3 border-b border-border">Max events per batch</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">flushInterval</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">5000</code></td><td class="p-3 border-b border-border">Flush interval in milliseconds</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">maxBufferSize</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">10000</code></td><td class="p-3 border-b border-border">Max events in buffer before dropping</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">maxRetries</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">3</code></td><td class="p-3 border-b border-border">Max retry attempts for failed sends</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">circuitBreakerThreshold</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">5</code></td><td class="p-3 border-b border-border">Consecutive failures before circuit opens</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">circuitBreakerTimeout</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">60000</code></td><td class="p-3 border-b border-border">Timeout before circuit half-opens (ms)</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">tracesSampleRate</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">1.0</code></td><td class="p-3 border-b border-border">Trace sampling rate (0.0–1.0)</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">tracePropagationTargets</code></td><td class="p-3 border-b border-border">RegExp[]</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">[]</code></td><td class="p-3 border-b border-border">URLs to propagate W3C traceparent header</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">beforeSend</code></td><td class="p-3 border-b border-border">function</td><td class="p-3 border-b border-border">—</td><td class="p-3 border-b border-border">Hook to modify/filter events before sending</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">debug</code></td><td class="p-3 border-b border-border">boolean</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">false</code></td><td class="p-3 border-b border-border">Enable internal debug logging</td></tr>
+          </tbody>
+      </table>
+  </div>
+
   <h2
-      id="logging"
+      id="hub-api"
       class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
   >
-      Logging Methods
+      Hub API
   </h2>
 
   <div class="mb-8 space-y-6">
       <div>
-          <h3 id="basic-logging" class="text-lg font-semibold mb-3 scroll-mt-24">Basic Logging</h3>
+          <h3 id="capture-log" class="text-lg font-semibold mb-3 scroll-mt-24">captureLog</h3>
+          <p class="text-muted-foreground mb-3">Send a structured log event.</p>
           <Code
               lang="typescript"
               theme="one-dark-pro"
-              code={`// Log levels: debug, info, warn, error, critical
-client.debug('service-name', 'Debug message', { detail: 'value' });
-client.info('api-gateway', 'Request received', { method: 'GET', path: '/users' });
-client.warn('cache', 'Cache miss', { key: 'user:123' });
-client.error('database', 'Query failed', { query: 'SELECT *' });
-client.critical('system', 'Out of memory', { used: '95%' });`}
+              code={`import * as Logtide from '@logtide/core';
+
+// Log levels: debug, info, warn, error, critical
+Logtide.captureLog('info', 'User signed up', { userId: '123', plan: 'pro' });
+Logtide.captureLog('warn', 'Rate limit approaching', { current: 90, max: 100 });
+Logtide.captureLog('error', 'Query timeout', { query: 'SELECT ...', duration: 5000 });`}
           />
       </div>
 
       <div>
-          <h3 id="error-logging" class="text-lg font-semibold mb-3 scroll-mt-24">
-              Error Logging with Auto-Serialization
-          </h3>
+          <h3 id="capture-error" class="text-lg font-semibold mb-3 scroll-mt-24">captureError</h3>
+          <p class="text-muted-foreground mb-3">Capture an error with full stack trace, context, and breadcrumbs.</p>
           <Code
               lang="typescript"
               theme="one-dark-pro"
               code={`try {
-await riskyOperation();
+  await processPayment(orderId);
 } catch (error) {
-// Error is automatically serialized (stack trace, message, etc.)
-client.error('api', 'Operation failed', error);
+  Logtide.captureError(error, {
+    extra: { orderId, amount: 99.99 },
+    tags: { module: 'payments' },
+  });
 }`}
+          />
+      </div>
+
+      <div>
+          <h3 id="flush-close" class="text-lg font-semibold mb-3 scroll-mt-24">flush & close</h3>
+          <p class="text-muted-foreground mb-3">Flush pending events or shut down the SDK.</p>
+          <Code
+              lang="typescript"
+              theme="one-dark-pro"
+              code={`// Flush pending events (waits up to timeout ms)
+await Logtide.flush(5000);
+
+// Close the SDK (flushes and disables further capturing)
+await Logtide.close();`}
           />
       </div>
   </div>
 
   <h2
-      id="middleware"
+      id="scopes"
       class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
   >
-      Middleware Integration
+      Scopes & Context
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      Scopes let you attach contextual data that gets included with every event within that scope.
+  </p>
+
+  <div class="mb-8 space-y-6">
+      <div>
+          <h3 id="configure-scope" class="text-lg font-semibold mb-3 scroll-mt-24">Configuring the Current Scope</h3>
+          <Code
+              lang="typescript"
+              theme="one-dark-pro"
+              code={`Logtide.configureScope((scope) => {
+  scope.setTag('region', 'eu-west-1');
+  scope.setUser({ id: 'user-123', email: 'user@example.com' });
+  scope.setExtra('requestId', 'req-abc');
+});
+
+// All events now include the region tag, user, and requestId`}
+          />
+      </div>
+
+      <div>
+          <h3 id="with-scope" class="text-lg font-semibold mb-3 scroll-mt-24">Temporary Scopes</h3>
+          <Code
+              lang="typescript"
+              theme="one-dark-pro"
+              code={`Logtide.withScope((scope) => {
+  scope.setTag('handler', 'payment');
+  scope.setExtra('orderId', '456');
+
+  // Only events within this callback get these tags
+  Logtide.captureLog('info', 'Processing payment');
+  Logtide.captureError(new Error('Card declined'));
+});
+
+// Scope is restored here — tags are no longer applied`}
+          />
+      </div>
+  </div>
+
+  <h2
+      id="breadcrumbs"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Breadcrumbs
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      Breadcrumbs record a trail of events leading up to an error, making it easier to debug.
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`// Add a breadcrumb manually
+Logtide.addBreadcrumb({
+  category: 'auth',
+  message: 'User authenticated',
+  level: 'info',
+  data: { method: 'oauth', provider: 'github' },
+});
+
+Logtide.addBreadcrumb({
+  category: 'navigation',
+  message: 'Navigated to /dashboard',
+  level: 'info',
+});
+
+// When an error is captured, breadcrumbs are included automatically
+Logtide.captureError(new Error('Dashboard failed to load'));
+// The error event will contain both breadcrumbs above`}
+      />
+  </div>
+
+  <h2
+      id="tracing"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Distributed Tracing
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      LogTide supports the <a href="https://www.w3.org/TR/trace-context/" target="_blank" rel="noopener noreferrer">W3C Trace Context</a> standard
+      for distributed tracing across services.
+  </p>
+
+  <div class="mb-8 space-y-6">
+      <div>
+          <h3 id="spans" class="text-lg font-semibold mb-3 scroll-mt-24">Spans</h3>
+          <Code
+              lang="typescript"
+              theme="one-dark-pro"
+              code={`const span = Logtide.startSpan({
+  op: 'db.query',
+  description: 'SELECT * FROM users WHERE id = $1',
+});
+
+try {
+  const result = await db.query('SELECT * FROM users WHERE id = $1', [userId]);
+  span.setData('rowCount', result.rowCount);
+  span.setStatus('ok');
+} catch (error) {
+  span.setStatus('error');
+  Logtide.captureError(error);
+} finally {
+  span.finish();
+}`}
+          />
+      </div>
+
+      <div>
+          <h3 id="trace-propagation" class="text-lg font-semibold mb-3 scroll-mt-24">Trace Propagation</h3>
+          <p class="text-muted-foreground mb-3">The SDK automatically injects and extracts <code class="bg-muted px-1 rounded">traceparent</code> headers for configured targets.</p>
+          <Code
+              lang="typescript"
+              theme="one-dark-pro"
+              code={`Logtide.init({
+  dsn: 'https://lp_abc123@api.logtide.dev/1',
+  tracePropagationTargets: [
+    /^https:\\/\\/api\\.example\\.com/,
+    /^https:\\/\\/payments\\.example\\.com/,
+  ],
+});
+
+// Outgoing fetch requests to matching URLs automatically include
+// the traceparent header for end-to-end trace correlation:
+// traceparent: 00-<trace-id>-<span-id>-01`}
+          />
+      </div>
+  </div>
+
+  <h2
+      id="integrations"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Integrations
   </h2>
 
   <div class="mb-8 space-y-6">
       <div>
-          <h3 id="express-middleware" class="text-lg font-semibold mb-3 scroll-mt-24">Express Middleware</h3>
+          <h3 id="console-integration" class="text-lg font-semibold mb-3 scroll-mt-24">Console Integration</h3>
+          <p class="text-muted-foreground mb-3">Automatically captures <code class="bg-muted px-1 rounded">console.log/warn/error</code> calls and forwards them to LogTide.</p>
           <Code
               lang="typescript"
               theme="one-dark-pro"
-              code={`import express from 'express';
-import { createExpressMiddleware } from '@logtide/sdk-node';
-
-const app = express();
-
-// Add LogTide middleware
-app.use(createExpressMiddleware(client, {
-includeHeaders: true,       // Log request headers
-includeBody: false,         // Log request body (be careful with sensitive data)
-includeResponseTime: true   // Log response time
-}));
-
-app.get('/users', (req, res) => {
-// Your route logic
-res.json({ users: [] });
+              code={`Logtide.init({
+  dsn: 'https://lp_abc123@api.logtide.dev/1',
+  integrations: [
+    Logtide.consoleIntegration({
+      levels: ['warn', 'error'], // Only capture warn and error (default: all)
+    }),
+  ],
 });
 
-// Logs will be automatically sent for each request`}
+// These are now automatically captured:
+console.warn('Disk space low');   // → captureLog('warn', ...)
+console.error('Connection lost'); // → captureLog('error', ...)`}
           />
       </div>
 
       <div>
-          <h3 id="fastify-plugin" class="text-lg font-semibold mb-3 scroll-mt-24">Fastify Plugin</h3>
+          <h3 id="global-error-integration" class="text-lg font-semibold mb-3 scroll-mt-24">Global Error Integration</h3>
+          <p class="text-muted-foreground mb-3">Captures uncaught exceptions and unhandled promise rejections.</p>
           <Code
               lang="typescript"
               theme="one-dark-pro"
-              code={`import Fastify from 'fastify';
-import { fastifyLogTidePlugin } from '@logtide/sdk-node';
-
-const fastify = Fastify();
-
-// Register LogTide plugin
-await fastify.register(fastifyLogTidePlugin, {
-client,
-includeHeaders: true,
-includeResponseTime: true
+              code={`Logtide.init({
+  dsn: 'https://lp_abc123@api.logtide.dev/1',
+  integrations: [
+    Logtide.globalErrorIntegration(),
+  ],
 });
 
-fastify.get('/users', async (request, reply) => {
-// Your route logic
-return { users: [] };
-});
-
-// Logs automatically sent for each request`}
+// Unhandled errors are automatically captured:
+// - uncaughtException
+// - unhandledRejection`}
           />
       </div>
   </div>
 
   <h2
-      id="query-api"
+      id="framework-packages"
       class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
   >
-      Query API
+      Framework Packages
   </h2>
 
-  <div class="mb-8">
-      <Code
-          lang="typescript"
-          theme="one-dark-pro"
-          code={`// Search logs
-const logs = await client.query({
-service: 'api-gateway',
-level: 'error',
-from: '2025-01-15T00:00:00Z',
-to: '2025-01-15T23:59:59Z',
-q: 'timeout',  // Full-text search
-limit: 100
-});
+  <p class="text-muted-foreground mb-4">
+      Each framework package wraps <code class="bg-muted px-1 rounded">@logtide/core</code> with
+      framework-specific middleware, hooks, and auto-instrumentation.
+  </p>
 
-console.log('Found ' + logs.total + ' error logs');
-logs.logs.forEach(log => {
-  console.log('[' + log.time + '] ' + log.message);
-});`}
-      />
-  </div>
+  <div class="grid md:grid-cols-2 gap-4 mb-8">
+      <Card>
+          <CardContent class="pt-4">
+              <div class="flex items-center gap-2 mb-2">
+                  <Icon name="simple-icons:express" class="w-5 h-5" />
+                  <a href="/docs/sdks/express" class="font-semibold hover:text-primary">@logtide/express</a>
+              </div>
+              <p class="text-sm text-muted-foreground">Middleware, request scoping, traceparent propagation</p>
+          </CardContent>
+      </Card>
 
-  <h2
-      id="live-tail"
-      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
-  >
-      Live Tail (Streaming)
-  </h2>
+      <Card>
+          <CardContent class="pt-4">
+              <div class="flex items-center gap-2 mb-2">
+                  <Icon name="simple-icons:fastify" class="w-5 h-5" />
+                  <a href="/docs/sdks/fastify" class="font-semibold hover:text-primary">@logtide/fastify</a>
+              </div>
+              <p class="text-sm text-muted-foreground">Plugin registration, lifecycle hooks, request scoping</p>
+          </CardContent>
+      </Card>
 
-  <div class="mb-8">
-      <Code
-          lang="typescript"
-          theme="one-dark-pro"
-          code={`// Stream logs in real-time
-const stream = client.stream({
-service: 'api-gateway',
-level: 'error'
-});
+      <Card>
+          <CardContent class="pt-4">
+              <div class="flex items-center gap-2 mb-2">
+                  <Icon name="simple-icons:nextdotjs" class="w-5 h-5" />
+                  <a href="/docs/sdks/nextjs-sdk" class="font-semibold hover:text-primary">@logtide/nextjs</a>
+              </div>
+              <p class="text-sm text-muted-foreground">Instrumentation hook, error boundary, client-side init</p>
+          </CardContent>
+      </Card>
 
-stream.on('log', (log) => {
-console.log('New log:', log);
-});
+      <Card>
+          <CardContent class="pt-4">
+              <div class="flex items-center gap-2 mb-2">
+                  <Icon name="simple-icons:nuxtdotjs" class="w-5 h-5" />
+                  <a href="/docs/sdks/nuxt-sdk" class="font-semibold hover:text-primary">@logtide/nuxt</a>
+              </div>
+              <p class="text-sm text-muted-foreground">Zero-config Nuxt module, runtime config injection</p>
+          </CardContent>
+      </Card>
 
-stream.on('error', (error) => {
-console.error('Stream error:', error);
-});
+      <Card>
+          <CardContent class="pt-4">
+              <div class="flex items-center gap-2 mb-2">
+                  <Icon name="simple-icons:svelte" class="w-5 h-5" />
+                  <a href="/docs/sdks/sveltekit" class="font-semibold hover:text-primary">@logtide/sveltekit</a>
+              </div>
+              <p class="text-sm text-muted-foreground">Handle, handleError, handleFetch hooks, client init</p>
+          </CardContent>
+      </Card>
 
-// Stop streaming
-setTimeout(() => {
-stream.close();
-}, 60000);`}
-      />
+      <Card>
+          <CardContent class="pt-4">
+              <div class="flex items-center gap-2 mb-2">
+                  <Icon name="simple-icons:hono" class="w-5 h-5" />
+                  <a href="/docs/sdks/hono" class="font-semibold hover:text-primary">@logtide/hono</a>
+              </div>
+              <p class="text-sm text-muted-foreground">Middleware, multi-runtime (Node/Bun/Deno/Workers)</p>
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardContent class="pt-4">
+              <div class="flex items-center gap-2 mb-2">
+                  <Icon name="simple-icons:angular" class="w-5 h-5" />
+                  <a href="/docs/sdks/angular" class="font-semibold hover:text-primary">@logtide/angular</a>
+              </div>
+              <p class="text-sm text-muted-foreground">ErrorHandler, HttpInterceptor, standalone & NgModule</p>
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardContent class="pt-4">
+              <div class="flex items-center gap-2 mb-2">
+                  <Icon name="simple-icons:bun" class="w-5 h-5" />
+                  <a href="/docs/sdks/elysia" class="font-semibold hover:text-primary">@logtide/elysia</a>
+              </div>
+              <p class="text-sm text-muted-foreground">Elysia plugin, lifecycle hooks, Bun-optimized</p>
+          </CardContent>
+      </Card>
   </div>
 
   <h2
@@ -354,46 +576,42 @@ stream.close();
   <div class="space-y-4">
       <Card>
           <CardHeader>
-              <CardTitle class="text-base"
-                  >1. Always Close on Shutdown</CardTitle
-              >
+              <CardTitle class="text-base">1. Initialize Early</CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              Ensure logs are flushed before your application exits by calling <code class="bg-muted px-1 rounded">await client.close()</code> in shutdown handlers.
+              Call <code class="bg-muted px-1 rounded">Logtide.init()</code> as early as possible in your
+              application entry point, before any other code runs. This ensures global error and console
+              integrations capture everything.
           </CardContent>
       </Card>
 
       <Card>
           <CardHeader>
-              <CardTitle class="text-base">2. Use Global Metadata</CardTitle>
+              <CardTitle class="text-base">2. Always Close on Shutdown</CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              Add environment, version, and other common fields as global
-              metadata instead of repeating them in every log.
+              Call <code class="bg-muted px-1 rounded">await Logtide.close()</code> in your shutdown
+              handler to flush all pending events before the process exits.
           </CardContent>
       </Card>
 
       <Card>
           <CardHeader>
-              <CardTitle class="text-base"
-                  >3. Enable Debug Mode in Development</CardTitle
-              >
+              <CardTitle class="text-base">3. Use Scopes for Request Context</CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              Set <code class="bg-muted px-1 rounded">debug: true</code> during development to see SDK internal
-              logs and troubleshoot issues.
+              In server environments, use <code class="bg-muted px-1 rounded">withScope</code> to isolate
+              per-request context (user, request ID, tags). Framework packages handle this automatically.
           </CardContent>
       </Card>
 
       <Card>
           <CardHeader>
-              <CardTitle class="text-base"
-                  >4. Use Trace IDs for Request Correlation</CardTitle
-              >
+              <CardTitle class="text-base">4. Set Environment and Release</CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              Leverage trace IDs to correlate logs across distributed services
-              for better debugging.
+              Always set <code class="bg-muted px-1 rounded">environment</code> and <code class="bg-muted px-1 rounded">release</code> in
+              your config. This enables filtering by environment and tracking regressions across releases.
           </CardContent>
       </Card>
   </div>

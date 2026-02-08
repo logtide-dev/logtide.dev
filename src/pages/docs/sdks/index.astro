@@ -55,17 +55,17 @@ const headings = [
   </h2>
 
   <div class="grid md:grid-cols-2 gap-6 mb-12">
-      <!-- Node.js SDK -->
-      <Card>
+      <!-- JavaScript SDK -->
+      <Card class="md:col-span-2 border-primary/20">
           <CardHeader>
               <div class="flex items-center justify-between">
                   <CardTitle class="flex items-center gap-2">
-                      <Icon name="simple-icons:nodedotjs" class="w-5 h-5 text-primary" />
-                      Node.js SDK
+                      <Icon name="simple-icons:javascript" class="w-5 h-5 text-primary" />
+                      JavaScript SDK
                   </CardTitle>
                   <div class="flex items-center gap-1">
                       <a
-                          href="https://github.com/logtide-dev/logtide-sdk-node"
+                          href="https://github.com/logtide-dev/logtide-js"
                           target="_blank"
                           rel="noopener noreferrer"
                           title="GitHub"
@@ -75,7 +75,7 @@ const headings = [
                           </Button>
                       </a>
                       <a
-                          href="https://www.npmjs.com/package/@logtide/sdk-node"
+                          href="https://www.npmjs.com/package/@logtide/core"
                           target="_blank"
                           rel="noopener noreferrer"
                           title="npm"
@@ -87,22 +87,36 @@ const headings = [
                   </div>
               </div>
               <CardDescription>
-                  Official SDK for Node.js and TypeScript applications
+                  Core SDK + 8 framework-specific packages for JavaScript and TypeScript
               </CardDescription>
           </CardHeader>
           <CardContent>
               <div class="space-y-3">
                   <div>
-                      <p class="text-sm font-semibold mb-1">Installation:</p>
-                      <code class="text-xs bg-muted px-2 py-1 rounded">npm install @logtide/sdk-node</code>
+                      <p class="text-sm font-semibold mb-1">Core package:</p>
+                      <code class="text-xs bg-muted px-2 py-1 rounded">npm install @logtide/core</code>
                   </div>
                   <div>
                       <p class="text-sm font-semibold mb-1">Features:</p>
                       <ul class="text-sm text-muted-foreground space-y-1 list-none pl-0">
-                          <li>✅ Express & Fastify middleware</li>
+                          <li>✅ DSN-based configuration</li>
+                          <li>✅ Distributed tracing (W3C Trace Context)</li>
+                          <li>✅ Breadcrumbs, scopes & spans</li>
                           <li>✅ Full TypeScript support</li>
-                          <li>✅ Automatic batching & retry</li>
                       </ul>
+                  </div>
+                  <div>
+                      <p class="text-sm font-semibold mb-2">Framework packages:</p>
+                      <div class="flex flex-wrap gap-2">
+                          <a href="/docs/sdks/express" class="text-xs bg-muted px-2 py-1 rounded hover:bg-muted/80 transition-colors">@logtide/express</a>
+                          <a href="/docs/sdks/fastify" class="text-xs bg-muted px-2 py-1 rounded hover:bg-muted/80 transition-colors">@logtide/fastify</a>
+                          <a href="/docs/sdks/nextjs-sdk" class="text-xs bg-muted px-2 py-1 rounded hover:bg-muted/80 transition-colors">@logtide/nextjs</a>
+                          <a href="/docs/sdks/nuxt-sdk" class="text-xs bg-muted px-2 py-1 rounded hover:bg-muted/80 transition-colors">@logtide/nuxt</a>
+                          <a href="/docs/sdks/sveltekit" class="text-xs bg-muted px-2 py-1 rounded hover:bg-muted/80 transition-colors">@logtide/sveltekit</a>
+                          <a href="/docs/sdks/hono" class="text-xs bg-muted px-2 py-1 rounded hover:bg-muted/80 transition-colors">@logtide/hono</a>
+                          <a href="/docs/sdks/angular" class="text-xs bg-muted px-2 py-1 rounded hover:bg-muted/80 transition-colors">@logtide/angular</a>
+                          <a href="/docs/sdks/elysia" class="text-xs bg-muted px-2 py-1 rounded hover:bg-muted/80 transition-colors">@logtide/elysia</a>
+                      </div>
                   </div>
                   <a href="/docs/sdks/nodejs">
                       <Button variant="outline" size="sm" class="w-full mt-2">

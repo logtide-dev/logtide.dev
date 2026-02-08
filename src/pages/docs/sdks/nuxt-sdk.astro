@@ -1,0 +1,216 @@
+---
+import DocsLayout from '../../../layouts/Docs.astro';
+import Button from '../../../components/ui/Button.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Installation", slug: "installation", depth: 2 },
+  { text: "Quick Start", slug: "quick-start", depth: 2 },
+  { text: "Configuration", slug: "configuration", depth: 2 },
+  { text: "Server-Side Usage", slug: "server-usage", depth: 2 },
+  { text: "Client-Side Usage", slug: "client-usage", depth: 2 },
+  { text: "Runtime Config", slug: "runtime-config", depth: 2 },
+  { text: "API Reference", slug: "api-reference", depth: 2 }
+];
+---
+
+<DocsLayout
+  title="Nuxt SDK"
+  description="LogTide SDK for Nuxt — zero-config module with runtime config injection, server/client auto-initialization."
+  headings={headings}
+>
+  <div class="flex items-center justify-between mb-4">
+      <h1 class="text-3xl font-bold">Nuxt SDK</h1>
+      <div class="flex items-center gap-2">
+          <a href="https://www.npmjs.com/package/@logtide/nuxt" target="_blank" rel="noopener noreferrer">
+              <Button variant="ghost" size="sm" class="gap-1.5">
+                  <Icon name="simple-icons:npm" class="w-4 h-4" />
+                  npm
+              </Button>
+          </a>
+      </div>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+      <code class="bg-muted px-1 rounded">@logtide/nuxt</code> is a zero-config Nuxt module
+      that auto-initializes LogTide on both server and client with runtime config injection.
+  </p>
+
+  <h2 id="installation" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Installation
+  </h2>
+
+  <div class="mb-8">
+      <Code lang="bash" theme="one-dark-pro" code={`npm install @logtide/nuxt`} />
+  </div>
+
+  <h2 id="quick-start" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Quick Start
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      Add the module to your <code class="bg-muted px-1 rounded">nuxt.config.ts</code>:
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['@logtide/nuxt'],
+
+  logtide: {
+    dsn: process.env.LOGTIDE_DSN,
+    service: 'nuxt-app',
+    environment: process.env.NODE_ENV,
+  },
+});`}
+      />
+  </div>
+
+  <p class="text-muted-foreground mb-4">
+      That's it. The module automatically initializes LogTide on both server and client,
+      captures errors, and provides composables for logging.
+  </p>
+
+  <h2 id="configuration" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Configuration
+  </h2>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['@logtide/nuxt'],
+
+  logtide: {
+    // Required
+    dsn: process.env.LOGTIDE_DSN,
+
+    // Recommended
+    service: 'nuxt-app',
+    environment: process.env.NODE_ENV,
+    release: '1.0.0',
+
+    // Client-side DSN (if different from server)
+    clientDsn: process.env.NUXT_PUBLIC_LOGTIDE_DSN,
+
+    // Enable/disable client-side capture (default: true)
+    clientEnabled: true,
+
+    // Enable/disable server-side capture (default: true)
+    serverEnabled: true,
+
+    // Tracing
+    tracesSampleRate: 1.0,
+  },
+});`}
+      />
+  </div>
+
+  <h2 id="server-usage" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Server-Side Usage
+  </h2>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`// server/api/users/[id].get.ts
+import * as Logtide from '@logtide/core';
+
+export default defineEventHandler(async (event) => {
+  const id = getRouterParam(event, 'id');
+
+  Logtide.captureLog('info', 'Fetching user', { userId: id });
+
+  try {
+    const user = await getUserById(id);
+    return user;
+  } catch (error) {
+    Logtide.captureError(error, {
+      extra: { userId: id },
+    });
+    throw createError({ statusCode: 500, message: 'Failed to fetch user' });
+  }
+});`}
+      />
+  </div>
+
+  <h2 id="client-usage" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Client-Side Usage
+  </h2>
+
+  <div class="mb-8">
+      <Code
+          lang="vue"
+          theme="one-dark-pro"
+          code={`<script setup>
+import { useLogtide } from '#imports';
+
+const logtide = useLogtide();
+
+async function handleSubmit() {
+  try {
+    logtide.addBreadcrumb({
+      category: 'ui',
+      message: 'Form submitted',
+    });
+
+    await $fetch('/api/submit', { method: 'POST', body: formData });
+    logtide.captureLog('info', 'Form submitted successfully');
+  } catch (error) {
+    logtide.captureError(error);
+  }
+}
+</script>`}
+      />
+  </div>
+
+  <h2 id="runtime-config" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Runtime Config
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      The module injects configuration via Nuxt runtime config, so you can override settings
+      with environment variables at deploy time:
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="bash"
+          theme="one-dark-pro"
+          code={`# .env
+LOGTIDE_DSN=https://lp_abc123@api.logtide.dev/1
+NUXT_PUBLIC_LOGTIDE_DSN=https://lp_client456@api.logtide.dev/1`}
+      />
+  </div>
+
+  <h2 id="api-reference" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      API Reference
+  </h2>
+
+  <div class="mb-8 overflow-x-auto">
+      <table class="w-full text-sm">
+          <thead>
+              <tr>
+                  <th class="text-left p-3 border-b border-border font-semibold">Export</th>
+                  <th class="text-left p-3 border-b border-border font-semibold">Description</th>
+              </tr>
+          </thead>
+          <tbody class="text-muted-foreground">
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">@logtide/nuxt</code> (module)</td><td class="p-3 border-b border-border">Nuxt module — auto-initializes server + client</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">useLogtide()</code></td><td class="p-3 border-b border-border">Composable — access LogTide client in components</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">logtide</code> config key</td><td class="p-3 border-b border-border">nuxt.config.ts configuration key</td></tr>
+          </tbody>
+      </table>
+  </div>
+
+  <p class="text-muted-foreground">
+      See the <a href="/docs/sdks/nodejs">JavaScript SDK core docs</a> for the full <code class="bg-muted px-1 rounded">@logtide/core</code> API.
+  </p>
+</DocsLayout>

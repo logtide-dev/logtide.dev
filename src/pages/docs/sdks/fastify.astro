@@ -1,0 +1,222 @@
+---
+import DocsLayout from '../../../layouts/Docs.astro';
+import Button from '../../../components/ui/Button.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Installation", slug: "installation", depth: 2 },
+  { text: "Quick Start", slug: "quick-start", depth: 2 },
+  { text: "Plugin Options", slug: "plugin-options", depth: 2 },
+  { text: "Request Scoping", slug: "request-scoping", depth: 2 },
+  { text: "Lifecycle Hooks", slug: "lifecycle-hooks", depth: 2 },
+  { text: "Error Handling", slug: "error-handling", depth: 2 },
+  { text: "API Reference", slug: "api-reference", depth: 2 }
+];
+---
+
+<DocsLayout
+  title="Fastify SDK"
+  description="LogTide SDK for Fastify — plugin-based integration with lifecycle hooks, request scoping, and trace propagation."
+  headings={headings}
+>
+  <div class="flex items-center justify-between mb-4">
+      <h1 class="text-3xl font-bold">Fastify SDK</h1>
+      <div class="flex items-center gap-2">
+          <a href="https://www.npmjs.com/package/@logtide/fastify" target="_blank" rel="noopener noreferrer">
+              <Button variant="ghost" size="sm" class="gap-1.5">
+                  <Icon name="simple-icons:npm" class="w-4 h-4" />
+                  npm
+              </Button>
+          </a>
+      </div>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+      <code class="bg-muted px-1 rounded">@logtide/fastify</code> is a Fastify plugin that provides
+      automatic request logging, per-request scoping, lifecycle hooks, and W3C Trace Context propagation.
+  </p>
+
+  <h2 id="installation" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Installation
+  </h2>
+
+  <div class="mb-8">
+      <Code lang="bash" theme="one-dark-pro" code={`npm install @logtide/fastify`} />
+  </div>
+
+  <h2 id="quick-start" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Quick Start
+  </h2>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`import Fastify from 'fastify';
+import * as Logtide from '@logtide/core';
+import { logtidePlugin } from '@logtide/fastify';
+
+Logtide.init({
+  dsn: 'https://lp_abc123@api.logtide.dev/1',
+  service: 'api-server',
+  environment: 'production',
+});
+
+const fastify = Fastify();
+
+// Register the plugin
+await fastify.register(logtidePlugin);
+
+fastify.get('/users/:id', async (request, reply) => {
+  // Access request-scoped context
+  request.logtideScope.setTag('userId', request.params.id);
+
+  Logtide.captureLog('info', 'Fetching user', {
+    userId: request.params.id,
+  });
+
+  return { id: request.params.id, name: 'Alice' };
+});
+
+await fastify.listen({ port: 3000 });`}
+      />
+  </div>
+
+  <h2 id="plugin-options" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Plugin Options
+  </h2>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`await fastify.register(logtidePlugin, {
+  // Log request/response automatically (default: true)
+  logRequests: true,
+
+  // Include request headers (default: false)
+  logHeaders: false,
+
+  // Include request body (default: false)
+  logBody: false,
+
+  // Skip certain requests
+  skip: (request) => request.url === '/health',
+
+  // Customize log level by status code
+  getLogLevel: (request, reply) => {
+    if (reply.statusCode >= 500) return 'error';
+    if (reply.statusCode >= 400) return 'warn';
+    return 'info';
+  },
+});`}
+      />
+  </div>
+
+  <h2 id="request-scoping" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Request Scoping
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      Each request gets an isolated scope. Tags, user data, and extras set on the scope are
+      included in all events captured during that request lifecycle.
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`fastify.addHook('onRequest', async (request) => {
+  request.logtideScope.setUser({
+    id: request.user?.id,
+  });
+  request.logtideScope.setTag('tenant', request.headers['x-tenant-id']);
+});
+
+fastify.get('/orders', async (request) => {
+  // Logs include user + tenant automatically
+  Logtide.captureLog('info', 'Listing orders');
+  return { orders: [] };
+});`}
+      />
+  </div>
+
+  <h2 id="lifecycle-hooks" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Lifecycle Hooks
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      The plugin hooks into Fastify's request lifecycle to provide automatic instrumentation:
+  </p>
+
+  <div class="mb-8 overflow-x-auto">
+      <table class="w-full text-sm">
+          <thead>
+              <tr>
+                  <th class="text-left p-3 border-b border-border font-semibold">Hook</th>
+                  <th class="text-left p-3 border-b border-border font-semibold">Behavior</th>
+              </tr>
+          </thead>
+          <tbody class="text-muted-foreground">
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">onRequest</code></td><td class="p-3 border-b border-border">Creates request scope, extracts traceparent, starts span</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">onResponse</code></td><td class="p-3 border-b border-border">Logs request completion with duration and status code</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">onError</code></td><td class="p-3 border-b border-border">Captures errors with full request context</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">onClose</code></td><td class="p-3 border-b border-border">Flushes pending events on server shutdown</td></tr>
+          </tbody>
+      </table>
+  </div>
+
+  <h2 id="error-handling" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Error Handling
+  </h2>
+
+  <div class="mb-8">
+      <Code
+          lang="typescript"
+          theme="one-dark-pro"
+          code={`// Errors thrown in route handlers are automatically captured
+fastify.get('/users/:id', async (request) => {
+  const user = await getUser(request.params.id);
+  if (!user) {
+    // This error is captured with the request scope context
+    throw fastify.httpErrors.notFound('User not found');
+  }
+  return user;
+});
+
+// Custom error handler still works
+fastify.setErrorHandler((error, request, reply) => {
+  // Error was already captured by LogTide
+  reply.status(error.statusCode || 500).send({
+    error: error.message,
+    traceId: request.logtideTraceId,
+  });
+});`}
+      />
+  </div>
+
+  <h2 id="api-reference" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      API Reference
+  </h2>
+
+  <div class="mb-8 overflow-x-auto">
+      <table class="w-full text-sm">
+          <thead>
+              <tr>
+                  <th class="text-left p-3 border-b border-border font-semibold">Export</th>
+                  <th class="text-left p-3 border-b border-border font-semibold">Description</th>
+              </tr>
+          </thead>
+          <tbody class="text-muted-foreground">
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">logtidePlugin</code></td><td class="p-3 border-b border-border">Fastify plugin — register with <code class="bg-muted px-1 rounded text-xs">fastify.register()</code></td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">request.logtideScope</code></td><td class="p-3 border-b border-border">Per-request scope for setting tags, user, extras</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">request.logtideTraceId</code></td><td class="p-3 border-b border-border">Current trace ID for the request</td></tr>
+          </tbody>
+      </table>
+  </div>
+
+  <p class="text-muted-foreground">
+      See the <a href="/docs/sdks/nodejs">JavaScript SDK core docs</a> for the full <code class="bg-muted px-1 rounded">@logtide/core</code> API.
+  </p>
+</DocsLayout>
