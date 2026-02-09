@@ -192,7 +192,7 @@ export class UserService {
           lang="typescript"
           theme="one-dark-pro"
           code={`import { Component } from '@angular/core';
-import * as Logtide from '@logtide/core';
+import { hub } from '@logtide/core';
 
 @Component({
   selector: 'app-checkout',
@@ -200,20 +200,20 @@ import * as Logtide from '@logtide/core';
 })
 export class CheckoutComponent {
   purchase() {
-    Logtide.addBreadcrumb({
+    hub.addBreadcrumb({
+      type: 'default',
       category: 'ui',
       message: 'Purchase button clicked',
+      timestamp: Date.now(),
     });
 
     try {
       // ... process purchase
-      Logtide.captureLog('info', 'Purchase completed', {
+      hub.captureLog('info', 'Purchase completed', {
         orderId: '123',
       });
     } catch (error) {
-      Logtide.captureError(error, {
-        tags: { module: 'checkout' },
-      });
+      hub.captureError(error, { module: 'checkout' });
     }
   }
 }`}

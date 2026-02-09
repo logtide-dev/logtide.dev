@@ -58,25 +58,23 @@ const headings = [
           lang="typescript"
           theme="one-dark-pro"
           code={`import express from 'express';
-import * as Logtide from '@logtide/core';
+import { hub } from '@logtide/core';
 import { logtide } from '@logtide/express';
-
-Logtide.init({
-  dsn: 'https://lp_abc123@api.logtide.dev',
-  service: 'api-server',
-  environment: 'production',
-});
 
 const app = express();
 
-// Add LogTide middleware
-app.use(logtide());
+// Add LogTide middleware (initializes LogTide automatically)
+app.use(logtide({
+  dsn: 'https://lp_abc123@api.logtide.dev',
+  service: 'api-server',
+  environment: 'production',
+}));
 
 app.get('/users/:id', (req, res) => {
   // Access the request-scoped context
   req.logtideScope.setTag('userId', req.params.id);
 
-  Logtide.captureLog('info', 'Fetching user', {
+  hub.captureLog('info', 'Fetching user', {
     userId: req.params.id,
   });
 
@@ -91,29 +89,21 @@ app.listen(3000);`}
       Middleware Options
   </h2>
 
+  <p class="text-muted-foreground mb-4">
+      The middleware accepts all <a href="/docs/sdks/nodejs#configuration"><code class="bg-muted px-1 rounded">ClientOptions</code></a> from <code class="bg-muted px-1 rounded">@logtide/core</code>:
+  </p>
+
   <div class="mb-8">
       <Code
           lang="typescript"
           theme="one-dark-pro"
           code={`app.use(logtide({
-  // Log request/response automatically (default: true)
-  logRequests: true,
-
-  // Include request headers in log metadata (default: false)
-  logHeaders: false,
-
-  // Include request body (default: false, careful with sensitive data)
-  logBody: false,
-
-  // Skip certain requests
-  skip: (req) => req.path === '/health' || req.path === '/ready',
-
-  // Customize the log level based on status code
-  getLogLevel: (req, res) => {
-    if (res.statusCode >= 500) return 'error';
-    if (res.statusCode >= 400) return 'warn';
-    return 'info';
-  },
+  dsn: 'https://lp_abc123@api.logtide.dev',
+  service: 'api-server',
+  environment: 'production',
+  release: '1.0.0',
+  tracesSampleRate: 1.0,
+  debug: false,
 }));`}
       />
   </div>
@@ -131,12 +121,12 @@ app.listen(3000);`}
       <Code
           lang="typescript"
           theme="one-dark-pro"
-          code={`app.use((req, res, next) => {
+          code={`import { hub } from '@logtide/core';
+
+app.use((req, res, next) => {
   // Set user context for the request
-  req.logtideScope.setUser({
-    id: req.user?.id,
-    email: req.user?.email,
-  });
+  req.logtideScope.setExtra('userId', req.user?.id);
+  req.logtideScope.setExtra('email', req.user?.email);
 
   // Set custom tags
   req.logtideScope.setTag('tenant', req.headers['x-tenant-id']);
@@ -146,7 +136,7 @@ app.listen(3000);`}
 
 app.get('/orders', (req, res) => {
   // This log automatically includes the user and tenant tag
-  Logtide.captureLog('info', 'Fetching orders');
+  hub.captureLog('info', 'Fetching orders');
   res.json([]);
 });`}
       />
@@ -187,23 +177,22 @@ app.get('/orders', (req, res) => {
       Error Handling
   </h2>
 
+  <p class="text-muted-foreground mb-4">
+      The middleware automatically captures errors when responses have 5xx status codes.
+      You can add your own error handler to customize the response:
+  </p>
+
   <div class="mb-8">
       <Code
           lang="typescript"
           theme="one-dark-pro"
-          code={`import { logtideErrorHandler } from '@logtide/express';
-
-// Add routes first
-app.get('/users/:id', async (req, res) => {
+          code={`app.get('/users/:id', async (req, res) => {
   const user = await getUser(req.params.id);
   if (!user) throw new NotFoundError('User not found');
   res.json(user);
 });
 
-// Add LogTide error handler AFTER routes
-app.use(logtideErrorHandler());
-
-// Your own error handler can come after
+// Your error handler — 5xx errors are already captured by LogTide
 app.use((err, req, res, next) => {
   res.status(err.status || 500).json({
     error: err.message,
@@ -226,8 +215,7 @@ app.use((err, req, res, next) => {
               </tr>
           </thead>
           <tbody class="text-muted-foreground">
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">logtide(options?)</code></td><td class="p-3 border-b border-border">Request middleware — logs requests, creates scopes, extracts traces</td></tr>
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">logtideErrorHandler()</code></td><td class="p-3 border-b border-border">Error middleware — captures errors with request context</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">logtide(options)</code></td><td class="p-3 border-b border-border">Middleware factory — initializes LogTide, creates scopes, extracts traces, captures 5xx errors</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">req.logtideScope</code></td><td class="p-3 border-b border-border">Per-request scope for setting tags, user, extras</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">req.logtideTraceId</code></td><td class="p-3 border-b border-border">Current trace ID for the request</td></tr>
           </tbody>

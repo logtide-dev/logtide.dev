@@ -54,25 +54,23 @@ const headings = [
           lang="typescript"
           theme="one-dark-pro"
           code={`import Fastify from 'fastify';
-import * as Logtide from '@logtide/core';
-import { logtidePlugin } from '@logtide/fastify';
+import { hub } from '@logtide/core';
+import { logtide } from '@logtide/fastify';
 
-Logtide.init({
+const fastify = Fastify();
+
+// Register the plugin (initializes LogTide automatically)
+await fastify.register(logtide, {
   dsn: 'https://lp_abc123@api.logtide.dev',
   service: 'api-server',
   environment: 'production',
 });
 
-const fastify = Fastify();
-
-// Register the plugin
-await fastify.register(logtidePlugin);
-
 fastify.get('/users/:id', async (request, reply) => {
   // Access request-scoped context
   request.logtideScope.setTag('userId', request.params.id);
 
-  Logtide.captureLog('info', 'Fetching user', {
+  hub.captureLog('info', 'Fetching user', {
     userId: request.params.id,
   });
 
@@ -87,29 +85,21 @@ await fastify.listen({ port: 3000 });`}
       Plugin Options
   </h2>
 
+  <p class="text-muted-foreground mb-4">
+      The plugin accepts all <a href="/docs/sdks/nodejs#configuration"><code class="bg-muted px-1 rounded">ClientOptions</code></a> from <code class="bg-muted px-1 rounded">@logtide/core</code>:
+  </p>
+
   <div class="mb-8">
       <Code
           lang="typescript"
           theme="one-dark-pro"
-          code={`await fastify.register(logtidePlugin, {
-  // Log request/response automatically (default: true)
-  logRequests: true,
-
-  // Include request headers (default: false)
-  logHeaders: false,
-
-  // Include request body (default: false)
-  logBody: false,
-
-  // Skip certain requests
-  skip: (request) => request.url === '/health',
-
-  // Customize log level by status code
-  getLogLevel: (request, reply) => {
-    if (reply.statusCode >= 500) return 'error';
-    if (reply.statusCode >= 400) return 'warn';
-    return 'info';
-  },
+          code={`await fastify.register(logtide, {
+  dsn: 'https://lp_abc123@api.logtide.dev',
+  service: 'api-server',
+  environment: 'production',
+  release: '1.0.0',
+  tracesSampleRate: 1.0,
+  debug: false,
 });`}
       />
   </div>
@@ -127,16 +117,16 @@ await fastify.listen({ port: 3000 });`}
       <Code
           lang="typescript"
           theme="one-dark-pro"
-          code={`fastify.addHook('onRequest', async (request) => {
-  request.logtideScope.setUser({
-    id: request.user?.id,
-  });
+          code={`import { hub } from '@logtide/core';
+
+fastify.addHook('onRequest', async (request) => {
+  request.logtideScope.setExtra('userId', request.user?.id);
   request.logtideScope.setTag('tenant', request.headers['x-tenant-id']);
 });
 
 fastify.get('/orders', async (request) => {
   // Logs include user + tenant automatically
-  Logtide.captureLog('info', 'Listing orders');
+  hub.captureLog('info', 'Listing orders');
   return { orders: [] };
 });`}
       />
@@ -209,7 +199,7 @@ fastify.setErrorHandler((error, request, reply) => {
               </tr>
           </thead>
           <tbody class="text-muted-foreground">
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">logtidePlugin</code></td><td class="p-3 border-b border-border">Fastify plugin — register with <code class="bg-muted px-1 rounded text-xs">fastify.register()</code></td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">logtide</code></td><td class="p-3 border-b border-border">Fastify plugin — register with <code class="bg-muted px-1 rounded text-xs">fastify.register(logtide, options)</code></td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">request.logtideScope</code></td><td class="p-3 border-b border-border">Per-request scope for setting tags, user, extras</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">request.logtideTraceId</code></td><td class="p-3 border-b border-border">Current trace ID for the request</td></tr>
           </tbody>

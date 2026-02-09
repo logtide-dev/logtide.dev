@@ -65,9 +65,9 @@ npm install @logtide/elysia     # Elysia
 ### Basic Setup
 
 ```typescript
-import * as Logtide from '@logtide/core';
+import { hub } from '@logtide/core';
 
-Logtide.init({
+hub.init({
   dsn: process.env.LOGTIDE_DSN,
   service: 'api-server',
   environment: process.env.NODE_ENV,
@@ -75,21 +75,21 @@ Logtide.init({
 });
 
 // Capture logs
-Logtide.captureLog('info', 'Application started', {
+hub.captureLog('info', 'Application started', {
   version: '1.0.0',
   environment: process.env.NODE_ENV,
 });
 
 // Different log levels
-Logtide.captureLog('debug', 'Debug information');
-Logtide.captureLog('info', 'User logged in', { userId: '123' });
-Logtide.captureLog('warn', 'Rate limit approaching', { current: 90, max: 100 });
-Logtide.captureLog('error', 'Failed to process payment', { orderId: '456' });
-Logtide.captureLog('critical', 'Database connection lost');
+hub.captureLog('debug', 'Debug information');
+hub.captureLog('info', 'User logged in', { userId: '123' });
+hub.captureLog('warn', 'Rate limit approaching', { current: 90, max: 100 });
+hub.captureLog('error', 'Failed to process payment', { orderId: '456' });
+hub.captureLog('critical', 'Database connection lost');
 
 // Graceful shutdown - flush remaining logs
 process.on('SIGTERM', async () => {
-  await Logtide.close();
+  await hub.close();
   process.exit(0);
 });
 ```
@@ -106,7 +106,7 @@ LOGTIDE_DSN=https://lp_abc123@api.logtide.dev
 ## Configuration Options
 
 ```typescript
-Logtide.init({
+hub.init({
   // Required
   dsn: process.env.LOGTIDE_DSN,
 
@@ -122,16 +122,15 @@ Logtide.init({
   // Reliability (optional)
   maxRetries: 3,
   circuitBreakerThreshold: 5,
-  circuitBreakerTimeout: 60000,
+  circuitBreakerResetMs: 30000,
 
   // Tracing (optional)
   tracesSampleRate: 1.0,
-  tracePropagationTargets: [/^https:\/\/api\.example\.com/],
 
   // Integrations (optional)
   integrations: [
-    Logtide.consoleIntegration(),
-    Logtide.globalErrorIntegration(),
+    new ConsoleIntegration(),
+    new GlobalErrorIntegration(),
   ],
 });
 ```
@@ -142,23 +141,19 @@ For Express apps, use the dedicated `@logtide/express` package:
 
 ```typescript
 import express from 'express';
-import * as Logtide from '@logtide/core';
-import { logtide, logtideErrorHandler } from '@logtide/express';
-
-Logtide.init({
-  dsn: process.env.LOGTIDE_DSN,
-  service: 'api-server',
-});
+import { hub } from '@logtide/core';
+import { logtide } from '@logtide/express';
 
 const app = express();
-app.use(logtide());
+app.use(logtide({
+  dsn: process.env.LOGTIDE_DSN,
+  service: 'api-server',
+}));
 
 app.get('/users/:id', (req, res) => {
   req.logtideScope.setTag('userId', req.params.id);
   res.json({ id: req.params.id });
 });
-
-app.use(logtideErrorHandler());
 ```
 
 See the [Express integration guide](/integrations/express) for full details.
@@ -169,16 +164,13 @@ For Fastify apps, use the dedicated `@logtide/fastify` package:
 
 ```typescript
 import Fastify from 'fastify';
-import * as Logtide from '@logtide/core';
-import { logtidePlugin } from '@logtide/fastify';
+import { logtide } from '@logtide/fastify';
 
-Logtide.init({
+const fastify = Fastify();
+await fastify.register(logtide, {
   dsn: process.env.LOGTIDE_DSN,
   service: 'api-server',
 });
-
-const fastify = Fastify();
-await fastify.register(logtidePlugin);
 
 fastify.get('/users/:id', async (request) => {
   request.logtideScope.setTag('userId', request.params.id);
@@ -194,7 +186,7 @@ See the [Fastify integration guide](/integrations/fastify) for full details.
 try {
   await processPayment(orderId);
 } catch (error) {
-  Logtide.captureError(error, {
+  hub.captureError(error, {
     extra: { orderId },
     tags: { module: 'payments' },
   });
@@ -205,29 +197,30 @@ try {
 
 ```typescript
 // Add breadcrumbs for debugging context
-Logtide.addBreadcrumb({
+hub.addBreadcrumb({
   category: 'auth',
   message: 'User authenticated',
   level: 'info',
 });
 
-// Use scopes for per-request context
-Logtide.withScope((scope) => {
-  scope.setTag('handler', 'payment');
-  scope.setUser({ id: 'user-123' });
-  Logtide.captureError(new Error('Payment failed'));
-});
+// Framework SDKs create per-request scopes automatically.
+// For manual scopes:
+const client = hub.getClient();
+const scope = client.createScope();
+scope.setTag('handler', 'payment');
+scope.setExtra('userId', 'user-123');
+client.captureError(new Error('Payment failed'), {}, scope);
 ```
 
 ## Console Interception
 
 ```typescript
-Logtide.init({
+import { hub, ConsoleIntegration } from '@logtide/core';
+
+hub.init({
   dsn: process.env.LOGTIDE_DSN,
   integrations: [
-    Logtide.consoleIntegration({
-      levels: ['warn', 'error'],
-    }),
+    new ConsoleIntegration(),
   ],
 });
 
@@ -242,7 +235,7 @@ console.error('Connection timeout');
 
 ```typescript
 const shutdown = async () => {
-  await Logtide.close();
+  await hub.close();
   process.exit(0);
 };
 
@@ -253,7 +246,7 @@ process.on('SIGINT', shutdown);
 ### 2. Set Environment and Release
 
 ```typescript
-Logtide.init({
+hub.init({
   dsn: process.env.LOGTIDE_DSN,
   environment: process.env.NODE_ENV,
   release: process.env.npm_package_version,
@@ -263,14 +256,10 @@ Logtide.init({
 ### 3. Don't Log Sensitive Data
 
 ```typescript
-// Use beforeSend to filter sensitive data
-Logtide.init({
-  dsn: process.env.LOGTIDE_DSN,
-  beforeSend: (event) => {
-    // Strip sensitive headers
-    delete event.metadata?.authorization;
-    return event;
-  },
+// Avoid logging sensitive data in metadata
+hub.captureLog('info', 'User action', {
+  userId: user.id,
+  // Don't include: passwords, tokens, credit cards
 });
 ```
 

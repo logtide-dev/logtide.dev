@@ -48,19 +48,17 @@ bun add @logtide/elysia
 
 ```typescript
 import { Elysia } from 'elysia';
-import * as Logtide from '@logtide/core';
-import { logtidePlugin } from '@logtide/elysia';
-
-Logtide.init({
-  dsn: process.env.LOGTIDE_DSN,
-  service: 'elysia-api',
-  environment: process.env.NODE_ENV,
-});
+import { hub } from '@logtide/core';
+import { logtide } from '@logtide/elysia';
 
 const app = new Elysia()
-  .use(logtidePlugin().as('global'))
-  .get('/users/:id', ({ params, store }) => {
-    store.logtideScope.setTag('userId', params.id);
+  .use(logtide({
+    dsn: process.env.LOGTIDE_DSN,
+    service: 'elysia-api',
+    environment: process.env.NODE_ENV,
+  }))
+  .get('/users/:id', ({ params }) => {
+    hub.captureLog('info', 'Fetching user', { userId: params.id });
     return { id: params.id };
   })
   .listen(3000);
@@ -71,30 +69,25 @@ Use `.as('global')` to apply the plugin to all routes, including those registere
 ## Plugin Options
 
 ```typescript
-app.use(logtidePlugin({
-  logRequests: true,
-  logHeaders: false,
-  skip: (ctx) => ctx.path === '/health',
-  getLogLevel: (ctx, status) => {
-    if (status >= 500) return 'error';
-    if (status >= 400) return 'warn';
-    return 'info';
-  },
-}).as('global'));
+app.use(logtide({
+  dsn: process.env.LOGTIDE_DSN,
+  service: 'elysia-api',
+  environment: process.env.NODE_ENV,
+  release: '1.0.0',
+  tracesSampleRate: 1.0,
+}));
 ```
 
 ## Scoped Context
 
 ```typescript
 app
-  .use(logtidePlugin().as('global'))
-  .derive(({ store, headers }) => {
-    store.logtideScope.setUser({ id: headers['x-user-id'] });
-    store.logtideScope.setTag('tenant', headers['x-tenant-id']);
-    return {};
-  })
+  .use(logtide({
+    dsn: process.env.LOGTIDE_DSN,
+    service: 'elysia-api',
+  }))
   .get('/orders', () => {
-    Logtide.captureLog('info', 'Listing orders');
+    hub.captureLog('info', 'Listing orders');
     return { orders: [] };
   });
 ```
@@ -112,11 +105,14 @@ app
 
 ```typescript
 app
-  .use(logtidePlugin().as('global'))
-  .onError(({ code, error, store }) => {
+  .use(logtide({
+    dsn: process.env.LOGTIDE_DSN,
+    service: 'elysia-api',
+  }))
+  .onError(({ code, error }) => {
+    // Error is already captured by the plugin
     return new Response(JSON.stringify({
       error: error.message,
-      traceId: store.logtideTraceId,
     }), {
       status: code === 'NOT_FOUND' ? 404 : 500,
     });

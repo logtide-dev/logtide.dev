@@ -112,28 +112,32 @@ npm install @logtide/elysia     # Elysia`}
       <Code
           lang="typescript"
           theme="one-dark-pro"
-          code={`import * as Logtide from '@logtide/core';
+          code={`import { hub, ConsoleIntegration, GlobalErrorIntegration } from '@logtide/core';
 
-Logtide.init({
+hub.init({
   dsn: 'https://lp_abc123@api.logtide.dev',
   service: 'api-server',
   environment: process.env.NODE_ENV,
   release: '1.0.0',
+  integrations: [
+    new ConsoleIntegration(),
+    new GlobalErrorIntegration(),
+  ],
 });
 
 // Capture logs
-Logtide.captureLog('info', 'Server started', { port: 3000 });
+hub.captureLog('info', 'Server started', { port: 3000 });
 
 // Capture errors
 try {
   await riskyOperation();
 } catch (error) {
-  Logtide.captureError(error);
+  hub.captureError(error);
 }
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
-  await Logtide.close();
+  await hub.close();
   process.exit(0);
 });`}
       />
@@ -155,7 +159,9 @@ process.on('SIGINT', async () => {
       <Code
           lang="typescript"
           theme="one-dark-pro"
-          code={`Logtide.init({
+          code={`import { hub, ConsoleIntegration, GlobalErrorIntegration } from '@logtide/core';
+
+hub.init({
   // Required
   dsn: 'https://lp_abc123@api.logtide.dev',
 
@@ -171,27 +177,18 @@ process.on('SIGINT', async () => {
 
   // Reliability
   maxRetries: 3,               // Retry attempts (default: 3)
-  retryDelay: 1000,            // Initial retry delay in ms (default: 1000)
+  retryDelayMs: 1000,          // Initial retry delay in ms (default: 1000)
   circuitBreakerThreshold: 5,  // Failures before open (default: 5)
-  circuitBreakerTimeout: 60000, // Reset timeout in ms (default: 60000)
+  circuitBreakerResetMs: 30000, // Reset timeout in ms (default: 30000)
 
   // Tracing
   tracesSampleRate: 1.0,       // 0.0 to 1.0, sample rate for traces
-  tracePropagationTargets: [   // URLs to propagate trace context to
-    /^https:\\/\\/api\\.example\\.com/,
-  ],
 
   // Integrations
   integrations: [
-    Logtide.consoleIntegration(),
-    Logtide.globalErrorIntegration(),
+    new ConsoleIntegration(),
+    new GlobalErrorIntegration(),
   ],
-
-  // Hooks
-  beforeSend: (event) => {
-    // Modify or filter events before sending
-    return event;
-  },
 
   // Debug
   debug: false,
@@ -220,11 +217,11 @@ process.on('SIGINT', async () => {
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">flushInterval</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">5000</code></td><td class="p-3 border-b border-border">Flush interval in milliseconds</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">maxBufferSize</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">10000</code></td><td class="p-3 border-b border-border">Max events in buffer before dropping</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">maxRetries</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">3</code></td><td class="p-3 border-b border-border">Max retry attempts for failed sends</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">retryDelayMs</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">1000</code></td><td class="p-3 border-b border-border">Initial retry delay in ms (exponential backoff)</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">circuitBreakerThreshold</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">5</code></td><td class="p-3 border-b border-border">Consecutive failures before circuit opens</td></tr>
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">circuitBreakerTimeout</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">60000</code></td><td class="p-3 border-b border-border">Timeout before circuit half-opens (ms)</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">circuitBreakerResetMs</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">30000</code></td><td class="p-3 border-b border-border">Timeout before circuit half-opens (ms)</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">tracesSampleRate</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">1.0</code></td><td class="p-3 border-b border-border">Trace sampling rate (0.0–1.0)</td></tr>
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">tracePropagationTargets</code></td><td class="p-3 border-b border-border">RegExp[]</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">[]</code></td><td class="p-3 border-b border-border">URLs to propagate W3C traceparent header</td></tr>
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">beforeSend</code></td><td class="p-3 border-b border-border">function</td><td class="p-3 border-b border-border">—</td><td class="p-3 border-b border-border">Hook to modify/filter events before sending</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">maxBreadcrumbs</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">100</code></td><td class="p-3 border-b border-border">Max breadcrumbs per scope</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">debug</code></td><td class="p-3 border-b border-border">boolean</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">false</code></td><td class="p-3 border-b border-border">Enable internal debug logging</td></tr>
           </tbody>
       </table>
@@ -244,12 +241,12 @@ process.on('SIGINT', async () => {
           <Code
               lang="typescript"
               theme="one-dark-pro"
-              code={`import * as Logtide from '@logtide/core';
+              code={`import { hub } from '@logtide/core';
 
 // Log levels: debug, info, warn, error, critical
-Logtide.captureLog('info', 'User signed up', { userId: '123', plan: 'pro' });
-Logtide.captureLog('warn', 'Rate limit approaching', { current: 90, max: 100 });
-Logtide.captureLog('error', 'Query timeout', { query: 'SELECT ...', duration: 5000 });`}
+hub.captureLog('info', 'User signed up', { userId: '123', plan: 'pro' });
+hub.captureLog('warn', 'Rate limit approaching', { current: 90, max: 100 });
+hub.captureLog('error', 'Query timeout', { query: 'SELECT ...', duration: 5000 });`}
           />
       </div>
 
@@ -262,10 +259,7 @@ Logtide.captureLog('error', 'Query timeout', { query: 'SELECT ...', duration: 50
               code={`try {
   await processPayment(orderId);
 } catch (error) {
-  Logtide.captureError(error, {
-    extra: { orderId, amount: 99.99 },
-    tags: { module: 'payments' },
-  });
+  hub.captureError(error, { orderId, amount: 99.99 });
 }`}
           />
       </div>
@@ -276,11 +270,11 @@ Logtide.captureLog('error', 'Query timeout', { query: 'SELECT ...', duration: 50
           <Code
               lang="typescript"
               theme="one-dark-pro"
-              code={`// Flush pending events (waits up to timeout ms)
-await Logtide.flush(5000);
+              code={`// Flush pending events
+await hub.flush();
 
 // Close the SDK (flushes and disables further capturing)
-await Logtide.close();`}
+await hub.close();`}
           />
       </div>
   </div>
@@ -298,35 +292,36 @@ await Logtide.close();`}
 
   <div class="mb-8 space-y-6">
       <div>
-          <h3 id="configure-scope" class="text-lg font-semibold mb-3 scroll-mt-24">Configuring the Current Scope</h3>
+          <h3 id="configure-scope" class="text-lg font-semibold mb-3 scroll-mt-24">Global Scope</h3>
+          <p class="text-muted-foreground mb-3">Access the global scope to set tags and extras that apply to all events.</p>
           <Code
               lang="typescript"
               theme="one-dark-pro"
-              code={`Logtide.configureScope((scope) => {
-  scope.setTag('region', 'eu-west-1');
-  scope.setUser({ id: 'user-123', email: 'user@example.com' });
-  scope.setExtra('requestId', 'req-abc');
-});
+              code={`import { hub } from '@logtide/core';
 
-// All events now include the region tag, user, and requestId`}
+const scope = hub.getScope();
+scope.setTag('region', 'eu-west-1');
+scope.setExtra('userId', 'user-123');
+
+// All events now include the region tag and userId`}
           />
       </div>
 
       <div>
-          <h3 id="with-scope" class="text-lg font-semibold mb-3 scroll-mt-24">Temporary Scopes</h3>
+          <h3 id="with-scope" class="text-lg font-semibold mb-3 scroll-mt-24">Request Scopes</h3>
+          <p class="text-muted-foreground mb-3">Framework SDKs create per-request scopes automatically. You can also create scopes manually via the client.</p>
           <Code
               lang="typescript"
               theme="one-dark-pro"
-              code={`Logtide.withScope((scope) => {
-  scope.setTag('handler', 'payment');
-  scope.setExtra('orderId', '456');
+              code={`const client = hub.getClient();
+const scope = client.createScope();
 
-  // Only events within this callback get these tags
-  Logtide.captureLog('info', 'Processing payment');
-  Logtide.captureError(new Error('Card declined'));
-});
+scope.setTag('handler', 'payment');
+scope.setExtra('orderId', '456');
 
-// Scope is restored here — tags are no longer applied`}
+// Pass the scope to captureLog/captureError
+client.captureLog('info', 'Processing payment', {}, scope);
+client.captureError(new Error('Card declined'), {}, scope);`}
           />
       </div>
   </div>
@@ -346,22 +341,26 @@ await Logtide.close();`}
       <Code
           lang="typescript"
           theme="one-dark-pro"
-          code={`// Add a breadcrumb manually
-Logtide.addBreadcrumb({
+          code={`import { hub } from '@logtide/core';
+
+// Add a breadcrumb manually
+hub.addBreadcrumb({
+  type: 'default',
   category: 'auth',
   message: 'User authenticated',
-  level: 'info',
+  timestamp: Date.now(),
   data: { method: 'oauth', provider: 'github' },
 });
 
-Logtide.addBreadcrumb({
+hub.addBreadcrumb({
+  type: 'navigation',
   category: 'navigation',
   message: 'Navigated to /dashboard',
-  level: 'info',
+  timestamp: Date.now(),
 });
 
 // When an error is captured, breadcrumbs are included automatically
-Logtide.captureError(new Error('Dashboard failed to load'));
+hub.captureError(new Error('Dashboard failed to load'));
 // The error event will contain both breadcrumbs above`}
       />
   </div>
@@ -384,41 +383,42 @@ Logtide.captureError(new Error('Dashboard failed to load'));
           <Code
               lang="typescript"
               theme="one-dark-pro"
-              code={`const span = Logtide.startSpan({
-  op: 'db.query',
-  description: 'SELECT * FROM users WHERE id = $1',
+              code={`import { hub } from '@logtide/core';
+
+const client = hub.getClient();
+
+const span = client.startSpan({
+  name: 'db.query SELECT users',
+  attributes: { 'db.statement': 'SELECT * FROM users WHERE id = $1' },
 });
 
 try {
   const result = await db.query('SELECT * FROM users WHERE id = $1', [userId]);
-  span.setData('rowCount', result.rowCount);
-  span.setStatus('ok');
+  client.finishSpan(span.spanId, 'ok');
 } catch (error) {
-  span.setStatus('error');
-  Logtide.captureError(error);
-} finally {
-  span.finish();
+  client.finishSpan(span.spanId, 'error');
+  hub.captureError(error);
 }`}
           />
       </div>
 
       <div>
           <h3 id="trace-propagation" class="text-lg font-semibold mb-3 scroll-mt-24">Trace Propagation</h3>
-          <p class="text-muted-foreground mb-3">The SDK automatically injects and extracts <code class="bg-muted px-1 rounded">traceparent</code> headers for configured targets.</p>
+          <p class="text-muted-foreground mb-3">Framework SDKs automatically extract incoming <code class="bg-muted px-1 rounded">traceparent</code> headers and inject them into responses for end-to-end trace correlation.</p>
           <Code
               lang="typescript"
               theme="one-dark-pro"
-              code={`Logtide.init({
-  dsn: 'https://lp_abc123@api.logtide.dev',
-  tracePropagationTargets: [
-    /^https:\\/\\/api\\.example\\.com/,
-    /^https:\\/\\/payments\\.example\\.com/,
-  ],
-});
+              code={`import { createTraceparent, generateTraceId, generateSpanId } from '@logtide/core';
 
-// Outgoing fetch requests to matching URLs automatically include
-// the traceparent header for end-to-end trace correlation:
-// traceparent: 00-<trace-id>-<span-id>-01`}
+// Create a traceparent header for outgoing requests
+const traceId = generateTraceId();
+const spanId = generateSpanId();
+const header = createTraceparent(traceId, spanId, true);
+// → "00-<trace-id>-<span-id>-01"
+
+await fetch('https://api.example.com/data', {
+  headers: { traceparent: header },
+});`}
           />
       </div>
   </div>
@@ -437,12 +437,12 @@ try {
           <Code
               lang="typescript"
               theme="one-dark-pro"
-              code={`Logtide.init({
+              code={`import { hub, ConsoleIntegration } from '@logtide/core';
+
+hub.init({
   dsn: 'https://lp_abc123@api.logtide.dev',
   integrations: [
-    Logtide.consoleIntegration({
-      levels: ['warn', 'error'], // Only capture warn and error (default: all)
-    }),
+    new ConsoleIntegration(),
   ],
 });
 
@@ -458,10 +458,12 @@ console.error('Connection lost'); // → captureLog('error', ...)`}
           <Code
               lang="typescript"
               theme="one-dark-pro"
-              code={`Logtide.init({
+              code={`import { hub, GlobalErrorIntegration } from '@logtide/core';
+
+hub.init({
   dsn: 'https://lp_abc123@api.logtide.dev',
   integrations: [
-    Logtide.globalErrorIntegration(),
+    new GlobalErrorIntegration(),
   ],
 });
 
@@ -579,7 +581,7 @@ console.error('Connection lost'); // → captureLog('error', ...)`}
               <CardTitle class="text-base">1. Initialize Early</CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              Call <code class="bg-muted px-1 rounded">Logtide.init()</code> as early as possible in your
+              Call <code class="bg-muted px-1 rounded">hub.init()</code> as early as possible in your
               application entry point, before any other code runs. This ensures global error and console
               integrations capture everything.
           </CardContent>
@@ -590,7 +592,7 @@ console.error('Connection lost'); // → captureLog('error', ...)`}
               <CardTitle class="text-base">2. Always Close on Shutdown</CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              Call <code class="bg-muted px-1 rounded">await Logtide.close()</code> in your shutdown
+              Call <code class="bg-muted px-1 rounded">await hub.close()</code> in your shutdown
               handler to flush all pending events before the process exits.
           </CardContent>
       </Card>
@@ -600,8 +602,8 @@ console.error('Connection lost'); // → captureLog('error', ...)`}
               <CardTitle class="text-base">3. Use Scopes for Request Context</CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              In server environments, use <code class="bg-muted px-1 rounded">withScope</code> to isolate
-              per-request context (user, request ID, tags). Framework packages handle this automatically.
+              In server environments, use request-scoped context to isolate
+              per-request data (user, request ID, tags). Framework packages handle this automatically.
           </CardContent>
       </Card>
 

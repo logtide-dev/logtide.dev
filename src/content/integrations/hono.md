@@ -50,22 +50,20 @@ bun add @logtide/hono
 
 ```typescript
 import { Hono } from 'hono';
-import * as Logtide from '@logtide/core';
+import { hub } from '@logtide/core';
 import { logtide } from '@logtide/hono';
 
-Logtide.init({
-  dsn: 'https://lp_abc123@api.logtide.dev',
-  service: 'hono-api',
-  environment: 'production',
-});
-
 const app = new Hono();
-app.use('*', logtide());
+app.use('*', logtide({
+  dsn: process.env.LOGTIDE_DSN,
+  service: 'hono-api',
+  environment: process.env.NODE_ENV,
+}));
 
 app.get('/users/:id', (c) => {
   c.get('logtideScope').setTag('userId', c.req.param('id'));
 
-  Logtide.captureLog('info', 'Fetching user', {
+  hub.captureLog('info', 'Fetching user', {
     userId: c.req.param('id'),
   });
 
@@ -79,14 +77,11 @@ export default app;
 
 ```typescript
 app.use('*', logtide({
-  logRequests: true,
-  logHeaders: false,
-  skip: (c) => c.req.path === '/health',
-  getLogLevel: (c, status) => {
-    if (status >= 500) return 'error';
-    if (status >= 400) return 'warn';
-    return 'info';
-  },
+  dsn: process.env.LOGTIDE_DSN,
+  service: 'hono-api',
+  environment: process.env.NODE_ENV,
+  release: '1.0.0',
+  tracesSampleRate: 1.0,
 }));
 ```
 
@@ -95,7 +90,7 @@ app.use('*', logtide({
 ```typescript
 app.get('/orders', (c) => {
   const scope = c.get('logtideScope');
-  scope.setUser({ id: 'user-123' });
+  scope.setExtra('userId', 'user-123');
   scope.setTag('module', 'orders');
 
   const traceId = c.get('logtideTraceId');

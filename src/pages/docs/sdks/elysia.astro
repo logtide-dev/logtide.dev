@@ -54,21 +54,17 @@ const headings = [
           lang="typescript"
           theme="one-dark-pro"
           code={`import { Elysia } from 'elysia';
-import * as Logtide from '@logtide/core';
-import { logtidePlugin } from '@logtide/elysia';
-
-Logtide.init({
-  dsn: 'https://lp_abc123@api.logtide.dev',
-  service: 'elysia-api',
-  environment: 'production',
-});
+import { hub } from '@logtide/core';
+import { logtide } from '@logtide/elysia';
 
 const app = new Elysia()
-  .use(logtidePlugin().as('global'))
-  .get('/users/:id', ({ params, store }) => {
-    store.logtideScope.setTag('userId', params.id);
-
-    Logtide.captureLog('info', 'Fetching user', {
+  .use(logtide({
+    dsn: 'https://lp_abc123@api.logtide.dev',
+    service: 'elysia-api',
+    environment: 'production',
+  }))
+  .get('/users/:id', ({ params }) => {
+    hub.captureLog('info', 'Fetching user', {
       userId: params.id,
     });
 
@@ -79,35 +75,30 @@ const app = new Elysia()
   </div>
 
   <p class="text-muted-foreground mb-4">
-      Use <code class="bg-muted px-1 rounded">.as('global')</code> to apply the plugin to all routes,
-      including those registered after the plugin.
+      The plugin automatically applies <code class="bg-muted px-1 rounded">.as('global')</code> to
+      cover all routes, including those registered after the plugin.
   </p>
 
   <h2 id="plugin-options" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
       Plugin Options
   </h2>
 
+  <p class="text-muted-foreground mb-4">
+      The plugin accepts all <a href="/docs/sdks/nodejs#configuration"><code class="bg-muted px-1 rounded">ClientOptions</code></a> from <code class="bg-muted px-1 rounded">@logtide/core</code>:
+  </p>
+
   <div class="mb-8">
       <Code
           lang="typescript"
           theme="one-dark-pro"
-          code={`app.use(logtidePlugin({
-  // Log requests automatically (default: true)
-  logRequests: true,
-
-  // Include request headers (default: false)
-  logHeaders: false,
-
-  // Skip paths
-  skip: (ctx) => ctx.path === '/health',
-
-  // Custom log level
-  getLogLevel: (ctx, status) => {
-    if (status >= 500) return 'error';
-    if (status >= 400) return 'warn';
-    return 'info';
-  },
-}).as('global'));`}
+          code={`app.use(logtide({
+  dsn: 'https://lp_abc123@api.logtide.dev',
+  service: 'elysia-api',
+  environment: 'production',
+  release: '1.0.0',
+  tracesSampleRate: 1.0,
+  debug: false,
+}));`}
       />
   </div>
 
@@ -140,23 +131,24 @@ const app = new Elysia()
       Scoped Context
   </h2>
 
+  <p class="text-muted-foreground mb-4">
+      The plugin automatically creates request scopes and traces for each request.
+      Use the <code class="bg-muted px-1 rounded">hub</code> to capture logs and errors:
+  </p>
+
   <div class="mb-8">
       <Code
           lang="typescript"
           theme="one-dark-pro"
-          code={`app
-  .use(logtidePlugin().as('global'))
-  .derive(({ store, headers }) => {
-    // Set user context for the request
-    store.logtideScope.setUser({
-      id: headers['x-user-id'],
-    });
-    store.logtideScope.setTag('tenant', headers['x-tenant-id']);
-    return {};
-  })
-  .get('/orders', ({ store }) => {
-    // Logs include user + tenant automatically
-    Logtide.captureLog('info', 'Listing orders');
+          code={`import { hub } from '@logtide/core';
+
+app
+  .use(logtide({
+    dsn: 'https://lp_abc123@api.logtide.dev',
+    service: 'elysia-api',
+  }))
+  .get('/orders', () => {
+    hub.captureLog('info', 'Listing orders');
     return { orders: [] };
   });`}
       />
@@ -171,13 +163,15 @@ const app = new Elysia()
           lang="typescript"
           theme="one-dark-pro"
           code={`app
-  .use(logtidePlugin().as('global'))
-  .onError(({ code, error, store }) => {
+  .use(logtide({
+    dsn: 'https://lp_abc123@api.logtide.dev',
+    service: 'elysia-api',
+  }))
+  .onError(({ code, error }) => {
     // Error is already captured by the plugin
     // Customize the response
     return new Response(JSON.stringify({
       error: error.message,
-      traceId: store.logtideTraceId,
     }), {
       status: code === 'NOT_FOUND' ? 404 : 500,
       headers: { 'Content-Type': 'application/json' },
@@ -199,9 +193,7 @@ const app = new Elysia()
               </tr>
           </thead>
           <tbody class="text-muted-foreground">
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">logtidePlugin(options?)</code></td><td class="p-3 border-b border-border">Elysia plugin — use with <code class="bg-muted px-1 rounded text-xs">.as('global')</code> for all routes</td></tr>
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">store.logtideScope</code></td><td class="p-3 border-b border-border">Per-request scope for tags, user, extras</td></tr>
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">store.logtideTraceId</code></td><td class="p-3 border-b border-border">Current trace ID for the request</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">logtide(options)</code></td><td class="p-3 border-b border-border">Elysia plugin factory — auto-applies <code class="bg-muted px-1 rounded text-xs">.as('global')</code>, initializes LogTide</td></tr>
           </tbody>
       </table>
   </div>

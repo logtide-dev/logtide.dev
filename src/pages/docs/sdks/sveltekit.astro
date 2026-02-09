@@ -59,17 +59,14 @@ const headings = [
           lang="typescript"
           theme="one-dark-pro"
           code={`// src/hooks.server.ts
-import * as Logtide from '@logtide/core';
 import { logtideHandle, logtideHandleError } from '@logtide/sveltekit';
 
-Logtide.init({
+// logtideHandle initializes LogTide automatically
+export const handle = logtideHandle({
   dsn: import.meta.env.LOGTIDE_DSN,
   service: 'sveltekit-app',
   environment: import.meta.env.MODE,
 });
-
-// Sequence with other hooks if needed
-export const handle = logtideHandle();
 
 // Capture server-side errors
 export const handleError = logtideHandleError();`}
@@ -106,13 +103,7 @@ export const handle = sequence(
           lang="typescript"
           theme="one-dark-pro"
           code={`// src/hooks.client.ts
-import * as Logtide from '@logtide/core';
 import { logtideHandleError } from '@logtide/sveltekit';
-
-Logtide.init({
-  dsn: import.meta.env.PUBLIC_LOGTIDE_DSN,
-  environment: import.meta.env.MODE,
-});
 
 export const handleError = logtideHandleError();`}
       />
@@ -149,18 +140,18 @@ export const handleFetch = logtideHandleFetch();
           lang="typescript"
           theme="one-dark-pro"
           code={`// src/routes/users/[id]/+page.server.ts
-import * as Logtide from '@logtide/core';
+import { hub } from '@logtide/core';
 import { error } from '@sveltejs/kit';
 
 export async function load({ params, fetch }) {
-  Logtide.captureLog('info', 'Loading user page', {
+  hub.captureLog('info', 'Loading user page', {
     userId: params.id,
   });
 
   const res = await fetch('/api/users/' + params.id);
 
   if (!res.ok) {
-    Logtide.captureLog('warn', 'User not found', { userId: params.id });
+    hub.captureLog('warn', 'User not found', { userId: params.id });
     throw error(404, 'User not found');
   }
 
@@ -178,7 +169,7 @@ export async function load({ params, fetch }) {
           lang="typescript"
           theme="one-dark-pro"
           code={`// src/routes/settings/+page.server.ts
-import * as Logtide from '@logtide/core';
+import { hub } from '@logtide/core';
 import { fail } from '@sveltejs/kit';
 
 export const actions = {
@@ -186,17 +177,19 @@ export const actions = {
     const data = await request.formData();
     const name = data.get('name');
 
-    Logtide.addBreadcrumb({
+    hub.addBreadcrumb({
+      type: 'default',
       category: 'form',
       message: 'Settings form submitted',
+      timestamp: Date.now(),
     });
 
     try {
       await updateSettings({ name });
-      Logtide.captureLog('info', 'Settings updated');
+      hub.captureLog('info', 'Settings updated');
       return { success: true };
     } catch (error) {
-      Logtide.captureError(error);
+      hub.captureError(error);
       return fail(500, { message: 'Update failed' });
     }
   },

@@ -91,12 +91,12 @@ export default defineNuxtConfig({
 
 ```typescript
 // server/api/users/[id].get.ts
-import * as Logtide from '@logtide/core';
+import { hub } from '@logtide/core';
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id');
 
-  Logtide.captureLog('info', 'Fetching user', { userId: id });
+  hub.captureLog('info', 'Fetching user', { userId: id });
 
   const user = await getUserById(id);
   return user;

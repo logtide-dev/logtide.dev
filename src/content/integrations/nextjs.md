@@ -162,19 +162,19 @@ export function LogtideNavigationTracker() {
 
 ```typescript
 // app/api/users/[id]/route.ts
-import * as Logtide from '@logtide/core';
+import { hub } from '@logtide/core';
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  Logtide.captureLog('info', 'Fetching user', { userId: params.id });
+  hub.captureLog('info', 'Fetching user', { userId: params.id });
 
   try {
     const user = await getUser(params.id);
     return Response.json(user);
   } catch (error) {
-    Logtide.captureError(error, {
+    hub.captureError(error, {
       extra: { userId: params.id },
     });
     return Response.json({ error: 'Internal error' }, { status: 500 });
@@ -188,22 +188,22 @@ export async function GET(
 // app/actions/user.ts
 'use server';
 
-import * as Logtide from '@logtide/core';
+import { hub } from '@logtide/core';
 
 export async function updateUser(formData: FormData) {
   const userId = formData.get('userId') as string;
 
-  Logtide.addBreadcrumb({
+  hub.addBreadcrumb({
     category: 'action',
     message: 'Update user action triggered',
   });
 
   try {
     await db.user.update({ where: { id: userId }, data: { name: formData.get('name') } });
-    Logtide.captureLog('info', 'User updated', { userId });
+    hub.captureLog('info', 'User updated', { userId });
     return { success: true };
   } catch (error) {
-    Logtide.captureError(error, { extra: { userId } });
+    hub.captureError(error, { extra: { userId } });
     return { success: false };
   }
 }

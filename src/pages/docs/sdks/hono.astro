@@ -55,25 +55,23 @@ const headings = [
           lang="typescript"
           theme="one-dark-pro"
           code={`import { Hono } from 'hono';
-import * as Logtide from '@logtide/core';
+import { hub } from '@logtide/core';
 import { logtide } from '@logtide/hono';
-
-Logtide.init({
-  dsn: 'https://lp_abc123@api.logtide.dev',
-  service: 'hono-api',
-  environment: 'production',
-});
 
 const app = new Hono();
 
-// Add LogTide middleware
-app.use('*', logtide());
+// Add LogTide middleware (initializes LogTide automatically)
+app.use('*', logtide({
+  dsn: 'https://lp_abc123@api.logtide.dev',
+  service: 'hono-api',
+  environment: 'production',
+}));
 
 app.get('/users/:id', (c) => {
   const scope = c.get('logtideScope');
   scope.setTag('userId', c.req.param('id'));
 
-  Logtide.captureLog('info', 'Fetching user', {
+  hub.captureLog('info', 'Fetching user', {
     userId: c.req.param('id'),
   });
 
@@ -88,26 +86,21 @@ export default app;`}
       Middleware Options
   </h2>
 
+  <p class="text-muted-foreground mb-4">
+      The middleware accepts all <a href="/docs/sdks/nodejs#configuration"><code class="bg-muted px-1 rounded">ClientOptions</code></a> from <code class="bg-muted px-1 rounded">@logtide/core</code>:
+  </p>
+
   <div class="mb-8">
       <Code
           lang="typescript"
           theme="one-dark-pro"
           code={`app.use('*', logtide({
-  // Log requests automatically (default: true)
-  logRequests: true,
-
-  // Include request headers (default: false)
-  logHeaders: false,
-
-  // Skip paths
-  skip: (c) => c.req.path === '/health',
-
-  // Custom log level
-  getLogLevel: (c, status) => {
-    if (status >= 500) return 'error';
-    if (status >= 400) return 'warn';
-    return 'info';
-  },
+  dsn: 'https://lp_abc123@api.logtide.dev',
+  service: 'hono-api',
+  environment: 'production',
+  release: '1.0.0',
+  tracesSampleRate: 1.0,
+  debug: false,
 }));`}
       />
   </div>
@@ -124,16 +117,18 @@ export default app;`}
       <Code
           lang="typescript"
           theme="one-dark-pro"
-          code={`app.get('/orders', (c) => {
+          code={`import { hub } from '@logtide/core';
+
+app.get('/orders', (c) => {
   // Access the request scope
   const scope = c.get('logtideScope');
-  scope.setUser({ id: 'user-123' });
+  scope.setExtra('userId', 'user-123');
   scope.setTag('module', 'orders');
 
   // Access the trace ID
   const traceId = c.get('logtideTraceId');
 
-  Logtide.captureLog('info', 'Listing orders');
+  hub.captureLog('info', 'Listing orders');
 
   return c.json({
     orders: [],

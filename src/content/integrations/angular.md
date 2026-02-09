@@ -120,21 +120,21 @@ export class UserService {
 ## Manual Logging in Components
 
 ```typescript
-import * as Logtide from '@logtide/core';
+import { hub } from '@logtide/core';
 
 @Component({ selector: 'app-checkout', template: '...' })
 export class CheckoutComponent {
   purchase() {
-    Logtide.addBreadcrumb({
+    hub.addBreadcrumb({
       category: 'ui',
       message: 'Purchase button clicked',
     });
 
     try {
       // process purchase...
-      Logtide.captureLog('info', 'Purchase completed', { orderId: '123' });
+      hub.captureLog('info', 'Purchase completed', { orderId: '123' });
     } catch (error) {
-      Logtide.captureError(error, {
+      hub.captureError(error, {
         tags: { module: 'checkout' },
       });
     }

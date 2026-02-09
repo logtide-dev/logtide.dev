@@ -49,22 +49,22 @@ npm install @logtide/fastify
 
 ```typescript
 import Fastify from 'fastify';
-import * as Logtide from '@logtide/core';
-import { logtidePlugin } from '@logtide/fastify';
+import { hub } from '@logtide/core';
+import { logtide } from '@logtide/fastify';
 
-Logtide.init({
+const fastify = Fastify();
+
+// Register the plugin (initializes LogTide automatically)
+await fastify.register(logtide, {
   dsn: process.env.LOGTIDE_DSN,
   service: 'api-server',
   environment: process.env.NODE_ENV,
 });
 
-const fastify = Fastify();
-await fastify.register(logtidePlugin);
-
 fastify.get('/users/:id', async (request) => {
   request.logtideScope.setTag('userId', request.params.id);
 
-  Logtide.captureLog('info', 'Fetching user', {
+  hub.captureLog('info', 'Fetching user', {
     userId: request.params.id,
   });
 
@@ -77,15 +77,12 @@ await fastify.listen({ port: 3000 });
 ## Plugin Options
 
 ```typescript
-await fastify.register(logtidePlugin, {
-  logRequests: true,
-  logHeaders: false,
-  skip: (request) => request.url === '/health',
-  getLogLevel: (request, reply) => {
-    if (reply.statusCode >= 500) return 'error';
-    if (reply.statusCode >= 400) return 'warn';
-    return 'info';
-  },
+await fastify.register(logtide, {
+  dsn: process.env.LOGTIDE_DSN,
+  service: 'api-server',
+  environment: process.env.NODE_ENV,
+  release: '1.0.0',
+  tracesSampleRate: 1.0,
 });
 ```
 
@@ -95,7 +92,7 @@ Each request gets an isolated scope:
 
 ```typescript
 fastify.addHook('onRequest', async (request) => {
-  request.logtideScope.setUser({ id: request.user?.id });
+  request.logtideScope.setExtra('userId', request.user?.id);
   request.logtideScope.setTag('tenant', request.headers['x-tenant-id']);
 });
 ```

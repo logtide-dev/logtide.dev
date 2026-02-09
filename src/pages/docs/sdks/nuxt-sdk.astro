@@ -121,20 +121,18 @@ export default defineNuxtConfig({
           lang="typescript"
           theme="one-dark-pro"
           code={`// server/api/users/[id].get.ts
-import * as Logtide from '@logtide/core';
+import { hub } from '@logtide/core';
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id');
 
-  Logtide.captureLog('info', 'Fetching user', { userId: id });
+  hub.captureLog('info', 'Fetching user', { userId: id });
 
   try {
     const user = await getUserById(id);
     return user;
   } catch (error) {
-    Logtide.captureError(error, {
-      extra: { userId: id },
-    });
+    hub.captureError(error, { userId: id });
     throw createError({ statusCode: 500, message: 'Failed to fetch user' });
   }
 });`}

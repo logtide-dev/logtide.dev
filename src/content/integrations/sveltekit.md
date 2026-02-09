@@ -50,16 +50,13 @@ npm install @logtide/sveltekit
 
 ```typescript
 // src/hooks.server.ts
-import * as Logtide from '@logtide/core';
 import { logtideHandle, logtideHandleError } from '@logtide/sveltekit';
 
-Logtide.init({
+export const handle = logtideHandle({
   dsn: import.meta.env.LOGTIDE_DSN,
   service: 'sveltekit-app',
   environment: import.meta.env.MODE,
 });
-
-export const handle = logtideHandle();
 export const handleError = logtideHandleError();
 ```
 
@@ -67,13 +64,7 @@ export const handleError = logtideHandleError();
 
 ```typescript
 // src/hooks.client.ts
-import * as Logtide from '@logtide/core';
 import { logtideHandleError } from '@logtide/sveltekit';
-
-Logtide.init({
-  dsn: import.meta.env.PUBLIC_LOGTIDE_DSN,
-  environment: import.meta.env.MODE,
-});
 
 export const handleError = logtideHandleError();
 ```
@@ -85,7 +76,11 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { logtideHandle } from '@logtide/sveltekit';
 
 export const handle = sequence(
-  logtideHandle(),
+  logtideHandle({
+    dsn: import.meta.env.LOGTIDE_DSN,
+    service: 'sveltekit-app',
+    environment: import.meta.env.MODE,
+  }),
   ({ event, resolve }) => {
     // Your custom logic
     return resolve(event);
@@ -107,14 +102,14 @@ export const handleFetch = logtideHandleFetch();
 
 ```typescript
 // src/routes/users/[id]/+page.server.ts
-import * as Logtide from '@logtide/core';
+import { hub } from '@logtide/core';
 
 export async function load({ params, fetch }) {
-  Logtide.captureLog('info', 'Loading user', { userId: params.id });
+  hub.captureLog('info', 'Loading user', { userId: params.id });
 
   const res = await fetch(`/api/users/${params.id}`);
   if (!res.ok) {
-    Logtide.captureLog('warn', 'User not found', { userId: params.id });
+    hub.captureLog('warn', 'User not found', { userId: params.id });
     throw error(404, 'Not found');
   }
 
@@ -126,23 +121,23 @@ export async function load({ params, fetch }) {
 
 ```typescript
 // src/routes/settings/+page.server.ts
-import * as Logtide from '@logtide/core';
+import { hub } from '@logtide/core';
 
 export const actions = {
   update: async ({ request }) => {
     const data = await request.formData();
 
-    Logtide.addBreadcrumb({
+    hub.addBreadcrumb({
       category: 'form',
       message: 'Settings form submitted',
     });
 
     try {
       await updateSettings(Object.fromEntries(data));
-      Logtide.captureLog('info', 'Settings updated');
+      hub.captureLog('info', 'Settings updated');
       return { success: true };
     } catch (error) {
-      Logtide.captureError(error);
+      hub.captureError(error);
       return fail(500, { message: 'Update failed' });
     }
   },

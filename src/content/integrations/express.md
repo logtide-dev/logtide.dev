@@ -51,27 +51,22 @@ This includes `@logtide/core` as a dependency.
 
 ```typescript
 import express from 'express';
-import * as Logtide from '@logtide/core';
-import { logtide, logtideErrorHandler } from '@logtide/express';
-
-Logtide.init({
-  dsn: process.env.LOGTIDE_DSN,
-  service: 'api-server',
-  environment: process.env.NODE_ENV,
-});
+import { hub } from '@logtide/core';
+import { logtide } from '@logtide/express';
 
 const app = express();
 
-// Add request logging middleware
-app.use(logtide());
+// Add LogTide middleware (initializes LogTide automatically)
+app.use(logtide({
+  dsn: process.env.LOGTIDE_DSN,
+  service: 'api-server',
+  environment: process.env.NODE_ENV,
+}));
 
 app.get('/users/:id', (req, res) => {
   req.logtideScope.setTag('userId', req.params.id);
   res.json({ id: req.params.id });
 });
-
-// Add error handler after routes
-app.use(logtideErrorHandler());
 
 app.listen(3000);
 ```
@@ -80,21 +75,11 @@ app.listen(3000);
 
 ```typescript
 app.use(logtide({
-  // Skip health check endpoints
-  skip: (req) => req.path === '/health',
-
-  // Custom log level based on response status
-  getLogLevel: (req, res) => {
-    if (res.statusCode >= 500) return 'error';
-    if (res.statusCode >= 400) return 'warn';
-    return 'info';
-  },
-
-  // Include headers in log metadata (default: false)
-  logHeaders: false,
-
-  // Include request body (default: false)
-  logBody: false,
+  dsn: process.env.LOGTIDE_DSN,
+  service: 'api-server',
+  environment: process.env.NODE_ENV,
+  release: '1.0.0',
+  tracesSampleRate: 1.0,
 }));
 ```
 
@@ -105,10 +90,8 @@ Attach context to all logs within a request:
 ```typescript
 app.use((req, res, next) => {
   if (req.user) {
-    req.logtideScope.setUser({
-      id: req.user.id,
-      email: req.user.email,
-    });
+    req.logtideScope.setExtra('userId', req.user.id);
+    req.logtideScope.setExtra('email', req.user.email);
   }
   req.logtideScope.setTag('tenant', req.headers['x-tenant-id']);
   next();
@@ -130,10 +113,8 @@ app.get('/api/data', async (req, res) => {
 ## Error Handling
 
 ```typescript
-// The error handler captures errors with full request context
-app.use(logtideErrorHandler());
-
-// Your error response handler comes after
+// The middleware automatically captures 5xx errors.
+// Your error response handler:
 app.use((err, req, res, next) => {
   res.status(err.status || 500).json({
     error: err.message,
