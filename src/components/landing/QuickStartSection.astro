@@ -1,17 +1,18 @@
 ---
 import CodeBlock from '../docs/CodeBlock.astro';
 
-const code = `// Install: npm install @logtide/sdk
-import { LogTide } from '@logtide/sdk'
+const code = `// Install: npm install @logtide/core
+import { hub } from '@logtide/core'
 
-const logger = new LogTide({
-  apiKey: 'lw_xxxx',
-  service: 'my-api'
+hub.init({
+  dsn: process.env.LOGTIDE_DSN,
+  service: 'my-api',
+  environment: 'production',
 })
 
-logger.info('User signed up', {
+hub.captureLog('info', 'User signed up', {
   userId: 'usr_123',
-  plan: 'pro'
+  plan: 'pro',
 })`;
 
 const steps = [
