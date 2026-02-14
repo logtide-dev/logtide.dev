@@ -63,8 +63,8 @@ User → Organizations (1:N) → Projects (1:N) → API Keys → Logs
               ingestion and query. Prefixed with <code class="bg-muted px-1 rounded">lp_</code>.
           </li>
           <li>
-              <strong>Logs</strong> - Time-series data stored in TimescaleDB with
-              automatic compression and retention policies.
+              <strong>Logs</strong> - Time-series data stored via the <a href="/docs/storage-engines" class="text-primary hover:underline">Reservoir storage abstraction</a>,
+              supporting both TimescaleDB and ClickHouse with automatic compression and retention policies.
           </li>
       </ul>
   </div>
@@ -107,13 +107,13 @@ User → Organizations (1:N) → Projects (1:N) → API Keys → Logs
 
       <Card>
           <CardHeader>
-              <CardTitle class="text-base">Database</CardTitle>
+              <CardTitle class="text-base">Log Storage</CardTitle>
           </CardHeader>
           <CardContent class="text-sm space-y-1 text-muted-foreground">
-              <p><strong>RDBMS:</strong> PostgreSQL 16</p>
-              <p><strong>Extension:</strong> TimescaleDB</p>
-              <p><strong>Time-series:</strong> Hypertables</p>
-              <p><strong>Compression:</strong> Automatic</p>
+              <p><strong>Abstraction:</strong> <a href="/docs/storage-engines" class="text-primary hover:underline">Reservoir</a> (pluggable engine)</p>
+              <p><strong>Engine A:</strong> TimescaleDB (PostgreSQL extension)</p>
+              <p><strong>Engine B:</strong> ClickHouse (columnar OLAP)</p>
+              <p><strong>Compression:</strong> Automatic (both engines)</p>
               <p><strong>Retention:</strong> Configurable policies</p>
           </CardContent>
       </Card>
@@ -178,12 +178,15 @@ User → Organizations (1:N) → Projects (1:N) → API Keys → Logs
       </div>
 
       <div>
-          <h3 id="timescaledb" class="text-lg font-semibold mb-2 scroll-mt-24">TimescaleDB</h3>
-          <p class="text-muted-foreground">
-              PostgreSQL extension optimized for time-series data. Automatic
-              partitioning, compression, and retention policies for efficient
-              long-term log storage.
+          <h3 id="storage-engines" class="text-lg font-semibold mb-2 scroll-mt-24">Storage Engines (Reservoir)</h3>
+          <p class="text-muted-foreground mb-3">
+              Log and span storage is managed by the <a href="/docs/storage-engines" class="text-primary hover:underline">Reservoir abstraction layer</a>,
+              which provides a unified API over two pluggable engines:
           </p>
+          <ul class="ml-6 space-y-1 text-sm text-muted-foreground list-none">
+              <li><strong>TimescaleDB</strong> (default) — PostgreSQL extension with hypertables, continuous aggregates, and native compression. Best for deployments that already run PostgreSQL.</li>
+              <li><strong>ClickHouse</strong> — Columnar OLAP database optimized for high-volume analytical queries. Best for very high ingestion rates or large-scale deployments.</li>
+          </ul>
       </div>
   </div>
 
@@ -203,7 +206,7 @@ User → Organizations (1:N) → Projects (1:N) → API Keys → Logs
           </li>
           <li>Backend validates API key and extracts project ID</li>
           <li>Logs are validated against Zod schema</li>
-          <li>Batch insert into TimescaleDB hypertable</li>
+          <li>Batch insert via Reservoir (TimescaleDB or ClickHouse)</li>
           <li>Alert evaluator job is triggered (BullMQ)</li>
           <li>Logs are broadcast to active SSE streams</li>
       </ol>
@@ -303,12 +306,14 @@ User → Organizations (1:N) → Projects (1:N) → API Keys → Logs
   <div class="space-y-4">
       <Card>
           <CardHeader>
-              <CardTitle class="text-base">Why TimescaleDB?</CardTitle>
+              <CardTitle class="text-base">Why Pluggable Storage?</CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              Native time-series optimizations, automatic compression,
-              built-in retention policies, and PostgreSQL compatibility make
-              it ideal for log storage with high ingestion rates.
+              Different workloads benefit from different databases. TimescaleDB
+              is ideal for small-to-medium deployments that already run PostgreSQL.
+              ClickHouse excels at high-volume analytical workloads. The Reservoir
+              abstraction lets you <a href="/docs/storage-engines" class="text-primary hover:underline">choose the best engine</a> for your scale
+              without changing any application code.
           </CardContent>
       </Card>
 

@@ -1,0 +1,702 @@
+---
+import DocsLayout from '../../layouts/Docs.astro';
+import Card from '../../components/ui/Card.astro';
+import CardHeader from '../../components/ui/CardHeader.astro';
+import CardTitle from '../../components/ui/CardTitle.astro';
+import CardContent from '../../components/ui/CardContent.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Overview", slug: "overview", depth: 2 },
+  { text: "Choosing an Engine", slug: "choosing-an-engine", depth: 2 },
+  { text: "TimescaleDB (Default)", slug: "timescaledb", depth: 2 },
+  { text: "ClickHouse", slug: "clickhouse", depth: 2 },
+  { text: "Configuration", slug: "configuration", depth: 2 },
+  { text: "Docker Compose Setup", slug: "docker-setup", depth: 2 },
+  { text: "Switching Engines", slug: "switching-engines", depth: 2 },
+  { text: "Data Migration", slug: "data-migration", depth: 3 },
+  { text: "How Reservoir Works", slug: "how-it-works", depth: 2 },
+];
+---
+
+<DocsLayout
+  title="Storage Engines"
+  description="LogTide supports TimescaleDB and ClickHouse as pluggable storage backends via the Reservoir abstraction layer."
+  headings={headings}
+>
+  <h1 class="text-3xl font-bold mb-4">Storage Engines</h1>
+  <p class="text-lg text-muted-foreground mb-8">
+    LogTide uses <strong>Reservoir</strong>, a pluggable storage abstraction that lets you choose between
+    TimescaleDB and ClickHouse for log and span storage. Both engines share the same API — your application
+    code, queries, and dashboards work identically regardless of which engine you run.
+  </p>
+
+  <h2
+    id="overview"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Overview
+  </h2>
+
+  <div class="mb-12 space-y-6">
+    <Card>
+      <CardHeader>
+        <div class="flex items-start gap-3">
+          <Icon name="lucide:layers" class="w-5 h-5 text-primary mt-0.5" />
+          <div>
+            <CardTitle class="text-base">One API, Two Engines</CardTitle>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground">
+        <p class="mb-3">
+          Reservoir is LogTide's internal storage layer (<code class="bg-muted px-1 rounded">@logtide/reservoir</code>).
+          It provides a single, typed interface for all log and span operations — ingestion, querying, aggregation,
+          deletion — and translates them into optimized native queries for the chosen engine.
+        </p>
+        <pre class="text-sm bg-muted p-4 rounded-md overflow-x-auto font-mono text-foreground">
+App → Reservoir API → TimescaleDB (PostgreSQL)
+                    → ClickHouse (columnar OLAP)</pre>
+      </CardContent>
+    </Card>
+
+    <p class="text-muted-foreground">
+      All log operations go through Reservoir: ingestion, search, filtering, aggregation, retention cleanup,
+      alert evaluation, Sigma detection, correlation, dashboard stats, and admin monitoring. The engine
+      choice is transparent to the rest of the platform.
+    </p>
+  </div>
+
+  <h2
+    id="choosing-an-engine"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Choosing an Engine
+  </h2>
+
+  <div class="mb-12 space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Card class="border-blue-500/30 bg-blue-500/5">
+        <CardHeader>
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:database" class="w-5 h-5 text-blue-500 mt-0.5" />
+            <div>
+              <CardTitle class="text-base">TimescaleDB</CardTitle>
+              <p class="text-xs text-muted-foreground mt-1">Default — recommended for most users</p>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground">
+          <ul class="space-y-1">
+            <li>Single database for everything (logs + app data)</li>
+            <li>No extra services to run</li>
+            <li>Continuous aggregates for fast dashboards</li>
+            <li>Built-in compression (10x+ reduction)</li>
+            <li>Full PostgreSQL ecosystem (extensions, tooling)</li>
+            <li>Ideal for up to ~50K logs/sec</li>
+          </ul>
+        </CardContent>
+      </Card>
+      <Card class="border-orange-500/30 bg-orange-500/5">
+        <CardHeader>
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:zap" class="w-5 h-5 text-orange-500 mt-0.5" />
+            <div>
+              <CardTitle class="text-base">ClickHouse</CardTitle>
+              <p class="text-xs text-muted-foreground mt-1">High-volume & analytics-heavy workloads</p>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground">
+          <ul class="space-y-1">
+            <li>Columnar storage — blazing-fast analytical queries</li>
+            <li>Handles 100K+ logs/sec with ease</li>
+            <li>Superior compression ratios (20-40x)</li>
+            <li>Native n-gram indexes for full-text search</li>
+            <li>Async inserts for maximum write throughput</li>
+            <li>Best when you already operate ClickHouse</li>
+          </ul>
+        </CardContent>
+      </Card>
+    </div>
+
+    <Card class="border-green-500/30 bg-green-500/5">
+      <CardHeader>
+        <div class="flex items-start gap-3">
+          <Icon name="lucide:check-circle" class="w-5 h-5 text-green-500 mt-0.5" />
+          <div>
+            <CardTitle class="text-base">Not Sure? Start with TimescaleDB</CardTitle>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground">
+        <p>
+          TimescaleDB is the default and requires zero extra configuration. It runs inside the same
+          PostgreSQL instance that LogTide already uses for application data. You can always
+          <a href="#switching-engines" class="text-primary hover:underline">switch to ClickHouse later</a>
+          if your volume grows.
+        </p>
+      </CardContent>
+    </Card>
+  </div>
+
+  <h2
+    id="timescaledb"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    TimescaleDB (Default)
+  </h2>
+
+  <div class="mb-12 space-y-6">
+    <p class="text-muted-foreground">
+      <a href="https://www.timescale.com/" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">TimescaleDB</a>
+      is a PostgreSQL extension for time-series data. LogTide stores logs in a <strong>hypertable</strong> that is
+      automatically partitioned by time, compressed, and pruned according to your retention policy.
+    </p>
+
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-base">Key Features</CardTitle>
+      </CardHeader>
+      <CardContent class="text-sm space-y-2 text-muted-foreground">
+        <p><strong>Hypertables:</strong> Automatic time-based partitioning (chunks). Queries only scan relevant chunks for the requested time range.</p>
+        <p><strong>Continuous Aggregates:</strong> Pre-computed hourly and daily stats (<code class="bg-muted px-1 rounded">logs_hourly_stats</code>, <code class="bg-muted px-1 rounded">logs_daily_stats</code>) that power dashboard charts in milliseconds.</p>
+        <p><strong>Compression:</strong> Chunks older than 1 day are automatically compressed, reducing storage by 10x or more.</p>
+        <p><strong>Retention:</strong> Configurable per-organization. Uses <code class="bg-muted px-1 rounded">drop_chunks()</code> for efficient bulk deletion.</p>
+        <p><strong>Full-text Search:</strong> PostgreSQL <code class="bg-muted px-1 rounded">tsvector</code> for word-based search, <code class="bg-muted px-1 rounded">pg_trgm</code> GIN index for substring search.</p>
+        <p><strong>Batch Inserts:</strong> Uses <code class="bg-muted px-1 rounded">UNNEST</code>-based batch inserts for high-throughput ingestion.</p>
+      </CardContent>
+    </Card>
+
+    <p class="text-muted-foreground text-sm">
+      TimescaleDB is included in the default <code class="bg-muted px-1 rounded">docker-compose.yml</code> — no extra setup needed.
+    </p>
+  </div>
+
+  <h2
+    id="clickhouse"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    ClickHouse
+  </h2>
+
+  <div class="mb-12 space-y-6">
+    <p class="text-muted-foreground">
+      <a href="https://clickhouse.com/" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">ClickHouse</a>
+      is a columnar OLAP database built for analytical queries at scale. When selected as the storage engine,
+      LogTide creates the <code class="bg-muted px-1 rounded">logs</code>, <code class="bg-muted px-1 rounded">spans</code>,
+      and <code class="bg-muted px-1 rounded">traces</code> tables in ClickHouse automatically on startup.
+    </p>
+
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-base">Key Features</CardTitle>
+      </CardHeader>
+      <CardContent class="text-sm space-y-2 text-muted-foreground">
+        <p><strong>Columnar Storage:</strong> Only reads the columns needed for each query, making aggregations and scans extremely fast.</p>
+        <p><strong>MergeTree Engine:</strong> Logs are stored in a <code class="bg-muted px-1 rounded">MergeTree</code> table ordered by <code class="bg-muted px-1 rounded">(project_id, time)</code> for optimal query performance.</p>
+        <p><strong>Async Inserts:</strong> Writes are batched asynchronously by ClickHouse for maximum throughput without blocking the application.</p>
+        <p><strong>N-gram Indexes:</strong> <code class="bg-muted px-1 rounded">ngrambf_v1</code> bloom filter indexes on the message column for fast full-text search.</p>
+        <p><strong>PREWHERE:</strong> Reservoir uses <code class="bg-muted px-1 rounded">PREWHERE</code> clauses for partition-level filtering before reading data blocks.</p>
+        <p><strong>Compression:</strong> Native LZ4/ZSTD compression achieves 20-40x reduction on log data.</p>
+      </CardContent>
+    </Card>
+
+    <Card class="border-yellow-500/30 bg-yellow-500/5">
+      <CardHeader>
+        <div class="flex items-start gap-3">
+          <Icon name="lucide:alert-circle" class="w-5 h-5 text-yellow-500 mt-0.5" />
+          <div>
+            <CardTitle class="text-base">ClickHouse Considerations</CardTitle>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground">
+        <ul class="space-y-1">
+          <li><strong>Extra service:</strong> ClickHouse runs as a separate container alongside PostgreSQL (which is still needed for app data like users, orgs, alert rules, etc.).</li>
+          <li><strong>No continuous aggregates:</strong> Dashboard queries run against raw data. Still fast for most datasets thanks to columnar storage.</li>
+          <li><strong>Async deletes:</strong> <code class="bg-muted px-1 rounded">DELETE</code> operations in ClickHouse are asynchronous mutations — they execute in the background and may not reflect immediately.</li>
+        </ul>
+      </CardContent>
+    </Card>
+  </div>
+
+  <h2
+    id="configuration"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Configuration
+  </h2>
+
+  <div class="mb-12 space-y-6">
+    <p class="text-muted-foreground">
+      The storage engine is selected via a single environment variable. All other settings are optional
+      and have sensible defaults.
+    </p>
+
+    <div>
+      <h3 id="engine-selection" class="text-lg font-semibold mb-3 scroll-mt-24">Engine Selection</h3>
+      <Code
+        lang="bash"
+        theme="one-dark-pro"
+        code={`# In your .env file
+
+# Use TimescaleDB (default — no configuration needed)
+STORAGE_ENGINE=timescale
+
+# Or use ClickHouse
+STORAGE_ENGINE=clickhouse`}
+      />
+    </div>
+
+    <div>
+      <h3 id="clickhouse-env" class="text-lg font-semibold mb-3 scroll-mt-24">ClickHouse Environment Variables</h3>
+      <p class="text-sm text-muted-foreground mb-3">
+        Required only when <code class="bg-muted px-1 rounded">STORAGE_ENGINE=clickhouse</code>:
+      </p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border border-border rounded-lg">
+          <thead class="bg-muted">
+            <tr>
+              <th class="text-left p-3 border-b border-border">Variable</th>
+              <th class="text-left p-3 border-b border-border">Description</th>
+              <th class="text-left p-3 border-b border-border">Default</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="p-3 border-b border-border font-mono text-xs">CLICKHOUSE_HOST</td>
+              <td class="p-3 border-b border-border">ClickHouse server hostname</td>
+              <td class="p-3 border-b border-border font-mono text-xs">localhost</td>
+            </tr>
+            <tr>
+              <td class="p-3 border-b border-border font-mono text-xs">CLICKHOUSE_PORT</td>
+              <td class="p-3 border-b border-border">HTTP interface port</td>
+              <td class="p-3 border-b border-border font-mono text-xs">8123</td>
+            </tr>
+            <tr>
+              <td class="p-3 border-b border-border font-mono text-xs">CLICKHOUSE_DATABASE</td>
+              <td class="p-3 border-b border-border">Database name</td>
+              <td class="p-3 border-b border-border font-mono text-xs">logtide</td>
+            </tr>
+            <tr>
+              <td class="p-3 border-b border-border font-mono text-xs">CLICKHOUSE_USERNAME</td>
+              <td class="p-3 border-b border-border">Authentication username</td>
+              <td class="p-3 border-b border-border font-mono text-xs">default</td>
+            </tr>
+            <tr>
+              <td class="p-3 font-mono text-xs">CLICKHOUSE_PASSWORD</td>
+              <td class="p-3">Authentication password</td>
+              <td class="p-3 font-mono text-xs text-muted-foreground">(empty)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <h2
+    id="docker-setup"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Docker Compose Setup
+  </h2>
+
+  <div class="mb-12 space-y-6">
+    <div>
+      <h3 id="timescaledb-setup" class="text-lg font-semibold mb-3 scroll-mt-24">TimescaleDB (Default)</h3>
+      <p class="text-sm text-muted-foreground mb-3">
+        No changes needed — TimescaleDB is the default engine. Just run:
+      </p>
+      <Code
+        lang="bash"
+        theme="one-dark-pro"
+        code={`docker compose up -d`}
+      />
+    </div>
+
+    <div>
+      <h3 id="clickhouse-setup" class="text-lg font-semibold mb-3 scroll-mt-24">ClickHouse</h3>
+      <p class="text-sm text-muted-foreground mb-3">
+        The default <code class="bg-muted px-1 rounded">docker-compose.yml</code> includes a ClickHouse service
+        behind a Docker Compose profile. To enable it:
+      </p>
+      <Code
+        lang="bash"
+        theme="one-dark-pro"
+        code={`# 1. Set the storage engine in your .env
+STORAGE_ENGINE=clickhouse
+
+# 2. Start with the ClickHouse profile
+docker compose --profile clickhouse up -d
+
+# With Fluent Bit log collection:
+docker compose --profile clickhouse --profile logging up -d`}
+      />
+      <p class="text-sm text-muted-foreground mt-3">
+        This starts a <code class="bg-muted px-1 rounded">clickhouse/clickhouse-server:24.1</code> container
+        alongside the existing PostgreSQL instance. PostgreSQL is still required for application data
+        (users, organizations, projects, alert rules, etc.) — only logs, spans, and traces are stored in ClickHouse.
+      </p>
+    </div>
+
+    <Card class="border-blue-500/30 bg-blue-500/5">
+      <CardHeader>
+        <div class="flex items-start gap-3">
+          <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5" />
+          <div>
+            <CardTitle class="text-base">Auto-Initialization</CardTitle>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground">
+        <p>
+          When using ClickHouse, Reservoir automatically creates the required tables
+          (<code class="bg-muted px-1 rounded">logs</code>, <code class="bg-muted px-1 rounded">spans</code>,
+          <code class="bg-muted px-1 rounded">traces</code>) on first startup.
+          No manual migration is needed. For TimescaleDB, tables are managed by the existing Kysely migration system.
+        </p>
+      </CardContent>
+    </Card>
+  </div>
+
+  <h2
+    id="switching-engines"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Switching Engines
+  </h2>
+
+  <div class="mb-12 space-y-6">
+    <Card class="border-yellow-500/30 bg-yellow-500/5">
+      <CardHeader>
+        <div class="flex items-start gap-3">
+          <Icon name="lucide:alert-triangle" class="w-5 h-5 text-yellow-500 mt-0.5" />
+          <div>
+            <CardTitle class="text-base">Data Is Not Migrated Automatically</CardTitle>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground">
+        <p>
+          Changing the <code class="bg-muted px-1 rounded">STORAGE_ENGINE</code> variable only changes where
+          <strong>new</strong> logs are written. Existing data stays in the previous engine.
+          Use the <a href="#data-migration" class="text-primary hover:underline">migration script</a> to
+          copy historical logs, spans, and traces to the new engine.
+        </p>
+      </CardContent>
+    </Card>
+
+    <div>
+      <h3 id="migrate-to-clickhouse" class="text-lg font-semibold mb-3 scroll-mt-24">TimescaleDB → ClickHouse</h3>
+      <ol class="ml-6 space-y-2 text-muted-foreground list-none">
+        <li><strong>1.</strong> Stop the backend and worker: <code class="bg-muted px-1 rounded">docker compose stop backend worker</code></li>
+        <li><strong>2.</strong> Set <code class="bg-muted px-1 rounded">STORAGE_ENGINE=clickhouse</code> in your <code class="bg-muted px-1 rounded">.env</code></li>
+        <li><strong>3.</strong> Start with the ClickHouse profile: <code class="bg-muted px-1 rounded">docker compose --profile clickhouse up -d</code></li>
+        <li><strong>4.</strong> Reservoir creates the ClickHouse tables on startup</li>
+        <li><strong>5.</strong> Run the <a href="#data-migration" class="text-primary hover:underline">migration script</a> to copy historical data</li>
+        <li><strong>6.</strong> Start backend and worker — new logs flow into ClickHouse</li>
+      </ol>
+    </div>
+
+    <div>
+      <h3 id="migrate-to-timescale" class="text-lg font-semibold mb-3 scroll-mt-24">ClickHouse → TimescaleDB</h3>
+      <ol class="ml-6 space-y-2 text-muted-foreground list-none">
+        <li><strong>1.</strong> Stop the backend and worker</li>
+        <li><strong>2.</strong> Set <code class="bg-muted px-1 rounded">STORAGE_ENGINE=timescale</code> (or remove the variable entirely)</li>
+        <li><strong>3.</strong> Run the <a href="#data-migration" class="text-primary hover:underline">migration script</a> to copy historical data</li>
+        <li><strong>4.</strong> Restart: <code class="bg-muted px-1 rounded">docker compose up -d</code></li>
+        <li><strong>5.</strong> Optionally stop the ClickHouse container if no longer needed</li>
+      </ol>
+    </div>
+
+    <h3 id="data-migration" class="text-lg font-semibold mb-3 scroll-mt-24">Data Migration</h3>
+
+    <p class="text-muted-foreground">
+      LogTide includes a built-in migration script that copies logs, spans, and traces between engines.
+      It preserves log IDs so that existing references (detection events, exceptions, error groups) continue
+      to work after migration.
+    </p>
+
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-base">What Gets Migrated</CardTitle>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground">
+        <p class="mb-2">Only the 3 tables managed by Reservoir are migrated:</p>
+        <ul class="space-y-1">
+          <li><code class="bg-muted px-1 rounded">logs</code> — core log data (IDs preserved)</li>
+          <li><code class="bg-muted px-1 rounded">spans</code> — OpenTelemetry spans</li>
+          <li><code class="bg-muted px-1 rounded">traces</code> — aggregated trace records</li>
+        </ul>
+        <p class="mt-2">
+          Everything else (users, organizations, projects, alert rules, Sigma rules, incidents, etc.)
+          stays in PostgreSQL and is not affected.
+        </p>
+      </CardContent>
+    </Card>
+
+    <div>
+      <h4 class="text-base font-semibold mb-3">Basic Usage</h4>
+      <Code
+        lang="bash"
+        theme="one-dark-pro"
+        code={`# From the backend directory
+cd packages/backend
+
+# Auto-detect direction (current STORAGE_ENGINE → the other)
+pnpm migrate:storage
+
+# Explicit direction
+pnpm migrate:storage -- --from timescale --to clickhouse
+
+# Dry run — show record counts without migrating
+pnpm migrate:storage -- --dry-run`}
+      />
+    </div>
+
+    <div>
+      <h4 class="text-base font-semibold mb-3">Options</h4>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border border-border rounded-lg">
+          <thead class="bg-muted">
+            <tr>
+              <th class="text-left p-3 border-b border-border">Flag</th>
+              <th class="text-left p-3 border-b border-border">Description</th>
+              <th class="text-left p-3 border-b border-border">Default</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="p-3 border-b border-border font-mono text-xs">--from &lt;engine&gt;</td>
+              <td class="p-3 border-b border-border">Source engine</td>
+              <td class="p-3 border-b border-border font-mono text-xs">current STORAGE_ENGINE</td>
+            </tr>
+            <tr>
+              <td class="p-3 border-b border-border font-mono text-xs">--to &lt;engine&gt;</td>
+              <td class="p-3 border-b border-border">Destination engine</td>
+              <td class="p-3 border-b border-border font-mono text-xs">the other engine</td>
+            </tr>
+            <tr>
+              <td class="p-3 border-b border-border font-mono text-xs">--dry-run</td>
+              <td class="p-3 border-b border-border">Show record counts only, don't write</td>
+              <td class="p-3 border-b border-border font-mono text-xs">false</td>
+            </tr>
+            <tr>
+              <td class="p-3 border-b border-border font-mono text-xs">--project-id &lt;uuid&gt;</td>
+              <td class="p-3 border-b border-border">Migrate a single project</td>
+              <td class="p-3 border-b border-border font-mono text-xs">all projects</td>
+            </tr>
+            <tr>
+              <td class="p-3 border-b border-border font-mono text-xs">--batch-size &lt;n&gt;</td>
+              <td class="p-3 border-b border-border">Records per batch</td>
+              <td class="p-3 border-b border-border font-mono text-xs">5000</td>
+            </tr>
+            <tr>
+              <td class="p-3 font-mono text-xs">--skip-validation</td>
+              <td class="p-3">Skip post-migration count check</td>
+              <td class="p-3 font-mono text-xs">false</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <Card class="border-green-500/30 bg-green-500/5">
+      <CardHeader>
+        <div class="flex items-start gap-3">
+          <Icon name="lucide:rotate-ccw" class="w-5 h-5 text-green-500 mt-0.5" />
+          <div>
+            <CardTitle class="text-base">Resumable</CardTitle>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground">
+        <p>
+          The migration is safe to interrupt and resume. It tracks how many records already exist in the
+          destination and picks up where it left off. If you stop the script mid-way (Ctrl+C), just run
+          the same command again to continue.
+        </p>
+      </CardContent>
+    </Card>
+
+    <Card class="border-blue-500/30 bg-blue-500/5">
+      <CardHeader>
+        <div class="flex items-start gap-3">
+          <Icon name="lucide:shield" class="w-5 h-5 text-blue-500 mt-0.5" />
+          <div>
+            <CardTitle class="text-base">ID Preservation</CardTitle>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground">
+        <p>
+          Log IDs are preserved during migration. This is important because detection events, exceptions,
+          and error groups reference logs by ID. Without ID preservation, those cross-references would
+          break silently after switching engines.
+        </p>
+      </CardContent>
+    </Card>
+
+    <div>
+      <h4 class="text-base font-semibold mb-3">Example Output</h4>
+      <Code
+        lang="text"
+        theme="one-dark-pro"
+        code={`Storage Migration: timescale → clickhouse
+==================================================
+
+Found 3 projects across 2 organizations
+
+[1/3] api-service (acme-corp)
+  Logs:   source=1,234,567 | dest=500,000 | to migrate=734,567
+  Spans:  source=456,789   | dest=0       | to migrate=456,789
+  Traces: source=12,345    | dest=0       | to migrate=12,345
+
+  Logs: 100.0% | 734,567/734,567 | done in 2m 24s
+  Spans: 100.0% | 456,789/456,789 | done in 58s
+  Traces: 100.0% | 12,345/12,345 | done in 4s
+  Validation: logs OK | spans OK | traces OK
+
+[2/3] web-app (acme-corp)
+  Already migrated.
+
+Summary
+==================================================
+Projects: 3/3 completed
+Logs:     2,500,000 migrated
+Spans:    800,000 migrated
+Traces:   25,000 migrated
+Time:     5m 12s
+Errors:   0`}
+      />
+    </div>
+  </div>
+
+  <h2
+    id="how-it-works"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    How Reservoir Works
+  </h2>
+
+  <div class="mb-8 space-y-6">
+    <p class="text-muted-foreground">
+      Reservoir is an internal package (<code class="bg-muted px-1 rounded">@logtide/reservoir</code>) that
+      abstracts all log and span I/O behind a unified TypeScript API. Here's what it handles:
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-base">Log Operations</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground">
+          <ul class="space-y-1">
+            <li><code class="bg-muted px-1 rounded">ingest()</code> — Batch insert logs</li>
+            <li><code class="bg-muted px-1 rounded">query()</code> — Search with filters, pagination</li>
+            <li><code class="bg-muted px-1 rounded">aggregate()</code> — Time-bucketed stats</li>
+            <li><code class="bg-muted px-1 rounded">count()</code> — Filtered log counts</li>
+            <li><code class="bg-muted px-1 rounded">distinct()</code> — Unique field values</li>
+            <li><code class="bg-muted px-1 rounded">topValues()</code> — Top N values by count</li>
+            <li><code class="bg-muted px-1 rounded">getById()</code> / <code class="bg-muted px-1 rounded">getByIds()</code> — Direct lookups</li>
+            <li><code class="bg-muted px-1 rounded">deleteByTimeRange()</code> — Retention cleanup</li>
+          </ul>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-base">Span & Trace Operations</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground">
+          <ul class="space-y-1">
+            <li><code class="bg-muted px-1 rounded">ingestSpans()</code> — Batch insert spans</li>
+            <li><code class="bg-muted px-1 rounded">upsertTrace()</code> — Create/update trace records</li>
+            <li><code class="bg-muted px-1 rounded">querySpans()</code> — Search spans</li>
+            <li><code class="bg-muted px-1 rounded">queryTraces()</code> — Search traces</li>
+            <li><code class="bg-muted px-1 rounded">getSpansByTraceId()</code> — Trace detail view</li>
+            <li><code class="bg-muted px-1 rounded">getServiceDependencies()</code> — Service map</li>
+            <li><code class="bg-muted px-1 rounded">healthCheck()</code> — Engine connectivity</li>
+            <li><code class="bg-muted px-1 rounded">getEngineType()</code> — Runtime engine info</li>
+          </ul>
+        </CardContent>
+      </Card>
+    </div>
+
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-base">Engine-Specific Optimizations</CardTitle>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground">
+        <p class="mb-3">
+          Reservoir doesn't just wrap SQL — each engine has its own query translator that generates
+          optimized native queries:
+        </p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm border border-border rounded-lg">
+            <thead class="bg-muted">
+              <tr>
+                <th class="text-left p-3 border-b border-border">Feature</th>
+                <th class="text-left p-3 border-b border-border">TimescaleDB</th>
+                <th class="text-left p-3 border-b border-border">ClickHouse</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="p-3 border-b border-border">Batch insert</td>
+                <td class="p-3 border-b border-border font-mono text-xs">UNNEST($1::text[], ...)</td>
+                <td class="p-3 border-b border-border font-mono text-xs">INSERT ... FORMAT JSONEachRow</td>
+              </tr>
+              <tr>
+                <td class="p-3 border-b border-border">Full-text search</td>
+                <td class="p-3 border-b border-border font-mono text-xs">tsvector @@ tsquery</td>
+                <td class="p-3 border-b border-border font-mono text-xs">hasToken() / positionCaseInsensitive()</td>
+              </tr>
+              <tr>
+                <td class="p-3 border-b border-border">Substring search</td>
+                <td class="p-3 border-b border-border font-mono text-xs">pg_trgm GIN index</td>
+                <td class="p-3 border-b border-border font-mono text-xs">ngrambf_v1 bloom filter</td>
+              </tr>
+              <tr>
+                <td class="p-3 border-b border-border">Time filtering</td>
+                <td class="p-3 border-b border-border font-mono text-xs">Chunk pruning</td>
+                <td class="p-3 border-b border-border font-mono text-xs">PREWHERE partition key</td>
+              </tr>
+              <tr>
+                <td class="p-3 border-b border-border">Aggregation</td>
+                <td class="p-3 border-b border-border font-mono text-xs">Continuous aggregates</td>
+                <td class="p-3 border-b border-border font-mono text-xs">Raw GROUP BY (columnar scan)</td>
+              </tr>
+              <tr>
+                <td class="p-3">Deletion</td>
+                <td class="p-3 font-mono text-xs">drop_chunks() / DELETE</td>
+                <td class="p-3 font-mono text-xs">ALTER TABLE DELETE (async)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    </Card>
+
+    <Card class="border-blue-500/30 bg-blue-500/5">
+      <CardHeader>
+        <div class="flex items-start gap-3">
+          <Icon name="lucide:git-branch" class="w-5 h-5 text-blue-500 mt-0.5" />
+          <div>
+            <CardTitle class="text-base">Engine Branching</CardTitle>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground">
+        <p>
+          Some features have engine-specific fast paths. For example, dashboard charts use
+          TimescaleDB continuous aggregates when available, but fall back to raw Reservoir
+          queries on ClickHouse. The application detects the engine at runtime via
+          <code class="bg-muted px-1 rounded">reservoir.getEngineType()</code> and chooses
+          the optimal code path automatically.
+        </p>
+      </CardContent>
+    </Card>
+  </div>
+</DocsLayout>
