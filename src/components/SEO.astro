@@ -23,11 +23,11 @@ const {
   author = SITE_NAME
 } = Astro.props;
 
-// Compute canonical URL - remove trailing slash for consistency
-const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
+// Compute canonical URL - ensure trailing slash to match trailingSlash: 'always' config
+const pathname = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : Astro.url.pathname + '/';
 const canonicalURL = `${SITE_URL}${pathname}`;
 
-const isHomepage = pathname === '/';
+const isHomepage = pathname === '/' || pathname === '';
 
 // JSON-LD Schemas
 const schemas: object[] = [];

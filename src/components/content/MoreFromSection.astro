@@ -33,7 +33,7 @@ const otherEntries = collection
   .slice(0, limit);
 
 const sectionTitle = type === 'use-cases' ? 'More Use Cases' : 'More Integrations';
-const sectionUrl = type === 'use-cases' ? '/use-cases' : '/integrations';
+const sectionUrl = type === 'use-cases' ? '/use-cases/' : '/integrations/';
 const urlPrefix = type === 'use-cases' ? '/use-cases' : '/integrations';
 ---
 
@@ -52,7 +52,7 @@ const urlPrefix = type === 'use-cases' ? '/use-cases' : '/integrations';
 
     <div class="grid gap-4 md:grid-cols-3">
       {otherEntries.map((entry) => (
-        <a href={`${urlPrefix}/${entry.slug}`} class="block group">
+        <a href={`${urlPrefix}/${entry.slug}/`} class="block group">
           <Card class="h-full transition-all hover:border-primary/50 hover:shadow-md">
             <CardHeader class="pb-2">
               <div class="flex items-center gap-2 mb-2">

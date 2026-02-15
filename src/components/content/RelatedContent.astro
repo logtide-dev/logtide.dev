@@ -48,7 +48,7 @@ const hasRelatedContent = relatedIntegrations.length > 0 || relatedUseCases.leng
 
     <div class="grid gap-4 md:grid-cols-2">
       {relatedIntegrations.map((entry) => (
-        <a href={`/integrations/${entry.slug}`} class="block group">
+        <a href={`/integrations/${entry.slug}/`} class="block group">
           <Card class="h-full transition-all hover:border-primary/50 hover:shadow-md">
             <CardHeader class="pb-2">
               <div class="flex items-center justify-between">
@@ -67,7 +67,7 @@ const hasRelatedContent = relatedIntegrations.length > 0 || relatedUseCases.leng
       ))}
 
       {relatedUseCases.map((entry) => (
-        <a href={`/use-cases/${entry.slug}`} class="block group">
+        <a href={`/use-cases/${entry.slug}/`} class="block group">
           <Card class="h-full transition-all hover:border-primary/50 hover:shadow-md">
             <CardHeader class="pb-2">
               <div class="flex items-center justify-between">
