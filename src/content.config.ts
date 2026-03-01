@@ -138,13 +138,42 @@ const comparisons = defineCollection({
   }),
 });
 
+// Changelog entry types and statuses
+const changelogTypes = ['feature', 'fix', 'breaking', 'improvement', 'security'] as const;
+const changelogStatuses = ['released', 'in-progress', 'planned'] as const;
+
+/**
+ * Changelog + Roadmap Collection
+ *
+ * Combined history of released versions and planned features.
+ * All entries live on /changelog — no individual slug pages.
+ */
+const changelog = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/changelog' }),
+  schema: z.object({
+    version: z.string().optional(),
+    title: z.string().min(5).max(80),
+    description: z.string().min(10).max(300),
+    date: z.coerce.date().optional(),
+    targetDate: z.string().optional(),
+    status: z.enum(changelogStatuses),
+    type: z.enum(changelogTypes),
+    highlights: z.array(z.string()).max(6).default([]),
+    githubPr: z.string().url().optional(),
+    draft: z.boolean().default(false),
+  }),
+});
+
 export const collections = {
   integrations,
   'use-cases': useCases,
   comparisons,
+  changelog,
 };
 
 // Export types for use in components
 export type IntegrationCategory = typeof integrationCategories[number];
 export type UseCaseCategory = typeof useCaseCategories[number];
 export type DifficultyLevel = typeof difficultyLevels[number];
+export type ChangelogType = typeof changelogTypes[number];
+export type ChangelogStatus = typeof changelogStatuses[number];

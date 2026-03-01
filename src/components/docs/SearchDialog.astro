@@ -1,0 +1,494 @@
+---
+---
+
+<dialog id="search-dialog" class="search-dialog">
+  <div class="search-dialog-content">
+    <div class="search-dialog-header">
+      <div class="search-input-wrapper">
+        <svg class="search-input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input
+          id="search-input"
+          type="search"
+          placeholder="Search documentation..."
+          autocomplete="off"
+          spellcheck="false"
+          aria-label="Search documentation"
+        />
+        <kbd class="search-dialog-esc">Esc</kbd>
+      </div>
+    </div>
+
+    <div id="search-results" class="search-results-area">
+      <div class="search-placeholder">
+        <p>Type to search across all documentation pages</p>
+      </div>
+    </div>
+
+    <div class="search-dialog-footer">
+      <div class="search-footer-hints">
+        <span class="search-hint"><kbd>&uarr;</kbd><kbd>&darr;</kbd> Navigate</span>
+        <span class="search-hint"><kbd>&crarr;</kbd> Open</span>
+        <span class="search-hint"><kbd>Esc</kbd> Close</span>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  // @ts-nocheck — pagefind.js is generated at build time
+  let pagefind: any = null;
+  let pagefindLoaded = false;
+  let pagefindLoading = false;
+
+  async function loadPagefind(): Promise<void> {
+    if (pagefindLoaded || pagefindLoading) return;
+    pagefindLoading = true;
+    try {
+      // Dynamic path prevents Vite from resolving at build time
+      const path = '/pagefind/pagefind.js';
+      pagefind = await import(/* @vite-ignore */ path);
+      pagefind.init();
+      pagefindLoaded = true;
+    } catch {
+      // pagefind not available (dev mode)
+    } finally {
+      pagefindLoading = false;
+    }
+  }
+
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  let activeIndex = -1;
+  let abortController: AbortController | null = null;
+
+  function getSectionFromUrl(url: string): string {
+    const parts = url.replace(/^\/docs\//, '').replace(/\/$/, '').split('/').filter(Boolean);
+    if (parts.length === 0) return 'Getting Started';
+    const map: Record<string, string> = {
+      'sdks': 'SDKs', 'migration': 'Migration', 'api': 'API Reference',
+      'authentication': 'Authentication', 'architecture': 'Guides',
+      'deployment': 'Guides', 'storage-engines': 'Guides',
+      'error-handling': 'Guides', 'contributing': 'Guides',
+      'getting-started': 'Getting Started', 'no-sdk-setup': 'Getting Started',
+      'syslog': 'Integrations', 'vector': 'Integrations',
+      'opentelemetry': 'Integrations', 'windows': 'Integrations',
+    };
+    return map[parts[0]] ?? 'Documentation';
+  }
+
+  function openDialog(): void {
+    const dialog = document.getElementById('search-dialog') as HTMLDialogElement | null;
+    if (!dialog) return;
+    dialog.showModal();
+    loadPagefind();
+    const input = document.getElementById('search-input') as HTMLInputElement | null;
+    input?.focus();
+  }
+
+  function closeDialog(): void {
+    const dialog = document.getElementById('search-dialog') as HTMLDialogElement | null;
+    dialog?.close();
+    const input = document.getElementById('search-input') as HTMLInputElement | null;
+    if (input) input.value = '';
+    const results = document.getElementById('search-results');
+    if (results) {
+      results.innerHTML = '<div class="search-placeholder"><p>Type to search across all documentation pages</p></div>';
+    }
+    activeIndex = -1;
+  }
+
+  async function doSearch(query: string): Promise<void> {
+    const resultsContainer = document.getElementById('search-results');
+    if (!resultsContainer) return;
+
+    if (!query) {
+      resultsContainer.innerHTML = '<div class="search-placeholder"><p>Type to search across all documentation pages</p></div>';
+      activeIndex = -1;
+      return;
+    }
+
+    if (!pagefind) {
+      resultsContainer.innerHTML = '<div class="search-placeholder"><p>Search not available. Run <code>npm run build</code> to generate the index.</p></div>';
+      return;
+    }
+
+    const search = await pagefind.search(query);
+
+    if (search.results.length === 0) {
+      resultsContainer.innerHTML = `<div class="search-no-results">No results for "<strong>${query.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</strong>"</div>`;
+      activeIndex = -1;
+      return;
+    }
+
+    // Load top 10 results
+    const loaded = await Promise.all(
+      search.results.slice(0, 10).map((r: any) => r.data())
+    );
+
+    const html = loaded.map((result: any, i: number) => {
+      const section = getSectionFromUrl(result.url);
+      const title = result.meta?.title || 'Untitled';
+      // excerpt is safe HTML from Pagefind (entities encoded, only <mark> tags)
+      const excerpt = result.excerpt || '';
+
+      return `<a href="${result.url}" class="search-result" data-index="${i}" role="option" aria-selected="false">
+        <div class="search-result-section">${section}</div>
+        <div class="search-result-title">${title.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+        <div class="search-result-excerpt">${excerpt}</div>
+      </a>`;
+    }).join('');
+
+    resultsContainer.innerHTML = html;
+    activeIndex = -1;
+  }
+
+  function updateActiveResult(): void {
+    const results = document.querySelectorAll<HTMLElement>('#search-results .search-result');
+    results.forEach((el, i) => {
+      const isActive = i === activeIndex;
+      el.classList.toggle('search-result--active', isActive);
+      el.setAttribute('aria-selected', String(isActive));
+    });
+    if (activeIndex >= 0 && results[activeIndex]) {
+      results[activeIndex].scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function initSearchDialog(): void {
+    if (abortController) abortController.abort();
+    abortController = new AbortController();
+    const { signal } = abortController;
+
+    const dialog = document.getElementById('search-dialog') as HTMLDialogElement | null;
+    const input = document.getElementById('search-input') as HTMLInputElement | null;
+    if (!dialog || !input) return;
+
+    // Close on backdrop click
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) closeDialog();
+    }, { signal });
+
+    // Search on input
+    input.addEventListener('input', () => {
+      const query = input.value.trim();
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => doSearch(query), 200);
+    }, { signal });
+
+    // Keyboard navigation
+    input.addEventListener('keydown', (e: KeyboardEvent) => {
+      const items = document.querySelectorAll<HTMLElement>('#search-results .search-result');
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeIndex = Math.min(activeIndex + 1, items.length - 1);
+        updateActiveResult();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeIndex = Math.max(activeIndex - 1, -1);
+        updateActiveResult();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (activeIndex >= 0 && items[activeIndex]) {
+          const href = items[activeIndex].getAttribute('href');
+          if (href) {
+            closeDialog();
+            window.location.href = href;
+          }
+        }
+      }
+    }, { signal });
+
+    // Cmd/Ctrl+K to open
+    document.addEventListener('keydown', (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        if (dialog.open) {
+          closeDialog();
+        } else {
+          openDialog();
+        }
+      }
+      // Also support / shortcut when not in an input
+      const tag = (e.target as HTMLElement).tagName;
+      if (e.key === '/' && tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT' && !dialog.open) {
+        e.preventDefault();
+        openDialog();
+      }
+    }, { signal });
+
+    // Trigger buttons
+    document.querySelectorAll('[data-search-trigger]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openDialog();
+      }, { signal });
+    });
+  }
+
+  initSearchDialog();
+  document.addEventListener('astro:after-swap', initSearchDialog);
+</script>
+
+<style is:global>
+  .search-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    border: none;
+    background: transparent;
+    overflow: hidden;
+  }
+
+  .search-dialog::backdrop {
+    background: hsl(0 0% 0% / 0.5);
+    backdrop-filter: blur(4px);
+  }
+
+  .search-dialog[open] {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: min(10vh, 100px);
+  }
+
+  .search-dialog-content {
+    width: 100%;
+    max-width: 640px;
+    max-height: min(70vh, 600px);
+    margin: 0 1rem;
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+    box-shadow: 0 25px 50px -12px hsl(0 0% 0% / 0.25);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .dark .search-dialog-content {
+    box-shadow: 0 25px 50px -12px hsl(0 0% 0% / 0.5);
+  }
+
+  /* Header / Input */
+  .search-dialog-header {
+    padding: 1rem;
+    border-bottom: 1px solid hsl(var(--border));
+    flex-shrink: 0;
+  }
+
+  .search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .search-input-icon {
+    position: absolute;
+    left: 0.75rem;
+    width: 1.125rem;
+    height: 1.125rem;
+    color: hsl(var(--muted-foreground));
+    pointer-events: none;
+  }
+
+  #search-input {
+    width: 100%;
+    height: 2.75rem;
+    padding: 0 3.5rem 0 2.75rem;
+    background: transparent;
+    border: none;
+    color: hsl(var(--foreground));
+    font-size: 1rem;
+    font-family: 'Inter', system-ui, sans-serif;
+    outline: none;
+    -webkit-appearance: none;
+  }
+
+  #search-input::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+
+  #search-input::-webkit-search-cancel-button {
+    display: none;
+  }
+
+  .search-dialog-esc {
+    position: absolute;
+    right: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 1.5rem;
+    padding: 0 0.375rem;
+    background: hsl(var(--muted));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.25rem;
+    font-size: 0.6875rem;
+    color: hsl(var(--muted-foreground));
+    pointer-events: none;
+    font-family: inherit;
+  }
+
+  /* Results */
+  .search-results-area {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.5rem;
+  }
+
+  .search-results-area::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .search-results-area::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .search-results-area::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.2);
+    border-radius: 2px;
+  }
+
+  .search-placeholder {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.875rem;
+  }
+
+  .search-placeholder code {
+    background: hsl(var(--muted));
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.8125rem;
+  }
+
+  .search-no-results {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.875rem;
+  }
+
+  .search-no-results strong {
+    color: hsl(var(--foreground));
+  }
+
+  /* Result items */
+  .search-result {
+    display: block;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .search-result:hover,
+  .search-result--active {
+    background: hsl(var(--muted) / 0.6);
+  }
+
+  .search-result + .search-result {
+    margin-top: 0.125rem;
+  }
+
+  .search-result-section {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: hsl(var(--primary));
+    margin-bottom: 0.25rem;
+  }
+
+  .search-result-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    line-height: 1.4;
+    margin-bottom: 0.25rem;
+  }
+
+  .search-result-excerpt {
+    font-size: 0.8125rem;
+    color: hsl(var(--muted-foreground));
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .search-result-excerpt mark {
+    background: hsl(var(--primary) / 0.15);
+    color: hsl(var(--primary));
+    border-radius: 0.15rem;
+    padding: 0 0.1rem;
+  }
+
+  /* Footer */
+  .search-dialog-footer {
+    padding: 0.625rem 1rem;
+    border-top: 1px solid hsl(var(--border));
+    flex-shrink: 0;
+  }
+
+  .search-footer-hints {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .search-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.6875rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .search-hint kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.25rem;
+    background: hsl(var(--muted));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.25rem;
+    font-size: 0.625rem;
+    font-family: inherit;
+  }
+
+  /* Mobile */
+  @media (max-width: 640px) {
+    .search-dialog[open] {
+      padding-top: 0;
+      align-items: flex-start;
+    }
+
+    .search-dialog-content {
+      max-width: 100%;
+      max-height: 100vh;
+      margin: 0;
+      border-radius: 0;
+      border: none;
+    }
+
+    .search-footer-hints {
+      gap: 0.75rem;
+    }
+  }
+</style>

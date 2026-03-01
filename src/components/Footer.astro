@@ -1,16 +1,26 @@
 ---
 const productLinks = [
-  { href: '/docs/', label: 'Documentation' },
   { href: '/docs/getting-started/', label: 'Getting Started' },
+  { href: '/docs/api/', label: 'API Reference' },
   { href: '/docs/sdks/', label: 'SDKs' },
+  { href: '/docs/architecture/', label: 'Architecture' },
+  { href: '/docs/deployment/', label: 'Deployment' },
+];
+
+const resourceLinks = [
   { href: '/integrations/', label: 'Integrations' },
   { href: '/use-cases/', label: 'Use Cases' },
+  { href: '/vs/', label: 'Comparisons' },
+  { href: '/changelog/', label: 'Changelog' },
+  { href: '/docs/migration/', label: 'Migration Guides' },
+  { href: '/docs/', label: 'Documentation' },
 ];
 
 const openSourceLinks = [
   { href: 'https://github.com/logtide-dev/logtide', label: 'GitHub', external: true },
   { href: 'https://github.com/logtide-dev/logtide/blob/main/LICENSE', label: 'AGPLv3 License', external: true },
   { href: 'https://github.com/logtide-dev/logtide/issues', label: 'Report Issue', external: true },
+  { href: '/docs/contributing/', label: 'Contributing' },
 ];
 
 const legalLinks = [
@@ -23,7 +33,7 @@ const legalLinks = [
 
 <footer class="border-t border-border bg-card/30 py-12">
   <div class="footer-container">
-    <div class="mb-8 grid gap-8 md:grid-cols-5">
+    <div class="mb-8 grid gap-8 md:grid-cols-6">
       <div class="md:col-span-2">
         <img src="/logo/white.svg" alt="LogTide" class="mb-4 hidden h-8 w-auto dark:block" />
         <img src="/logo/dark.svg" alt="LogTide" class="mb-4 block h-8 w-auto dark:hidden" />
@@ -48,6 +58,22 @@ const legalLinks = [
         </ul>
       </nav>
 
+      <nav aria-label="Resource links">
+        <h4 class="mb-4 font-semibold text-foreground">Resources</h4>
+        <ul class="space-y-2">
+          {resourceLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
       <nav aria-label="Open source links">
         <h4 class="mb-4 font-semibold text-foreground">Open Source</h4>
         <ul class="space-y-2">
@@ -56,8 +82,8 @@ const legalLinks = [
               <a
                 href={link.href}
                 class="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                target={link.external ? '_blank' : undefined}
-                rel={link.external ? 'noopener noreferrer' : undefined}
+                target={'external' in link ? '_blank' : undefined}
+                rel={'external' in link ? 'noopener noreferrer' : undefined}
               >
                 {link.label}
               </a>

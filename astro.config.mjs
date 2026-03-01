@@ -3,11 +3,10 @@ import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
 import icon from 'astro-icon';
 import sitemap from '@astrojs/sitemap';
-
 // https://astro.build/config
 export default defineConfig({
   site: 'https://logtide.dev',
-  trailingSlash: 'always',
+  trailingSlash: 'ignore',
   integrations: [
     icon(),
     sitemap({
@@ -71,5 +70,22 @@ export default defineConfig({
     ssr: {
       noExternal: ['shiki'],
     },
+    plugins: [
+      {
+        name: 'trailing-slash-redirect',
+        configureServer(server) {
+          server.middlewares.use((req, _res, next) => {
+            const url = req.url ?? '';
+            // Skip assets, API routes, and URLs that already have a trailing slash
+            if (url === '/' || url.includes('.') || url.includes('?') || url.endsWith('/')) {
+              return next();
+            }
+            // Redirect /docs -> /docs/ so Vite resolves index.astro
+            _res.writeHead(308, { Location: url + '/' });
+            _res.end();
+          });
+        },
+      },
+    ],
   },
 });
