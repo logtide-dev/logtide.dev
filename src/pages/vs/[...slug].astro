@@ -1,5 +1,5 @@
 ---
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
 import ContentPage from '../../layouts/ContentPage.astro';
 import RelatedContent from '../../components/content/RelatedContent.astro';
 import { Icon } from 'astro-icon/components';
@@ -8,7 +8,7 @@ import { execSync } from 'child_process';
 export async function getStaticPaths() {
   const entries = await getCollection('comparisons', ({ data }) => !data.draft);
   return entries.map((entry) => ({
-    params: { slug: entry.slug },
+    params: { slug: entry.id },
     props: { entry },
   }));
 }
@@ -18,7 +18,7 @@ interface Props {
 }
 
 const { entry } = Astro.props;
-const { Content } = await entry.render();
+const { Content } = await render(entry);
 
 const title = entry.data.title;
 const description = entry.data.description;
@@ -33,7 +33,7 @@ const seoBreadcrumbs = [
 ];
 
 // File path for git dates
-const filePath = `src/content/comparisons/${entry.slug}.md`;
+const filePath = `src/content/comparisons/${entry.id}.md`;
 const editUrl = `https://github.com/logtide-dev/logtide.dev/edit/main/${filePath}`;
 
 // Get dates from git

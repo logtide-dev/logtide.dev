@@ -1,4 +1,5 @@
 import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
 
 // Integration categories matching the SEO spec
 const integrationCategories = [
@@ -29,7 +30,7 @@ const difficultyLevels = ['easy', 'medium', 'advanced'] as const;
  * Example: nginx, Docker, Node.js, PostgreSQL, Kubernetes
  */
 const integrations = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.md', base: './src/content/integrations' }),
   schema: z.object({
     // Required SEO fields
     title: z.string().min(10).max(70),
@@ -68,7 +69,7 @@ const integrations = defineCollection({
  * Example: GDPR compliance, multi-tenant SaaS, security monitoring
  */
 const useCases = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.md', base: './src/content/use-cases' }),
   schema: z.object({
     // Required SEO fields
     title: z.string().min(10).max(70),
@@ -106,7 +107,7 @@ const useCases = defineCollection({
  * Example: LogTide vs Datadog, LogTide vs Splunk
  */
 const comparisons = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.md', base: './src/content/comparisons' }),
   schema: z.object({
     // Required SEO fields
     title: z.string().min(10).max(70),

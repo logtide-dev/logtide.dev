@@ -5,7 +5,7 @@ import DocsSidebar from '../components/docs/DocsSidebar.astro';
 import DocsTableOfContents from '../components/docs/DocsTableOfContents.astro';
 import Breadcrumbs from '../components/docs/Breadcrumbs.astro';
 import SEO from '../components/SEO.astro';
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 import { Icon } from 'astro-icon/components';
 import { execSync } from 'child_process';
 
@@ -173,7 +173,7 @@ try {
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
     <title>{title} | LogTide Docs</title>
-    <ViewTransitions />
+    <ClientRouter />
     <script is:inline>
       // Theme detection (runs before page renders to prevent flash)
       (function() {

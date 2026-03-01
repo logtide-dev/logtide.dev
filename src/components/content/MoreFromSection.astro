@@ -21,7 +21,7 @@ const collection = await getCollection(type, ({ data }) => !data.draft);
 
 // Filter out current entry and prioritize same category
 const otherEntries = collection
-  .filter((entry) => entry.slug !== currentSlug)
+  .filter((entry) => entry.id !== currentSlug)
   .sort((a, b) => {
     // Prioritize same category
     const aMatch = currentCategory && a.data.category === currentCategory ? 1 : 0;
@@ -52,7 +52,7 @@ const urlPrefix = type === 'use-cases' ? '/use-cases' : '/integrations';
 
     <div class="grid gap-4 md:grid-cols-3">
       {otherEntries.map((entry) => (
-        <a href={`${urlPrefix}/${entry.slug}/`} class="block group">
+        <a href={`${urlPrefix}/${entry.id}/`} class="block group">
           <Card class="h-full transition-all hover:border-primary/50 hover:shadow-md">
             <CardHeader class="pb-2">
               <div class="flex items-center gap-2 mb-2">

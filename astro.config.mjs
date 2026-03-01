@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
-import tailwind from '@astrojs/tailwind';
+import tailwindcss from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
 import icon from 'astro-icon';
 import sitemap from '@astrojs/sitemap';
 
@@ -8,9 +9,6 @@ export default defineConfig({
   site: 'https://logtide.dev',
   trailingSlash: 'always',
   integrations: [
-    tailwind({
-      applyBaseStyles: false,
-    }),
     icon(),
     sitemap({
       filter: (page) =>
@@ -65,6 +63,11 @@ export default defineConfig({
     },
   },
   vite: {
+    css: {
+      postcss: {
+        plugins: [tailwindcss(), autoprefixer()],
+      },
+    },
     ssr: {
       noExternal: ['shiki'],
     },
