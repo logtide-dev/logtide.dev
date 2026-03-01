@@ -1,0 +1,21 @@
+---
+interface Props {
+  label: string;
+  isRoadmap?: boolean;
+}
+
+const { label, isRoadmap = false } = Astro.props;
+---
+
+<div class="grid grid-cols-[1.75rem_1fr] sm:grid-cols-[2.5rem_1fr] gap-x-4 mb-2 mt-10 first:mt-0">
+  <div></div>
+  <div class="flex items-center gap-3">
+    <span class:list={[
+      "text-xs font-bold uppercase tracking-widest",
+      isRoadmap ? "text-blue-500 dark:text-blue-400" : "text-muted-foreground"
+    ]}>
+      {label}
+    </span>
+    <div class="h-px flex-1 bg-border"></div>
+  </div>
+</div>

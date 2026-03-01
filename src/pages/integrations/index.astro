@@ -10,7 +10,7 @@ import CardDescription from '../../components/ui/CardDescription.astro';
 import CardContent from '../../components/ui/CardContent.astro';
 import DifficultyBadge from '../../components/content/DifficultyBadge.astro';
 import ArrowRight from '../../components/ui/ArrowRight.astro';
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 import { Icon } from 'astro-icon/components';
 
 // Get all published integrations
@@ -62,7 +62,7 @@ const description = 'Step-by-step guides to integrate LogTide with your infrastr
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
     <title>{title}</title>
-    <ViewTransitions />
+    <ClientRouter />
     <script is:inline>
       (function() {
         function applyTheme() {
@@ -129,7 +129,7 @@ const description = 'Step-by-step guides to integrate LogTide with your infrastr
 
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {category.items.map((integration) => (
-              <a href={`/integrations/${integration.slug}`} class="block group">
+              <a href={`/integrations/${integration.id}`} class="block group">
                 <Card class="h-full transition-all hover:border-primary/50 hover:shadow-lg">
                   <CardHeader class="pb-2">
                     <div class="flex items-center justify-between mb-2">
