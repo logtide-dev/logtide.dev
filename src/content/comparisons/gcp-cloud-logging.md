@@ -114,7 +114,7 @@ If you're under 50 GiB/month, Cloud Logging's free tier wins. At exactly 50 GiB/
 
 **Data sovereignty.** Cloud Logging stores data in Google's infrastructure. With LogTide, your logs stay in infrastructure you control, which matters for GDPR and data residency requirements.
 
-**No vendor lock-in.** Your logs live in PostgreSQL. Standard SQL, easy export, easy migration. Cloud Logging uses Google's proprietary format.
+**No vendor lock-in.** Your logs live in TimescaleDB or ClickHouse. Standard SQL, easy export, easy migration. Cloud Logging uses Google's proprietary format.
 
 ## When to Choose Cloud Logging
 

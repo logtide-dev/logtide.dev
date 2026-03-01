@@ -49,7 +49,7 @@ Additional components often needed:
 LogTide is a single application stack:
 - **Backend** - API, ingestion, search, alerting, SIEM
 - **Frontend** - Built-in web UI
-- **TimescaleDB** - Storage (PostgreSQL-based)
+- **TimescaleDB or ClickHouse** - Storage (via Reservoir abstraction)
 
 **That's it.** One `docker compose up -d` and you're running.
 
@@ -80,7 +80,7 @@ LogTide uses **60-75% less memory** for equivalent workloads.
 | Alerting | Watcher / ElastAlert | Built-in |
 | Security detection | Elastic SIEM (paid) | Sigma (included) |
 | OpenTelemetry | APM Server | Native OTLP |
-| Cluster management | Complex (shards, replicas) | Simple (PostgreSQL) |
+| Cluster management | Complex (shards, replicas) | Simple (TimescaleDB or ClickHouse) |
 | Version compatibility | Must match all components | Single versioned release |
 | Custom dashboards | Kibana (extensive) | SIEM dashboard |
 
@@ -104,7 +104,7 @@ LogTide uses **60-75% less memory** for equivalent workloads.
 
 **Built-in SIEM.** Elastic's security features (SIEM, endpoint security) require paid licenses. LogTide includes Sigma detection rules, MITRE ATT&CK mapping, and incident management for free.
 
-**Better compression.** TimescaleDB's columnar compression is highly efficient for time-series log data, often achieving 10-20x compression ratios.
+**Better compression.** Both TimescaleDB's columnar compression and ClickHouse's native compression are highly efficient for time-series log data, often achieving 10-20x compression ratios.
 
 ## When to Choose ELK Stack
 

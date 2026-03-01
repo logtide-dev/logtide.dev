@@ -87,11 +87,11 @@ LogTide is free, open-source software. You pay only for infrastructure:
 | Self-hosted option | No | Yes |
 | Custom dashboards | Yes | SIEM dashboard |
 | APM/traces | Yes | Logs + OTLP traces |
-| Infrastructure metrics | Yes | Roadmap |
+| Infrastructure metrics | Yes | Yes (basic) |
 
 ## Where Datadog Wins
 
-**Full observability platform.** Datadog offers metrics, traces, logs, and infrastructure monitoring in a single SaaS platform. If you need all four pillars of observability from one vendor, Datadog is more complete.
+**Full observability platform.** Datadog offers advanced metrics, traces, logs, and infrastructure monitoring in a single SaaS platform. While LogTide now supports basic metrics, Datadog's metrics and APM capabilities are significantly more mature.
 
 **Zero infrastructure management.** As a SaaS product, there's nothing to deploy or maintain. Your team focuses entirely on using the platform, not running it.
 
@@ -107,13 +107,13 @@ LogTide is free, open-source software. You pay only for infrastructure:
 
 **Built-in SIEM.** LogTide includes Sigma detection rules, MITRE ATT&CK mapping, and incident management at no extra cost. Datadog's Cloud SIEM adds $0.20/GB on top of log costs.
 
-**No vendor lock-in.** LogTide is AGPLv3 open-source. You can inspect, modify, and extend the code. Your data lives in PostgreSQL/TimescaleDB that you control.
+**No vendor lock-in.** LogTide is AGPLv3 open-source. You can inspect, modify, and extend the code. Your data lives in TimescaleDB or ClickHouse (your choice) that you control.
 
 **Unlimited users.** No per-seat pricing. Add your entire engineering, security, and support teams without cost concerns.
 
 ## When to Choose Datadog
 
-- You need a full observability platform (metrics + traces + logs + infrastructure)
+- You need advanced metrics, APM, and infrastructure monitoring with deep correlation
 - Your team doesn't want to manage infrastructure
 - Log volume is small (under 10 GB/day) where cost difference is minimal
 - You need 700+ out-of-box integrations

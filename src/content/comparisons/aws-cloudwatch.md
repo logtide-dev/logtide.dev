@@ -109,7 +109,7 @@ At higher volumes (200+ GB/day), savings exceed 80%.
 
 **No query costs.** Every Log Insights query costs $0.005/GB scanned. With frequent debugging, this adds up. LogTide queries are unlimited.
 
-**No vendor lock-in.** CloudWatch logs are in a proprietary format. LogTide stores logs in PostgreSQL — standard SQL, easy to export, easy to migrate.
+**No vendor lock-in.** CloudWatch logs are in a proprietary format. LogTide stores logs in TimescaleDB or ClickHouse — standard SQL, easy to export, easy to migrate.
 
 ## When to Choose CloudWatch
 

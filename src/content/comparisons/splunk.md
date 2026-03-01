@@ -101,7 +101,7 @@ Splunk charges based on daily ingestion volume:
 
 **No data limits.** Splunk penalizes you for exceeding your license. LogTide ingests as much as your infrastructure can handle.
 
-**No vendor lock-in.** Your data lives in PostgreSQL/TimescaleDB. Your detection rules are portable Sigma YAML. Nothing is proprietary.
+**No vendor lock-in.** Your data lives in TimescaleDB or ClickHouse (your choice). Your detection rules are portable Sigma YAML. Nothing is proprietary.
 
 ## When to Choose Splunk
 

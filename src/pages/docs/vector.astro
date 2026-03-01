@@ -1,0 +1,800 @@
+---
+import DocsLayout from '../../layouts/Docs.astro';
+import Card from '../../components/ui/Card.astro';
+import CardHeader from '../../components/ui/CardHeader.astro';
+import CardTitle from '../../components/ui/CardTitle.astro';
+import CardContent from '../../components/ui/CardContent.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Overview", slug: "overview", depth: 2 },
+  { text: "Architecture", slug: "architecture", depth: 2 },
+  { text: "Quick Start", slug: "quick-start", depth: 2 },
+  { text: "Syslog Forwarding", slug: "syslog-forwarding", depth: 2 },
+  { text: "Docker Logs", slug: "docker-logs", depth: 2 },
+  { text: "File-based Logs", slug: "file-logs", depth: 2 },
+  { text: "Data Mapping", slug: "data-mapping", depth: 2 },
+  { text: "Batch Configuration", slug: "batch-config", depth: 2 },
+  { text: "Troubleshooting", slug: "troubleshooting", depth: 2 },
+];
+---
+
+<DocsLayout
+  title="Vector Integration"
+  description="Forward logs from Datadog Vector to LogTide. Supports syslog, Docker, file-based sources with automatic field normalization."
+  headings={headings}
+>
+  <h1 class="text-3xl font-bold mb-4">Vector Integration</h1>
+  <p class="text-lg text-muted-foreground mb-8">
+    Forward logs from <a href="https://vector.dev" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Datadog Vector</a> to LogTide.
+    Works with any Vector source — syslog, Docker, files, Kafka, and more.
+  </p>
+
+  <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-8">
+    <div class="flex items-start gap-3">
+      <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+      <div>
+        <p class="font-semibold text-blue-600 dark:text-blue-400 mb-1">
+          Tested with Vector 0.53.0
+        </p>
+        <p class="text-sm text-muted-foreground">
+          This guide has been tested with Vector 0.53.0 on both Linux and Docker deployments.
+          Vector is a great alternative when <code class="bg-muted px-1 rounded">omhttp</code> isn't available
+          in your rsyslog installation (common on Debian 13+).
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overview -->
+  <h2
+    id="overview"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Overview
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p class="text-muted-foreground">
+      Vector is a high-performance observability data pipeline that can collect, transform,
+      and route logs to LogTide. It supports 100+ sources and can replace Fluent Bit,
+      Logstash, or Fluentd in your stack.
+    </p>
+
+    <div class="grid md:grid-cols-3 gap-4">
+      <Card>
+        <CardHeader>
+          <CardTitle class="flex items-center gap-2 text-base">
+            <Icon name="lucide:zap" class="w-4 h-4 text-primary" />
+            High Performance
+          </CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground">
+          Written in Rust. Low memory footprint and high throughput — handles thousands of events per second.
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle class="flex items-center gap-2 text-base">
+            <Icon name="lucide:shuffle" class="w-4 h-4 text-primary" />
+            VRL Transforms
+          </CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground">
+          Vector Remap Language (VRL) lets you transform, filter, and enrich logs before sending to LogTide.
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle class="flex items-center gap-2 text-base">
+            <Icon name="lucide:plug" class="w-4 h-4 text-primary" />
+            100+ Sources
+          </CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground">
+          Syslog, Docker, Kubernetes, Kafka, files, journald, and many more — all forwarded to LogTide.
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+
+  <!-- Architecture -->
+  <h2
+    id="architecture"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Architecture
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p class="text-muted-foreground">
+      Vector sits between your log sources and LogTide, transforming logs into the expected format:
+    </p>
+
+    <div class="bg-muted/30 border border-border rounded-lg p-6 font-mono text-sm">
+      <div class="flex flex-col md:flex-row items-center gap-4 justify-center">
+        <div class="bg-background border border-border rounded px-4 py-2 text-center">
+          <div class="text-muted-foreground text-xs mb-1">Sources</div>
+          <div>Syslog / Docker / Files</div>
+        </div>
+        <Icon name="lucide:arrow-right" class="w-5 h-5 text-muted-foreground hidden md:block" />
+        <Icon name="lucide:arrow-down" class="w-5 h-5 text-muted-foreground md:hidden" />
+        <div class="bg-primary/10 border border-primary/30 rounded px-4 py-2 text-center">
+          <div class="text-primary text-xs mb-1">Vector</div>
+          <div>Transform (VRL)</div>
+        </div>
+        <Icon name="lucide:arrow-right" class="w-5 h-5 text-muted-foreground hidden md:block" />
+        <Icon name="lucide:arrow-down" class="w-5 h-5 text-muted-foreground md:hidden" />
+        <div class="bg-background border border-border rounded px-4 py-2 text-center">
+          <div class="text-muted-foreground text-xs mb-1">Sink</div>
+          <div>HTTP → LogTide API</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-muted-foreground">
+      LogTide provides two ingestion endpoints. Use <strong>/api/v1/ingest/single</strong> for Vector
+      as it handles automatic field normalization and doesn't require wrapping logs in a <code class="bg-muted px-1 rounded">{`{"logs": [...]}`}</code> object.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border">
+            <th class="text-left p-3 font-semibold">Endpoint</th>
+            <th class="text-left p-3 font-semibold">Best For</th>
+            <th class="text-left p-3 font-semibold">Auto-normalize</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-border">
+            <td class="p-3"><code class="bg-muted px-1 rounded">/api/v1/ingest/single</code></td>
+            <td class="p-3">Vector, Fluent Bit, collectors</td>
+            <td class="p-3"><span class="text-green-500">Yes</span> — auto-generates <code class="bg-muted px-1 rounded">time</code>, normalizes <code class="bg-muted px-1 rounded">level</code></td>
+          </tr>
+          <tr class="border-b border-border">
+            <td class="p-3"><code class="bg-muted px-1 rounded">/api/v1/ingest</code></td>
+            <td class="p-3">SDKs, custom integrations</td>
+            <td class="p-3"><span class="text-yellow-500">Partial</span> — accepts arrays, but strict on standard format</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Quick Start -->
+  <h2
+    id="quick-start"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Quick Start
+  </h2>
+
+  <div class="mb-8 space-y-6">
+    <p class="text-muted-foreground">
+      Minimal Vector config to forward demo logs to LogTide. Replace <code class="bg-muted px-1 rounded">&lt;YOUR_API_KEY&gt;</code> with
+      your project API key and <code class="bg-muted px-1 rounded">&lt;LOGTIDE_URL&gt;</code> with your instance URL.
+    </p>
+
+    <div>
+      <h3 class="text-lg font-semibold mb-3 scroll-mt-24">vector.yaml</h3>
+      <Code
+        lang="yaml"
+        theme="one-dark-pro"
+        code={`sources:
+  demo:
+    type: demo_logs
+    format: syslog
+    count: 5
+
+transforms:
+  format_logs:
+    type: remap
+    inputs:
+      - demo
+    source: |
+      .message = string!(.message)
+      .level = downcase(string(.severity) ?? "info")
+      .service = string(.appname) ?? string(.hostname) ?? "unknown"
+      del(.severity)
+      del(.appname)
+      del(.hostname)
+      del(.facility)
+      del(.procid)
+      del(.source_type)
+      del(.timestamp)
+      del(.version)
+      del(.msgid)
+      del(.host)
+
+sinks:
+  logtide:
+    type: http
+    inputs:
+      - format_logs
+    uri: https://<LOGTIDE_URL>/api/v1/ingest/single
+    encoding:
+      codec: json
+    framing:
+      method: newline_delimited
+    request:
+      headers:
+        X-API-Key: "<YOUR_API_KEY>"
+        Content-Type: "application/x-ndjson"`}
+      />
+    </div>
+
+    <div class="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:check-circle" class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+        <div>
+          <p class="font-semibold text-green-600 dark:text-green-400 mb-1">Test it</p>
+          <p class="text-sm text-muted-foreground">
+            Run <code class="bg-muted px-1 rounded">vector -c vector.yaml</code> — you should see
+            "Healthcheck passed" and no errors. The demo source will send 5 test logs and exit.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Key configuration details</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="border-b border-border">
+              <th class="text-left p-3 font-semibold">Setting</th>
+              <th class="text-left p-3 font-semibold">Value</th>
+              <th class="text-left p-3 font-semibold">Why</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-border">
+              <td class="p-3"><code class="bg-muted px-1 rounded">codec</code></td>
+              <td class="p-3"><code class="bg-muted px-1 rounded">json</code></td>
+              <td class="p-3">Each event encoded as JSON. Note: <code class="bg-muted px-1 rounded">ndjson</code> is not a valid Vector codec.</td>
+            </tr>
+            <tr class="border-b border-border">
+              <td class="p-3"><code class="bg-muted px-1 rounded">framing.method</code></td>
+              <td class="p-3"><code class="bg-muted px-1 rounded">newline_delimited</code></td>
+              <td class="p-3">Sends multiple events as newline-separated JSON (NDJSON) in a single HTTP request.</td>
+            </tr>
+            <tr class="border-b border-border">
+              <td class="p-3"><code class="bg-muted px-1 rounded">Content-Type</code></td>
+              <td class="p-3"><code class="bg-muted px-1 rounded">application/x-ndjson</code></td>
+              <td class="p-3">Tells LogTide to parse the body as newline-delimited JSON.</td>
+            </tr>
+            <tr class="border-b border-border">
+              <td class="p-3"><code class="bg-muted px-1 rounded">endpoint</code></td>
+              <td class="p-3"><code class="bg-muted px-1 rounded">/api/v1/ingest/single</code></td>
+              <td class="p-3">Accepts individual log objects without <code class="bg-muted px-1 rounded">{`{"logs":[...]}`}</code> wrapper. Auto-generates <code class="bg-muted px-1 rounded">time</code> if missing.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Syslog Forwarding -->
+  <h2
+    id="syslog-forwarding"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Syslog Forwarding
+  </h2>
+
+  <div class="mb-8 space-y-6">
+    <p class="text-muted-foreground">
+      The most common use case: aggregate syslogs on a central rsyslog host, then forward
+      to LogTide via Vector. This is especially useful when <code class="bg-muted px-1 rounded">omhttp</code> is not available
+      in your rsyslog package (common on Debian 13+).
+    </p>
+
+    <div>
+      <h3 class="text-lg font-semibold mb-3 scroll-mt-24">vector.yaml — Syslog to LogTide</h3>
+      <Code
+        lang="yaml"
+        theme="one-dark-pro"
+        code={`sources:
+  rsyslog:
+    type: syslog
+    address: 0.0.0.0:514
+    mode: tcp
+
+transforms:
+  format_logs:
+    type: remap
+    inputs:
+      - rsyslog
+    source: |
+      # Extract and normalize fields
+      .message = string!(.message)
+      .level = downcase(string(.severity) ?? "info")
+      .service = string(.appname) ?? string(.hostname) ?? "syslog"
+
+      # Preserve useful metadata
+      .metadata = {}
+      .metadata.hostname = string(.hostname) ?? null
+      .metadata.facility = string(.facility) ?? null
+      .metadata.procid = string(.procid) ?? null
+
+      # Remove raw syslog fields (already extracted above)
+      del(.severity)
+      del(.appname)
+      del(.hostname)
+      del(.facility)
+      del(.procid)
+      del(.source_type)
+      del(.timestamp)
+      del(.version)
+      del(.msgid)
+      del(.host)
+
+sinks:
+  logtide:
+    type: http
+    inputs:
+      - format_logs
+    uri: https://<LOGTIDE_URL>/api/v1/ingest/single
+    encoding:
+      codec: json
+    framing:
+      method: newline_delimited
+    request:
+      headers:
+        X-API-Key: "<YOUR_API_KEY>"
+        Content-Type: "application/x-ndjson"`}
+      />
+    </div>
+
+    <div class="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:alert-triangle" class="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
+        <div>
+          <p class="font-semibold text-amber-600 dark:text-amber-400 mb-1">
+            Common Pitfall: Input Name Mismatch
+          </p>
+          <p class="text-sm text-muted-foreground">
+            The <code class="bg-muted px-1 rounded">inputs</code> field in transforms and sinks must match
+            the <strong>exact name</strong> of your source. If your source is named <code class="bg-muted px-1 rounded">rsyslog</code>,
+            use <code class="bg-muted px-1 rounded">inputs: [rsyslog]</code> — not <code class="bg-muted px-1 rounded">inputs: [syslog]</code>.
+            A mismatch causes Vector to immediately exit with "All sources have finished".
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Configure rsyslog to forward to Vector</h3>
+      <p class="text-sm text-muted-foreground mb-3">
+        On your rsyslog aggregation host, forward all logs to Vector via TCP:
+      </p>
+      <Code
+        lang="bash"
+        theme="one-dark-pro"
+        code={`# /etc/rsyslog.d/99-forward-to-vector.conf
+# Forward all logs to Vector on localhost:514 via TCP
+*.* @@127.0.0.1:514`}
+      />
+      <p class="text-sm text-muted-foreground mt-2">
+        Use <code class="bg-muted px-1 rounded">@@</code> for TCP (recommended) or <code class="bg-muted px-1 rounded">@</code> for UDP.
+        Then restart rsyslog: <code class="bg-muted px-1 rounded">sudo systemctl restart rsyslog</code>
+      </p>
+    </div>
+  </div>
+
+  <!-- Docker Logs -->
+  <h2
+    id="docker-logs"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Docker Logs
+  </h2>
+
+  <div class="mb-8 space-y-6">
+    <p class="text-muted-foreground">
+      Collect logs from Docker containers using Vector's <code class="bg-muted px-1 rounded">docker_logs</code> source:
+    </p>
+
+    <Code
+      lang="yaml"
+      theme="one-dark-pro"
+      code={`sources:
+  docker:
+    type: docker_logs
+    docker_host: unix:///var/run/docker.sock
+
+transforms:
+  format_docker:
+    type: remap
+    inputs:
+      - docker
+    source: |
+      .service = string(.container_name) ?? "unknown"
+      .level = downcase(string(.level) ?? "info")
+      .message = string!(.message)
+
+      .metadata = {}
+      .metadata.container_id = string(.container_id) ?? null
+      .metadata.container_name = string(.container_name) ?? null
+      .metadata.image = string(.image) ?? null
+
+      del(.container_id)
+      del(.container_name)
+      del(.container_created_at)
+      del(.image)
+      del(.label)
+      del(.source_type)
+      del(.stream)
+      del(.timestamp)
+      del(.host)
+
+sinks:
+  logtide:
+    type: http
+    inputs:
+      - format_docker
+    uri: https://<LOGTIDE_URL>/api/v1/ingest/single
+    encoding:
+      codec: json
+    framing:
+      method: newline_delimited
+    request:
+      headers:
+        X-API-Key: "<YOUR_API_KEY>"
+        Content-Type: "application/x-ndjson"`}
+    />
+  </div>
+
+  <!-- File-based Logs -->
+  <h2
+    id="file-logs"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    File-based Logs
+  </h2>
+
+  <div class="mb-8 space-y-6">
+    <p class="text-muted-foreground">
+      Tail log files and forward them to LogTide:
+    </p>
+
+    <Code
+      lang="yaml"
+      theme="one-dark-pro"
+      code={`sources:
+  app_logs:
+    type: file
+    include:
+      - /var/log/myapp/*.log
+    read_from: beginning
+
+transforms:
+  format_app:
+    type: remap
+    inputs:
+      - app_logs
+    source: |
+      .service = "myapp"
+      .level = "info"
+      .message = string!(.message)
+
+      # Parse JSON logs if applicable
+      parsed, err = parse_json(.message)
+      if err == null {
+        .level = downcase(string(parsed.level) ?? "info")
+        .service = string(parsed.service) ?? .service
+        .message = string(parsed.message) ?? string(parsed.msg) ?? .message
+        .metadata = parsed
+      }
+
+      del(.source_type)
+      del(.timestamp)
+      del(.host)
+      del(.file)
+
+sinks:
+  logtide:
+    type: http
+    inputs:
+      - format_app
+    uri: https://<LOGTIDE_URL>/api/v1/ingest/single
+    encoding:
+      codec: json
+    framing:
+      method: newline_delimited
+    request:
+      headers:
+        X-API-Key: "<YOUR_API_KEY>"
+        Content-Type: "application/x-ndjson"`}
+    />
+  </div>
+
+  <!-- Data Mapping -->
+  <h2
+    id="data-mapping"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Data Mapping
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p class="text-muted-foreground">
+      LogTide's <code class="bg-muted px-1 rounded">/api/v1/ingest/single</code> endpoint auto-normalizes incoming fields.
+      Here's how Vector fields map to LogTide:
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border">
+            <th class="text-left p-3 font-semibold">LogTide Field</th>
+            <th class="text-left p-3 font-semibold">Required</th>
+            <th class="text-left p-3 font-semibold">Auto-generated</th>
+            <th class="text-left p-3 font-semibold">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-border">
+            <td class="p-3"><code class="bg-muted px-1 rounded">message</code></td>
+            <td class="p-3"><span class="text-red-500">Yes</span></td>
+            <td class="p-3">No</td>
+            <td class="p-3">Falls back to <code class="bg-muted px-1 rounded">log</code> field if <code class="bg-muted px-1 rounded">message</code> is missing</td>
+          </tr>
+          <tr class="border-b border-border">
+            <td class="p-3"><code class="bg-muted px-1 rounded">service</code></td>
+            <td class="p-3"><span class="text-red-500">Yes</span></td>
+            <td class="p-3"><span class="text-green-500">Yes</span></td>
+            <td class="p-3">Falls back to <code class="bg-muted px-1 rounded">container_name</code>, K8s metadata, or <code class="bg-muted px-1 rounded">"unknown"</code></td>
+          </tr>
+          <tr class="border-b border-border">
+            <td class="p-3"><code class="bg-muted px-1 rounded">level</code></td>
+            <td class="p-3"><span class="text-red-500">Yes</span></td>
+            <td class="p-3"><span class="text-green-500">Yes</span></td>
+            <td class="p-3">Auto-normalized from syslog priority, numeric (Pino), or string. Defaults to <code class="bg-muted px-1 rounded">info</code></td>
+          </tr>
+          <tr class="border-b border-border">
+            <td class="p-3"><code class="bg-muted px-1 rounded">time</code></td>
+            <td class="p-3">No</td>
+            <td class="p-3"><span class="text-green-500">Yes</span></td>
+            <td class="p-3">Auto-set to current time if missing. Accepts ISO 8601 or epoch seconds (<code class="bg-muted px-1 rounded">date</code> field)</td>
+          </tr>
+          <tr class="border-b border-border">
+            <td class="p-3"><code class="bg-muted px-1 rounded">metadata</code></td>
+            <td class="p-3">No</td>
+            <td class="p-3">No</td>
+            <td class="p-3">JSON object with any extra fields (hostname, facility, K8s labels, etc.)</td>
+          </tr>
+          <tr class="border-b border-border">
+            <td class="p-3"><code class="bg-muted px-1 rounded">trace_id</code></td>
+            <td class="p-3">No</td>
+            <td class="p-3">No</td>
+            <td class="p-3">For distributed tracing correlation</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Level Normalization</h3>
+    <p class="text-sm text-muted-foreground mb-3">
+      LogTide accepts 5 log levels. Incoming levels are automatically mapped:
+    </p>
+
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+      <div class="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3 text-center">
+        <div class="font-mono font-semibold text-purple-400">debug</div>
+        <div class="text-xs text-muted-foreground mt-1">debug, trace, verbose</div>
+      </div>
+      <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 text-center">
+        <div class="font-mono font-semibold text-blue-400">info</div>
+        <div class="text-xs text-muted-foreground mt-1">info, notice, 30</div>
+      </div>
+      <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 text-center">
+        <div class="font-mono font-semibold text-yellow-400">warn</div>
+        <div class="text-xs text-muted-foreground mt-1">warn, warning, 40</div>
+      </div>
+      <div class="bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-center">
+        <div class="font-mono font-semibold text-red-400">error</div>
+        <div class="text-xs text-muted-foreground mt-1">error, err, 50</div>
+      </div>
+      <div class="bg-red-700/10 border border-red-700/20 rounded-lg p-3 text-center col-span-2 md:col-span-1">
+        <div class="font-mono font-semibold text-red-300">critical</div>
+        <div class="text-xs text-muted-foreground mt-1">critical, fatal, emerg, 60</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Batch Configuration -->
+  <h2
+    id="batch-config"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Batch Configuration
+  </h2>
+
+  <div class="mb-8 space-y-6">
+    <p class="text-muted-foreground">
+      Vector batches multiple events into a single HTTP request by default.
+      You can tune this for your throughput needs:
+    </p>
+
+    <Code
+      lang="yaml"
+      theme="one-dark-pro"
+      code={`sinks:
+  logtide:
+    type: http
+    inputs:
+      - format_logs
+    uri: https://<LOGTIDE_URL>/api/v1/ingest/single
+    encoding:
+      codec: json
+    framing:
+      method: newline_delimited
+    batch:
+      max_bytes: 1049000    # ~1MB per request
+      max_events: 1000      # Up to 1000 logs per request
+      timeout_secs: 1       # Flush at least every second
+    request:
+      concurrency: 10       # Up to 10 parallel requests
+      rate_limit_num: 200   # Max 200 requests per second
+      headers:
+        X-API-Key: "<YOUR_API_KEY>"
+        Content-Type: "application/x-ndjson"`}
+    />
+
+    <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+        <div>
+          <p class="font-semibold text-blue-600 dark:text-blue-400 mb-1">
+            Self-hosted URL
+          </p>
+          <p class="text-sm text-muted-foreground">
+            For LogTide Cloud, use <code class="bg-muted px-1 rounded">https://api.logtide.dev/api/v1/ingest/single</code>.
+            For self-hosted instances, use <code class="bg-muted px-1 rounded">http://&lt;YOUR_HOST&gt;:8080/api/v1/ingest/single</code>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Troubleshooting -->
+  <h2
+    id="troubleshooting"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Troubleshooting
+  </h2>
+
+  <div class="mb-8 space-y-6">
+    <Card>
+      <CardHeader>
+        <CardTitle class="flex items-center gap-2 text-base">
+          <Icon name="lucide:x-circle" class="w-4 h-4 text-red-500" />
+          "All sources have finished" — Vector exits immediately
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground space-y-2">
+        <p>
+          The <code class="bg-muted px-1 rounded">inputs</code> field in your transform or sink doesn't match
+          your source name. Check for typos:
+        </p>
+        <Code
+          lang="yaml"
+          theme="one-dark-pro"
+          code={`sources:
+  rsyslog:           # ← Source named "rsyslog"
+    type: syslog
+transforms:
+  format_logs:
+    inputs:
+      - rsyslog      # ← Must match exactly (not "syslog" or "demo_syslog")`}
+        />
+      </CardContent>
+    </Card>
+
+    <Card>
+      <CardHeader>
+        <CardTitle class="flex items-center gap-2 text-base">
+          <Icon name="lucide:x-circle" class="w-4 h-4 text-red-500" />
+          "Http status: 400 Bad Request"
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground space-y-2">
+        <p>The payload format doesn't match what the endpoint expects. Most common causes:</p>
+        <ul class="space-y-1 list-none pl-0">
+          <li>• <strong>Using <code class="bg-muted px-1 rounded">/api/v1/ingest</code> with raw events</strong> — this endpoint expects
+              <code class="bg-muted px-1 rounded">{`{"logs": [...]}`}</code>. Use <code class="bg-muted px-1 rounded">/api/v1/ingest/single</code> instead.</li>
+          <li>• <strong>Missing <code class="bg-muted px-1 rounded">message</code> field</strong> — every log must have a message.</li>
+          <li>• <strong>Wrapping with <code class="bg-muted px-1 rounded">{`. = { "logs": [ . ] }`}</code> in VRL</strong> — Vector's HTTP sink
+              batches events into a JSON array, turning your payload into
+              <code class="bg-muted px-1 rounded">{`[{"logs":[...]}, {"logs":[...]}]`}</code> which doesn't match the expected format.
+              Use <code class="bg-muted px-1 rounded">/api/v1/ingest/single</code> without wrapping.</li>
+        </ul>
+      </CardContent>
+    </Card>
+
+    <Card>
+      <CardHeader>
+        <CardTitle class="flex items-center gap-2 text-base">
+          <Icon name="lucide:x-circle" class="w-4 h-4 text-red-500" />
+          "Http status: 404 Not Found"
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground space-y-2">
+        <p>Wrong URL path. Make sure you include the <code class="bg-muted px-1 rounded">/api</code> prefix:</p>
+        <ul class="space-y-1 list-none pl-0">
+          <li>• <span class="text-green-500">Correct:</span> <code class="bg-muted px-1 rounded">https://api.logtide.dev/api/v1/ingest/single</code></li>
+          <li>• <span class="text-red-500">Wrong:</span> <code class="bg-muted px-1 rounded">https://api.logtide.dev/v1/ingest/single</code></li>
+        </ul>
+      </CardContent>
+    </Card>
+
+    <Card>
+      <CardHeader>
+        <CardTitle class="flex items-center gap-2 text-base">
+          <Icon name="lucide:x-circle" class="w-4 h-4 text-red-500" />
+          "unknown variant `ndjson`"
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground space-y-2">
+        <p>
+          Vector doesn't have an <code class="bg-muted px-1 rounded">ndjson</code> codec. Use <code class="bg-muted px-1 rounded">json</code> with
+          <code class="bg-muted px-1 rounded">framing.method: newline_delimited</code> to achieve the same result.
+        </p>
+      </CardContent>
+    </Card>
+
+    <Card>
+      <CardHeader>
+        <CardTitle class="flex items-center gap-2 text-base">
+          <Icon name="lucide:x-circle" class="w-4 h-4 text-red-500" />
+          "Http status: 401 Unauthorized"
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground space-y-2">
+        <p>API key is missing or invalid. Verify:</p>
+        <ul class="space-y-1 list-none pl-0">
+          <li>• The <code class="bg-muted px-1 rounded">X-API-Key</code> header is set in <code class="bg-muted px-1 rounded">request.headers</code></li>
+          <li>• The key starts with <code class="bg-muted px-1 rounded">lp_</code></li>
+          <li>• The key hasn't been revoked in your project settings</li>
+          <li>• You're using a <code class="bg-muted px-1 rounded">write</code> or <code class="bg-muted px-1 rounded">full</code> API key (not read-only)</li>
+        </ul>
+      </CardContent>
+    </Card>
+
+    <div>
+      <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Debug with a file sink</h3>
+      <p class="text-sm text-muted-foreground mb-3">
+        Add a file sink alongside your LogTide sink to inspect the transformed data:
+      </p>
+      <Code
+        lang="yaml"
+        theme="one-dark-pro"
+        code={`sinks:
+  # Debug: write transformed logs to a file
+  debug_file:
+    type: file
+    inputs:
+      - format_logs
+    path: /tmp/vector-debug.json
+    encoding:
+      codec: json
+      json:
+        pretty: true
+
+  # Production: send to LogTide
+  logtide:
+    type: http
+    inputs:
+      - format_logs
+    # ...`}
+      />
+    </div>
+  </div>
+
+</DocsLayout>

@@ -239,7 +239,7 @@ The team also stopped sampling logs and enabled debug-level logging in productio
 Be honest with yourself about trade-offs:
 
 **LogTide might not fit if:**
-- You need APM/traces as primary use case (LogTide focuses on logs + SIEM)
+- You need advanced APM with deep metrics correlation (LogTide supports basic metrics, but focuses on logs + SIEM)
 - You have no DevOps capacity to manage infrastructure
 - You need 100+ pre-built integrations with cloud services
 - Compliance requires a SOC2-certified SaaS vendor

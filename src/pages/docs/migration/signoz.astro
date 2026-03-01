@@ -74,10 +74,10 @@ const headings = [
               <div class="flex items-start gap-3">
                   <Icon name="lucide:zap" class="w-5 h-5 text-green-500 mt-0.5" />
                   <div>
-                      <h3 class="font-semibold mb-1">Simpler Architecture</h3>
+                      <h3 class="font-semibold mb-1">Flexible Storage</h3>
                       <p class="text-sm text-muted-foreground">
-                          SigNoz uses ClickHouse which requires tuning. LogTide uses
-                          PostgreSQL/TimescaleDB for easier operations.
+                          LogTide supports both TimescaleDB and ClickHouse via its Reservoir
+                          abstraction. Start simple with TimescaleDB or scale with ClickHouse.
                       </p>
                   </div>
               </div>
@@ -150,7 +150,7 @@ const headings = [
               <tr>
                   <td class="px-4 py-3 border-b border-border font-medium">Metrics</td>
                   <td class="px-4 py-3 border-b border-border"><Icon name="lucide:check" class="w-4 h-4 text-green-500 inline" /> Yes</td>
-                  <td class="px-4 py-3 border-b border-border"><span class="text-yellow-600">Roadmap</span></td>
+                  <td class="px-4 py-3 border-b border-border"><Icon name="lucide:check" class="w-4 h-4 text-green-500 inline" /> Yes (basic)</td>
               </tr>
               <tr>
                   <td class="px-4 py-3 border-b border-border font-medium">Alerting</td>
@@ -175,7 +175,7 @@ const headings = [
               <tr>
                   <td class="px-4 py-3 border-b border-border font-medium">Database</td>
                   <td class="px-4 py-3 border-b border-border">ClickHouse</td>
-                  <td class="px-4 py-3 border-b border-border">TimescaleDB</td>
+                  <td class="px-4 py-3 border-b border-border">TimescaleDB or ClickHouse</td>
               </tr>
               <tr>
                   <td class="px-4 py-3 border-b border-border font-medium">Custom SDKs</td>
@@ -582,13 +582,14 @@ tags:
       <Card>
           <CardHeader>
               <CardTitle class="text-base flex items-center gap-2">
-                  <Icon name="lucide:alert-circle" class="w-4 h-4 text-yellow-500" />
-                  Missing metrics support
+                  <Icon name="lucide:alert-circle" class="w-4 h-4 text-blue-500" />
+                  Basic metrics support
               </CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              LogTide currently focuses on logs. Metrics support is on the roadmap.
-              Continue using your existing metrics solution (Prometheus, etc.) alongside LogTide.
+              LogTide now supports basic metrics ingestion. For advanced metrics use cases
+              (custom dashboards, PromQL queries, deep correlation), you may want to keep
+              your existing metrics solution (Prometheus, etc.) alongside LogTide.
           </CardContent>
       </Card>
   </div>

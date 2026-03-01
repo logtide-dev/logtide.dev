@@ -8,7 +8,7 @@ logtidePricing: "Free (self-hosted)"
 migrationDoc: "/docs/migration/signoz"
 highlights:
   - "Built-in SIEM & Sigma rules"
-  - "Simpler PostgreSQL backend"
+  - "Flexible storage (TimescaleDB or ClickHouse)"
   - "Native SDKs + OTLP"
   - "Incident management"
 relatedIntegrations:
@@ -26,7 +26,7 @@ keywords:
   - "ClickHouse vs TimescaleDB"
 ---
 
-SigNoz and LogTide are both open-source, self-hosted platforms that support OpenTelemetry. SigNoz focuses on full observability (metrics, traces, logs). LogTide focuses on log management with built-in SIEM capabilities. Here's how they compare.
+SigNoz and LogTide are both open-source, self-hosted platforms that support OpenTelemetry. SigNoz focuses on full observability (metrics, traces, logs). LogTide focuses on log management with built-in SIEM capabilities, plus basic metrics and traces support. Here's how they compare.
 
 ## Philosophy Comparison
 
@@ -36,7 +36,7 @@ SigNoz positions itself as an open-source alternative to Datadog and New Relic, 
 
 ### LogTide
 
-LogTide focuses specifically on log management with security built in. Rather than trying to replace your entire observability stack, LogTide does one thing well: logs + security detection. It's built on PostgreSQL/TimescaleDB for operational simplicity.
+LogTide focuses on log management with security built in, plus basic support for metrics and traces. Rather than trying to replace your entire observability stack, LogTide excels at logs + security detection. It supports both TimescaleDB and ClickHouse as storage backends via its Reservoir abstraction layer.
 
 ## Feature Comparison
 
@@ -45,13 +45,13 @@ LogTide focuses specifically on log management with security built in. Rather th
 | OpenTelemetry | Native OTLP | Native OTLP |
 | Logs | Yes | Yes |
 | Traces | Yes | Yes (via OTLP) |
-| Metrics | Yes | Roadmap |
+| Metrics | Yes | Yes (basic) |
 | Custom SDKs | OTel only | OTel + Custom (Node.js, Python, Go, etc.) |
 | Alerting | Yes | Yes |
 | Sigma detection rules | No | Built-in |
 | Incident management | No | Built-in |
 | MITRE ATT&CK mapping | No | Built-in |
-| Database | ClickHouse | TimescaleDB (PostgreSQL) |
+| Database | ClickHouse | TimescaleDB or ClickHouse (via Reservoir) |
 | Full-text search | Yes | Yes |
 | Real-time streaming | Yes | Yes (SSE) |
 | Custom dashboards | Yes | SIEM dashboard |
@@ -59,11 +59,11 @@ LogTide focuses specifically on log management with security built in. Rather th
 
 ## Where SigNoz Wins
 
-**Full observability.** SigNoz covers metrics, traces, and logs in a single platform. If you need all three pillars with correlated views, SigNoz is more complete.
+**Full observability.** SigNoz covers metrics, traces, and logs with deep correlation across all three pillars. While LogTide now supports basic metrics, SigNoz's metrics capabilities are more mature.
 
-**ClickHouse performance.** ClickHouse is purpose-built for analytical queries on large datasets. For high-volume aggregation queries, ClickHouse can outperform PostgreSQL.
+**Deeper ClickHouse integration.** While LogTide also supports ClickHouse via its Reservoir storage abstraction, SigNoz is built natively on ClickHouse with deeper integration for cross-signal correlation and analytical queries.
 
-**Custom dashboards.** SigNoz has a query builder and dashboard creator for building custom visualizations across metrics, traces, and logs.
+**Custom dashboards.** SigNoz has a query builder and dashboard creator for building custom visualizations across metrics, traces, and logs with advanced correlation.
 
 **Service maps.** SigNoz auto-generates service dependency maps from trace data, helping you understand your microservice architecture.
 
@@ -71,7 +71,7 @@ LogTide focuses specifically on log management with security built in. Rather th
 
 **Security detection.** LogTide includes Sigma rules, MITRE ATT&CK mapping, and incident management. SigNoz is purely an observability tool with no security capabilities.
 
-**Simpler backend.** ClickHouse requires operational expertise for tuning, merges, and cluster management. LogTide uses PostgreSQL/TimescaleDB, which most teams already know how to operate.
+**Flexible storage.** LogTide supports both TimescaleDB (default, PostgreSQL-based) and ClickHouse via its Reservoir abstraction. Start with TimescaleDB for simplicity, or use ClickHouse for high-volume workloads — without changing application code.
 
 **Native SDKs.** SigNoz relies exclusively on OpenTelemetry SDKs. LogTide provides lightweight, purpose-built SDKs for Node.js, Python, Go, PHP, Kotlin, and C# in addition to OTLP support.
 
@@ -81,19 +81,19 @@ LogTide focuses specifically on log management with security built in. Rather th
 
 ## When to Choose SigNoz
 
-- You need metrics, traces, and logs in a single platform
+- You need advanced metrics with custom dashboards and deep correlation
 - You want custom dashboards across all telemetry types
 - Service dependency mapping is important
-- You prefer ClickHouse's analytical performance
+- You want deeper native ClickHouse integration for cross-signal analytics
 - You don't need security detection or SIEM capabilities
 
 ## When to Choose LogTide
 
 - Security detection (Sigma rules, SIEM) is a requirement
-- You want a simpler database backend (PostgreSQL vs ClickHouse)
+- You want flexible storage (TimescaleDB for simplicity or ClickHouse for scale)
 - You need native SDKs beyond OpenTelemetry
 - Incident management and MITRE ATT&CK mapping are important
-- You already have a metrics solution (Prometheus, Grafana) and need focused log management
+- You need focused log management with basic metrics and built-in security
 
 ## Migration: Seamless via OpenTelemetry
 
