@@ -16,6 +16,7 @@ import { Code } from 'astro:components';
 const headings = [
   { text: "Deployment Options", slug: "deployment-options", depth: 2 },
   { text: "Self-Hosted Quick Start", slug: "self-hosted", depth: 2 },
+  { text: "Full Monitoring Setup", slug: "full-monitoring", depth: 2 },
   { text: "Troubleshooting", slug: "troubleshooting", depth: 2 },
   { text: "Containers Not Starting", slug: "containers-not-healthy", depth: 3 },
   { text: "Backend Config Errors", slug: "config-errors", depth: 3 },
@@ -51,6 +52,25 @@ docker compose up -d
 # Download Fluent Bit configs and restart with --profile logging
 # curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/{fluent-bit.conf,parsers.conf,extract_container_id.lua,map_syslog_level.lua,wrap_logs.lua}
 # docker compose --profile logging up -d`;
+
+const fullMonitoringCode = `# After LogTide is running and you have an API key:
+
+# 1. Download Fluent Bit configs for Docker log collection
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/fluent-bit.conf
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/parsers.conf
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/extract_container_id.lua
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/map_syslog_level.lua
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/wrap_logs.lua
+
+# 2. Download system metrics config
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/fluent-bit-metrics.conf
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/format_metrics.lua
+
+# 3. Add your API key to .env
+echo "FLUENT_BIT_API_KEY=lp_your_api_key_here" >> .env
+
+# 4. Restart with both profiles enabled
+docker compose --profile logging --profile metrics up -d`;
 
 const curlCloudCode = `curl -X POST https://api.logtide.dev/api/v1/ingest \\
   -H "X-API-Key: lp_your_api_key_here" \\
@@ -393,6 +413,73 @@ logger.emit({
         </ul>
         <p class="mt-3 text-xs">
           Pin versions in production: <code class="bg-background px-1 rounded">LOGTIDE_BACKEND_IMAGE=logtide/backend:0.7.0</code>
+        </p>
+      </CardContent>
+    </Card>
+  </div>
+
+  <h2
+    id="full-monitoring"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Full Monitoring Setup
+  </h2>
+
+  <div class="mb-8 space-y-6">
+    <Card class="bg-muted/50">
+      <CardHeader>
+        <CardTitle class="text-base">Complete monitoring in 3 steps</CardTitle>
+      </CardHeader>
+      <CardContent class="text-sm">
+        <ol class="space-y-2 ml-2 list-decimal list-inside">
+          <li><strong>Deploy LogTide</strong> (Self-Hosted Quick Start above)</li>
+          <li><strong>Create account + API key</strong> (First Steps below)</li>
+          <li><strong>Enable monitoring profiles</strong> (commands below)</li>
+        </ol>
+      </CardContent>
+    </Card>
+
+    <div>
+      <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Enable Docker Logs + System Metrics</h3>
+      <p class="text-sm text-muted-foreground mb-3">
+        Once you have an API key from your LogTide project, download the monitoring configs and restart with both profiles:
+      </p>
+      <Code lang="bash" theme="one-dark-pro" code={fullMonitoringCode} />
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-base flex items-center gap-2">
+            <Icon name="lucide:file-text" class="w-4 h-4" />
+            Docker Logs
+          </CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground">
+          Automatically collects stdout/stderr from all Docker containers.
+          Logs appear with the container name as the service.
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-base flex items-center gap-2">
+            <Icon name="lucide:activity" class="w-4 h-4" />
+            System Metrics
+          </CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground">
+          Collects CPU, memory, disk I/O, and network stats every 30-60s.
+          Disk and network devices are auto-detected.
+          See <a href="/integrations/host-monitoring" class="text-primary underline">Host Monitoring</a> for details.
+        </CardContent>
+      </Card>
+    </div>
+
+    <Card class="border-amber-500/50 bg-amber-500/10">
+      <CardContent class="pt-4 text-sm">
+        <p class="flex items-start gap-2">
+          <Icon name="lucide:alert-triangle" class="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
+          <span><strong>Order matters:</strong> You must deploy LogTide first, create an account, create a project, and generate an API key before enabling the logging/metrics profiles. The profiles need a valid <code class="bg-background px-1 rounded">FLUENT_BIT_API_KEY</code> to send data.</span>
         </p>
       </CardContent>
     </Card>

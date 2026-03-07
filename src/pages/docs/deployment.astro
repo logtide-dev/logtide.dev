@@ -14,7 +14,8 @@ const headings = [
   { text: "Horizontal Scaling", slug: "horizontal-scaling", depth: 2 },
   { text: "Kubernetes (Helm)", slug: "kubernetes", depth: 2 },
   { text: "Build from Source (Alternative)", slug: "build-from-source", depth: 2 },
-  { text: "Monitoring & Maintenance", slug: "monitoring", depth: 2 }
+  { text: "Monitoring & Maintenance", slug: "monitoring", depth: 2 },
+  { text: "System Metrics Collection", slug: "system-metrics", depth: 3 },
 ];
 ---
 
@@ -119,6 +120,7 @@ docker compose up -d`}
 curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/fluent-bit.conf
 curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/parsers.conf
 curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/extract_container_id.lua
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/map_syslog_level.lua
 curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/wrap_logs.lua
 
 # Add your LogTide API key to .env
@@ -129,6 +131,30 @@ docker compose --profile logging up -d`}
           />
           <p class="text-sm text-muted-foreground mt-3">
               This profile is optional. Without it, LogTide runs without the Fluent Bit container.
+          </p>
+      </div>
+
+      <div>
+          <h3 id="system-metrics" class="text-lg font-semibold mb-3 scroll-mt-24">(Optional) System Metrics Collection</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+              To collect host system metrics (CPU, memory, disk I/O, network) and send them to LogTide as structured logs:
+          </p>
+          <Code
+              lang="bash"
+              theme="one-dark-pro"
+              code={`# Download metrics configuration files
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/fluent-bit-metrics.conf
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/format_metrics.lua
+
+# Start with metrics profile enabled
+docker compose --profile metrics up -d
+
+# Or combine with Docker log collection
+docker compose --profile logging --profile metrics up -d`}
+          />
+          <p class="text-sm text-muted-foreground mt-3">
+              Metrics appear as logs with services <code class="bg-muted px-1 rounded">host-cpu</code>, <code class="bg-muted px-1 rounded">host-memory</code>, <code class="bg-muted px-1 rounded">host-disk</code>, <code class="bg-muted px-1 rounded">host-network</code>.
+              Disk and network devices are auto-detected. See the <a href="/integrations/host-monitoring" class="text-primary hover:underline">Host Monitoring guide</a> for details.
           </p>
       </div>
 
