@@ -5,7 +5,7 @@ competitor: "Datadog"
 competitorUrl: "https://www.datadoghq.com"
 competitorPricing: "$0.10-$1.70/GB ingestion + per-user"
 logtidePricing: "Free (self-hosted)"
-migrationDoc: "/docs/migration/datadog"
+migrationDoc: "/docs/migration/datadog/"
 highlights:
   - "Save up to 90% on costs"
   - "Full data ownership"
@@ -174,12 +174,12 @@ client.info('my-app', 'User logged in', { userId: 123 });
 
 We have a detailed step-by-step migration guide covering SDK replacement, alert migration, parallel ingestion for validation, and cutover.
 
-[View the full Datadog migration guide](/docs/migration/datadog)
+[View the full Datadog migration guide](/docs/migration/datadog/)
 
 ---
 
 **Ready to switch from Datadog?**
 
 - [Deploy LogTide](https://github.com/logtide-dev/logtide) - Free, open-source
-- [Migration Guide](/docs/migration/datadog) - Step-by-step instructions
+- [Migration Guide](/docs/migration/datadog/) - Step-by-step instructions
 - [Join GitHub Discussions](https://github.com/logtide-dev/logtide/discussions) - Get help from the community

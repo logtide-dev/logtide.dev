@@ -682,8 +682,8 @@ accessLog:
 
 ## Next Steps
 
-- [Docker Integration](/integrations/docker) - Container log collection patterns
-- [Docker Compose Integration](/integrations/docker-compose) - Multi-service logging
-- [Kubernetes Integration](/integrations/kubernetes) - Cluster-wide log aggregation
-- [Security Monitoring](/use-cases/security-monitoring) - Build alerting rules for Traefik events
-- [Real-Time Alerting](/use-cases/real-time-alerting) - Get notified on traffic anomalies
+- [Docker Integration](/integrations/docker/) - Container log collection patterns
+- [Docker Compose Integration](/integrations/docker-compose/) - Multi-service logging
+- [Kubernetes Integration](/integrations/kubernetes/) - Cluster-wide log aggregation
+- [Security Monitoring](/use-cases/security-monitoring/) - Build alerting rules for Traefik events
+- [Real-Time Alerting](/use-cases/real-time-alerting/) - Get notified on traffic anomalies

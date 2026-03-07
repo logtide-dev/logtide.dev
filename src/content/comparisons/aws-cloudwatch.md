@@ -6,7 +6,7 @@ competitorUrl: "https://aws.amazon.com/cloudwatch/"
 brandIcon: "simple-icons:amazonwebservices"
 competitorPricing: "$0.50/GB ingestion + $0.03/GB/month storage"
 logtidePricing: "Free (self-hosted)"
-migrationDoc: "/docs/migration/cloudwatch"
+migrationDoc: "/docs/migration/cloudwatch/"
 highlights:
   - "80-90% cost savings"
   - "No AWS lock-in"
@@ -199,5 +199,5 @@ Compare LogTide and CloudWatch results for 1-2 weeks. Once validated, switch you
 **Ready to reduce your AWS logging bill?**
 
 - [Deploy LogTide](https://github.com/logtide-dev/logtide) - Free, open-source
-- [Docker Integration](/integrations/docker) - Quick start on any infrastructure
-- [Cost Optimization Guide](/use-cases/cost-optimization) - Detailed savings analysis
+- [Docker Integration](/integrations/docker/) - Quick start on any infrastructure
+- [Cost Optimization Guide](/use-cases/cost-optimization/) - Detailed savings analysis

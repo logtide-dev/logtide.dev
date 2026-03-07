@@ -431,10 +431,10 @@ If everything pages, nothing is important.
 
 ## Next Steps
 
-- [Incident Response](/use-cases/incident-response) - What to do when alerts fire
-- [Security Monitoring](/use-cases/security-monitoring) - Sigma rules for threat detection
-- [Node.js SDK](/integrations/nodejs) - Application logging setup
-- [Docker Integration](/integrations/docker) - Container log collection
+- [Incident Response](/use-cases/incident-response/) - What to do when alerts fire
+- [Security Monitoring](/use-cases/security-monitoring/) - Sigma rules for threat detection
+- [Node.js SDK](/integrations/nodejs/) - Application logging setup
+- [Docker Integration](/integrations/docker/) - Container log collection
 
 ---
 

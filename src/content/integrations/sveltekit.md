@@ -146,6 +146,6 @@ export const actions = {
 
 ## Next Steps
 
-- [JavaScript SDK](/docs/sdks/nodejs) - Core SDK reference
-- [SvelteKit SDK Reference](/docs/sdks/sveltekit) - Full API documentation
-- [Docker Integration](/integrations/docker) - Container deployments
+- [JavaScript SDK](/docs/sdks/nodejs/) - Core SDK reference
+- [SvelteKit SDK Reference](/docs/sdks/sveltekit/) - Full API documentation
+- [Docker Integration](/integrations/docker/) - Container deployments

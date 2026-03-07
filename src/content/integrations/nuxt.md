@@ -138,6 +138,6 @@ NUXT_PUBLIC_LOGTIDE_DSN=https://lp_client456@api.logtide.dev
 
 ## Next Steps
 
-- [JavaScript SDK](/docs/sdks/nodejs) - Core SDK reference
-- [Nuxt SDK Reference](/docs/sdks/nuxt-sdk) - Full API documentation
-- [Docker Integration](/integrations/docker) - Container deployments
+- [JavaScript SDK](/docs/sdks/nodejs/) - Core SDK reference
+- [Nuxt SDK Reference](/docs/sdks/nuxt-sdk/) - Full API documentation
+- [Docker Integration](/integrations/docker/) - Container deployments

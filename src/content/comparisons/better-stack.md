@@ -274,5 +274,5 @@ Compare LogTide and Better Stack results for 1-2 weeks:
 **Ready to own your log management?**
 
 - [Deploy LogTide](https://github.com/logtide-dev/logtide) - Free, open-source
-- [Docker Integration](/integrations/docker) - Quick start on any infrastructure
+- [Docker Integration](/integrations/docker/) - Quick start on any infrastructure
 - [Join GitHub Discussions](https://github.com/logtide-dev/logtide/discussions) - Get help from the community

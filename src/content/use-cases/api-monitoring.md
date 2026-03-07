@@ -380,7 +380,7 @@ log_format logtide_json escape=json
 access_log /var/log/nginx/api-access.log logtide_json;
 ```
 
-Ship nginx JSON logs to LogTide with the [nginx integration](/integrations/nginx) or a log shipper container.
+Ship nginx JSON logs to LogTide with the [nginx integration](/integrations/nginx/) or a log shipper container.
 
 ## Real-World Example: Fintech API Platform
 
@@ -517,11 +517,11 @@ Your application may report 200ms latency, but the user experiences 800ms becaus
 
 ## Next Steps
 
-- [Express Integration](/integrations/express) - Full Express SDK setup
-- [Fastify Integration](/integrations/fastify) - Fastify plugin configuration
-- [nginx Integration](/integrations/nginx) - Upstream access log shipping
-- [Real-Time Alerting](/use-cases/real-time-alerting) - Configure alert rules
-- [Incident Response](/use-cases/incident-response) - Debug API issues fast
+- [Express Integration](/integrations/express/) - Full Express SDK setup
+- [Fastify Integration](/integrations/fastify/) - Fastify plugin configuration
+- [nginx Integration](/integrations/nginx/) - Upstream access log shipping
+- [Real-Time Alerting](/use-cases/real-time-alerting/) - Configure alert rules
+- [Incident Response](/use-cases/incident-response/) - Debug API issues fast
 
 ---
 

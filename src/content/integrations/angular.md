@@ -144,6 +144,6 @@ export class CheckoutComponent {
 
 ## Next Steps
 
-- [JavaScript SDK](/docs/sdks/nodejs) - Core SDK reference
-- [Angular SDK Reference](/docs/sdks/angular) - Full API documentation
-- [Docker Integration](/integrations/docker) - Container deployments
+- [JavaScript SDK](/docs/sdks/nodejs/) - Core SDK reference
+- [Angular SDK Reference](/docs/sdks/angular/) - Full API documentation
+- [Docker Integration](/integrations/docker/) - Container deployments

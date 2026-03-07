@@ -194,5 +194,5 @@ gcloud logging buckets update _Default \
 **Ready to reduce your GCP logging costs?**
 
 - [Deploy LogTide](https://github.com/logtide-dev/logtide) - Free, open-source
-- [Kubernetes Integration](/integrations/kubernetes) - Run on GKE
-- [GDPR Compliance](/use-cases/gdpr-compliance) - Data sovereignty guide
+- [Kubernetes Integration](/integrations/kubernetes/) - Run on GKE
+- [GDPR Compliance](/use-cases/gdpr-compliance/) - Data sovereignty guide

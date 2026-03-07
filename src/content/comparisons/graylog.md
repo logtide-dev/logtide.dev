@@ -286,5 +286,5 @@ Compare LogTide and Graylog results for 1-2 weeks:
 **Ready to simplify your log management?**
 
 - [Deploy LogTide](https://github.com/logtide-dev/logtide) - Free, open-source
-- [Docker Compose Integration](/integrations/docker-compose) - One-command deployment
+- [Docker Compose Integration](/integrations/docker-compose/) - One-command deployment
 - [Join GitHub Discussions](https://github.com/logtide-dev/logtide/discussions) - Get help from the community

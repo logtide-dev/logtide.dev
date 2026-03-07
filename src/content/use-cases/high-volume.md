@@ -205,7 +205,7 @@ await producer.send({
 });
 ```
 
-See the [Kafka Integration Guide](/integrations/kafka) for full setup.
+See the [Kafka Integration Guide](/integrations/kafka/) for full setup.
 
 ### 5. Tiered Retention
 
@@ -430,7 +430,7 @@ Keeping debug logs for a year at $0.10/GB/month is wasteful.
 
 ## Next Steps
 
-- [Apache Kafka Integration](/integrations/kafka) - Build the buffer layer
-- [Kubernetes Integration](/integrations/kubernetes) - Scale LogTide on K8s
-- [Cost Optimization](/use-cases/cost-optimization) - Detailed savings analysis
-- [Real-Time Alerting](/use-cases/real-time-alerting) - Alert at high volume
+- [Apache Kafka Integration](/integrations/kafka/) - Build the buffer layer
+- [Kubernetes Integration](/integrations/kubernetes/) - Scale LogTide on K8s
+- [Cost Optimization](/use-cases/cost-optimization/) - Detailed savings analysis
+- [Real-Time Alerting](/use-cases/real-time-alerting/) - Alert at high volume

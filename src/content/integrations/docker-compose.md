@@ -727,7 +727,7 @@ Reduce buffer sizes and enable disk buffering:
 
 ## Next Steps
 
-- **[Docker Integration](/integrations/docker)** - Single container logging patterns
-- **[nginx Integration](/integrations/nginx)** - Detailed nginx access log parsing
-- **[Node.js Integration](/integrations/nodejs)** - Application-level logging
-- **[GDPR Compliance](/use-cases/gdpr-compliance)** - Privacy-first logging setup
+- **[Docker Integration](/integrations/docker/)** - Single container logging patterns
+- **[nginx Integration](/integrations/nginx/)** - Detailed nginx access log parsing
+- **[Node.js Integration](/integrations/nodejs/)** - Application-level logging
+- **[GDPR Compliance](/use-cases/gdpr-compliance/)** - Privacy-first logging setup

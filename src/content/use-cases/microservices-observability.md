@@ -378,7 +378,7 @@ spec:
                   key: LOGTIDE_DSN
 ```
 
-Repeat this pattern for each service, changing the `SERVICE_NAME` and image. See the [Kubernetes Integration](/integrations/kubernetes) guide for full setup.
+Repeat this pattern for each service, changing the `SERVICE_NAME` and image. See the [Kubernetes Integration](/integrations/kubernetes/) guide for full setup.
 
 ### 7. Cross-Service Alerting
 
@@ -525,11 +525,11 @@ queue.subscribe('order.process', (msg) => {
 
 ## Next Steps
 
-- [Express Integration](/integrations/express) - Detailed Express SDK setup
-- [Fastify Integration](/integrations/fastify) - Fastify SDK and middleware
-- [Kubernetes Integration](/integrations/kubernetes) - Deploy LogTide on K8s
-- [Incident Response](/use-cases/incident-response) - Use traces for faster debugging
-- [Real-Time Alerting](/use-cases/real-time-alerting) - Alert on cross-service failures
+- [Express Integration](/integrations/express/) - Detailed Express SDK setup
+- [Fastify Integration](/integrations/fastify/) - Fastify SDK and middleware
+- [Kubernetes Integration](/integrations/kubernetes/) - Deploy LogTide on K8s
+- [Incident Response](/use-cases/incident-response/) - Use traces for faster debugging
+- [Real-Time Alerting](/use-cases/real-time-alerting/) - Alert on cross-service failures
 
 ---
 

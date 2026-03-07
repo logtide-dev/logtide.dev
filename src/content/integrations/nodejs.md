@@ -156,7 +156,7 @@ app.get('/users/:id', (req, res) => {
 });
 ```
 
-See the [Express integration guide](/integrations/express) for full details.
+See the [Express integration guide](/integrations/express/) for full details.
 
 ## Fastify Integration
 
@@ -178,7 +178,7 @@ fastify.get('/users/:id', async (request) => {
 });
 ```
 
-See the [Fastify integration guide](/integrations/fastify) for full details.
+See the [Fastify integration guide](/integrations/fastify/) for full details.
 
 ## Error Capture
 
@@ -286,17 +286,17 @@ hub.captureLog('info', 'User action', {
 
 | Package | Framework |
 |---------|-----------|
-| [`@logtide/express`](/integrations/express) | Express.js |
-| [`@logtide/fastify`](/integrations/fastify) | Fastify |
-| [`@logtide/nextjs`](/integrations/nextjs) | Next.js |
-| [`@logtide/nuxt`](/integrations/nuxt) | Nuxt |
-| [`@logtide/sveltekit`](/integrations/sveltekit) | SvelteKit |
-| [`@logtide/hono`](/integrations/hono) | Hono |
-| [`@logtide/angular`](/integrations/angular) | Angular |
-| [`@logtide/elysia`](/integrations/elysia) | Elysia |
+| [`@logtide/express`](/integrations/express/) | Express.js |
+| [`@logtide/fastify`](/integrations/fastify/) | Fastify |
+| [`@logtide/nextjs`](/integrations/nextjs/) | Next.js |
+| [`@logtide/nuxt`](/integrations/nuxt/) | Nuxt |
+| [`@logtide/sveltekit`](/integrations/sveltekit/) | SvelteKit |
+| [`@logtide/hono`](/integrations/hono/) | Hono |
+| [`@logtide/angular`](/integrations/angular/) | Angular |
+| [`@logtide/elysia`](/integrations/elysia/) | Elysia |
 
 ## Next Steps
 
-- [JavaScript SDK Reference](/docs/sdks/nodejs) - Full API documentation
-- [Docker Integration](/integrations/docker) - Containerized deployments
-- [GDPR Compliance](/use-cases/gdpr-compliance) - Privacy-compliant logging
+- [JavaScript SDK Reference](/docs/sdks/nodejs/) - Full API documentation
+- [Docker Integration](/integrations/docker/) - Containerized deployments
+- [GDPR Compliance](/use-cases/gdpr-compliance/) - Privacy-compliant logging

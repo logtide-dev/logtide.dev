@@ -353,6 +353,6 @@ service:healthcheck AND level:error
 
 ## Next Steps
 
-- [nginx Integration](/integrations/nginx) - Detailed nginx log parsing
-- [Node.js SDK](/integrations/nodejs) - Structured logging from Node.js apps
-- [GDPR Compliance](/use-cases/gdpr-compliance) - Privacy-compliant logging
+- [nginx Integration](/integrations/nginx/) - Detailed nginx log parsing
+- [Node.js SDK](/integrations/nodejs/) - Structured logging from Node.js apps
+- [GDPR Compliance](/use-cases/gdpr-compliance/) - Privacy-compliant logging

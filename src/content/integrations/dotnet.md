@@ -789,8 +789,8 @@ using var scope = _scopeFactory.CreateScope();
 
 ## Next Steps
 
-- [Docker Integration](/integrations/docker) - Container deployment patterns
-- [Kubernetes Integration](/integrations/kubernetes) - Production K8s deployment
-- [PostgreSQL Integration](/integrations/postgresql) - Database logging correlation
-- [Compliance Audit Trail](/use-cases/compliance-audit-trail) - Regulatory logging
-- [Security Monitoring](/use-cases/security-monitoring) - Threat detection and alerting
+- [Docker Integration](/integrations/docker/) - Container deployment patterns
+- [Kubernetes Integration](/integrations/kubernetes/) - Production K8s deployment
+- [PostgreSQL Integration](/integrations/postgresql/) - Database logging correlation
+- [Compliance Audit Trail](/use-cases/compliance-audit-trail/) - Regulatory logging
+- [Security Monitoring](/use-cases/security-monitoring/) - Threat detection and alerting

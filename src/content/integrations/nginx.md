@@ -263,7 +263,7 @@ error_log /dev/stderr warn;
 access_log /dev/stdout json_combined;
 ```
 
-Then use Docker's Fluentd log driver as shown in the [Docker integration guide](/integrations/docker).
+Then use Docker's Fluentd log driver as shown in the [Docker integration guide](/integrations/docker/).
 
 ## Kubernetes Setup
 
@@ -467,6 +467,6 @@ log_format json_combined escape=json ...
 
 ## Next Steps
 
-- [Docker Integration](/integrations/docker) - Container log collection
-- [Node.js SDK](/integrations/nodejs) - Application logging with request correlation
-- [GDPR Compliance](/use-cases/gdpr-compliance) - Privacy-compliant logging setup
+- [Docker Integration](/integrations/docker/) - Container log collection
+- [Node.js SDK](/integrations/nodejs/) - Application logging with request correlation
+- [GDPR Compliance](/use-cases/gdpr-compliance/) - Privacy-compliant logging setup

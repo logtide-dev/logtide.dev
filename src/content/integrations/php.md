@@ -357,9 +357,9 @@ Reduce buffer size:
 
 ## Next Steps
 
-- **[Laravel Integration](/docs/sdks/laravel)** - Auto-discovery, Facade, log channel, breadcrumbs
-- **[Symfony Integration](/docs/sdks/symfony)** - Bundle with semantic config and event subscribers
-- **[Slim Integration](/docs/sdks/slim)** - PSR-15 middleware for Slim 4
-- **[WordPress Integration](/docs/sdks/wordpress)** - WordPress hooks and database monitoring
-- **[Docker Setup](/integrations/docker)** - Container deployment best practices
-- **[GDPR Compliance](/use-cases/gdpr-compliance)** - Privacy-first logging implementation
+- **[Laravel Integration](/docs/sdks/laravel/)** - Auto-discovery, Facade, log channel, breadcrumbs
+- **[Symfony Integration](/docs/sdks/symfony/)** - Bundle with semantic config and event subscribers
+- **[Slim Integration](/docs/sdks/slim/)** - PSR-15 middleware for Slim 4
+- **[WordPress Integration](/docs/sdks/wordpress/)** - WordPress hooks and database monitoring
+- **[Docker Setup](/integrations/docker/)** - Container deployment best practices
+- **[GDPR Compliance](/use-cases/gdpr-compliance/)** - Privacy-first logging implementation

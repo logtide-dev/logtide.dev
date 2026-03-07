@@ -460,7 +460,7 @@ MongoDB logs may contain nested objects. Ensure Fluent Bit's JSON parser handles
 
 ## Next Steps
 
-- [Docker Integration](/integrations/docker) - Container deployment
-- [Kubernetes Integration](/integrations/kubernetes) - StatefulSet patterns
-- [Node.js Integration](/integrations/nodejs) - Application-level MongoDB logging
-- [Incident Response](/use-cases/incident-response) - Debug database issues
+- [Docker Integration](/integrations/docker/) - Container deployment
+- [Kubernetes Integration](/integrations/kubernetes/) - StatefulSet patterns
+- [Node.js Integration](/integrations/nodejs/) - Application-level MongoDB logging
+- [Incident Response](/use-cases/incident-response/) - Debug database issues

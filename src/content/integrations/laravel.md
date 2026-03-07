@@ -316,8 +316,8 @@ LOGTIDE_DSN=xxx php artisan queue:work
 
 ## Next Steps
 
-- [PHP SDK Reference](/docs/sdks/php) - Core SDK documentation
-- [Symfony Integration](/docs/sdks/symfony) - Symfony Bundle integration
-- [nginx Integration](/integrations/nginx) - Web server logs
-- [Docker Integration](/integrations/docker) - Container deployment
-- [GDPR Compliance](/use-cases/gdpr-compliance) - Privacy-compliant logging
+- [PHP SDK Reference](/docs/sdks/php/) - Core SDK documentation
+- [Symfony Integration](/docs/sdks/symfony/) - Symfony Bundle integration
+- [nginx Integration](/integrations/nginx/) - Web server logs
+- [Docker Integration](/integrations/docker/) - Container deployment
+- [GDPR Compliance](/use-cases/gdpr-compliance/) - Privacy-compliant logging

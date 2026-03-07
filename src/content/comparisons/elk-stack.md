@@ -5,7 +5,7 @@ competitor: "ELK Stack"
 competitorUrl: "https://www.elastic.co/elastic-stack"
 competitorPricing: "Open-source + paid features"
 logtidePricing: "Free (self-hosted)"
-migrationDoc: "/docs/migration/elk"
+migrationDoc: "/docs/migration/elk/"
 highlights:
   - "Single stack vs 3+ components"
   - "75% less memory"
@@ -161,12 +161,12 @@ LogTide uses **60-75% less memory** for equivalent workloads.
 
 Our migration guide covers replacing Beats/Logstash with Fluent Bit, translating Elasticsearch queries, migrating Watcher alerts, and handling Logstash pipeline transformations.
 
-[View the full ELK migration guide](/docs/migration/elk)
+[View the full ELK migration guide](/docs/migration/elk/)
 
 ---
 
 **Ready to simplify your log stack?**
 
 - [Deploy LogTide](https://github.com/logtide-dev/logtide) - Free, open-source
-- [Migration Guide](/docs/migration/elk) - Step-by-step instructions
+- [Migration Guide](/docs/migration/elk/) - Step-by-step instructions
 - [Join GitHub Discussions](https://github.com/logtide-dev/logtide/discussions) - Get help from the community

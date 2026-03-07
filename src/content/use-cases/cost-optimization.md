@@ -298,10 +298,10 @@ Run both platforms in parallel during migration. Zero risk.
 
 ## Next Steps
 
-- [Docker Deployment](/integrations/docker) - Production deployment guide
-- [Kubernetes Integration](/integrations/kubernetes) - K8s deployment
-- [Security Monitoring](/use-cases/security-monitoring) - Built-in SIEM features
-- [GDPR Compliance](/use-cases/gdpr-compliance) - Data privacy benefits
+- [Docker Deployment](/integrations/docker/) - Production deployment guide
+- [Kubernetes Integration](/integrations/kubernetes/) - K8s deployment
+- [Security Monitoring](/use-cases/security-monitoring/) - Built-in SIEM features
+- [GDPR Compliance](/use-cases/gdpr-compliance/) - Data privacy benefits
 
 ---
 

@@ -122,6 +122,6 @@ fastify.setErrorHandler((error, request, reply) => {
 
 ## Next Steps
 
-- [JavaScript SDK](/docs/sdks/nodejs) - Core SDK reference
-- [Fastify SDK Reference](/docs/sdks/fastify) - Full API documentation
-- [Docker Integration](/integrations/docker) - Container deployments
+- [JavaScript SDK](/docs/sdks/nodejs/) - Core SDK reference
+- [Fastify SDK Reference](/docs/sdks/fastify/) - Full API documentation
+- [Docker Integration](/integrations/docker/) - Container deployments

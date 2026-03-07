@@ -368,6 +368,6 @@ traceId:abc123 → users.$id loader
 
 ## Next Steps
 
-- [Node.js SDK Reference](/integrations/nodejs) - Full SDK documentation
-- [Docker Integration](/integrations/docker) - Container deployments
-- [Incident Response](/use-cases/incident-response) - Production debugging with traces
+- [Node.js SDK Reference](/integrations/nodejs/) - Full SDK documentation
+- [Docker Integration](/integrations/docker/) - Container deployments
+- [Incident Response](/use-cases/incident-response/) - Production debugging with traces

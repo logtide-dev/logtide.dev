@@ -672,6 +672,6 @@ By then it's too late.
 
 ## Next Steps
 
-- [nginx Integration](/integrations/nginx) - Web server security logs
-- [Node.js SDK](/integrations/nodejs) - Application security logging
-- [GDPR Compliance](/use-cases/gdpr-compliance) - Privacy requirements
+- [nginx Integration](/integrations/nginx/) - Web server security logs
+- [Node.js SDK](/integrations/nodejs/) - Application security logging
+- [GDPR Compliance](/use-cases/gdpr-compliance/) - Privacy requirements

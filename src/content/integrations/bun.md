@@ -351,7 +351,7 @@ LogTide re-initializes cleanly on file changes.
 
 ## Next Steps
 
-- [Node.js SDK Reference](/integrations/nodejs) - Full SDK documentation
-- [Hono Integration](/integrations/hono) - Hono-specific guide
-- [Elysia Integration](/integrations/elysia) - Elysia-specific guide
-- [Docker Integration](/integrations/docker) - Container deployments
+- [Node.js SDK Reference](/integrations/nodejs/) - Full SDK documentation
+- [Hono Integration](/integrations/hono/) - Hono-specific guide
+- [Elysia Integration](/integrations/elysia/) - Elysia-specific guide
+- [Docker Integration](/integrations/docker/) - Container deployments

@@ -210,6 +210,6 @@ az monitor log-analytics workspace update \
 **Ready to cut your Azure Monitor bill?**
 
 - [Deploy LogTide](https://github.com/logtide-dev/logtide) - Free, open-source
-- [Kubernetes Integration](/integrations/kubernetes) - Run on AKS
-- [Cost Optimization Guide](/use-cases/cost-optimization) - Full savings analysis
-- [Security Monitoring](/use-cases/security-monitoring) - SIEM without Sentinel costs
+- [Kubernetes Integration](/integrations/kubernetes/) - Run on AKS
+- [Cost Optimization Guide](/use-cases/cost-optimization/) - Full savings analysis
+- [Security Monitoring](/use-cases/security-monitoring/) - SIEM without Sentinel costs

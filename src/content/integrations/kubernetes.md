@@ -702,6 +702,6 @@ Check for backpressure and increase retry limits:
 
 ## Next Steps
 
-- [Docker Integration](/integrations/docker) - Container logging basics
-- [nginx Integration](/integrations/nginx) - Web server logs in Kubernetes
-- [Node.js SDK](/integrations/nodejs) - Application-level logging
+- [Docker Integration](/integrations/docker/) - Container logging basics
+- [nginx Integration](/integrations/nginx/) - Web server logs in Kubernetes
+- [Node.js SDK](/integrations/nodejs/) - Application-level logging

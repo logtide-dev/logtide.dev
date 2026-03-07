@@ -510,7 +510,7 @@ mariadb --help --verbose | grep -A1 'log-error'
 
 ## Next Steps
 
-- [Docker Integration](/integrations/docker) - Container log collection
-- [Kubernetes Integration](/integrations/kubernetes) - Cluster-level monitoring
-- [PostgreSQL Integration](/integrations/postgresql) - Compare with PostgreSQL logging
-- [Security Monitoring](/use-cases/security-monitoring) - Database access auditing
+- [Docker Integration](/integrations/docker/) - Container log collection
+- [Kubernetes Integration](/integrations/kubernetes/) - Cluster-level monitoring
+- [PostgreSQL Integration](/integrations/postgresql/) - Compare with PostgreSQL logging
+- [Security Monitoring](/use-cases/security-monitoring/) - Database access auditing

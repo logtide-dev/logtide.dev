@@ -704,7 +704,7 @@ export const handler = async (event: any, context: any) => {
 
 ## Next Steps
 
-- [Node.js SDK Reference](/integrations/nodejs) - Full SDK documentation
-- [Docker Integration](/integrations/docker) - Containerized Lambda alternatives
-- [Cost Optimization](/use-cases/cost-optimization) - Reduce your logging costs
-- [Real-Time Alerting](/use-cases/real-time-alerting) - Alert on Lambda errors and timeouts
+- [Node.js SDK Reference](/integrations/nodejs/) - Full SDK documentation
+- [Docker Integration](/integrations/docker/) - Containerized Lambda alternatives
+- [Cost Optimization](/use-cases/cost-optimization/) - Reduce your logging costs
+- [Real-Time Alerting](/use-cases/real-time-alerting/) - Alert on Lambda errors and timeouts

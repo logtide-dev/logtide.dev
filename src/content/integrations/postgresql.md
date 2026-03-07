@@ -498,6 +498,6 @@ SHOW log_min_duration_statement;
 
 ## Next Steps
 
-- [Docker Integration](/integrations/docker) - Container log collection
-- [Node.js SDK](/integrations/nodejs) - Application logging
-- [GDPR Compliance](/use-cases/gdpr-compliance) - Privacy-compliant setup
+- [Docker Integration](/integrations/docker/) - Container log collection
+- [Node.js SDK](/integrations/nodejs/) - Application logging
+- [GDPR Compliance](/use-cases/gdpr-compliance/) - Privacy-compliant setup

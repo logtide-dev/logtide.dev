@@ -646,7 +646,7 @@ Enable position tracking:
 
 ## Next Steps
 
-- **[Docker Integration](/integrations/docker)** - Container logging patterns
-- **[nginx Integration](/integrations/nginx)** - Web server log parsing
-- **[PostgreSQL Integration](/integrations/postgresql)** - Database logging
-- **[Security Monitoring](/use-cases/security-monitoring)** - Build alerting on journal events
+- **[Docker Integration](/integrations/docker/)** - Container logging patterns
+- **[nginx Integration](/integrations/nginx/)** - Web server log parsing
+- **[PostgreSQL Integration](/integrations/postgresql/)** - Database logging
+- **[Security Monitoring](/use-cases/security-monitoring/)** - Build alerting on journal events

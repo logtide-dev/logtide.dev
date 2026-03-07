@@ -225,7 +225,7 @@ System metrics via Fluent Bit require Linux /proc filesystem. They won't work on
 
 ## Next Steps
 
-- [Docker Log Collection](/integrations/docker) - Collect container logs alongside metrics
-- [OpenTelemetry](/docs/opentelemetry) - Send traces and logs via OTLP
-- [Real-Time Alerting](/use-cases/real-time-alerting) - Set up alerts for metric thresholds
-- [systemd Journal](/integrations/systemd) - Collect system service logs
+- [Docker Log Collection](/integrations/docker/) - Collect container logs alongside metrics
+- [OpenTelemetry](/docs/opentelemetry/) - Send traces and logs via OTLP
+- [Real-Time Alerting](/use-cases/real-time-alerting/) - Set up alerts for metric thresholds
+- [systemd Journal](/integrations/systemd/) - Collect system service logs

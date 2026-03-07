@@ -3,7 +3,7 @@ version: "v1.x"
 title: "Stable Release & Enterprise Features"
 description: "Performance hardening, enterprise SSO/SAML, advanced RBAC, managed cloud GA, and tiered storage with hot/warm/cold data lifecycle."
 status: planned
-targetDate: "2027"
+targetDate: "H2 2026"
 type: feature
 highlights:
   - "Performance hardening for production scale"

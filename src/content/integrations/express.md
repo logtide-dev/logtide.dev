@@ -145,6 +145,6 @@ Each request generates a structured log:
 
 ## Next Steps
 
-- [JavaScript SDK](/docs/sdks/nodejs) - Core SDK reference
-- [Express SDK Reference](/docs/sdks/express) - Full API documentation
-- [Docker Integration](/integrations/docker) - Container deployments
+- [JavaScript SDK](/docs/sdks/nodejs/) - Core SDK reference
+- [Express SDK Reference](/docs/sdks/express/) - Full API documentation
+- [Docker Integration](/integrations/docker/) - Container deployments

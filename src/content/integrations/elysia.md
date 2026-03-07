@@ -121,6 +121,6 @@ app
 
 ## Next Steps
 
-- [JavaScript SDK](/docs/sdks/nodejs) - Core SDK reference
-- [Elysia SDK Reference](/docs/sdks/elysia) - Full API documentation
-- [Docker Integration](/integrations/docker) - Container deployments
+- [JavaScript SDK](/docs/sdks/nodejs/) - Core SDK reference
+- [Elysia SDK Reference](/docs/sdks/elysia/) - Full API documentation
+- [Docker Integration](/integrations/docker/) - Container deployments

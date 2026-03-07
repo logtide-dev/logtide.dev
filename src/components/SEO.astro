@@ -23,9 +23,9 @@ const {
   author = SITE_NAME
 } = Astro.props;
 
-// Compute canonical URL - normalize to no trailing slash (except homepage)
+// Compute canonical URL - ensure trailing slash to match trailingSlash: 'always' config
 const rawPathname = Astro.url.pathname;
-const pathname = rawPathname === '/' ? '/' : rawPathname.replace(/\/+$/, '');
+const pathname = rawPathname === '/' ? '/' : (rawPathname.endsWith('/') ? rawPathname : rawPathname + '/');
 const canonicalURL = `${SITE_URL}${pathname}`;
 
 const isHomepage = pathname === '/' || pathname === '';
@@ -107,6 +107,9 @@ if (type === 'article' && (datePublished || dateModified)) {
 
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
+
+<!-- Meta Description -->
+<meta name="description" content={description} />
 
 <!-- Additional SEO meta tags -->
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />

@@ -5,7 +5,7 @@ competitor: "SigNoz"
 competitorUrl: "https://signoz.io"
 competitorPricing: "Open-source (+ cloud plans)"
 logtidePricing: "Free (self-hosted)"
-migrationDoc: "/docs/migration/signoz"
+migrationDoc: "/docs/migration/signoz/"
 highlights:
   - "Built-in SIEM & Sigma rules"
   - "Flexible storage (TimescaleDB or ClickHouse)"
@@ -145,12 +145,12 @@ exporters:
 
 Our migration guide covers updating OTLP endpoints, migrating alerts, and enabling LogTide's security features that aren't available in SigNoz.
 
-[View the full SigNoz migration guide](/docs/migration/signoz)
+[View the full SigNoz migration guide](/docs/migration/signoz/)
 
 ---
 
 **Ready to add security to your log management?**
 
 - [Deploy LogTide](https://github.com/logtide-dev/logtide) - Free, open-source
-- [Migration Guide](/docs/migration/signoz) - Step-by-step instructions
+- [Migration Guide](/docs/migration/signoz/) - Step-by-step instructions
 - [Join GitHub Discussions](https://github.com/logtide-dev/logtide/discussions) - Get help from the community

@@ -271,5 +271,5 @@ Compare LogTide and Sumo Logic results for 1-2 weeks:
 **Ready to cut your log management costs?**
 
 - [Deploy LogTide](https://github.com/logtide-dev/logtide) - Free, open-source
-- [Docker Integration](/integrations/docker) - Quick start on any infrastructure
+- [Docker Integration](/integrations/docker/) - Quick start on any infrastructure
 - [Join GitHub Discussions](https://github.com/logtide-dev/logtide/discussions) - Get help from the community

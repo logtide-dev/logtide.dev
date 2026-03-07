@@ -658,8 +658,8 @@ With the `preload` flag, the LogTide client is shared across forked workers. If 
 
 ## Next Steps
 
-- [Python SDK Reference](/integrations/python) - Full SDK documentation
-- [Docker Integration](/integrations/docker) - Container deployment patterns
-- [PostgreSQL Integration](/integrations/postgresql) - Database logging correlation
-- [GDPR Compliance](/use-cases/gdpr-compliance) - Privacy-compliant logging
-- [Security Monitoring](/use-cases/security-monitoring) - Threat detection and alerting
+- [Python SDK Reference](/integrations/python/) - Full SDK documentation
+- [Docker Integration](/integrations/docker/) - Container deployment patterns
+- [PostgreSQL Integration](/integrations/postgresql/) - Database logging correlation
+- [GDPR Compliance](/use-cases/gdpr-compliance/) - Privacy-compliant logging
+- [Security Monitoring](/use-cases/security-monitoring/) - Threat detection and alerting

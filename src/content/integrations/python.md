@@ -704,6 +704,6 @@ if __name__ == "__main__":
 
 ## Next Steps
 
-- [Docker Integration](/integrations/docker) - Containerized deployments
-- [PostgreSQL Integration](/integrations/postgresql) - Database query logging
-- [GDPR Compliance](/use-cases/gdpr-compliance) - Privacy-compliant logging
+- [Docker Integration](/integrations/docker/) - Containerized deployments
+- [PostgreSQL Integration](/integrations/postgresql/) - Database query logging
+- [GDPR Compliance](/use-cases/gdpr-compliance/) - Privacy-compliant logging

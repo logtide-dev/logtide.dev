@@ -5,7 +5,7 @@ competitor: "Grafana Loki"
 competitorUrl: "https://grafana.com/oss/loki/"
 competitorPricing: "Open-source (+ Grafana Cloud plans)"
 logtidePricing: "Free (self-hosted)"
-migrationDoc: "/docs/migration/loki"
+migrationDoc: "/docs/migration/loki/"
 highlights:
   - "Built-in alerting & UI"
   - "True full-text search"
@@ -126,12 +126,12 @@ LogTide indexes both labels and content, providing fast full-text search. It's a
 
 Migrating from Loki is straightforward since both support Fluent Bit and OpenTelemetry. Our migration guide covers replacing Promtail, translating LogQL queries, and setting up alerts.
 
-[View the full Loki migration guide](/docs/migration/loki)
+[View the full Loki migration guide](/docs/migration/loki/)
 
 ---
 
 **Ready to switch from Grafana Loki?**
 
 - [Deploy LogTide](https://github.com/logtide-dev/logtide) - Free, open-source
-- [Migration Guide](/docs/migration/loki) - Step-by-step instructions
+- [Migration Guide](/docs/migration/loki/) - Step-by-step instructions
 - [Join GitHub Discussions](https://github.com/logtide-dev/logtide/discussions) - Get help from the community

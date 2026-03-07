@@ -426,7 +426,7 @@ ErrorLog /proc/self/fd/2
 CustomLog /proc/self/fd/1 json_combined
 ```
 
-Then use Docker's Fluentd log driver as shown in the [Docker integration guide](/integrations/docker).
+Then use Docker's Fluentd log driver as shown in the [Docker integration guide](/integrations/docker/).
 
 ## Vector Configuration (Alternative)
 
@@ -645,8 +645,8 @@ SecAuditLogParts ABZ
 
 ## Next Steps
 
-- [Docker Integration](/integrations/docker) - Container log collection
-- [systemd Integration](/integrations/systemd) - Collect Apache logs via journald
-- [PHP Integration](/integrations/php) - Application-level logging from PHP
-- [Security Monitoring](/use-cases/security-monitoring) - Build alerting rules on Apache events
-- [Compliance Audit Trail](/use-cases/compliance-audit-trail) - Meet compliance requirements
+- [Docker Integration](/integrations/docker/) - Container log collection
+- [systemd Integration](/integrations/systemd/) - Collect Apache logs via journald
+- [PHP Integration](/integrations/php/) - Application-level logging from PHP
+- [Security Monitoring](/use-cases/security-monitoring/) - Build alerting rules on Apache events
+- [Compliance Audit Trail](/use-cases/compliance-audit-trail/) - Meet compliance requirements

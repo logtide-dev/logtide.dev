@@ -379,6 +379,6 @@ Deno downloads and caches npm packages on first run. Subsequent runs are fast. I
 
 ## Next Steps
 
-- [Node.js SDK Reference](/integrations/nodejs) - Full SDK documentation
-- [Docker Integration](/integrations/docker) - Container deployments
-- [Bun Integration](/integrations/bun) - Alternative JS runtime
+- [Node.js SDK Reference](/integrations/nodejs/) - Full SDK documentation
+- [Docker Integration](/integrations/docker/) - Container deployments
+- [Bun Integration](/integrations/bun/) - Alternative JS runtime

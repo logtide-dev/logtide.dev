@@ -505,10 +505,10 @@ Grep through 500 GB of unstructured logs during a 3 AM incident. Good luck.
 
 ## Next Steps
 
-- [Node.js SDK](/integrations/nodejs) - Full logging setup
-- [nginx Integration](/integrations/nginx) - Web server logging
-- [Real-Time Alerting](/use-cases/real-time-alerting) - Alert configuration
-- [Security Monitoring](/use-cases/security-monitoring) - Threat detection
+- [Node.js SDK](/integrations/nodejs/) - Full logging setup
+- [nginx Integration](/integrations/nginx/) - Web server logging
+- [Real-Time Alerting](/use-cases/real-time-alerting/) - Alert configuration
+- [Security Monitoring](/use-cases/security-monitoring/) - Threat detection
 
 ---
 

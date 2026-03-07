@@ -462,7 +462,7 @@ This guarantees logs survive broker failures.
 
 ## Next Steps
 
-- [Docker Integration](/integrations/docker) - Container log routing to Kafka
-- [Kubernetes Integration](/integrations/kubernetes) - Kafka on K8s
-- [Real-Time Alerting](/use-cases/real-time-alerting) - Alert on Kafka streams
-- [Node.js Integration](/integrations/nodejs) - Application log producers
+- [Docker Integration](/integrations/docker/) - Container log routing to Kafka
+- [Kubernetes Integration](/integrations/kubernetes/) - Kafka on K8s
+- [Real-Time Alerting](/use-cases/real-time-alerting/) - Alert on Kafka streams
+- [Node.js Integration](/integrations/nodejs/) - Application log producers

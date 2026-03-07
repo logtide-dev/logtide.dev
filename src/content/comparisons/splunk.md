@@ -5,7 +5,7 @@ competitor: "Splunk"
 competitorUrl: "https://www.splunk.com"
 competitorPricing: "$150-$1,800/GB/day indexed"
 logtidePricing: "Free (self-hosted)"
-migrationDoc: "/docs/migration/splunk"
+migrationDoc: "/docs/migration/splunk/"
 highlights:
   - "No per-GB licensing"
   - "Sigma rules vs proprietary SPL"
@@ -148,12 +148,12 @@ SPL queries translate to LogTide REST API parameters:
 
 We provide a detailed migration guide covering forwarder replacement, SPL query translation, alert migration, and security detection migration.
 
-[View the full Splunk migration guide](/docs/migration/splunk)
+[View the full Splunk migration guide](/docs/migration/splunk/)
 
 ---
 
 **Ready to switch from Splunk?**
 
 - [Deploy LogTide](https://github.com/logtide-dev/logtide) - Free, open-source
-- [Migration Guide](/docs/migration/splunk) - Step-by-step instructions
+- [Migration Guide](/docs/migration/splunk/) - Step-by-step instructions
 - [Join GitHub Discussions](https://github.com/logtide-dev/logtide/discussions) - Get help from the community

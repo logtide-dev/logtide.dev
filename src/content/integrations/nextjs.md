@@ -237,7 +237,7 @@ CMD ["node", "server.js"]
 
 ## Next Steps
 
-- [JavaScript SDK](/docs/sdks/nodejs) - Core SDK reference
-- [Next.js SDK Reference](/docs/sdks/nextjs-sdk) - Full API documentation
-- [Docker Integration](/integrations/docker) - Container deployment
-- [GDPR Compliance](/use-cases/gdpr-compliance) - Privacy-compliant logging
+- [JavaScript SDK](/docs/sdks/nodejs/) - Core SDK reference
+- [Next.js SDK Reference](/docs/sdks/nextjs-sdk/) - Full API documentation
+- [Docker Integration](/integrations/docker/) - Container deployment
+- [GDPR Compliance](/use-cases/gdpr-compliance/) - Privacy-compliant logging

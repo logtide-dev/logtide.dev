@@ -686,8 +686,8 @@ val client = LogTideClient(
 
 ## Next Steps
 
-- **[Docker Integration](/integrations/docker)** - Container deployment patterns
-- **[Kubernetes Integration](/integrations/kubernetes)** - Production K8s deployment
-- **[PostgreSQL Integration](/integrations/postgresql)** - Database logging correlation
-- **[Multi-tenant SaaS](/use-cases/multi-tenant-saas)** - Tenant isolation patterns
-- **[GDPR Compliance](/use-cases/gdpr-compliance)** - Privacy-first logging
+- **[Docker Integration](/integrations/docker/)** - Container deployment patterns
+- **[Kubernetes Integration](/integrations/kubernetes/)** - Production K8s deployment
+- **[PostgreSQL Integration](/integrations/postgresql/)** - Database logging correlation
+- **[Multi-tenant SaaS](/use-cases/multi-tenant-saas/)** - Tenant isolation patterns
+- **[GDPR Compliance](/use-cases/gdpr-compliance/)** - Privacy-first logging

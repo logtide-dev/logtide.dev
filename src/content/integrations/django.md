@@ -488,7 +488,7 @@ celery -A myproject inspect conf | grep LOGTIDE
 
 ## Next Steps
 
-- [Python SDK Reference](/integrations/python) - Full SDK documentation
-- [Docker Integration](/integrations/docker) - Container deployments
-- [GDPR Compliance](/use-cases/gdpr-compliance) - Privacy-compliant logging
-- [Security Monitoring](/use-cases/security-monitoring) - Admin audit alerts
+- [Python SDK Reference](/integrations/python/) - Full SDK documentation
+- [Docker Integration](/integrations/docker/) - Container deployments
+- [GDPR Compliance](/use-cases/gdpr-compliance/) - Privacy-compliant logging
+- [Security Monitoring](/use-cases/security-monitoring/) - Admin audit alerts

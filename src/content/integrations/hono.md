@@ -140,6 +140,6 @@ app.onError((err, c) => {
 
 ## Next Steps
 
-- [JavaScript SDK](/docs/sdks/nodejs) - Core SDK reference
-- [Hono SDK Reference](/docs/sdks/hono) - Full API documentation
-- [Docker Integration](/integrations/docker) - Container deployments
+- [JavaScript SDK](/docs/sdks/nodejs/) - Core SDK reference
+- [Hono SDK Reference](/docs/sdks/hono/) - Full API documentation
+- [Docker Integration](/integrations/docker/) - Container deployments

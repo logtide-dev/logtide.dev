@@ -608,8 +608,8 @@ For high-traffic WebSocket connections, log at the `debug` level for individual 
 
 ## Next Steps
 
-- [Python SDK Reference](/integrations/python) - Full SDK documentation
-- [Docker Integration](/integrations/docker) - Container deployment patterns
-- [PostgreSQL Integration](/integrations/postgresql) - Database logging correlation
-- [API Monitoring](/use-cases/api-monitoring) - Endpoint performance tracking
-- [Security Monitoring](/use-cases/security-monitoring) - Threat detection and alerting
+- [Python SDK Reference](/integrations/python/) - Full SDK documentation
+- [Docker Integration](/integrations/docker/) - Container deployment patterns
+- [PostgreSQL Integration](/integrations/postgresql/) - Database logging correlation
+- [API Monitoring](/use-cases/api-monitoring/) - Endpoint performance tracking
+- [Security Monitoring](/use-cases/security-monitoring/) - Threat detection and alerting

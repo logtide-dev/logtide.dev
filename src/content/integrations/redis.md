@@ -676,7 +676,7 @@ WHERE service = 'redis'
 
 ## Next Steps
 
-- **[Docker Integration](/integrations/docker)** - Container deployment patterns
-- **[Kubernetes Integration](/integrations/kubernetes)** - StatefulSet best practices
-- **[Node.js Integration](/integrations/nodejs)** - Application-level Redis logging
-- **[Security Monitoring](/use-cases/security-monitoring)** - Build Redis security alerts
+- **[Docker Integration](/integrations/docker/)** - Container deployment patterns
+- **[Kubernetes Integration](/integrations/kubernetes/)** - StatefulSet best practices
+- **[Node.js Integration](/integrations/nodejs/)** - Application-level Redis logging
+- **[Security Monitoring](/use-cases/security-monitoring/)** - Build Redis security alerts

@@ -870,8 +870,8 @@ curl -u admin:password http://localhost:15672/api/overview | jq '{
 
 ## Next Steps
 
-- [Docker Integration](/integrations/docker) - Container log collection patterns
-- [Docker Compose Integration](/integrations/docker-compose) - Multi-service logging
-- [Node.js Integration](/integrations/nodejs) - Application-level consumer logging
-- [Incident Response](/use-cases/incident-response) - Build runbooks for RabbitMQ outages
-- [Real-Time Alerting](/use-cases/real-time-alerting) - Alert on queue backlogs and dead letters
+- [Docker Integration](/integrations/docker/) - Container log collection patterns
+- [Docker Compose Integration](/integrations/docker-compose/) - Multi-service logging
+- [Node.js Integration](/integrations/nodejs/) - Application-level consumer logging
+- [Incident Response](/use-cases/incident-response/) - Build runbooks for RabbitMQ outages
+- [Real-Time Alerting](/use-cases/real-time-alerting/) - Alert on queue backlogs and dead letters

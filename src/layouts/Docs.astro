@@ -39,7 +39,7 @@ const pathParts = pathname.split('/').filter(Boolean);
 const seoBreadcrumbs = [{ name: 'Home', url: '/' }];
 for (let i = 0; i < pathParts.length; i++) {
   const name = pathParts[i].charAt(0).toUpperCase() + pathParts[i].slice(1).replace(/-/g, ' ');
-  const url = '/' + pathParts.slice(0, i + 1).join('/');
+  const url = '/' + pathParts.slice(0, i + 1).join('/') + '/';
   seoBreadcrumbs.push({ name, url });
 }
 const indexPages = ['/docs', '/docs/sdks', '/docs/migration'];
@@ -157,7 +157,6 @@ try {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={description} />
     <SEO
       title={`${title} | LogTide Docs`}
       description={description}

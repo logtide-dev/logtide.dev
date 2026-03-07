@@ -63,7 +63,7 @@ User → Organizations (1:N) → Projects (1:N) → API Keys → Logs
               ingestion and query. Prefixed with <code class="bg-muted px-1 rounded">lp_</code>.
           </li>
           <li>
-              <strong>Logs</strong> - Time-series data stored via the <a href="/docs/storage-engines" class="text-primary hover:underline">Reservoir storage abstraction</a>,
+              <strong>Logs</strong> - Time-series data stored via the <a href="/docs/storage-engines/" class="text-primary hover:underline">Reservoir storage abstraction</a>,
               supporting both TimescaleDB and ClickHouse with automatic compression and retention policies.
           </li>
       </ul>
@@ -110,7 +110,7 @@ User → Organizations (1:N) → Projects (1:N) → API Keys → Logs
               <CardTitle class="text-base">Log Storage</CardTitle>
           </CardHeader>
           <CardContent class="text-sm space-y-1 text-muted-foreground">
-              <p><strong>Abstraction:</strong> <a href="/docs/storage-engines" class="text-primary hover:underline">Reservoir</a> (pluggable engine)</p>
+              <p><strong>Abstraction:</strong> <a href="/docs/storage-engines/" class="text-primary hover:underline">Reservoir</a> (pluggable engine)</p>
               <p><strong>Engine A:</strong> TimescaleDB (PostgreSQL extension)</p>
               <p><strong>Engine B:</strong> ClickHouse (columnar OLAP)</p>
               <p><strong>Compression:</strong> Automatic (both engines)</p>
@@ -180,7 +180,7 @@ User → Organizations (1:N) → Projects (1:N) → API Keys → Logs
       <div>
           <h3 id="storage-engines" class="text-lg font-semibold mb-2 scroll-mt-24">Storage Engines (Reservoir)</h3>
           <p class="text-muted-foreground mb-3">
-              Log and span storage is managed by the <a href="/docs/storage-engines" class="text-primary hover:underline">Reservoir abstraction layer</a>,
+              Log and span storage is managed by the <a href="/docs/storage-engines/" class="text-primary hover:underline">Reservoir abstraction layer</a>,
               which provides a unified API over two pluggable engines:
           </p>
           <ul class="ml-6 space-y-1 text-sm text-muted-foreground list-none">
@@ -312,7 +312,7 @@ User → Organizations (1:N) → Projects (1:N) → API Keys → Logs
               Different workloads benefit from different databases. TimescaleDB
               is ideal for small-to-medium deployments that already run PostgreSQL.
               ClickHouse excels at high-volume analytical workloads. The Reservoir
-              abstraction lets you <a href="/docs/storage-engines" class="text-primary hover:underline">choose the best engine</a> for your scale
+              abstraction lets you <a href="/docs/storage-engines/" class="text-primary hover:underline">choose the best engine</a> for your scale
               without changing any application code.
           </CardContent>
       </Card>

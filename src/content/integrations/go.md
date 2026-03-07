@@ -641,6 +641,6 @@ handler, _ := logtide.NewHandler(logtide.Config{
 
 ## Next Steps
 
-- [Docker Integration](/integrations/docker) - Container deployment
-- [Kubernetes Integration](/integrations/kubernetes) - Cluster logging
-- [nginx Integration](/integrations/nginx) - Reverse proxy logs
+- [Docker Integration](/integrations/docker/) - Container deployment
+- [Kubernetes Integration](/integrations/kubernetes/) - Cluster logging
+- [nginx Integration](/integrations/nginx/) - Reverse proxy logs

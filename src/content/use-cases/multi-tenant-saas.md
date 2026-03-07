@@ -574,6 +574,6 @@ Until one enterprise customer asks for their log export.
 
 ## Next Steps
 
-- [Node.js SDK](/integrations/nodejs) - Full logging setup
-- [PostgreSQL Integration](/integrations/postgresql) - Database logging
-- [GDPR Compliance](/use-cases/gdpr-compliance) - Privacy requirements for EU tenants
+- [Node.js SDK](/integrations/nodejs/) - Full logging setup
+- [PostgreSQL Integration](/integrations/postgresql/) - Database logging
+- [GDPR Compliance](/use-cases/gdpr-compliance/) - Privacy requirements for EU tenants

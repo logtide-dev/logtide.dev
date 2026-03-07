@@ -443,10 +443,10 @@ Without deployment markers in your logs, you cannot correlate production inciden
 
 ## Next Steps
 
-- [Docker Integration](/integrations/docker) - Container build logging
-- [Kubernetes Integration](/integrations/kubernetes) - Deployment orchestration
-- [Incident Response](/use-cases/incident-response) - Correlate deploys with incidents
-- [Compliance Audit Trail](/use-cases/compliance-audit-trail) - Meet regulatory requirements
+- [Docker Integration](/integrations/docker/) - Container build logging
+- [Kubernetes Integration](/integrations/kubernetes/) - Deployment orchestration
+- [Incident Response](/use-cases/incident-response/) - Correlate deploys with incidents
+- [Compliance Audit Trail](/use-cases/compliance-audit-trail/) - Meet regulatory requirements
 
 ---
 
