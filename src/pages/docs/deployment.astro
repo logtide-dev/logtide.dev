@@ -137,7 +137,7 @@ docker compose --profile logging up -d`}
       <div>
           <h3 id="system-metrics" class="text-lg font-semibold mb-3 scroll-mt-24">(Optional) System Metrics Collection</h3>
           <p class="text-sm text-muted-foreground mb-3">
-              To collect host system metrics (CPU, memory, disk I/O, network) and send them to LogTide as structured logs:
+              To collect host system metrics (CPU, memory, disk I/O, network) via the standard OTLP endpoint:
           </p>
           <Code
               lang="bash"
@@ -153,8 +153,8 @@ docker compose --profile metrics up -d
 docker compose --profile logging --profile metrics up -d`}
           />
           <p class="text-sm text-muted-foreground mt-3">
-              Metrics appear as logs with services <code class="bg-muted px-1 rounded">host-cpu</code>, <code class="bg-muted px-1 rounded">host-memory</code>, <code class="bg-muted px-1 rounded">host-disk</code>, <code class="bg-muted px-1 rounded">host-network</code>.
-              Disk and network devices are auto-detected. See the <a href="/integrations/host-monitoring" class="text-primary hover:underline">Host Monitoring guide</a> for details.
+              Metrics appear in the <strong>Metrics Explorer</strong> under service <code class="bg-muted px-1 rounded">host-system</code>.
+              Fluent Bit is included for convenience, but any OTLP-compatible collector works. See the <a href="/integrations/host-monitoring" class="text-primary hover:underline">Host Monitoring guide</a> for details.
           </p>
       </div>
 

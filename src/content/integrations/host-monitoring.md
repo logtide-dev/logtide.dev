@@ -1,14 +1,14 @@
 ---
 title: "Host System Monitoring Integration"
-description: "Collect CPU, memory, disk I/O, and network metrics from your host machine and send them to LogTide as structured logs."
+description: "Collect CPU, memory, disk I/O, and network metrics from your host machine using OTLP-compatible tools and visualize them in the LogTide Metrics Explorer."
 category: "infrastructure"
 difficulty: "easy"
 brandIcon: "lucide:activity"
 highlights:
-  - "Zero-config auto-detection"
+  - "Standard OTLP endpoint"
   - "CPU, RAM, disk, network"
-  - "Alert on thresholds"
-  - "No extra tools needed"
+  - "Metrics Explorer charts"
+  - "Bring your own collector"
 relatedIntegrations:
   - "docker"
   - "docker-compose"
@@ -24,26 +24,36 @@ keywords:
   - "disk monitoring"
   - "server monitoring"
   - "fluent bit metrics"
+  - "otlp metrics"
+  - "opentelemetry metrics"
 ---
 
-Monitor your host machine's health by collecting system metrics and sending them to LogTide as structured logs. Uses Fluent Bit's native input plugins with auto-detection of disk and network devices.
+Monitor your host machine's health by collecting system metrics and viewing them in the LogTide Metrics Explorer. LogTide accepts metrics via the standard **OpenTelemetry (OTLP)** endpoint, so you can use Fluent Bit (included in Docker Compose), or any OTLP-compatible tool you already have.
 
-## Why monitor host metrics in LogTide?
+## Standard OTLP Endpoint
 
-- **Single pane of glass**: Application logs and system metrics in one place
-- **Zero config**: Disk and network devices are auto-detected from /proc
-- **Alert on thresholds**: Create alert rules for high CPU, low memory, disk I/O spikes
-- **No extra tools**: No Prometheus, Grafana, or node_exporter needed
-- **Lightweight**: Fluent Bit uses ~5MB RAM for metrics collection
+LogTide exposes a standard OpenTelemetry metrics endpoint:
 
-## Prerequisites
+```
+POST /v1/otlp/metrics
+Content-Type: application/json
+X-API-Key: <your-api-key>
+```
 
-- LogTide instance running (self-hosted)
-- Docker Compose setup with LogTide
-- API key from LogTide dashboard
-- Linux host (metrics read from /proc)
+This means you are **not limited to Fluent Bit**. Any tool that speaks OTLP can send metrics to LogTide:
 
-## Quick Start
+| Tool | Description |
+|------|-------------|
+| **Fluent Bit** | Included in Docker Compose (`--profile metrics`), zero config |
+| **OpenTelemetry Collector** | The standard OTel collector with `otlphttp` exporter |
+| **Grafana Alloy / Agent** | Grafana's collector, supports OTLP export |
+| **Vector** | Datadog's collector, supports OTLP export |
+| **Prometheus + OTLP remote write** | Export Prometheus metrics to LogTide |
+| **Application OTel SDKs** | Node.js, Python, Go, Java — send custom metrics directly |
+
+## Option A: Fluent Bit (included, zero config)
+
+The Docker Compose setup includes a pre-configured Fluent Bit metrics container that collects CPU, memory, disk, and network metrics automatically.
 
 ### 1. Download configuration files
 
@@ -71,40 +81,85 @@ docker compose --profile metrics up -d
 docker compose --profile logging --profile metrics up -d
 ```
 
-## What gets collected
+## Option B: OpenTelemetry Collector
 
-Metrics are sent as structured logs every 30-60 seconds:
+If you already run an OpenTelemetry Collector, add LogTide as an OTLP HTTP exporter:
 
-| Service | Interval | Data |
-|---------|----------|------|
-| host-cpu | 30s | Total CPU %, user %, system %, per-core stats |
-| host-memory | 30s | Used/free/total RAM, swap usage, usage percentage |
-| host-disk | 60s | Read/write KB for the primary disk device |
-| host-network | 30s | RX/TX bytes per interval, packets, errors |
+```yaml
+# otel-collector-config.yaml
+receivers:
+  hostmetrics:
+    collection_interval: 30s
+    scrapers:
+      cpu:
+      memory:
+      disk:
+      network:
 
-### Example log entries
+exporters:
+  otlphttp/logtide:
+    endpoint: http://<logtide-host>:8080
+    headers:
+      X-API-Key: "lp_your_api_key_here"
 
-**CPU metric:**
-```json
-{
-  "service": "host-cpu",
-  "level": "info",
-  "message": "CPU usage: 12.5% (user: 8.2%, system: 4.3%)",
-  "metadata": { "cpu_p": 12.5, "user_p": 8.2, "system_p": 4.3 }
+service:
+  pipelines:
+    metrics:
+      receivers: [hostmetrics]
+      exporters: [otlphttp/logtide]
+```
+
+## Option C: Grafana Alloy
+
+```hcl
+otelcol.receiver.hostmetrics "default" {
+  collection_interval = "30s"
+  scrapers {
+    cpu {}
+    memory {}
+    disk {}
+    network {}
+  }
+}
+
+otelcol.exporter.otlphttp "logtide" {
+  client {
+    endpoint = "http://<logtide-host>:8080"
+    headers  = { "X-API-Key" = "lp_your_api_key_here" }
+  }
 }
 ```
 
-**Memory metric (high usage warning):**
-```json
-{
-  "service": "host-memory",
-  "level": "warn",
-  "message": "Memory usage: 92.3% (7384 MB used / 8000 MB total)",
-  "metadata": { "total_kb": 8192000, "used_kb": 7561216, "usage_pct": 92.3 }
-}
+## Option D: Any OTLP-compatible tool
+
+Point any OTLP HTTP exporter at:
+
+```
+http://<logtide-host>:8080/v1/otlp/metrics
 ```
 
-## Auto-detection
+With header `X-API-Key: <your-api-key>`. Both JSON and Protobuf content types are supported.
+
+## What gets collected (Fluent Bit)
+
+The included Fluent Bit configuration sends OTLP gauge metrics every 30-60 seconds:
+
+| Metric Name | Interval | Description |
+|------------|----------|-------------|
+| `system.cpu.utilization` | 30s | Total CPU usage % |
+| `system.cpu.user` | 30s | User CPU % |
+| `system.cpu.system` | 30s | System CPU % |
+| `system.memory.utilization` | 30s | Memory usage % |
+| `system.memory.usage` | 30s | Memory used (MB) |
+| `system.memory.total` | 30s | Total memory (MB) |
+| `system.disk.read` | 60s | Disk read throughput (KB) |
+| `system.disk.write` | 60s | Disk write throughput (KB) |
+| `system.network.rx` | 30s | Network received per interval (KB) |
+| `system.network.tx` | 30s | Network transmitted per interval (KB) |
+
+All metrics appear under service `host-system` in the Metrics Explorer.
+
+## Auto-detection (Fluent Bit)
 
 The Lua script automatically detects the primary disk device and network interface by reading /proc:
 
@@ -117,36 +172,18 @@ Detection runs once and caches the result for the lifetime of the container. If 
 docker compose restart fluent-bit-metrics
 ```
 
-## Filtering metrics in LogTide
+## Viewing metrics
 
-Use the search bar to filter by metric type:
+Metrics appear in the **Metrics Explorer** in the LogTide dashboard (`/dashboard/metrics`). You can:
 
-- **All metrics**: filter by service `host-cpu`, `host-memory`, `host-disk`, or `host-network`
-- **High resource usage**: filter by level `warn`
-
-## Alert rules
-
-Create alert rules in LogTide to get notified when thresholds are exceeded.
-
-The metrics Lua script automatically sets level to `warn` when:
-- CPU usage exceeds 90%
-- Memory usage exceeds 90%
-- Network errors are detected
-
-**High CPU alert example:**
-- Service filter: `host-cpu`
-- Level filter: `warn`
-- Threshold: 1 occurrence in 5 minutes
-- Notification: Email or webhook
-
-**High memory alert example:**
-- Service filter: `host-memory`
-- Level filter: `warn`
-- Threshold: 3 occurrences in 5 minutes (sustained high memory)
+- Browse all metric names
+- Filter by service (`host-system` for Fluent Bit, or your custom service name)
+- View time-series charts for any metric
+- Compare metrics across services
 
 ## Configuration
 
-### Adjusting collection intervals
+### Adjusting collection intervals (Fluent Bit)
 
 Edit `fluent-bit-metrics.conf` to change how often metrics are collected:
 
@@ -180,16 +217,15 @@ docker compose logs fluent-bit-metrics
 grep FLUENT_BIT_API_KEY .env
 ```
 
-### No network metrics
-
-Network metrics read from /host/proc/net/dev which is the host's proc filesystem mounted into the container. If the mount is missing, network metrics will show "no data available".
+4. Look for HTTP status codes in the logs — `200` means metrics are being accepted.
 
 ### Platform limitations
 
-System metrics require Linux /proc filesystem. They won't work on macOS or Windows Docker Desktop (the container sees the VM's /proc, not the host's).
+System metrics via Fluent Bit require Linux /proc filesystem. They won't work on macOS or Windows Docker Desktop (the container sees the VM's /proc, not the host's). Use the OpenTelemetry Collector with hostmetrics receiver as an alternative on those platforms.
 
 ## Next Steps
 
 - [Docker Log Collection](/integrations/docker) - Collect container logs alongside metrics
+- [OpenTelemetry](/docs/opentelemetry) - Send traces and logs via OTLP
 - [Real-Time Alerting](/use-cases/real-time-alerting) - Set up alerts for metric thresholds
 - [systemd Journal](/integrations/systemd) - Collect system service logs

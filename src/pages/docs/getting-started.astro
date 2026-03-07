@@ -468,8 +468,8 @@ logger.emit({
           </CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground">
-          Collects CPU, memory, disk I/O, and network stats every 30-60s.
-          Disk and network devices are auto-detected.
+          Collects CPU, memory, disk I/O, and network metrics every 30-60s via the standard OTLP endpoint.
+          Fluent Bit is included, but any OTLP-compatible collector works.
           See <a href="/integrations/host-monitoring" class="text-primary underline">Host Monitoring</a> for details.
         </CardContent>
       </Card>
