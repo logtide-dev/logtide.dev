@@ -23,12 +23,13 @@ const { Content } = await render(entry);
 const title = entry.data.title;
 const description = entry.data.description;
 
-const pathname = Astro.url.pathname.replace(/\/$/, '');
+const rawPathname = Astro.url.pathname;
+const pathname = rawPathname.endsWith('/') ? rawPathname : rawPathname + '/';
 
 // Generate breadcrumbs for SEO
 const seoBreadcrumbs = [
   { name: 'Home', url: '/' },
-  { name: 'Comparisons', url: '/vs' },
+  { name: 'Comparisons', url: '/vs/' },
   { name: entry.data.title, url: pathname },
 ];
 
