@@ -1,5 +1,5 @@
 ---
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
 import ContentPage from '../../layouts/ContentPage.astro';
 import DifficultyBadge from '../../components/content/DifficultyBadge.astro';
 import CategoryBadge from '../../components/content/CategoryBadge.astro';
@@ -11,7 +11,7 @@ import { execSync } from 'child_process';
 export async function getStaticPaths() {
   const entries = await getCollection('integrations', ({ data }) => !data.draft);
   return entries.map((entry) => ({
-    params: { slug: entry.slug },
+    params: { slug: entry.id },
     props: { entry },
   }));
 }
@@ -21,7 +21,7 @@ interface Props {
 }
 
 const { entry } = Astro.props;
-const { Content } = await entry.render();
+const { Content } = await render(entry);
 
 const title = entry.data.title;
 const description = entry.data.description;
@@ -36,7 +36,7 @@ const seoBreadcrumbs = [
 ];
 
 // File path for git dates
-const filePath = `src/content/integrations/${entry.slug}.md`;
+const filePath = `src/content/integrations/${entry.id}.md`;
 const editUrl = `https://github.com/logtide-dev/logtide.dev/edit/main/${filePath}`;
 
 // Get dates from git
@@ -133,7 +133,7 @@ try {
   <!-- More from this section -->
   <MoreFromSection
     type="integrations"
-    currentSlug={entry.slug}
+    currentSlug={entry.id}
     currentCategory={entry.data.category}
   />
 

@@ -39,7 +39,7 @@ const featuredUseCases = useCases.slice(0, 3);
         <div class="space-y-3">
           {featuredIntegrations.map((item) => (
             <a
-              href={`/integrations/${item.slug}/`}
+              href={`/integrations/${item.id}/`}
               class="group flex items-center gap-4 rounded-xl border border-transparent p-4 transition-all hover:border-border hover:bg-muted/50"
             >
               <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
@@ -80,7 +80,7 @@ const featuredUseCases = useCases.slice(0, 3);
         <div class="space-y-3">
           {featuredUseCases.map((item) => (
             <a
-              href={`/use-cases/${item.slug}/`}
+              href={`/use-cases/${item.id}/`}
               class="group flex items-center gap-4 rounded-xl border border-transparent p-4 transition-all hover:border-border hover:bg-muted/50"
             >
               <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">

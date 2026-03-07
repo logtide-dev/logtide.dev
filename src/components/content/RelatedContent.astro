@@ -19,7 +19,7 @@ const { integrations = [], useCases = [], title = 'Related Guides' } = Astro.pro
 const allIntegrations = await getCollection('integrations');
 const relatedIntegrations = integrations
   .map((slug) => {
-    const entry = allIntegrations.find((e) => e.slug === slug);
+    const entry = allIntegrations.find((e) => e.id === slug);
     if (!entry && import.meta.env.DEV) {
       console.warn(`[RelatedContent] Integration not found: "${slug}"`);
     }
@@ -31,7 +31,7 @@ const relatedIntegrations = integrations
 const allUseCases = await getCollection('use-cases');
 const relatedUseCases = useCases
   .map((slug) => {
-    const entry = allUseCases.find((e) => e.slug === slug);
+    const entry = allUseCases.find((e) => e.id === slug);
     if (!entry && import.meta.env.DEV) {
       console.warn(`[RelatedContent] Use case not found: "${slug}"`);
     }
@@ -48,7 +48,7 @@ const hasRelatedContent = relatedIntegrations.length > 0 || relatedUseCases.leng
 
     <div class="grid gap-4 md:grid-cols-2">
       {relatedIntegrations.map((entry) => (
-        <a href={`/integrations/${entry.slug}/`} class="block group">
+        <a href={`/integrations/${entry.id}/`} class="block group">
           <Card class="h-full transition-all hover:border-primary/50 hover:shadow-md">
             <CardHeader class="pb-2">
               <div class="flex items-center justify-between">
@@ -67,7 +67,7 @@ const hasRelatedContent = relatedIntegrations.length > 0 || relatedUseCases.leng
       ))}
 
       {relatedUseCases.map((entry) => (
-        <a href={`/use-cases/${entry.slug}/`} class="block group">
+        <a href={`/use-cases/${entry.id}/`} class="block group">
           <Card class="h-full transition-all hover:border-primary/50 hover:shadow-md">
             <CardHeader class="pb-2">
               <div class="flex items-center justify-between">

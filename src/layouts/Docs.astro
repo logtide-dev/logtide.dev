@@ -4,8 +4,9 @@ import Footer from '../components/Footer.astro';
 import DocsSidebar from '../components/docs/DocsSidebar.astro';
 import DocsTableOfContents from '../components/docs/DocsTableOfContents.astro';
 import Breadcrumbs from '../components/docs/Breadcrumbs.astro';
+import SearchDialog from '../components/docs/SearchDialog.astro';
 import SEO from '../components/SEO.astro';
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 import { Icon } from 'astro-icon/components';
 import { execSync } from 'child_process';
 
@@ -173,7 +174,7 @@ try {
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
     <title>{title} | LogTide Docs</title>
-    <ViewTransitions />
+    <ClientRouter />
     <script is:inline>
       // Theme detection (runs before page renders to prevent flash)
       (function() {
@@ -232,10 +233,12 @@ try {
 
         <main class="docs-main">
           <div class="docs-content mx-auto max-w-4xl p-8">
-            <Breadcrumbs />
-            <slot />
+            <div data-pagefind-ignore><Breadcrumbs /></div>
+            <article data-pagefind-body data-pagefind-meta={`title:${title}`}>
+              <slot />
+            </article>
 
-            <div class="edit-page-link">
+            <div class="edit-page-link" data-pagefind-ignore>
               <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 {lastUpdated && (
                   <span class="text-sm text-muted-foreground">
@@ -261,6 +264,7 @@ try {
     </div>
 
     <Footer />
+    <SearchDialog />
 
     <script>
       // Mobile menu toggle
