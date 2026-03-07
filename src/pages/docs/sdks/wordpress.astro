@@ -1,0 +1,265 @@
+---
+import DocsLayout from '../../../layouts/Docs.astro';
+import Card from '../../../components/ui/Card.astro';
+import CardHeader from '../../../components/ui/CardHeader.astro';
+import CardTitle from '../../../components/ui/CardTitle.astro';
+import CardContent from '../../../components/ui/CardContent.astro';
+import Button from '../../../components/ui/Button.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Installation", slug: "installation", depth: 2 },
+  { text: "Quick Start", slug: "quick-start", depth: 2 },
+  { text: "Configuration", slug: "configuration", depth: 2 },
+  { text: "Automatic Hooks", slug: "hooks", depth: 2 },
+  { text: "Database Monitoring", slug: "database", depth: 2 },
+  { text: "HTTP API Tracking", slug: "http-api", depth: 2 },
+  { text: "Best Practices", slug: "best-practices", depth: 2 }
+];
+---
+
+<DocsLayout
+  title="WordPress SDK"
+  description="LogTide integration for WordPress with automatic error capture, database query monitoring, and HTTP API tracking."
+  headings={headings}
+>
+  <div class="flex items-center justify-between mb-4">
+      <h1 class="text-3xl font-bold">WordPress SDK</h1>
+      <div class="flex items-center gap-2">
+          <a
+              href="https://github.com/logtide-dev/logtide-wordpress"
+              target="_blank"
+              rel="noopener noreferrer"
+          >
+              <Button variant="ghost" size="sm" class="gap-1.5">
+                  <Icon name="simple-icons:github" class="w-4 h-4" />
+                  GitHub
+              </Button>
+          </a>
+          <a
+              href="https://packagist.org/packages/logtide/logtide-wordpress"
+              target="_blank"
+              rel="noopener noreferrer"
+          >
+              <Button variant="ghost" size="sm" class="gap-1.5">
+                  <Icon name="simple-icons:packagist" class="w-4 h-4" />
+                  Packagist
+              </Button>
+          </a>
+      </div>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+      WordPress integration without a DI container. Registers WordPress action/filter hooks directly
+      for error capture, lifecycle breadcrumbs, database query monitoring, and HTTP API tracking.
+  </p>
+
+  <h2
+      id="installation"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Installation
+  </h2>
+
+  <div class="mb-8">
+      <p class="mb-3 text-muted-foreground">
+          Requires <a href="https://roots.io/bedrock/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Bedrock</a>
+          or another Composer-based WordPress setup.
+      </p>
+      <Code lang="bash" theme="one-dark-pro" code={`composer require logtide/logtide-wordpress`} />
+  </div>
+
+  <h2
+      id="quick-start"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Quick Start
+  </h2>
+
+  <div class="mb-8 space-y-4">
+      <p class="text-muted-foreground">
+          Add initialization to your <code class="bg-muted px-1 rounded">wp-config.php</code> or
+          a must-use plugin (<code class="bg-muted px-1 rounded">mu-plugins/logtide.php</code>):
+      </p>
+      <Code
+          lang="php"
+          theme="one-dark-pro"
+          code={`<?php
+// mu-plugins/logtide.php
+
+use LogTide\\WordPress\\LogtideWordPress;
+
+LogtideWordPress::init([
+    'dsn' => defined('LOGTIDE_DSN') ? LOGTIDE_DSN : '',
+    'service' => 'my-wordpress-site',
+    'environment' => defined('WP_ENVIRONMENT_TYPE') ? WP_ENVIRONMENT_TYPE : 'production',
+]);`}
+      />
+
+      <p class="text-muted-foreground">
+          Define your DSN in <code class="bg-muted px-1 rounded">wp-config.php</code>:
+      </p>
+      <Code
+          lang="php"
+          theme="one-dark-pro"
+          code={`<?php
+// wp-config.php
+define('LOGTIDE_DSN', 'https://lp_abc123@api.logtide.dev');`}
+      />
+  </div>
+
+  <h2
+      id="configuration"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Configuration
+  </h2>
+
+  <div class="mb-8">
+      <Code
+          lang="php"
+          theme="one-dark-pro"
+          code={`<?php
+
+LogtideWordPress::init([
+    'dsn' => LOGTIDE_DSN,
+    'service' => 'my-wordpress-site',
+    'environment' => WP_ENVIRONMENT_TYPE,
+    'release' => '1.0.0',
+
+    // Database monitoring
+    'slow_query_threshold_ms' => 100.0,  // Log queries slower than this (default: 100ms)
+
+    // All standard LogTide options are supported:
+    'batch_size' => 100,
+    'max_retries' => 3,
+    'traces_sample_rate' => 1.0,
+    'debug' => false,
+]);`}
+      />
+  </div>
+
+  <h2
+      id="hooks"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Automatic Hooks
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      The SDK automatically registers WordPress hooks for comprehensive monitoring:
+  </p>
+
+  <div class="mb-8 grid gap-3">
+      <Card>
+          <CardContent class="pt-4 text-sm">
+              <ul class="space-y-2 list-none pl-0">
+                  <li>
+                      <strong>Error Capture</strong> &mdash; PHP error handler (<code class="bg-muted px-1 rounded">set_error_handler</code>) captures warnings and notices
+                  </li>
+                  <li>
+                      <strong>wp_die</strong> &mdash; Captures <code class="bg-muted px-1 rounded">WP_Error</code> messages passed to <code class="bg-muted px-1 rounded">wp_die()</code>
+                  </li>
+                  <li>
+                      <strong>Lifecycle</strong> &mdash; Records <code class="bg-muted px-1 rounded">wp_loaded</code> and <code class="bg-muted px-1 rounded">shutdown</code> breadcrumbs
+                  </li>
+                  <li>
+                      <strong>Redirects</strong> &mdash; Records redirect URLs as navigation breadcrumbs
+                  </li>
+                  <li>
+                      <strong>Mail</strong> &mdash; Records <code class="bg-muted px-1 rounded">wp_mail()</code> calls with recipient and subject
+                  </li>
+                  <li>
+                      <strong>Plugins</strong> &mdash; Records plugin activation/deactivation events
+                  </li>
+                  <li>
+                      <strong>Multisite</strong> &mdash; Records <code class="bg-muted px-1 rounded">switch_blog</code> events with blog IDs
+                  </li>
+              </ul>
+          </CardContent>
+      </Card>
+  </div>
+
+  <h2
+      id="database"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Database Monitoring
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      Instruments <code class="bg-muted px-1 rounded">$wpdb</code> to record slow database queries as breadcrumbs.
+      Queries exceeding the threshold (default: 100ms) are captured with query text and duration.
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="php"
+          theme="one-dark-pro"
+          code={`<?php
+
+// Enable SAVEQUERIES in wp-config.php for detailed query tracking
+define('SAVEQUERIES', true);
+
+// Configure slow query threshold
+LogtideWordPress::init([
+    'dsn' => LOGTIDE_DSN,
+    'slow_query_threshold_ms' => 50.0,  // Capture queries slower than 50ms
+]);`}
+      />
+  </div>
+
+  <h2
+      id="http-api"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      HTTP API Tracking
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      Hooks into the WordPress HTTP API (<code class="bg-muted px-1 rounded">wp_remote_get</code>,
+      <code class="bg-muted px-1 rounded">wp_remote_post</code>, etc.) to record outgoing HTTP requests
+      as breadcrumbs with URL, method, status code, and duration.
+  </p>
+
+  <h2
+      id="best-practices"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Best Practices
+  </h2>
+
+  <div class="space-y-4">
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base">1. Use a Must-Use Plugin</CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm text-muted-foreground">
+              Place initialization in <code class="bg-muted px-1 rounded">mu-plugins/</code> to ensure
+              LogTide loads before any regular plugins, catching all errors from the start.
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base">2. Use Bedrock or Composer</CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm text-muted-foreground">
+              This package requires Composer. Use
+              <a href="https://roots.io/bedrock/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Bedrock</a>
+              for a modern Composer-based WordPress project structure.
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base">3. WP-CLI &amp; Cron</CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm text-muted-foreground">
+              The SDK flushes on <code class="bg-muted px-1 rounded">shutdown</code>, so WP-CLI commands
+              and WP-Cron jobs are automatically covered.
+          </CardContent>
+      </Card>
+  </div>
+</DocsLayout>

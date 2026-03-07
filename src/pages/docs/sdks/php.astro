@@ -11,25 +11,27 @@ import { Icon } from 'astro-icon/components';
 const headings = [
   { text: "Installation", slug: "installation", depth: 2 },
   { text: "Quick Start", slug: "quick-start", depth: 2 },
-  { text: "Features", slug: "features", depth: 2 },
   { text: "Configuration", slug: "configuration", depth: 2 },
-  { text: "Logging Methods", slug: "logging", depth: 2 },
-  { text: "Middleware Integration", slug: "middleware", depth: 2 },
-  { text: "Query API", slug: "query-api", depth: 2 },
+  { text: "Hub API", slug: "hub-api", depth: 2 },
+  { text: "Scopes & Context", slug: "scopes", depth: 2 },
+  { text: "Breadcrumbs", slug: "breadcrumbs", depth: 2 },
+  { text: "Distributed Tracing", slug: "tracing", depth: 2 },
+  { text: "Monolog Integration", slug: "monolog", depth: 2 },
+  { text: "Framework Packages", slug: "framework-packages", depth: 2 },
   { text: "Best Practices", slug: "best-practices", depth: 2 }
 ];
 ---
 
 <DocsLayout
   title="PHP SDK"
-  description="Official PHP SDK for LogTide with strict types, batching, and PSR-15 middleware."
+  description="Official PHP SDK for LogTide with DSN-based config, Hub/Scope architecture, distributed tracing, breadcrumbs, and framework integrations."
   headings={headings}
 >
   <div class="flex items-center justify-between mb-4">
       <h1 class="text-3xl font-bold">PHP SDK</h1>
       <div class="flex items-center gap-2">
           <a
-              href="https://github.com/logtide-dev/logtide-sdk-php"
+              href="https://github.com/logtide-dev/logtide-php-sdk"
               target="_blank"
               rel="noopener noreferrer"
           >
@@ -39,7 +41,7 @@ const headings = [
               </Button>
           </a>
           <a
-              href="https://packagist.org/packages/logtide/sdk-php"
+              href="https://packagist.org/packages/logtide/logtide"
               target="_blank"
               rel="noopener noreferrer"
           >
@@ -52,8 +54,9 @@ const headings = [
   </div>
 
   <p class="text-lg text-muted-foreground mb-8">
-      Official PHP SDK for LogTide with strict types, automatic batching,
-      retry logic, and Laravel/Symfony/PSR-15 middleware.
+      The <code class="bg-muted px-1 rounded">logtide/logtide</code> package is the foundation
+      for all LogTide PHP SDKs. It provides DSN-based configuration, automatic batching,
+      distributed tracing (W3C Trace Context), breadcrumbs, scopes, and span management.
   </p>
 
   <h2
@@ -64,8 +67,25 @@ const headings = [
   </h2>
 
   <div class="mb-8">
-      <p class="mb-3 text-muted-foreground">Requires PHP 8.1 or higher</p>
-      <Code lang="bash" theme="one-dark-pro" code={`composer require logtide/sdk-php`} />
+      <p class="mb-3 text-muted-foreground">Requires PHP 8.1 or higher.</p>
+      <Code lang="bash" theme="one-dark-pro" code={`composer require logtide/logtide`} />
+  </div>
+
+  <p class="text-muted-foreground mb-4">
+      For framework-specific integrations, install the corresponding package instead
+      (it includes <code class="bg-muted px-1 rounded">logtide/logtide</code> as a dependency):
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="bash"
+          theme="one-dark-pro"
+          code={`# Framework packages (pick one)
+composer require logtide/logtide-laravel    # Laravel 10/11/12
+composer require logtide/logtide-symfony    # Symfony 6.4/7.x
+composer require logtide/logtide-slim       # Slim 4
+composer require logtide/logtide-wordpress  # WordPress`}
+      />
   </div>
 
   <h2
@@ -81,57 +101,38 @@ const headings = [
           theme="one-dark-pro"
           code={`<?php
 
-use LogTide\\SDK\\LogTideClient;
-use LogTide\\SDK\\Models\\LogTideClientOptions;
+use function LogTide\\init;
+use function LogTide\\info;
+use function LogTide\\error;
+use function LogTide\\captureException;
+use function LogTide\\flush;
 
-$client = new LogTideClient(new LogTideClientOptions(
-  apiUrl: 'http://localhost:8080',
-  apiKey: 'lp_your_api_key_here',
-));
+$hub = init([
+    'dsn' => 'https://lp_abc123@api.logtide.dev',
+    'service' => 'api-server',
+    'environment' => 'production',
+    'release' => '1.0.0',
+]);
 
-// Send logs
-$client->info('api-gateway', 'Server started', ['port' => 3000]);
-$client->error('database', 'Connection failed', new PDOException('Timeout'));
+// Capture logs
+info('Server started', ['port' => 8080]);
+error('Query timeout', ['query' => 'SELECT ...', 'duration_ms' => 5000]);
+
+// Capture exceptions
+try {
+    riskyOperation();
+} catch (\\Throwable $e) {
+    captureException($e);
+}
 
 // Shutdown is auto-handled via register_shutdown_function`}
       />
   </div>
 
-  <h2
-      id="features"
-      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
-  >
-      Features
-  </h2>
-
-  <div class="mb-8 grid gap-3">
-      <Card>
-          <CardContent class="pt-4 text-sm">
-              <ul class="space-y-2 list-none pl-0">
-                  <li>
-                      ✅ Automatic batching with configurable size and
-                      interval
-                  </li>
-                  <li>✅ Retry logic with exponential backoff</li>
-                  <li>✅ Circuit breaker pattern for fault tolerance</li>
-                  <li>
-                      ✅ Max buffer size with drop policy to prevent memory
-                      leaks
-                  </li>
-                  <li>✅ Query API for searching and filtering logs</li>
-                  <li>✅ Live tail with Server-Sent Events (SSE)</li>
-                  <li>✅ Trace ID context for distributed tracing</li>
-                  <li>✅ Global metadata added to all logs</li>
-                  <li>✅ Structured error serialization</li>
-                  <li>✅ Internal metrics (logs sent, errors, latency)</li>
-                  <li>✅ Laravel, Symfony & PSR-15 middleware</li>
-                  <li>
-                      ✅ Full PHP 8.1+ support with strict types and enums
-                  </li>
-              </ul>
-          </CardContent>
-      </Card>
-  </div>
+  <p class="text-muted-foreground mb-4">
+      The DSN (Data Source Name) encodes your API host and project key in a single
+      connection string. You can find it in your LogTide project settings.
+  </p>
 
   <h2
       id="configuration"
@@ -146,152 +147,204 @@ $client->error('database', 'Connection failed', new PDOException('Timeout'));
           theme="one-dark-pro"
           code={`<?php
 
-$client = new LogTideClient(new LogTideClientOptions(
-  // Required
-  apiUrl: 'http://localhost:8080',
-  apiKey: 'lp_your_api_key',
-  
-  // Optional - Performance
-  batchSize: 100,              // Max logs per batch (default: 100)
-  batchInterval: 5000,         // Flush interval in ms (default: 5000)
-  maxBufferSize: 10000,        // Max logs in buffer (default: 10000)
-  
-  // Optional - Reliability
-  maxRetries: 3,               // Max retry attempts (default: 3)
-  retryDelay: 1000,            // Initial retry delay in ms (default: 1000)
-  circuitBreakerThreshold: 5,  // Failures before circuit opens (default: 5)
-  circuitBreakerTimeout: 60000, // Circuit reset timeout in ms (default: 60000)
-  
-  // Optional - Metadata
-  globalMetadata: [
-      'environment' => 'production',
-      'version' => '1.0.0'
-  ],
-  
-  // Optional - Debug
-  debug: false                 // Enable debug logging (default: false)
-));`}
+use function LogTide\\init;
+
+init([
+    // Required
+    'dsn' => 'https://lp_abc123@api.logtide.dev',
+
+    // Recommended
+    'service' => 'api-server',
+    'environment' => 'production',
+    'release' => '1.2.3',
+
+    // Batching
+    'batch_size' => 100,              // Max logs per batch (default: 100)
+    'flush_interval' => 5000,         // Flush interval in ms (default: 5000)
+    'max_buffer_size' => 10000,       // Max logs in buffer (default: 10000)
+
+    // Reliability
+    'max_retries' => 3,               // Retry attempts (default: 3)
+    'retry_delay_ms' => 1000,         // Initial retry delay in ms (default: 1000)
+    'circuit_breaker_threshold' => 5, // Failures before open (default: 5)
+    'circuit_breaker_reset_ms' => 30000, // Reset timeout in ms (default: 30000)
+
+    // Tracing
+    'traces_sample_rate' => 1.0,      // 0.0 to 1.0, sample rate for traces
+    'max_breadcrumbs' => 100,         // Max breadcrumbs per scope (default: 100)
+
+    // Advanced
+    'attach_stacktrace' => false,     // Attach stacktrace to log events
+    'send_default_pii' => false,      // Send PII (IP, user agent, etc.)
+    'default_integrations' => true,   // Register default error/exception handlers
+
+    // Debug
+    'debug' => false,
+]);`}
       />
   </div>
 
+  <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Configuration Options</h3>
+
+  <div class="mb-8 overflow-x-auto">
+      <table class="w-full text-sm">
+          <thead>
+              <tr>
+                  <th class="text-left p-3 border-b border-border font-semibold">Option</th>
+                  <th class="text-left p-3 border-b border-border font-semibold">Type</th>
+                  <th class="text-left p-3 border-b border-border font-semibold">Default</th>
+                  <th class="text-left p-3 border-b border-border font-semibold">Description</th>
+              </tr>
+          </thead>
+          <tbody class="text-muted-foreground">
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">dsn</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border">&mdash;</td><td class="p-3 border-b border-border">Data Source Name (required)</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">service</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">'unknown'</code></td><td class="p-3 border-b border-border">Service name for log grouping</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">environment</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border">&mdash;</td><td class="p-3 border-b border-border">Deployment environment (production, staging, etc.)</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">release</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border">&mdash;</td><td class="p-3 border-b border-border">App version for release tracking</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">batch_size</code></td><td class="p-3 border-b border-border">int</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">100</code></td><td class="p-3 border-b border-border">Max events per batch</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">flush_interval</code></td><td class="p-3 border-b border-border">int</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">5000</code></td><td class="p-3 border-b border-border">Flush interval in milliseconds</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">max_buffer_size</code></td><td class="p-3 border-b border-border">int</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">10000</code></td><td class="p-3 border-b border-border">Max events in buffer before dropping</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">max_retries</code></td><td class="p-3 border-b border-border">int</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">3</code></td><td class="p-3 border-b border-border">Max retry attempts for failed sends</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">retry_delay_ms</code></td><td class="p-3 border-b border-border">int</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">1000</code></td><td class="p-3 border-b border-border">Initial retry delay in ms (exponential backoff)</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">circuit_breaker_threshold</code></td><td class="p-3 border-b border-border">int</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">5</code></td><td class="p-3 border-b border-border">Consecutive failures before circuit opens</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">circuit_breaker_reset_ms</code></td><td class="p-3 border-b border-border">int</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">30000</code></td><td class="p-3 border-b border-border">Timeout before circuit half-opens (ms)</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">traces_sample_rate</code></td><td class="p-3 border-b border-border">float</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">1.0</code></td><td class="p-3 border-b border-border">Trace sampling rate (0.0&ndash;1.0)</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">max_breadcrumbs</code></td><td class="p-3 border-b border-border">int</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">100</code></td><td class="p-3 border-b border-border">Max breadcrumbs per scope</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">before_send</code></td><td class="p-3 border-b border-border">Closure</td><td class="p-3 border-b border-border">&mdash;</td><td class="p-3 border-b border-border">Callback to modify or discard events before sending</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">debug</code></td><td class="p-3 border-b border-border">bool</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">false</code></td><td class="p-3 border-b border-border">Enable internal debug logging</td></tr>
+          </tbody>
+      </table>
+  </div>
+
   <h2
-      id="logging"
+      id="hub-api"
       class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
   >
-      Logging Methods
+      Hub API
   </h2>
 
   <div class="mb-8 space-y-6">
       <div>
-          <h3 id="basic-logging" class="text-lg font-semibold mb-3 scroll-mt-24">Basic Logging</h3>
+          <h3 id="capture-log" class="text-lg font-semibold mb-3 scroll-mt-24">captureLog</h3>
+          <p class="text-muted-foreground mb-3">Send a structured log event. Convenience functions are available for each log level.</p>
           <Code
               lang="php"
               theme="one-dark-pro"
               code={`<?php
+
+use function LogTide\\{debug, info, warn, error, critical};
 
 // Log levels: debug, info, warn, error, critical
-$client->debug('service-name', 'Debug message', ['detail' => 'value']);
-$client->info('api-gateway', 'Request received', ['method' => 'GET', 'path' => '/users']);
-$client->warn('cache', 'Cache miss', ['key' => 'user:123']);
-$client->error('database', 'Query failed', ['query' => 'SELECT *']);
-$client->critical('system', 'Out of memory', ['used' => '95%']);`}
+info('User signed up', ['user_id' => 123, 'plan' => 'pro']);
+warn('Rate limit approaching', ['current' => 90, 'max' => 100]);
+error('Query timeout', ['query' => 'SELECT ...', 'duration_ms' => 5000]);
+
+// With explicit service name override
+info('Payment processed', ['amount' => 99.99], 'payment-service');`}
           />
       </div>
 
       <div>
-          <h3 id="scoped-trace-id" class="text-lg font-semibold mb-3 scroll-mt-24">Scoped Trace ID</h3>
+          <h3 id="capture-exception" class="text-lg font-semibold mb-3 scroll-mt-24">captureException</h3>
+          <p class="text-muted-foreground mb-3">Capture an exception with full stack trace, context, and breadcrumbs.</p>
           <Code
               lang="php"
               theme="one-dark-pro"
               code={`<?php
 
-// All logs within this scope have the same trace_id
-$client->withTraceId('550e8400-e29b-41d4-a716-446655440000', function() use ($client) {
-  $client->info('api', 'Processing request');
-  $client->info('db', 'Query executed');
-});`}
+use function LogTide\\captureException;
+
+try {
+    processPayment($orderId);
+} catch (\\Throwable $e) {
+    captureException($e);
+}`}
+          />
+      </div>
+
+      <div>
+          <h3 id="flush" class="text-lg font-semibold mb-3 scroll-mt-24">flush</h3>
+          <p class="text-muted-foreground mb-3">Flush all pending events. The SDK automatically flushes on shutdown via <code class="bg-muted px-1 rounded">register_shutdown_function</code>.</p>
+          <Code
+              lang="php"
+              theme="one-dark-pro"
+              code={`<?php
+
+use function LogTide\\flush;
+
+// Manually flush pending events
+flush();`}
           />
       </div>
   </div>
 
   <h2
-      id="middleware"
+      id="scopes"
       class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
   >
-      Middleware Integration
+      Scopes & Context
   </h2>
+
+  <p class="text-muted-foreground mb-4">
+      Scopes let you attach contextual data that gets included with every event within that scope.
+      Framework packages create per-request scopes automatically.
+  </p>
 
   <div class="mb-8 space-y-6">
       <div>
-          <h3 id="laravel-middleware" class="text-lg font-semibold mb-3 scroll-mt-24">Laravel Middleware</h3>
+          <h3 id="configure-scope" class="text-lg font-semibold mb-3 scroll-mt-24">Global Scope</h3>
+          <p class="text-muted-foreground mb-3">Configure the global scope to set tags and extras that apply to all events.</p>
           <Code
               lang="php"
               theme="one-dark-pro"
               code={`<?php
 
-// app/Http/Kernel.php
-protected $middleware = [
-  // ... other middleware
-  \\LogTide\\SDK\\Middleware\\LaravelLogTideMiddleware::class,
-];
+use function LogTide\\configureScope;
 
-// config/services.php
-'logtide' => [
-  'api_url' => env('LOGTIDE_API_URL', 'http://localhost'),
-  'api_key' => env('LOGTIDE_API_KEY'),
-],`}
+configureScope(function (\\LogTide\\State\\Scope $scope): void {
+    $scope->setTag('region', 'eu-west-1');
+    $scope->setExtra('server_id', gethostname());
+    $scope->setUser(['id' => 'user-123', 'role' => 'admin']);
+});
+
+// All events now include the region tag, server_id, and user context`}
           />
       </div>
 
       <div>
-          <h3 id="symfony-subscriber" class="text-lg font-semibold mb-3 scroll-mt-24">Symfony Event Subscriber</h3>
+          <h3 id="with-scope" class="text-lg font-semibold mb-3 scroll-mt-24">Isolated Scopes</h3>
+          <p class="text-muted-foreground mb-3">Create an isolated scope for a block of code. Tags and context set inside don't leak outside.</p>
           <Code
               lang="php"
               theme="one-dark-pro"
               code={`<?php
 
-// config/services.yaml
-services:
-  LogTide\\SDK\\Middleware\\SymfonyLogTideSubscriber:
-      arguments:
-          $client: '@LogTide\\SDK\\LogTideClient'
-      tags:
-          - { name: kernel.event_subscriber }
-  
-  LogTide\\SDK\\LogTideClient:
-      arguments:
-          $options: !service
-              class: LogTide\\SDK\\Models\\LogTideClientOptions
-              arguments:
-                  $apiUrl: '%env(LOGTIDE_API_URL)%'
-                  $apiKey: '%env(LOGTIDE_API_KEY)%'
-`}
-          />
-      </div>
+use function LogTide\\{withScope, info};
 
-      <div>
-          <h3 id="psr15-middleware" class="text-lg font-semibold mb-3 scroll-mt-24">PSR-15 Middleware</h3>
-          <Code
-              lang="php"
-              theme="one-dark-pro"
-              code={`<?php
+withScope(function () {
+    \\LogTide\\LogtideSdk::getCurrentHub()->getScope()->setTag('handler', 'payment');
 
-use LogTide\\SDK\\Middleware\\Psr15LogTideMiddleware;
+    info('Processing payment', ['order_id' => 456]);
+    // This event includes the 'handler' tag
+});
 
-$middleware = new Psr15LogTideMiddleware($client);
-
-// Add to your PSR-15 middleware stack
-$app->pipe($middleware);`}
+info('Back to global scope');
+// This event does NOT include the 'handler' tag`}
           />
       </div>
   </div>
 
   <h2
-      id="query-api"
+      id="breadcrumbs"
       class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
   >
-      Query API
+      Breadcrumbs
   </h2>
+
+  <p class="text-muted-foreground mb-4">
+      Breadcrumbs record a trail of events leading up to an error, making it easier to debug.
+      Framework packages add breadcrumbs automatically for HTTP requests, DB queries, and more.
+  </p>
 
   <div class="mb-8">
       <Code
@@ -299,21 +352,216 @@ $app->pipe($middleware);`}
           theme="one-dark-pro"
           code={`<?php
 
-// Search logs
-$result = $client->query([
-  'service' => 'api-gateway',
-  'level' => 'error',
-  'from' => '2025-01-15T00:00:00Z',
-  'to' => '2025-01-15T23:59:59Z',
-  'q' => 'timeout',  // Full-text search
-  'limit' => 100
+use function LogTide\\{addBreadcrumb, captureException};
+use LogTide\\Breadcrumb\\Breadcrumb;
+use LogTide\\Enum\\BreadcrumbType;
+
+// Add breadcrumbs manually
+addBreadcrumb(new Breadcrumb(
+    BreadcrumbType::DEFAULT,
+    'User authenticated',
+    category: 'auth',
+    data: ['method' => 'oauth', 'provider' => 'github'],
+));
+
+addBreadcrumb(new Breadcrumb(
+    BreadcrumbType::NAVIGATION,
+    'Navigated to /dashboard',
+    category: 'navigation',
+));
+
+// When an exception is captured, breadcrumbs are included automatically
+captureException(new \\RuntimeException('Dashboard failed to load'));
+// The error event will contain both breadcrumbs above`}
+      />
+  </div>
+
+  <h2
+      id="tracing"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Distributed Tracing
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      LogTide supports the <a href="https://www.w3.org/TR/trace-context/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">W3C Trace Context</a> standard
+      for distributed tracing across services. Spans are exported in OTLP format.
+  </p>
+
+  <div class="mb-8 space-y-6">
+      <div>
+          <h3 id="spans" class="text-lg font-semibold mb-3 scroll-mt-24">Spans</h3>
+          <Code
+              lang="php"
+              theme="one-dark-pro"
+              code={`<?php
+
+use function LogTide\\{startSpan, finishSpan, captureException};
+
+$span = startSpan('db.query SELECT users', [
+    'kind' => \\LogTide\\Enum\\SpanKind::CLIENT,
 ]);
 
-echo "Found {" . $result['total'] . "} error logs\n";
-foreach ($result['logs'] as $log) {
-  echo "[{" . $log['time'] . "}] {" . $log['message'] . "}\n";
+$span?->setAttributes([
+    'db.system' => 'postgresql',
+    'db.statement' => 'SELECT * FROM users WHERE id = $1',
+]);
+
+try {
+    $result = $db->query('SELECT * FROM users WHERE id = ?', [$userId]);
+    $span?->setStatus(\\LogTide\\Enum\\SpanStatus::OK);
+} catch (\\Throwable $e) {
+    $span?->setStatus(\\LogTide\\Enum\\SpanStatus::ERROR, $e->getMessage());
+    captureException($e);
+}
+
+if ($span !== null) {
+    finishSpan($span);
 }`}
-      />
+          />
+      </div>
+
+      <div>
+          <h3 id="trace-propagation" class="text-lg font-semibold mb-3 scroll-mt-24">Trace Propagation</h3>
+          <p class="text-muted-foreground mb-3">Framework SDKs automatically extract incoming <code class="bg-muted px-1 rounded">traceparent</code> headers and inject them into responses for end-to-end trace correlation.</p>
+          <Code
+              lang="php"
+              theme="one-dark-pro"
+              code={`<?php
+
+use function LogTide\\{getTraceparent, continueTrace};
+
+// Continue a trace from an incoming request
+$traceparent = $_SERVER['HTTP_TRACEPARENT'] ?? '';
+if (!empty($traceparent)) {
+    continueTrace($traceparent);
+}
+
+// Get the current traceparent to propagate to outgoing requests
+$outgoingTraceparent = getTraceparent();
+// → "00-<trace-id>-<span-id>-01"
+
+$response = $httpClient->request('GET', 'https://api.example.com/data', [
+    'headers' => ['traceparent' => $outgoingTraceparent],
+]);`}
+          />
+      </div>
+  </div>
+
+  <h2
+      id="monolog"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Monolog Integration
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      LogTide includes built-in Monolog handlers. No separate package needed &mdash; just
+      <code class="bg-muted px-1 rounded">composer require monolog/monolog</code> alongside the SDK.
+  </p>
+
+  <div class="mb-8 space-y-6">
+      <div>
+          <h3 id="logtide-handler" class="text-lg font-semibold mb-3 scroll-mt-24">LogtideHandler</h3>
+          <p class="text-muted-foreground mb-3">Forwards Monolog records to LogTide as log events.</p>
+          <Code
+              lang="php"
+              theme="one-dark-pro"
+              code={`<?php
+
+use Monolog\\Logger;
+use Monolog\\Level;
+use LogTide\\Monolog\\LogtideHandler;
+
+// Initialize the SDK first
+\\LogTide\\init(['dsn' => 'https://lp_abc123@api.logtide.dev']);
+
+// Create a Monolog logger with the LogTide handler
+$logger = new Logger('my-app');
+$logger->pushHandler(new LogtideHandler(Level::Debug));
+
+// Use standard Monolog methods — logs are sent to LogTide
+$logger->info('User logged in', ['user_id' => $userId]);
+$logger->error('Payment failed', ['order_id' => $orderId]);`}
+          />
+      </div>
+
+      <div>
+          <h3 id="breadcrumb-handler" class="text-lg font-semibold mb-3 scroll-mt-24">BreadcrumbHandler</h3>
+          <p class="text-muted-foreground mb-3">Records Monolog entries as breadcrumbs instead of sending them as log events.</p>
+          <Code
+              lang="php"
+              theme="one-dark-pro"
+              code={`<?php
+
+use Monolog\\Logger;
+use Monolog\\Level;
+use LogTide\\Monolog\\LogtideHandler;
+use LogTide\\Monolog\\BreadcrumbHandler;
+
+$logger = new Logger('my-app');
+
+// Low-level logs become breadcrumbs (trail of events)
+$logger->pushHandler(new BreadcrumbHandler(Level::Debug));
+
+// Important logs are sent as events
+$logger->pushHandler(new LogtideHandler(Level::Warning));`}
+          />
+      </div>
+  </div>
+
+  <h2
+      id="framework-packages"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Framework Packages
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      Each framework package wraps <code class="bg-muted px-1 rounded">logtide/logtide</code> with
+      framework-specific middleware, service providers, and auto-instrumentation.
+  </p>
+
+  <div class="grid md:grid-cols-2 gap-4 mb-8">
+      <Card>
+          <CardContent class="pt-4">
+              <div class="flex items-center gap-2 mb-2">
+                  <Icon name="simple-icons:laravel" class="w-5 h-5" />
+                  <a href="/docs/sdks/laravel" class="font-semibold hover:text-primary">logtide/logtide-laravel</a>
+              </div>
+              <p class="text-sm text-muted-foreground">Auto-discovery, middleware, log channel, Facade, breadcrumb integrations</p>
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardContent class="pt-4">
+              <div class="flex items-center gap-2 mb-2">
+                  <Icon name="simple-icons:symfony" class="w-5 h-5" />
+                  <a href="/docs/sdks/symfony" class="font-semibold hover:text-primary">logtide/logtide-symfony</a>
+              </div>
+              <p class="text-sm text-muted-foreground">Bundle with semantic config, request/console subscribers, Doctrine integration</p>
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardContent class="pt-4">
+              <div class="flex items-center gap-2 mb-2">
+                  <Icon name="simple-icons:php" class="w-5 h-5" />
+                  <a href="/docs/sdks/slim" class="font-semibold hover:text-primary">logtide/logtide-slim</a>
+              </div>
+              <p class="text-sm text-muted-foreground">PSR-15 middleware, route pattern resolution, error middleware</p>
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardContent class="pt-4">
+              <div class="flex items-center gap-2 mb-2">
+                  <Icon name="simple-icons:wordpress" class="w-5 h-5" />
+                  <a href="/docs/sdks/wordpress" class="font-semibold hover:text-primary">logtide/logtide-wordpress</a>
+              </div>
+              <p class="text-sm text-muted-foreground">WordPress hooks, error capture, database query monitoring, HTTP API tracking</p>
+          </CardContent>
+      </Card>
   </div>
 
   <h2
@@ -326,34 +574,42 @@ foreach ($result['logs'] as $log) {
   <div class="space-y-4">
       <Card>
           <CardHeader>
-              <CardTitle class="text-base"
-                  >1. Automatic Shutdown Handling</CardTitle
-              >
+              <CardTitle class="text-base">1. Initialize Early</CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              The SDK automatically registers a shutdown function to flush
-              logs on script termination. No manual cleanup needed!
+              Call <code class="bg-muted px-1 rounded">\LogTide\init()</code> as early as possible in your
+              application entry point. This ensures default integrations (error handlers, exception handlers)
+              capture everything from the start.
           </CardContent>
       </Card>
 
       <Card>
           <CardHeader>
-              <CardTitle class="text-base"
-                  >2. Use Enums for Log Levels</CardTitle
-              >
+              <CardTitle class="text-base">2. Automatic Shutdown Handling</CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              PHP 8.1+ enums provide type safety. Use <code class="bg-muted px-1 rounded">LogLevel::ERROR</code> instead of strings where possible.
+              The SDK automatically registers a shutdown function to flush all pending events.
+              No manual cleanup needed &mdash; just initialize and log.
           </CardContent>
       </Card>
 
       <Card>
           <CardHeader>
-              <CardTitle class="text-base">3. Leverage Middleware</CardTitle>
+              <CardTitle class="text-base">3. Use Scopes for Request Context</CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              Framework middleware automatically logs all requests with
-              response times, status codes, and trace IDs.
+              In server environments, use request-scoped context to isolate per-request data
+              (user, request ID, tags). Framework packages handle this automatically.
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base">4. Set Environment and Release</CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm text-muted-foreground">
+              Always set <code class="bg-muted px-1 rounded">environment</code> and <code class="bg-muted px-1 rounded">release</code> in
+              your config. This enables filtering by environment and tracking regressions across releases.
           </CardContent>
       </Card>
   </div>

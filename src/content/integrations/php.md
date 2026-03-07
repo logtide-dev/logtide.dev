@@ -1,14 +1,14 @@
 ---
 title: "PHP Logging Integration"
-description: "Send structured logs from PHP applications to LogTide using PSR-3 compliant logging with Monolog handlers."
+description: "Send structured logs from PHP applications to LogTide using the official SDK with Hub/Scope architecture, tracing, and Monolog handlers."
 category: "language"
 difficulty: "easy"
 sdk: "php"
 brandIcon: "simple-icons:php"
 highlights:
-  - "PSR-3 compliant"
-  - "Monolog integration"
-  - "No framework required"
+  - "Hub/Scope architecture"
+  - "Built-in Monolog handlers"
+  - "W3C distributed tracing"
   - "Async batching"
 relatedIntegrations:
   - "laravel"
@@ -25,15 +25,15 @@ keywords:
   - "php logging best practices"
 ---
 
-The LogTide PHP SDK provides structured logging for any PHP application, whether you're using a framework or plain PHP. With PSR-3 compliance and Monolog integration, it fits naturally into your existing logging setup.
+The LogTide PHP SDK provides structured logging for any PHP application, whether you're using a framework or plain PHP. With DSN-based configuration, Hub/Scope architecture, and built-in Monolog handlers, it fits naturally into your existing logging setup.
 
 ## Why send PHP logs to LogTide?
 
-- **PSR-3 compliant**: Works with any PSR-3 compatible logger
-- **Monolog handler**: Drop-in handler for existing Monolog setups
+- **Hub/Scope architecture**: Per-request context isolation with tags, breadcrumbs, and user data
+- **Built-in Monolog handlers**: Drop-in `LogtideHandler` and `BreadcrumbHandler` for existing Monolog setups
+- **Distributed tracing**: W3C Trace Context (traceparent) propagation across services
 - **Automatic batching**: Reduces network overhead by batching log entries
-- **Zero framework lock-in**: Works with plain PHP, Laravel, Symfony, or any framework
-- **Request correlation**: Track requests across your entire application
+- **Zero framework lock-in**: Works with plain PHP, Laravel, Symfony, Slim, or WordPress
 - **Privacy-first**: Self-hosted option keeps logs in your infrastructure
 
 ## Prerequisites
@@ -41,14 +41,23 @@ The LogTide PHP SDK provides structured logging for any PHP application, whether
 - PHP 8.1 or higher
 - Composer for dependency management
 - LogTide instance (self-hosted or cloud)
-- API key from your LogTide project
+- DSN from your LogTide project settings
 
 ## Installation
 
 Install the LogTide PHP SDK via Composer:
 
 ```bash
-composer require logtide-dev/sdk-php
+composer require logtide/logtide
+```
+
+For framework-specific integrations, install the corresponding package instead:
+
+```bash
+composer require logtide/logtide-laravel    # Laravel 10/11/12
+composer require logtide/logtide-symfony    # Symfony 6.4/7.x
+composer require logtide/logtide-slim       # Slim 4
+composer require logtide/logtide-wordpress  # WordPress
 ```
 
 ## Quick Start (5 minutes)
@@ -62,29 +71,26 @@ The simplest way to start logging:
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-use LogTide\Client;
-use LogTide\LogLevel;
+use function LogTide\{init, info, error, warn, debug, critical, flush};
 
-// Initialize the client
-$logtide = new Client([
-    'apiUrl' => getenv('LOGTIDE_API_URL') ?: 'https://api.logtide.dev',
-    'apiKey' => getenv('LOGTIDE_API_KEY'),
+// Initialize the SDK with your DSN
+init([
+    'dsn' => getenv('LOGTIDE_DSN') ?: 'https://lp_your_key@api.logtide.dev',
+    'service' => 'my-php-app',
+    'environment' => getenv('APP_ENV') ?: 'production',
 ]);
 
 // Send logs at different levels
-$logtide->info('Application started', [
+info('Application started', [
     'php_version' => PHP_VERSION,
     'environment' => getenv('APP_ENV') ?: 'production',
 ]);
 
-$logtide->debug('Processing request', ['uri' => $_SERVER['REQUEST_URI'] ?? '/']);
-$logtide->warning('High memory usage', ['memory_mb' => memory_get_usage(true) / 1024 / 1024]);
-$logtide->error('Failed to connect to external service', ['service' => 'payment-gateway']);
+debug('Processing request', ['uri' => $_SERVER['REQUEST_URI'] ?? '/']);
+warn('High memory usage', ['memory_mb' => memory_get_usage(true) / 1024 / 1024]);
+error('Failed to connect to external service', ['service' => 'payment-gateway']);
 
-// Flush remaining logs on shutdown
-register_shutdown_function(function() use ($logtide) {
-    $logtide->flush();
-});
+// Shutdown is auto-handled via register_shutdown_function
 ```
 
 ### Environment Variables
@@ -93,8 +99,7 @@ Store your credentials securely:
 
 ```bash
 # .env
-LOGTIDE_API_URL=https://api.logtide.dev
-LOGTIDE_API_KEY=your-project-api-key
+LOGTIDE_DSN=https://lp_your_key@api.logtide.dev
 APP_ENV=production
 ```
 
@@ -105,66 +110,61 @@ Load with `vlucas/phpdotenv` or your framework's environment handling.
 ```php
 <?php
 
-use LogTide\Client;
+use function LogTide\init;
 
-$logtide = new Client([
+init([
     // Required
-    'apiUrl' => 'https://api.logtide.dev',
-    'apiKey' => 'your-api-key',
+    'dsn' => 'https://lp_your_key@api.logtide.dev',
 
-    // Optional settings
-    'batchSize' => 50,           // Logs per batch (default: 50)
-    'flushInterval' => 5000,     // Auto-flush interval in ms (default: 5000)
-    'timeout' => 3,              // HTTP timeout in seconds (default: 3)
-    'retries' => 3,              // Retry attempts on failure (default: 3)
-    'debug' => false,            // Enable debug output (default: false)
+    // Recommended
+    'service' => 'my-php-app',
+    'environment' => 'production',
+    'release' => '1.2.3',
 
-    // Default context added to all logs
-    'defaultContext' => [
-        'service' => 'my-php-app',
-        'version' => '1.2.3',
-        'hostname' => gethostname(),
-    ],
+    // Batching
+    'batch_size' => 100,              // Logs per batch (default: 100)
+    'flush_interval' => 5000,         // Flush interval in ms (default: 5000)
+    'max_buffer_size' => 10000,       // Max logs in buffer (default: 10000)
+
+    // Reliability
+    'max_retries' => 3,               // Retry attempts on failure (default: 3)
+    'retry_delay_ms' => 1000,         // Initial retry delay in ms (default: 1000)
+    'circuit_breaker_threshold' => 5, // Failures before circuit opens (default: 5)
+
+    // Tracing
+    'traces_sample_rate' => 1.0,      // 0.0-1.0, sample rate for traces
+
+    // Debug
+    'debug' => false,
 ]);
 ```
 
 ## Monolog Integration
 
-If you already use Monolog, add LogTide as a handler:
-
-### Installation
-
-```bash
-composer require logtide-dev/monolog-handler
-```
-
-### Configuration
+The SDK includes built-in Monolog handlers. No separate package needed:
 
 ```php
 <?php
 
 use Monolog\Logger;
 use Monolog\Level;
-use LogTide\Monolog\LogTideHandler;
+use LogTide\Monolog\LogtideHandler;
+use LogTide\Monolog\BreadcrumbHandler;
 
-// Create the handler
-$handler = new LogTideHandler(
-    apiUrl: getenv('LOGTIDE_API_URL'),
-    apiKey: getenv('LOGTIDE_API_KEY'),
-    level: Level::Debug, // Minimum log level
-    bubble: true,
-);
+// Initialize the SDK first
+\LogTide\init(['dsn' => getenv('LOGTIDE_DSN')]);
 
-// Create or use existing logger
 $logger = new Logger('my-app');
-$logger->pushHandler($handler);
+
+// Low-level logs become breadcrumbs (trail of events)
+$logger->pushHandler(new BreadcrumbHandler(Level::Debug));
+
+// Important logs are sent as events to LogTide
+$logger->pushHandler(new LogtideHandler(Level::Warning));
 
 // Use standard Monolog methods
-$logger->info('User logged in', ['user_id' => $userId]);
-$logger->error('Payment failed', [
-    'order_id' => $orderId,
-    'error' => $exception->getMessage(),
-]);
+$logger->info('Cache hit', ['key' => 'user:123']);       // → breadcrumb
+$logger->error('Payment failed', ['order_id' => 456]);   // → LogTide event
 ```
 
 ### Combining with Other Handlers
@@ -175,7 +175,7 @@ $logger->error('Payment failed', [
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\RotatingFileHandler;
-use LogTide\Monolog\LogTideHandler;
+use LogTide\Monolog\LogtideHandler;
 
 $logger = new Logger('my-app');
 
@@ -192,133 +192,60 @@ $logger->pushHandler(new RotatingFileHandler(
 ));
 
 // LogTide for centralized logging
-$logger->pushHandler(new LogTideHandler(
-    apiUrl: getenv('LOGTIDE_API_URL'),
-    apiKey: getenv('LOGTIDE_API_KEY'),
-    level: Level::Info,
-));
+$logger->pushHandler(new LogtideHandler(Level::Info));
 ```
 
-## Request Correlation
+## Scopes & Context
 
-Track requests across your application with trace IDs:
+Track requests across your application with scoped context:
 
 ```php
 <?php
 
-use LogTide\Client;
-use LogTide\Context;
+use function LogTide\{withScope, configureScope, info, captureException};
 
-$logtide = new Client([/* config */]);
+// Set global context
+configureScope(function (\LogTide\State\Scope $scope): void {
+    $scope->setTag('region', 'eu-west-1');
+    $scope->setUser(['id' => $_SESSION['user_id'] ?? null]);
+});
 
-// Generate or use existing trace ID
-$traceId = $_SERVER['HTTP_X_TRACE_ID'] ?? bin2hex(random_bytes(16));
+// Isolated scope for a block of code
+withScope(function () {
+    \LogTide\LogtideSdk::getCurrentHub()->getScope()->setTag('handler', 'checkout');
 
-// Set context for all subsequent logs
-Context::set([
-    'trace_id' => $traceId,
-    'request_id' => uniqid('req_', true),
-    'user_id' => $_SESSION['user_id'] ?? null,
-]);
+    info('Processing order', ['order_id' => $orderId]);
+    // This event includes the 'handler' tag
+});
 
-// All logs now include trace context
-$logtide->info('Processing order', ['order_id' => $orderId]);
-// => {"trace_id": "abc123...", "request_id": "req_...", "order_id": "..."}
+info('Back to global scope');
+// This event does NOT include the 'handler' tag
 ```
 
-### Middleware Example
+## Distributed Tracing
 
-For custom middleware (works with any framework):
+Propagate trace context across services using W3C traceparent:
 
 ```php
 <?php
 
-function loggingMiddleware(callable $handler): callable
-{
-    return function($request) use ($handler) {
-        $startTime = microtime(true);
-        $traceId = $request->getHeader('X-Trace-ID')[0] ?? bin2hex(random_bytes(16));
+use function LogTide\{continueTrace, getTraceparent, startSpan, finishSpan};
 
-        Context::set([
-            'trace_id' => $traceId,
-            'method' => $request->getMethod(),
-            'uri' => $request->getUri()->getPath(),
-        ]);
-
-        global $logtide;
-        $logtide->info('Request started');
-
-        try {
-            $response = $handler($request);
-
-            $logtide->info('Request completed', [
-                'status' => $response->getStatusCode(),
-                'duration_ms' => (microtime(true) - $startTime) * 1000,
-            ]);
-
-            return $response->withHeader('X-Trace-ID', $traceId);
-        } catch (Throwable $e) {
-            $logtide->error('Request failed', [
-                'error' => $e->getMessage(),
-                'duration_ms' => (microtime(true) - $startTime) * 1000,
-            ]);
-            throw $e;
-        }
-    };
+// Continue a trace from an incoming request
+$traceparent = $_SERVER['HTTP_TRACEPARENT'] ?? '';
+if (!empty($traceparent)) {
+    continueTrace($traceparent);
 }
-```
 
-## Error and Exception Handling
+// Create spans for operations
+$span = startSpan('db.query', ['kind' => \LogTide\Enum\SpanKind::CLIENT]);
+// ... do work ...
+if ($span !== null) {
+    finishSpan($span);
+}
 
-Capture all PHP errors and exceptions:
-
-```php
-<?php
-
-use LogTide\Client;
-
-$logtide = new Client([/* config */]);
-
-// Handle PHP errors
-set_error_handler(function($severity, $message, $file, $line) use ($logtide) {
-    $logtide->error('PHP Error', [
-        'severity' => $severity,
-        'message' => $message,
-        'file' => $file,
-        'line' => $line,
-    ]);
-
-    // Return false to let PHP handle the error as well
-    return false;
-});
-
-// Handle uncaught exceptions
-set_exception_handler(function(Throwable $e) use ($logtide) {
-    $logtide->critical('Uncaught exception', [
-        'exception' => get_class($e),
-        'message' => $e->getMessage(),
-        'file' => $e->getFile(),
-        'line' => $e->getLine(),
-        'trace' => $e->getTraceAsString(),
-    ]);
-
-    // Flush before process ends
-    $logtide->flush();
-});
-
-// Handle fatal errors
-register_shutdown_function(function() use ($logtide) {
-    $error = error_get_last();
-    if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
-        $logtide->critical('Fatal error', [
-            'type' => $error['type'],
-            'message' => $error['message'],
-            'file' => $error['file'],
-            'line' => $error['line'],
-        ]);
-    }
-    $logtide->flush();
-});
+// Propagate to outgoing requests
+$outgoingTraceparent = getTraceparent();
 ```
 
 ## Docker Setup
@@ -339,9 +266,6 @@ RUN composer install --no-dev --optimize-autoloader
 
 # Copy application
 COPY . .
-
-# Configure PHP-FPM
-COPY docker/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 
 EXPOSE 9000
 CMD ["php-fpm"]
@@ -365,82 +289,10 @@ services:
   php:
     build: .
     environment:
-      - LOGTIDE_API_URL=${LOGTIDE_API_URL}
-      - LOGTIDE_API_KEY=${LOGTIDE_API_KEY}
+      - LOGTIDE_DSN=${LOGTIDE_DSN}
       - APP_ENV=production
     volumes:
       - ./:/var/www/html
-```
-
-### nginx Configuration
-
-```nginx
-# nginx.conf
-events {
-    worker_connections 1024;
-}
-
-http {
-    server {
-        listen 80;
-        root /var/www/html/public;
-        index index.php;
-
-        location / {
-            try_files $uri $uri/ /index.php?$query_string;
-        }
-
-        location ~ \.php$ {
-            fastcgi_pass php:9000;
-            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-            include fastcgi_params;
-
-            # Pass trace ID to PHP
-            fastcgi_param HTTP_X_TRACE_ID $request_id;
-        }
-    }
-}
-```
-
-## Production Deployment
-
-### systemd Service
-
-For standalone PHP applications:
-
-```ini
-# /etc/systemd/system/myapp.service
-[Unit]
-Description=My PHP Application
-After=network.target
-
-[Service]
-Type=simple
-User=www-data
-WorkingDirectory=/var/www/myapp
-ExecStart=/usr/bin/php /var/www/myapp/server.php
-Restart=always
-RestartSec=5
-
-# Environment
-Environment=APP_ENV=production
-EnvironmentFile=/var/www/myapp/.env
-
-# Logging
-StandardOutput=journal
-StandardError=journal
-SyslogIdentifier=myapp
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Enable and start:
-
-```bash
-sudo systemctl enable myapp
-sudo systemctl start myapp
-sudo systemctl status myapp
 ```
 
 ## Verification
@@ -452,20 +304,18 @@ Check logs are arriving in LogTide:
 // test-logging.php
 require_once __DIR__ . '/vendor/autoload.php';
 
-use LogTide\Client;
-
-$logtide = new Client([
-    'apiUrl' => getenv('LOGTIDE_API_URL'),
-    'apiKey' => getenv('LOGTIDE_API_KEY'),
+\LogTide\init([
+    'dsn' => getenv('LOGTIDE_DSN'),
+    'service' => 'test',
 ]);
 
-$logtide->info('Test log from PHP', [
+\LogTide\info('Test log from PHP', [
     'timestamp' => date('c'),
     'php_version' => PHP_VERSION,
     'test' => true,
 ]);
 
-$logtide->flush();
+\LogTide\flush();
 
 echo "Log sent! Check LogTide dashboard.\n";
 ```
@@ -473,43 +323,16 @@ echo "Log sent! Check LogTide dashboard.\n";
 Run:
 
 ```bash
-LOGTIDE_API_URL=https://api.logtide.dev LOGTIDE_API_KEY=your-key php test-logging.php
+LOGTIDE_DSN=https://lp_your_key@api.logtide.dev php test-logging.php
 ```
-
-**Expected output in LogTide:**
-```json
-{
-  "level": "info",
-  "message": "Test log from PHP",
-  "timestamp": "2025-02-03T10:00:00+00:00",
-  "php_version": "8.3.0",
-  "test": true
-}
-```
-
-## Performance Impact
-
-Measurements from production PHP application (Laravel):
-
-| Metric | Without LogTide | With LogTide | Overhead |
-|--------|-----------------|--------------|----------|
-| Avg response time | 45ms | 46ms | +2.2% |
-| Memory per request | 12MB | 12.5MB | +4.2% |
-| P99 latency | 120ms | 125ms | +4.2% |
-| CPU usage | 15% | 15.5% | +3.3% |
-
-**Notes:**
-- Batching reduces network overhead significantly
-- Async flush prevents blocking on HTTP calls
-- Memory overhead is constant regardless of log volume
 
 ## Troubleshooting
 
 ### Logs not appearing in LogTide
 
-1. **Check API credentials:**
+1. **Check DSN:**
 ```php
-$logtide = new Client(['debug' => true, /* ... */]);
+\LogTide\init(['dsn' => '...', 'debug' => true]);
 // Look for error messages in stdout
 ```
 
@@ -518,79 +341,25 @@ $logtide = new Client(['debug' => true, /* ... */]);
 curl -I https://api.logtide.dev/health
 ```
 
-3. **Ensure flush is called:**
-```php
-// Always flush before script ends
-register_shutdown_function(fn() => $logtide->flush());
-```
+3. **Flush is automatic** &mdash; the SDK registers a shutdown function. For long-running processes, call `\LogTide\flush()` manually.
 
 ### Memory issues with high volume
 
-Reduce batch size and flush more frequently:
+Reduce buffer size:
 
 ```php
-$logtide = new Client([
-    'batchSize' => 20,      // Smaller batches
-    'flushInterval' => 2000, // Flush every 2 seconds
-    /* ... */
+\LogTide\init([
+    'dsn' => '...',
+    'batch_size' => 50,
+    'max_buffer_size' => 5000,
 ]);
 ```
-
-### SSL certificate errors
-
-For self-hosted LogTide with self-signed certificates:
-
-```php
-$logtide = new Client([
-    'verifySsl' => false, // Not recommended for production
-    /* ... */
-]);
-```
-
-Better: Add your CA certificate to the system trust store.
-
-## Privacy Considerations
-
-When logging in GDPR-regulated environments:
-
-```php
-<?php
-
-use LogTide\Client;
-
-// Create a privacy-aware logger
-function sanitizeContext(array $context): array
-{
-    $sensitiveKeys = ['email', 'ip', 'password', 'credit_card', 'ssn'];
-
-    foreach ($sensitiveKeys as $key) {
-        if (isset($context[$key])) {
-            $context[$key] = '[REDACTED]';
-        }
-    }
-
-    // Hash user identifiers
-    if (isset($context['user_id'])) {
-        $context['user_id_hash'] = hash('sha256', $context['user_id']);
-        unset($context['user_id']);
-    }
-
-    return $context;
-}
-
-$logtide->info('User action', sanitizeContext([
-    'user_id' => '12345',
-    'email' => 'user@example.com',
-    'action' => 'purchase',
-]));
-// Logs: {"user_id_hash": "abc...", "email": "[REDACTED]", "action": "purchase"}
-```
-
-See our [GDPR compliance guide](/use-cases/gdpr-compliance) for complete implementation.
 
 ## Next Steps
 
-- **[Laravel Integration](/integrations/laravel)** - Full Laravel framework integration with Facades and helpers
+- **[Laravel Integration](/docs/sdks/laravel)** - Auto-discovery, Facade, log channel, breadcrumbs
+- **[Symfony Integration](/docs/sdks/symfony)** - Bundle with semantic config and event subscribers
+- **[Slim Integration](/docs/sdks/slim)** - PSR-15 middleware for Slim 4
+- **[WordPress Integration](/docs/sdks/wordpress)** - WordPress hooks and database monitoring
 - **[Docker Setup](/integrations/docker)** - Container deployment best practices
-- **[nginx Integration](/integrations/nginx)** - Combine PHP-FPM with nginx access logs
 - **[GDPR Compliance](/use-cases/gdpr-compliance)** - Privacy-first logging implementation

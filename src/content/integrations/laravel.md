@@ -1,15 +1,15 @@
 ---
 title: "Laravel and PHP Logging Integration"
-description: "Send structured logs from Laravel applications to LogTide using custom Monolog handlers and middleware."
+description: "Send structured logs from Laravel applications to LogTide with zero-config auto-discovery, middleware, log channel, and breadcrumb integrations."
 category: "framework"
 difficulty: "easy"
 sdk: "php"
 brandIcon: "simple-icons:laravel"
 highlights:
-  - "Custom Monolog channel"
-  - "Request middleware"
-  - "Queue job logging"
-  - "Exception tracking"
+  - "Zero-config auto-discovery"
+  - "Automatic middleware"
+  - "Custom log channel"
+  - "Breadcrumb integrations"
 relatedIntegrations:
   - "php"
   - "docker"
@@ -19,33 +19,36 @@ relatedUseCases:
 keywords:
   - "laravel logging"
   - "php logging"
-  - "monolog postgresql"
+  - "laravel monolog"
   - "laravel structured logging"
   - "php structured logs"
 ---
 
-Laravel's logging system is built on Monolog, making it easy to add custom handlers. This guide shows you how to ship Laravel logs to LogTide with structured metadata, request context, and exception tracking.
+The LogTide Laravel package provides a drop-in integration for Laravel 10, 11, and 12 with zero-configuration needed. It auto-registers middleware, a log channel, a Facade, and breadcrumb integrations for database queries, cache events, and queue jobs.
 
 ## Why use LogTide with Laravel?
 
-- **Structured logging**: JSON logs with full context, not just strings
-- **Request correlation**: Track logs across the entire request lifecycle
-- **Queue visibility**: See logs from background jobs alongside web requests
-- **Exception tracking**: Automatic stack trace parsing and error grouping
+- **Zero-config**: Auto-discovery registers the service provider and facade automatically
+- **Automatic middleware**: Request tracing with distributed tracing (W3C traceparent) out of the box
+- **Log channel**: Use Laravel's standard `Log::info()` to send logs to LogTide
+- **Breadcrumbs**: Automatic breadcrumbs for DB queries, cache events, and queue jobs
+- **Scoped context**: Per-request isolation with the Hub/Scope architecture
 - **GDPR compliance**: Self-hosted option for EU data residency
 
 ## Prerequisites
 
 - PHP 8.1+
-- Laravel 10.x or 11.x
+- Laravel 10.x, 11.x, or 12.x
 - Composer
-- LogTide instance with API key
+- LogTide instance with DSN
 
 ## Installation
 
 ```bash
-composer require logtide/laravel-sdk
+composer require logtide/logtide-laravel
 ```
+
+The service provider and facade are registered automatically via Laravel's package auto-discovery.
 
 Publish the configuration:
 
@@ -60,9 +63,19 @@ php artisan vendor:publish --tag=logtide-config
 Add to your `.env` file:
 
 ```env
-LOGTIDE_API_URL=https://api.logtide.dev
-LOGTIDE_API_KEY=your-project-api-key
-LOGTIDE_ENABLED=true
+LOGTIDE_DSN=https://lp_your_key@api.logtide.dev
+```
+
+That's it! The SDK is now active with sensible defaults.
+
+Optional environment variables:
+
+```env
+LOGTIDE_SERVICE=my-laravel-app        # default: APP_NAME
+LOGTIDE_ENVIRONMENT=production         # default: APP_ENV
+LOGTIDE_RELEASE=1.2.3
+LOGTIDE_TRACES_SAMPLE_RATE=1.0
+LOGTIDE_DEBUG=false
 ```
 
 ### config/logtide.php
@@ -71,48 +84,42 @@ LOGTIDE_ENABLED=true
 <?php
 
 return [
-    'enabled' => env('LOGTIDE_ENABLED', true),
-    'api_url' => env('LOGTIDE_API_URL'),
-    'api_key' => env('LOGTIDE_API_KEY'),
+    'dsn' => env('LOGTIDE_DSN'),
 
-    // Batching configuration
-    'batch_size' => 100,
-    'flush_interval' => 5, // seconds
+    'service' => env('LOGTIDE_SERVICE', env('APP_NAME', 'laravel')),
+    'environment' => env('LOGTIDE_ENVIRONMENT', env('APP_ENV', 'production')),
+    'release' => env('LOGTIDE_RELEASE'),
 
-    // Default metadata added to all logs
-    'metadata' => [
-        'environment' => env('APP_ENV', 'production'),
-        'app_name' => env('APP_NAME', 'Laravel'),
-        'version' => env('APP_VERSION', '1.0.0'),
+    // Batching
+    'batch_size' => (int) env('LOGTIDE_BATCH_SIZE', 100),
+    'flush_interval' => (int) env('LOGTIDE_FLUSH_INTERVAL', 5000),
+    'max_buffer_size' => (int) env('LOGTIDE_MAX_BUFFER_SIZE', 10000),
+    'max_retries' => (int) env('LOGTIDE_MAX_RETRIES', 3),
+
+    // Tracing
+    'traces_sample_rate' => (float) env('LOGTIDE_TRACES_SAMPLE_RATE', 1.0),
+
+    // Privacy
+    'send_default_pii' => (bool) env('LOGTIDE_SEND_DEFAULT_PII', false),
+
+    // Breadcrumb integrations
+    'breadcrumbs' => [
+        'db_queries' => true,
+        'cache' => true,
+        'queue' => true,
+        'http_client' => true,
     ],
 
-    // Request logging
-    'log_requests' => true,
-    'log_request_body' => false, // Be careful with sensitive data
-    'log_response_body' => false,
-    'skip_paths' => [
-        'health',
-        'ready',
-        'metrics',
-        '_debugbar/*',
-    ],
+    // Paths to skip in the HTTP middleware
+    'skip_paths' => ['/health', '/healthz'],
 
-    // Sensitive fields to redact
-    'redact_fields' => [
-        'password',
-        'password_confirmation',
-        'token',
-        'api_key',
-        'secret',
-        'credit_card',
-        'cvv',
-    ],
+    'debug' => (bool) env('LOGTIDE_DEBUG', false),
 ];
 ```
 
 ### config/logging.php
 
-Add the LogTide channel to your logging configuration:
+Add the LogTide channel to your logging stack:
 
 ```php
 <?php
@@ -127,11 +134,8 @@ return [
             'ignore_exceptions' => false,
         ],
 
-        'logtide' => [
-            'driver' => 'custom',
-            'via' => \LogTide\Laravel\LogTideLoggerFactory::class,
-            'level' => env('LOG_LEVEL', 'debug'),
-        ],
+        // The 'logtide' channel is auto-registered by the service provider.
+        // No manual configuration needed.
 
         // ... other channels
     ],
@@ -172,89 +176,58 @@ try {
 ### Using the Facade
 
 ```php
-use LogTide\Laravel\Facades\LogTide;
+use LogTide\Laravel\LogtideFacade as Logtide;
+use LogTide\Enum\LogLevel;
 
-// Direct API access
-LogTide::info('Custom event', ['key' => 'value']);
+// Direct Hub API access
+Logtide::captureLog(LogLevel::INFO, 'Custom event', ['key' => 'value']);
 
-// With specific service name
-LogTide::service('payment-processor')->info('Processing payment');
+// Capture exceptions
+Logtide::captureException($exception);
 
-// Flush immediately (useful before long operations)
-LogTide::flush();
-```
+// Scoped context
+Logtide::withScope(function () {
+    Logtide::getScope()->setTag('handler', 'checkout');
+    Logtide::captureLog(LogLevel::INFO, 'Checkout started');
+});
 
-## Request Logging Middleware
-
-### Register Middleware
-
-In `app/Http/Kernel.php` (Laravel 10) or `bootstrap/app.php` (Laravel 11):
-
-```php
-// Laravel 10
-protected $middleware = [
-    \LogTide\Laravel\Http\Middleware\LogRequests::class,
-    // ... other middleware
-];
-
-// Laravel 11
-->withMiddleware(function (Middleware $middleware) {
-    $middleware->prepend(\LogTide\Laravel\Http\Middleware\LogRequests::class);
-})
-```
-
-### What Gets Logged
-
-Each request automatically logs:
-
-```json
-{
-  "level": "info",
-  "message": "HTTP GET /api/users/123",
-  "service": "laravel",
-  "metadata": {
-    "method": "GET",
-    "path": "/api/users/123",
-    "status_code": 200,
-    "duration_ms": 45,
-    "client_ip": "192.168.1.1",
-    "user_agent": "Mozilla/5.0...",
-    "user_id": 456,
-    "request_id": "abc123-def456"
-  }
+// Tracing
+$span = Logtide::startSpan('process.order');
+// ... do work ...
+if ($span !== null) {
+    Logtide::finishSpan($span);
 }
+
+// Flush
+Logtide::flush();
 ```
 
-### Custom Request Context
+## Request Middleware
 
-Add custom context to request logs:
+The HTTP middleware is **automatically registered** by the service provider. For each request it:
 
-```php
-use LogTide\Laravel\Facades\LogTide;
+- Creates an isolated scope (tags and breadcrumbs don't leak between requests)
+- Extracts incoming `traceparent` header for distributed tracing
+- Starts a SERVER span with HTTP attributes (method, URL, user agent)
+- Captures 5xx responses as error log events
+- Catches and reports uncaught exceptions
+- Injects `traceparent` into the response for trace correlation
 
-class OrderController extends Controller
-{
-    public function store(Request $request)
-    {
-        // Add context that will be included in all logs for this request
-        LogTide::addContext([
-            'order_id' => $order->id,
-            'customer_tier' => $request->user()->tier,
-        ]);
+Paths listed in `config('logtide.skip_paths')` are skipped (default: `/health`, `/healthz`).
 
-        // All subsequent logs include this context
-        Log::info('Processing order');
+## Breadcrumb Integrations
 
-        // ...
-    }
-}
-```
+The service provider automatically registers breadcrumb integrations:
+
+- **Database Queries** — Records `QueryExecuted` events with query, bindings, and duration
+- **Cache Events** — Records cache hits, misses, writes, and deletes
+- **Queue Jobs** — Records job processing events with job class, queue name, and attempt
+
+Toggle them in `config/logtide.php` under the `breadcrumbs` key.
 
 ## Queue Job Logging
 
-### Automatic Job Logging
-
-Jobs are automatically logged with context:
+Jobs automatically have access to LogTide:
 
 ```php
 use Illuminate\Bus\Queueable;
@@ -282,188 +255,26 @@ class ProcessOrder implements ShouldQueue
 }
 ```
 
-Produces logs with job context:
-
-```json
-{
-  "level": "info",
-  "message": "Processing order in background",
-  "metadata": {
-    "job_class": "App\\Jobs\\ProcessOrder",
-    "job_id": "abc123",
-    "queue": "orders",
-    "attempt": 1,
-    "order_id": 456
-  }
-}
-```
-
-### Failed Job Logging
-
-Failed jobs are automatically logged with full exception details:
-
-```php
-public function failed(\Throwable $exception)
-{
-    // Automatically logged by LogTide with:
-    // - Exception message and stack trace
-    // - Job payload
-    // - Attempt count
-    // - Queue name
-}
-```
-
-## Exception Handling
-
-### Global Exception Logging
-
-In `app/Exceptions/Handler.php`:
-
-```php
-use LogTide\Laravel\Facades\LogTide;
-
-public function register()
-{
-    $this->reportable(function (Throwable $e) {
-        LogTide::exception($e, [
-            'url' => request()->fullUrl(),
-            'user_id' => auth()->id(),
-        ]);
-    });
-}
-```
-
-### Structured Exception Data
-
-Exceptions are automatically parsed:
-
-```json
-{
-  "level": "error",
-  "message": "Payment processing failed",
-  "metadata": {
-    "exception": {
-      "class": "App\\Exceptions\\PaymentException",
-      "message": "Insufficient funds",
-      "code": 402,
-      "file": "/app/Services/PaymentService.php",
-      "line": 45,
-      "trace": [
-        {"file": "PaymentService.php", "line": 45, "function": "charge"},
-        {"file": "OrderController.php", "line": 23, "function": "processPayment"}
-      ]
-    }
-  }
-}
-```
-
-## User Context
-
-### Automatic User Tracking
-
-```php
-// config/logtide.php
-'user_resolver' => function () {
-    $user = auth()->user();
-    if (!$user) return null;
-
-    return [
-        'id' => $user->id,
-        'email_hash' => hash('sha256', $user->email), // Don't log raw emails
-        'role' => $user->role,
-    ];
-},
-```
-
-## Sensitive Data Redaction
-
-### Automatic Field Redaction
-
-```php
-// These fields are automatically redacted in request logs
-Log::info('User registered', [
-    'email' => $user->email,        // Logged as-is
-    'password' => $password,         // Redacted to [REDACTED]
-    'credit_card' => $cardNumber,    // Redacted to [REDACTED]
-]);
-```
-
-### Custom Redaction
-
-```php
-use LogTide\Laravel\Facades\LogTide;
-
-LogTide::addRedactedFields(['ssn', 'tax_id', 'bank_account']);
-```
-
 ## Docker Deployment
 
-### Dockerfile
-
-```dockerfile
-FROM php:8.2-fpm-alpine
-
-# Install extensions
-RUN docker-php-ext-install pdo pdo_mysql opcache
-
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-WORKDIR /var/www/html
-
-# Copy application
-COPY . .
-
-# Install dependencies
-RUN composer install --no-dev --optimize-autoloader
-
-# Cache configuration
-RUN php artisan config:cache
-RUN php artisan route:cache
-RUN php artisan view:cache
-
-# Set permissions
-RUN chown -R www-data:www-data storage bootstrap/cache
-
-EXPOSE 9000
-CMD ["php-fpm"]
-```
-
-### docker-compose.yml
-
 ```yaml
-version: "3.8"
-
+# docker-compose.yml
 services:
   app:
     build: .
     environment:
       - APP_ENV=production
-      - LOGTIDE_API_URL=https://api.logtide.dev
-      - LOGTIDE_API_KEY=${LOGTIDE_API_KEY}
-    volumes:
-      - ./storage:/var/www/html/storage
+      - LOGTIDE_DSN=${LOGTIDE_DSN}
     depends_on:
       - mysql
       - redis
-
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./public:/var/www/html/public:ro
-    depends_on:
-      - app
 
   queue:
     build: .
     command: php artisan queue:work --tries=3
     environment:
       - APP_ENV=production
-      - LOGTIDE_API_URL=https://api.logtide.dev
-      - LOGTIDE_API_KEY=${LOGTIDE_API_KEY}
+      - LOGTIDE_DSN=${LOGTIDE_DSN}
     depends_on:
       - mysql
       - redis
@@ -473,79 +284,21 @@ services:
     command: php artisan schedule:work
     environment:
       - APP_ENV=production
-      - LOGTIDE_API_URL=https://api.logtide.dev
-      - LOGTIDE_API_KEY=${LOGTIDE_API_KEY}
-```
-
-## Artisan Commands
-
-### Test Connection
-
-```bash
-php artisan logtide:test
-```
-
-### Flush Logs
-
-```bash
-php artisan logtide:flush
-```
-
-### Check Status
-
-```bash
-php artisan logtide:status
-```
-
-## Performance
-
-| Metric | Value |
-|--------|-------|
-| Memory overhead | ~5MB |
-| Latency (batched) | <1ms per log |
-| Network calls | 1 per batch (100 logs) |
-| Queue job overhead | ~2ms |
-
-## Detection Rules
-
-Create alerts for Laravel-specific issues:
-
-### High Error Rate
-
-```
-service:laravel AND level:error
-```
-
-### Slow Requests
-
-```
-service:laravel AND duration_ms:>3000
-```
-
-### Failed Jobs
-
-```
-service:laravel AND job_class:* AND level:error
-```
-
-### Authentication Failures
-
-```
-service:laravel AND message:"authentication failed"
+      - LOGTIDE_DSN=${LOGTIDE_DSN}
 ```
 
 ## Troubleshooting
 
 ### Logs not appearing
 
-1. Check configuration:
+1. Check DSN is set:
    ```bash
-   php artisan config:show logtide
+   php artisan tinker --execute="dump(config('logtide.dsn'));"
    ```
 
-2. Test connection:
-   ```bash
-   php artisan logtide:test
+2. Enable debug mode:
+   ```env
+   LOGTIDE_DEBUG=true
    ```
 
 3. Check Laravel logs for errors:
@@ -553,24 +306,18 @@ service:laravel AND message:"authentication failed"
    tail -f storage/logs/laravel.log
    ```
 
-### Missing request context
-
-Ensure middleware is registered first:
-
-```php
-$middleware->prepend(\LogTide\Laravel\Http\Middleware\LogRequests::class);
-```
-
 ### Queue logs not appearing
 
 Queue workers need the same environment variables:
 
 ```bash
-LOGTIDE_API_KEY=xxx php artisan queue:work
+LOGTIDE_DSN=xxx php artisan queue:work
 ```
 
 ## Next Steps
 
+- [PHP SDK Reference](/docs/sdks/php) - Core SDK documentation
+- [Symfony Integration](/docs/sdks/symfony) - Symfony Bundle integration
 - [nginx Integration](/integrations/nginx) - Web server logs
 - [Docker Integration](/integrations/docker) - Container deployment
 - [GDPR Compliance](/use-cases/gdpr-compliance) - Privacy-compliant logging

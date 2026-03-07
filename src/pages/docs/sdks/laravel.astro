@@ -1,0 +1,368 @@
+---
+import DocsLayout from '../../../layouts/Docs.astro';
+import Card from '../../../components/ui/Card.astro';
+import CardHeader from '../../../components/ui/CardHeader.astro';
+import CardTitle from '../../../components/ui/CardTitle.astro';
+import CardContent from '../../../components/ui/CardContent.astro';
+import Button from '../../../components/ui/Button.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Installation", slug: "installation", depth: 2 },
+  { text: "Quick Start", slug: "quick-start", depth: 2 },
+  { text: "Configuration", slug: "configuration", depth: 2 },
+  { text: "Using the Facade", slug: "facade", depth: 2 },
+  { text: "Log Channel", slug: "log-channel", depth: 2 },
+  { text: "Request Middleware", slug: "middleware", depth: 2 },
+  { text: "Breadcrumb Integrations", slug: "breadcrumbs", depth: 2 },
+  { text: "Best Practices", slug: "best-practices", depth: 2 }
+];
+---
+
+<DocsLayout
+  title="Laravel SDK"
+  description="LogTide integration for Laravel 10/11/12 with zero-config auto-discovery, middleware, log channel, and Facade."
+  headings={headings}
+>
+  <div class="flex items-center justify-between mb-4">
+      <h1 class="text-3xl font-bold">Laravel SDK</h1>
+      <div class="flex items-center gap-2">
+          <a
+              href="https://github.com/logtide-dev/logtide-laravel"
+              target="_blank"
+              rel="noopener noreferrer"
+          >
+              <Button variant="ghost" size="sm" class="gap-1.5">
+                  <Icon name="simple-icons:github" class="w-4 h-4" />
+                  GitHub
+              </Button>
+          </a>
+          <a
+              href="https://packagist.org/packages/logtide/logtide-laravel"
+              target="_blank"
+              rel="noopener noreferrer"
+          >
+              <Button variant="ghost" size="sm" class="gap-1.5">
+                  <Icon name="simple-icons:packagist" class="w-4 h-4" />
+                  Packagist
+              </Button>
+          </a>
+      </div>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+      Drop-in integration for Laravel 10, 11, and 12 with zero-configuration needed.
+      The package auto-registers middleware, a log channel, a Facade, and breadcrumb integrations
+      for database queries, cache events, and queue jobs.
+  </p>
+
+  <h2
+      id="installation"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Installation
+  </h2>
+
+  <div class="mb-8">
+      <Code lang="bash" theme="one-dark-pro" code={`composer require logtide/logtide-laravel`} />
+  </div>
+
+  <p class="text-muted-foreground mb-4">
+      The service provider and facade are registered automatically via Laravel's package auto-discovery.
+      No manual registration needed.
+  </p>
+
+  <div class="mb-8">
+      <p class="mb-3 text-muted-foreground">Publish the configuration file:</p>
+      <Code lang="bash" theme="one-dark-pro" code={`php artisan vendor:publish --tag=logtide-config`} />
+  </div>
+
+  <h2
+      id="quick-start"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Quick Start
+  </h2>
+
+  <div class="mb-8 space-y-4">
+      <p class="text-muted-foreground">Add your DSN to <code class="bg-muted px-1 rounded">.env</code>:</p>
+      <Code
+          lang="bash"
+          theme="one-dark-pro"
+          code={`LOGTIDE_DSN=https://lp_abc123@api.logtide.dev`}
+      />
+
+      <p class="text-muted-foreground">That's it! The SDK is now active. Use Laravel's standard logging:</p>
+      <Code
+          lang="php"
+          theme="one-dark-pro"
+          code={`<?php
+
+use Illuminate\\Support\\Facades\\Log;
+
+// Standard Laravel logging — sent to LogTide automatically
+Log::info('Order placed', ['order_id' => $order->id, 'amount' => $order->total]);
+Log::error('Payment failed', ['exception' => $e]);
+
+// Or use the LogTide Facade for direct Hub access
+use LogTide\\Laravel\\LogtideFacade as Logtide;
+
+Logtide::captureLog(\\LogTide\\Enum\\LogLevel::INFO, 'Direct capture', ['key' => 'value']);
+Logtide::captureException($exception);`}
+      />
+  </div>
+
+  <h2
+      id="configuration"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Configuration
+  </h2>
+
+  <div class="mb-8 space-y-4">
+      <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Environment Variables</h3>
+      <Code
+          lang="bash"
+          theme="one-dark-pro"
+          code={`# .env
+LOGTIDE_DSN=https://lp_abc123@api.logtide.dev
+LOGTIDE_SERVICE=my-laravel-app        # default: APP_NAME
+LOGTIDE_ENVIRONMENT=production         # default: APP_ENV
+LOGTIDE_RELEASE=1.2.3
+LOGTIDE_TRACES_SAMPLE_RATE=1.0
+LOGTIDE_DEBUG=false`}
+      />
+
+      <h3 class="text-lg font-semibold mb-3 mt-6 scroll-mt-24">config/logtide.php</h3>
+      <Code
+          lang="php"
+          theme="one-dark-pro"
+          code={`<?php
+
+return [
+    'dsn' => env('LOGTIDE_DSN'),
+
+    'service' => env('LOGTIDE_SERVICE', env('APP_NAME', 'laravel')),
+    'environment' => env('LOGTIDE_ENVIRONMENT', env('APP_ENV', 'production')),
+    'release' => env('LOGTIDE_RELEASE'),
+
+    // Batching
+    'batch_size' => (int) env('LOGTIDE_BATCH_SIZE', 100),
+    'flush_interval' => (int) env('LOGTIDE_FLUSH_INTERVAL', 5000),
+    'max_buffer_size' => (int) env('LOGTIDE_MAX_BUFFER_SIZE', 10000),
+    'max_retries' => (int) env('LOGTIDE_MAX_RETRIES', 3),
+
+    // Tracing
+    'traces_sample_rate' => (float) env('LOGTIDE_TRACES_SAMPLE_RATE', 1.0),
+
+    // Privacy
+    'send_default_pii' => (bool) env('LOGTIDE_SEND_DEFAULT_PII', false),
+
+    // Breadcrumb integrations
+    'breadcrumbs' => [
+        'db_queries' => true,
+        'cache' => true,
+        'queue' => true,
+        'http_client' => true,
+    ],
+
+    // Paths to skip in the HTTP middleware
+    'skip_paths' => ['/health', '/healthz'],
+
+    'debug' => (bool) env('LOGTIDE_DEBUG', false),
+];`}
+      />
+  </div>
+
+  <h2
+      id="facade"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Using the Facade
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      The <code class="bg-muted px-1 rounded">Logtide</code> facade provides direct access to the Hub API.
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="php"
+          theme="one-dark-pro"
+          code={`<?php
+
+use LogTide\\Laravel\\LogtideFacade as Logtide;
+use LogTide\\Enum\\LogLevel;
+use LogTide\\Breadcrumb\\Breadcrumb;
+use LogTide\\Enum\\BreadcrumbType;
+
+// Capture logs
+Logtide::captureLog(LogLevel::INFO, 'User action', ['action' => 'purchase']);
+
+// Capture exceptions
+Logtide::captureException($exception);
+
+// Add breadcrumbs
+Logtide::addBreadcrumb(new Breadcrumb(
+    BreadcrumbType::DEFAULT,
+    'Custom event happened',
+    category: 'app',
+));
+
+// Scopes
+Logtide::withScope(function () {
+    Logtide::getScope()->setTag('handler', 'checkout');
+    Logtide::captureLog(LogLevel::INFO, 'Checkout started');
+});
+
+// Tracing
+$span = Logtide::startSpan('process.order', ['kind' => \\LogTide\\Enum\\SpanKind::INTERNAL]);
+// ... do work ...
+if ($span !== null) {
+    Logtide::finishSpan($span);
+}
+
+// Flush
+Logtide::flush();`}
+      />
+  </div>
+
+  <h2
+      id="log-channel"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Log Channel
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      A <code class="bg-muted px-1 rounded">logtide</code> log channel is automatically registered.
+      Add it to your logging stack to send Laravel logs to LogTide alongside your existing channels.
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="php"
+          theme="one-dark-pro"
+          code={`<?php
+// config/logging.php
+
+return [
+    'default' => env('LOG_CHANNEL', 'stack'),
+
+    'channels' => [
+        'stack' => [
+            'driver' => 'stack',
+            'channels' => ['daily', 'logtide'],
+            'ignore_exceptions' => false,
+        ],
+
+        // The 'logtide' channel is auto-registered by the service provider.
+        // No manual configuration needed here.
+
+        // ... other channels
+    ],
+];`}
+      />
+  </div>
+
+  <h2
+      id="middleware"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Request Middleware
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      The HTTP middleware is <strong>automatically registered</strong> by the service provider.
+      For each request it:
+  </p>
+
+  <div class="mb-8">
+      <ul class="list-none pl-0 space-y-2 text-muted-foreground mb-6">
+          <li>&#x2022; Creates an isolated scope (tags and breadcrumbs don't leak between requests)</li>
+          <li>&#x2022; Extracts incoming <code class="bg-muted px-1 rounded">traceparent</code> header for distributed tracing</li>
+          <li>&#x2022; Starts a SERVER span with HTTP attributes (method, URL, user agent)</li>
+          <li>&#x2022; Captures 5xx responses as error log events</li>
+          <li>&#x2022; Catches and reports uncaught exceptions</li>
+          <li>&#x2022; Injects <code class="bg-muted px-1 rounded">traceparent</code> into the response for trace correlation</li>
+      </ul>
+
+      <p class="text-muted-foreground mb-4">
+          Paths listed in <code class="bg-muted px-1 rounded">config('logtide.skip_paths')</code> are skipped
+          (default: <code class="bg-muted px-1 rounded">/health</code>, <code class="bg-muted px-1 rounded">/healthz</code>).
+      </p>
+  </div>
+
+  <h2
+      id="breadcrumbs"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Breadcrumb Integrations
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      The service provider automatically registers breadcrumb integrations. Toggle them in
+      <code class="bg-muted px-1 rounded">config/logtide.php</code>:
+  </p>
+
+  <div class="mb-8 grid gap-3">
+      <Card>
+          <CardContent class="pt-4 text-sm">
+              <ul class="space-y-2 list-none pl-0">
+                  <li>
+                      <strong>Database Queries</strong> &mdash; Records <code class="bg-muted px-1 rounded">QueryExecuted</code> events as breadcrumbs with query, bindings, and duration
+                  </li>
+                  <li>
+                      <strong>Cache Events</strong> &mdash; Records cache hits, misses, writes, and deletes
+                  </li>
+                  <li>
+                      <strong>Queue Jobs</strong> &mdash; Records job processing events with job class, queue name, and attempt count
+                  </li>
+              </ul>
+          </CardContent>
+      </Card>
+  </div>
+
+  <h2
+      id="best-practices"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Best Practices
+  </h2>
+
+  <div class="space-y-4">
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base">1. Use the Log Channel Stack</CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm text-muted-foreground">
+              Add <code class="bg-muted px-1 rounded">logtide</code> to your log channel stack so all
+              <code class="bg-muted px-1 rounded">Log::info()</code> calls are automatically sent to LogTide
+              alongside your local file logs.
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base">2. Set Environment and Release</CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm text-muted-foreground">
+              The service name defaults to <code class="bg-muted px-1 rounded">APP_NAME</code> and environment
+              to <code class="bg-muted px-1 rounded">APP_ENV</code>. Set <code class="bg-muted px-1 rounded">LOGTIDE_RELEASE</code>
+              to your deployment version for release tracking.
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base">3. Queue Workers</CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm text-muted-foreground">
+              Queue workers automatically have access to LogTide. Make sure the
+              <code class="bg-muted px-1 rounded">LOGTIDE_DSN</code> environment variable is available
+              to your worker processes.
+          </CardContent>
+      </Card>
+  </div>
+</DocsLayout>
