@@ -17,6 +17,8 @@ const headings = [
   { text: "Breadcrumbs", slug: "breadcrumbs", depth: 2 },
   { text: "Distributed Tracing", slug: "tracing", depth: 2 },
   { text: "Integrations", slug: "integrations", depth: 2 },
+  { text: "Web Vitals Integration", slug: "web-vitals-integration", depth: 3 },
+  { text: "Click & Network Integrations", slug: "click-network-integrations", depth: 3 },
   { text: "Framework Packages", slug: "framework-packages", depth: 2 },
   { text: "Best Practices", slug: "best-practices", depth: 2 }
 ];
@@ -70,13 +72,14 @@ const headings = [
       <Code
           lang="bash"
           theme="one-dark-pro"
-          code={`npm install @logtide/core
+          code={`# Core & Backend packages
+npm install @logtide/core
 
-# or with pnpm
-pnpm add @logtide/core
+# Browser & Frontend packages
+npm install @logtide/browser
 
-# or with yarn
-yarn add @logtide/core`}
+# CLI Tool (for source maps)
+npm install -g @logtide/cli`}
       />
   </div>
 
@@ -465,11 +468,48 @@ hub.init({
   integrations: [
     new GlobalErrorIntegration(),
   ],
-});
+});`}
+          />
+      </div>
 
-// Unhandled errors are automatically captured:
-// - uncaughtException
-// - unhandledRejection`}
+      <div>
+          <h3 id="web-vitals-integration" class="text-lg font-semibold mb-3 scroll-mt-24">Web Vitals Integration</h3>
+          <p class="text-muted-foreground mb-3">
+            Available in <code class="bg-muted px-1 rounded">@logtide/browser</code>.
+            Automatically tracks LCP, FID, CLS, INP, and TTFB.
+          </p>
+          <Code
+              lang="typescript"
+              theme="one-dark-pro"
+              code={`import { initLogtide, WebVitalsIntegration } from '@logtide/browser';
+
+initLogtide({
+  dsn: 'https://lp_abc123@api.logtide.dev',
+  integrations: [
+    new WebVitalsIntegration(),
+  ],
+});`}
+          />
+      </div>
+
+      <div>
+          <h3 id="click-network-integrations" class="text-lg font-semibold mb-3 scroll-mt-24">Click & Network Integrations</h3>
+          <p class="text-muted-foreground mb-3">
+            Available in <code class="bg-muted px-1 rounded">@logtide/browser</code>.
+            Captures user clicks and network requests as breadcrumbs.
+          </p>
+          <Code
+              lang="typescript"
+              theme="one-dark-pro"
+              code={`import { initLogtide, ClickIntegration, NetworkIntegration } from '@logtide/browser';
+
+initLogtide({
+  dsn: 'https://lp_abc123@api.logtide.dev',
+  integrations: [
+    new ClickIntegration(),
+    new NetworkIntegration(),
+  ],
+});`}
           />
       </div>
   </div>
@@ -487,6 +527,16 @@ hub.init({
   </p>
 
   <div class="grid md:grid-cols-2 gap-4 mb-8">
+      <Card>
+          <CardContent class="pt-4">
+              <div class="flex items-center gap-2 mb-2">
+                  <Icon name="simple-icons:javascript" class="w-5 h-5 text-primary" />
+                  <a href="/docs/sdks/browser/" class="font-semibold hover:text-primary">@logtide/browser</a>
+              </div>
+              <p class="text-sm text-muted-foreground">Session tracking, Web Vitals, breadcrumbs, offline support</p>
+          </CardContent>
+      </Card>
+
       <Card>
           <CardContent class="pt-4">
               <div class="flex items-center gap-2 mb-2">

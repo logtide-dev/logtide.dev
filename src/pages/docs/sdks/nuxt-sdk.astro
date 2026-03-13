@@ -8,6 +8,9 @@ const headings = [
   { text: "Installation", slug: "installation", depth: 2 },
   { text: "Quick Start", slug: "quick-start", depth: 2 },
   { text: "Configuration", slug: "configuration", depth: 2 },
+  { text: "Source Maps (CLI)", slug: "source-maps", depth: 2 },
+  { text: "Core Web Vitals", slug: "web-vitals", depth: 2 },
+  { text: "Session Tracking", slug: "session-tracking", depth: 2 },
   { text: "Server-Side Usage", slug: "server-usage", depth: 2 },
   { text: "Client-Side Usage", slug: "client-usage", depth: 2 },
   { text: "Runtime Config", slug: "runtime-config", depth: 2 },
@@ -17,7 +20,7 @@ const headings = [
 
 <DocsLayout
   title="Nuxt SDK"
-  description="LogTide SDK for Nuxt — zero-config module with runtime config injection, server/client auto-initialization."
+  description="LogTide SDK for Nuxt — zero-config module with runtime config injection, Web Vitals, and session tracking."
   headings={headings}
 >
   <div class="flex items-center justify-between mb-4">
@@ -34,7 +37,8 @@ const headings = [
 
   <p class="text-lg text-muted-foreground mb-8">
       <code class="bg-muted px-1 rounded">@logtide/nuxt</code> is a zero-config Nuxt module
-      that auto-initializes LogTide on both server and client with runtime config injection.
+      that auto-initializes LogTide on both server and client. It includes automatic Core Web Vitals
+      collection, click breadcrumbs, and session tracking.
   </p>
 
   <h2 id="installation" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
@@ -65,10 +69,50 @@ export default defineNuxtConfig({
     dsn: process.env.LOGTIDE_DSN,
     service: 'nuxt-app',
     environment: process.env.NODE_ENV,
+    release: '1.0.0',
   },
 });`}
       />
   </div>
+
+  <h2 id="source-maps" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Source Maps (CLI)
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      To see original source code in your stack traces, upload your source maps after the build.
+      Nuxt generates source maps in the <code class="bg-muted px-1 rounded">.nuxt/dist/client</code> directory.
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="bash"
+          theme="one-dark-pro"
+          code={`# Install the CLI
+npm install -g @logtide/cli
+
+# Upload source maps
+logtide sourcemaps upload --path ./.nuxt/dist/client --release 1.0.0 --apiKey YOUR_API_KEY`}
+      />
+  </div>
+
+  <h2 id="web-vitals" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Core Web Vitals
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      The Nuxt module automatically enables the <code class="bg-muted px-1 rounded">WebVitalsIntegration</code>
+      on the client side. Metrics like LCP, FID, and CLS are sent to LogTide automatically.
+  </p>
+
+  <h2 id="session-tracking" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Session Tracking
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      LogTide correlates all client-side events using a persistent <code class="bg-muted px-1 rounded">session_id</code>.
+      This allows you to view the full timeline of user actions leading up to a server-side or client-side error.
+  </p>
 
   <p class="text-muted-foreground mb-4">
       That's it. The module automatically initializes LogTide on both server and client,

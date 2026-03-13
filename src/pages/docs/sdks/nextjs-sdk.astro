@@ -8,6 +8,9 @@ const headings = [
   { text: "Installation", slug: "installation", depth: 2 },
   { text: "Server-Side Setup", slug: "server-setup", depth: 2 },
   { text: "Client-Side Setup", slug: "client-setup", depth: 2 },
+  { text: "Source Maps (CLI)", slug: "source-maps", depth: 2 },
+  { text: "Core Web Vitals", slug: "web-vitals", depth: 2 },
+  { text: "Session Tracking", slug: "session-tracking", depth: 2 },
   { text: "Error Capture", slug: "error-capture", depth: 2 },
   { text: "Error Boundary", slug: "error-boundary", depth: 2 },
   { text: "Navigation Tracking", slug: "navigation-tracking", depth: 2 },
@@ -18,7 +21,7 @@ const headings = [
 
 <DocsLayout
   title="Next.js SDK"
-  description="LogTide SDK for Next.js — instrumentation hook, error boundaries, client-side init, and navigation tracking."
+  description="LogTide SDK for Next.js — instrumentation hook, error boundaries, Web Vitals, and source maps support."
   headings={headings}
 >
   <div class="flex items-center justify-between mb-4">
@@ -36,7 +39,7 @@ const headings = [
   <p class="text-lg text-muted-foreground mb-8">
       <code class="bg-muted px-1 rounded">@logtide/nextjs</code> integrates LogTide with
       Next.js App Router. It provides server-side instrumentation, client-side error boundaries,
-      and navigation tracking.
+      Core Web Vitals collection, and session tracking.
   </p>
 
   <h2 id="installation" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
@@ -64,25 +67,27 @@ const headings = [
 import { registerLogtide } from '@logtide/nextjs/server';
 
 export async function register() {
-  registerLogtide({
-    dsn: process.env.LOGTIDE_DSN!,
-    service: 'nextjs-app',
-    environment: process.env.NODE_ENV,
-    release: process.env.NEXT_PUBLIC_APP_VERSION,
-  });
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    registerLogtide({
+      dsn: process.env.LOGTIDE_DSN!,
+      service: 'nextjs-app-server',
+      environment: process.env.NODE_ENV,
+      release: process.env.NEXT_PUBLIC_APP_VERSION,
+    });
+  }
 }`}
       />
   </div>
 
   <p class="text-muted-foreground mb-4">
-      Enable the instrumentation hook in <code class="bg-muted px-1 rounded">next.config.ts</code>:
+      Enable the instrumentation hook in <code class="bg-muted px-1 rounded">next.config.mjs</code> or <code class="bg-muted px-1 rounded">next.config.js</code>:
   </p>
 
   <div class="mb-8">
       <Code
           lang="typescript"
           theme="one-dark-pro"
-          code={`// next.config.ts
+          code={`// next.config.mjs
 const nextConfig = {
   experimental: {
     instrumentationHook: true,
@@ -98,7 +103,8 @@ export default nextConfig;`}
   </h2>
 
   <p class="text-muted-foreground mb-4">
-      Initialize LogTide on the client in your root layout:
+      Initialize LogTide on the client in your root layout. This automatically enables
+      Core Web Vitals collection, click breadcrumbs, and session tracking.
   </p>
 
   <div class="mb-8">
@@ -106,11 +112,14 @@ export default nextConfig;`}
           lang="tsx"
           theme="one-dark-pro"
           code={`// app/layout.tsx
+'use client';
+
 import { initLogtide } from '@logtide/nextjs/client';
 
 initLogtide({
   dsn: process.env.NEXT_PUBLIC_LOGTIDE_DSN!,
   environment: process.env.NODE_ENV,
+  release: process.env.NEXT_PUBLIC_APP_VERSION,
 });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -122,6 +131,47 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }`}
       />
   </div>
+
+  <h2 id="source-maps" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Source Maps (CLI)
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      To see original source code in your stack traces, upload your source maps during the build process.
+      Next.js generates source maps in the <code class="bg-muted px-1 rounded">.next/static/chunks</code> directory.
+  </p>
+
+  <div class="mb-8">
+      <Code
+          lang="bash"
+          theme="one-dark-pro"
+          code={`# Install the CLI
+npm install -g @logtide/cli
+
+# Upload source maps after build
+logtide sourcemaps upload --path ./.next/static/chunks --release 1.0.0 --apiKey YOUR_API_KEY`}
+      />
+  </div>
+
+  <h2 id="web-vitals" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Core Web Vitals
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      LogTide automatically monitors Google's Core Web Vitals (LCP, FID, CLS, INP, TTFB)
+      through the client-side initialization. You can view these metrics in the
+      <strong>Metrics</strong> section of your dashboard.
+  </p>
+
+  <h2 id="session-tracking" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+      Session Tracking
+  </h2>
+
+  <p class="text-muted-foreground mb-4">
+      LogTide correlates all client-side logs, errors, and performance metrics using a
+      unique <code class="bg-muted px-1 rounded">session_id</code>. This allows you to
+      trace the entire user journey leading up to an error.
+  </p>
 
   <h2 id="error-capture" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
       Error Capture

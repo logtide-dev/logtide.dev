@@ -12,6 +12,7 @@ const headings = [
   { text: "Choosing an Engine", slug: "choosing-an-engine", depth: 2 },
   { text: "TimescaleDB (Default)", slug: "timescaledb", depth: 2 },
   { text: "ClickHouse", slug: "clickhouse", depth: 2 },
+  { text: "MongoDB", slug: "mongodb", depth: 2 },
   { text: "Configuration", slug: "configuration", depth: 2 },
   { text: "Docker Compose Setup", slug: "docker-setup", depth: 2 },
   { text: "Switching Engines", slug: "switching-engines", depth: 2 },
@@ -22,13 +23,13 @@ const headings = [
 
 <DocsLayout
   title="Storage Engines"
-  description="LogTide supports TimescaleDB and ClickHouse as pluggable storage backends via the Reservoir abstraction layer."
+  description="LogTide supports TimescaleDB, ClickHouse, and MongoDB as pluggable storage backends via the Reservoir abstraction layer."
   headings={headings}
 >
   <h1 class="text-3xl font-bold mb-4">Storage Engines</h1>
   <p class="text-lg text-muted-foreground mb-8">
     LogTide uses <strong>Reservoir</strong>, a pluggable storage abstraction that lets you choose between
-    TimescaleDB and ClickHouse for log and span storage. Both engines share the same API — your application
+    TimescaleDB, ClickHouse, and MongoDB for log and span storage. All engines share the same API — your application
     code, queries, and dashboards work identically regardless of which engine you run.
   </p>
 
@@ -45,7 +46,7 @@ const headings = [
         <div class="flex items-start gap-3">
           <Icon name="lucide:layers" class="w-5 h-5 text-primary mt-0.5" />
           <div>
-            <CardTitle class="text-base">One API, Two Engines</CardTitle>
+            <CardTitle class="text-base">One API, Three Engines</CardTitle>
           </div>
         </div>
       </CardHeader>
@@ -57,7 +58,8 @@ const headings = [
         </p>
         <pre class="text-sm bg-muted p-4 rounded-md overflow-x-auto font-mono text-foreground">
 App → Reservoir API → TimescaleDB (PostgreSQL)
-                    → ClickHouse (columnar OLAP)</pre>
+                    → ClickHouse (columnar OLAP)
+                    → MongoDB (document-based)</pre>
       </CardContent>
     </Card>
 
@@ -76,7 +78,7 @@ App → Reservoir API → TimescaleDB (PostgreSQL)
   </h2>
 
   <div class="mb-12 space-y-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <Card class="border-blue-500/30 bg-blue-500/5">
         <CardHeader>
           <div class="flex items-start gap-3">
@@ -93,7 +95,6 @@ App → Reservoir API → TimescaleDB (PostgreSQL)
             <li>No extra services to run</li>
             <li>Continuous aggregates for fast dashboards</li>
             <li>Built-in compression (10x+ reduction)</li>
-            <li>Full PostgreSQL ecosystem (extensions, tooling)</li>
             <li>Ideal for up to ~50K logs/sec</li>
           </ul>
         </CardContent>
@@ -110,12 +111,31 @@ App → Reservoir API → TimescaleDB (PostgreSQL)
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground">
           <ul class="space-y-1">
-            <li>Columnar storage — blazing-fast analytical queries</li>
+            <li>Blazing-fast analytical queries</li>
             <li>Handles 100K+ logs/sec with ease</li>
             <li>Superior compression ratios (20-40x)</li>
-            <li>Native n-gram indexes for full-text search</li>
-            <li>Async inserts for maximum write throughput</li>
+            <li>Native n-gram indexes for search</li>
             <li>Best when you already operate ClickHouse</li>
+          </ul>
+        </CardContent>
+      </Card>
+      <Card class="border-green-500/30 bg-green-500/5">
+        <CardHeader>
+          <div class="flex items-start gap-3">
+            <Icon name="simple-icons:mongodb" class="w-5 h-5 text-green-500 mt-0.5" />
+            <div>
+              <CardTitle class="text-base">MongoDB</CardTitle>
+              <p class="text-xs text-muted-foreground mt-1">Flexible schema & easy horizontal scaling</p>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground">
+          <ul class="space-y-1">
+            <li>Dynamic metadata — no fixed schema</li>
+            <li>Time-series collections (MongoDB 5.0+)</li>
+            <li>Native TTL indexes for retention</li>
+            <li>Easy horizontal scaling via sharding</li>
+            <li>Ideal for flexible, unstructured logs</li>
           </ul>
         </CardContent>
       </Card>
@@ -223,6 +243,51 @@ App → Reservoir API → TimescaleDB (PostgreSQL)
   </div>
 
   <h2
+    id="mongodb"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    MongoDB
+  </h2>
+
+  <div class="mb-12 space-y-6">
+    <p class="text-muted-foreground">
+      <a href="https://www.mongodb.com/" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">MongoDB</a>
+      is a document-oriented NoSQL database. LogTide uses MongoDB for flexible log storage, leveraging
+      <strong>Time-Series Collections</strong> (available in MongoDB 5.0+) for optimized ingestion and storage.
+    </p>
+
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-base">Key Features</CardTitle>
+      </CardHeader>
+      <CardContent class="text-sm space-y-2 text-muted-foreground">
+        <p><strong>Time-Series Collections:</strong> Stores sequences of measurements over a period of time, optimized for high-throughput ingestion and real-time analytics.</p>
+        <p><strong>Dynamic Metadata:</strong> No fixed schema — metadata fields are stored as flexible documents, allowing you to send any nested JSON without prior configuration.</p>
+        <p><strong>TTL Indexes:</strong> Automatic retention cleanup via native Time-To-Live indexes on the timestamp field.</p>
+        <p><strong>Atomic Upserts:</strong> Trace records are updated using single <code class="bg-muted px-1 rounded">bulkWrite</code> operations with <code class="bg-muted px-1 rounded">$min/$max/$inc</code> for maximum efficiency.</p>
+        <p><strong>Search:</strong> Uses <code class="bg-muted px-1 rounded">$text</code> indexes for word-based search and regex for flexible substring matching.</p>
+      </CardContent>
+    </Card>
+
+    <Card class="border-blue-500/30 bg-blue-500/5">
+      <CardHeader>
+        <div class="flex items-start gap-3">
+          <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5" />
+          <div>
+            <CardTitle class="text-base">MongoDB Requirements</CardTitle>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground">
+        <ul class="space-y-1">
+          <li><strong>Version 5.0+:</strong> Required for Time-Series collections support.</li>
+          <li><strong>Version 6.0+:</strong> Recommended for advanced aggregation performance and better compression.</li>
+        </ul>
+      </CardContent>
+    </Card>
+  </div>
+
+  <h2
     id="configuration"
     class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
   >
@@ -242,54 +307,57 @@ App → Reservoir API → TimescaleDB (PostgreSQL)
         theme="one-dark-pro"
         code={`# In your .env file
 
-# Use TimescaleDB (default — no configuration needed)
+# Use TimescaleDB (default)
 STORAGE_ENGINE=timescale
 
-# Or use ClickHouse
-STORAGE_ENGINE=clickhouse`}
+# Use ClickHouse
+STORAGE_ENGINE=clickhouse
+
+# Use MongoDB
+STORAGE_ENGINE=mongodb`}
       />
     </div>
 
     <div>
       <h3 id="clickhouse-env" class="text-lg font-semibold mb-3 scroll-mt-24">ClickHouse Environment Variables</h3>
       <p class="text-sm text-muted-foreground mb-3">
-        Required only when <code class="bg-muted px-1 rounded">STORAGE_ENGINE=clickhouse</code>:
+        Required only when <code class="bg-muted px-1 rounded">STORAGE_ENGINE=clickhouse</code>.
       </p>
       <div class="overflow-x-auto">
         <table class="w-full text-sm border border-border rounded-lg">
           <thead class="bg-muted">
             <tr>
               <th class="text-left p-3 border-b border-border">Variable</th>
-              <th class="text-left p-3 border-b border-border">Description</th>
               <th class="text-left p-3 border-b border-border">Default</th>
             </tr>
           </thead>
           <tbody>
+            <tr><td class="p-3 border-b border-border font-mono text-xs">CLICKHOUSE_HOST</td><td class="p-3 border-b border-border font-mono text-xs">localhost</td></tr>
+            <tr><td class="p-3 border-b border-border font-mono text-xs">CLICKHOUSE_PORT</td><td class="p-3 border-b border-border font-mono text-xs">8123</td></tr>
+            <tr><td class="p-3 border-b border-border font-mono text-xs">CLICKHOUSE_DATABASE</td><td class="p-3 border-b border-border font-mono text-xs">logtide</td></tr>
+            <tr><td class="p-3 border-b border-border font-mono text-xs">CLICKHOUSE_USERNAME</td><td class="p-3 border-b border-border font-mono text-xs">default</td></tr>
+            <tr><td class="p-3 border-b border-border font-mono text-xs">CLICKHOUSE_PASSWORD</td><td class="p-3 border-b border-border font-mono text-xs text-muted-foreground">(empty)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <h3 id="mongodb-env" class="text-lg font-semibold mb-3 scroll-mt-24">MongoDB Environment Variables</h3>
+      <p class="text-sm text-muted-foreground mb-3">
+        Required only when <code class="bg-muted px-1 rounded">STORAGE_ENGINE=mongodb</code>.
+      </p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border border-border rounded-lg">
+          <thead class="bg-muted">
             <tr>
-              <td class="p-3 border-b border-border font-mono text-xs">CLICKHOUSE_HOST</td>
-              <td class="p-3 border-b border-border">ClickHouse server hostname</td>
-              <td class="p-3 border-b border-border font-mono text-xs">localhost</td>
+              <th class="text-left p-3 border-b border-border">Variable</th>
+              <th class="text-left p-3 border-b border-border">Default</th>
             </tr>
-            <tr>
-              <td class="p-3 border-b border-border font-mono text-xs">CLICKHOUSE_PORT</td>
-              <td class="p-3 border-b border-border">HTTP interface port</td>
-              <td class="p-3 border-b border-border font-mono text-xs">8123</td>
-            </tr>
-            <tr>
-              <td class="p-3 border-b border-border font-mono text-xs">CLICKHOUSE_DATABASE</td>
-              <td class="p-3 border-b border-border">Database name</td>
-              <td class="p-3 border-b border-border font-mono text-xs">logtide</td>
-            </tr>
-            <tr>
-              <td class="p-3 border-b border-border font-mono text-xs">CLICKHOUSE_USERNAME</td>
-              <td class="p-3 border-b border-border">Authentication username</td>
-              <td class="p-3 border-b border-border font-mono text-xs">default</td>
-            </tr>
-            <tr>
-              <td class="p-3 font-mono text-xs">CLICKHOUSE_PASSWORD</td>
-              <td class="p-3">Authentication password</td>
-              <td class="p-3 font-mono text-xs text-muted-foreground">(empty)</td>
-            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="p-3 border-b border-border font-mono text-xs">MONGODB_URI</td><td class="p-3 border-b border-border font-mono text-xs">mongodb://localhost:27017/logtide</td></tr>
+            <tr><td class="p-3 border-b border-border font-mono text-xs">MONGODB_DB</td><td class="p-3 border-b border-border font-mono text-xs">logtide</td></tr>
           </tbody>
         </table>
       </div>
@@ -305,60 +373,34 @@ STORAGE_ENGINE=clickhouse`}
 
   <div class="mb-12 space-y-6">
     <div>
-      <h3 id="timescaledb-setup" class="text-lg font-semibold mb-3 scroll-mt-24">TimescaleDB (Default)</h3>
-      <p class="text-sm text-muted-foreground mb-3">
-        No changes needed — TimescaleDB is the default engine. Just run:
-      </p>
+      <h3 id="clickhouse-setup" class="text-lg font-semibold mb-3 scroll-mt-24">ClickHouse</h3>
       <Code
         lang="bash"
         theme="one-dark-pro"
-        code={`docker compose up -d`}
+        code={`# In your .env
+STORAGE_ENGINE=clickhouse
+
+# Start with the ClickHouse profile
+docker compose --profile clickhouse up -d`}
       />
     </div>
 
     <div>
-      <h3 id="clickhouse-setup" class="text-lg font-semibold mb-3 scroll-mt-24">ClickHouse</h3>
+      <h3 id="mongodb-setup" class="text-lg font-semibold mb-3 scroll-mt-24">MongoDB</h3>
       <p class="text-sm text-muted-foreground mb-3">
-        The default <code class="bg-muted px-1 rounded">docker-compose.yml</code> includes a ClickHouse service
-        behind a Docker Compose profile. To enable it:
+        The default <code class="bg-muted px-1 rounded">docker-compose.yml</code> includes a MongoDB service
+        behind a profile:
       </p>
       <Code
         lang="bash"
         theme="one-dark-pro"
-        code={`# 1. Set the storage engine in your .env
-STORAGE_ENGINE=clickhouse
+        code={`# In your .env
+STORAGE_ENGINE=mongodb
 
-# 2. Start with the ClickHouse profile
-docker compose --profile clickhouse up -d
-
-# With Fluent Bit log collection:
-docker compose --profile clickhouse --profile logging up -d`}
+# Start with the MongoDB profile
+docker compose --profile mongodb up -d`}
       />
-      <p class="text-sm text-muted-foreground mt-3">
-        This starts a <code class="bg-muted px-1 rounded">clickhouse/clickhouse-server:24.1</code> container
-        alongside the existing PostgreSQL instance. PostgreSQL is still required for application data
-        (users, organizations, projects, alert rules, etc.) — only logs, spans, and traces are stored in ClickHouse.
-      </p>
     </div>
-
-    <Card class="border-blue-500/30 bg-blue-500/5">
-      <CardHeader>
-        <div class="flex items-start gap-3">
-          <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5" />
-          <div>
-            <CardTitle class="text-base">Auto-Initialization</CardTitle>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent class="text-sm text-muted-foreground">
-        <p>
-          When using ClickHouse, Reservoir automatically creates the required tables
-          (<code class="bg-muted px-1 rounded">logs</code>, <code class="bg-muted px-1 rounded">spans</code>,
-          <code class="bg-muted px-1 rounded">traces</code>) on first startup.
-          No manual migration is needed. For TimescaleDB, tables are managed by the existing Kysely migration system.
-        </p>
-      </CardContent>
-    </Card>
   </div>
 
   <h2
@@ -382,33 +424,23 @@ docker compose --profile clickhouse --profile logging up -d`}
         <p>
           Changing the <code class="bg-muted px-1 rounded">STORAGE_ENGINE</code> variable only changes where
           <strong>new</strong> logs are written. Existing data stays in the previous engine.
-          Use the <a href="#data-migration" class="text-primary hover:underline">migration script</a> to
-          copy historical logs, spans, and traces to the new engine.
+          The <a href="#data-migration" class="text-primary hover:underline">migration script</a> supports
+          <strong>TimescaleDB</strong>, <strong>ClickHouse</strong>, and <strong>MongoDB</strong>.
         </p>
       </CardContent>
     </Card>
 
     <div>
-      <h3 id="migrate-to-clickhouse" class="text-lg font-semibold mb-3 scroll-mt-24">TimescaleDB → ClickHouse</h3>
-      <ol class="ml-6 space-y-2 text-muted-foreground list-none">
-        <li><strong>1.</strong> Stop the backend and worker: <code class="bg-muted px-1 rounded">docker compose stop backend worker</code></li>
-        <li><strong>2.</strong> Set <code class="bg-muted px-1 rounded">STORAGE_ENGINE=clickhouse</code> in your <code class="bg-muted px-1 rounded">.env</code></li>
-        <li><strong>3.</strong> Start with the ClickHouse profile: <code class="bg-muted px-1 rounded">docker compose --profile clickhouse up -d</code></li>
-        <li><strong>4.</strong> Reservoir creates the ClickHouse tables on startup</li>
-        <li><strong>5.</strong> Run the <a href="#data-migration" class="text-primary hover:underline">migration script</a> to copy historical data</li>
-        <li><strong>6.</strong> Start backend and worker — new logs flow into ClickHouse</li>
-      </ol>
-    </div>
+      <h4 class="text-base font-semibold mb-3">Example Usage with MongoDB</h4>
+      <Code
+        lang="bash"
+        theme="one-dark-pro"
+        code={`# Migrate from TimescaleDB to MongoDB
+pnpm migrate:storage -- --from timescale --to mongodb
 
-    <div>
-      <h3 id="migrate-to-timescale" class="text-lg font-semibold mb-3 scroll-mt-24">ClickHouse → TimescaleDB</h3>
-      <ol class="ml-6 space-y-2 text-muted-foreground list-none">
-        <li><strong>1.</strong> Stop the backend and worker</li>
-        <li><strong>2.</strong> Set <code class="bg-muted px-1 rounded">STORAGE_ENGINE=timescale</code> (or remove the variable entirely)</li>
-        <li><strong>3.</strong> Run the <a href="#data-migration" class="text-primary hover:underline">migration script</a> to copy historical data</li>
-        <li><strong>4.</strong> Restart: <code class="bg-muted px-1 rounded">docker compose up -d</code></li>
-        <li><strong>5.</strong> Optionally stop the ClickHouse container if no longer needed</li>
-      </ol>
+# Migrate from MongoDB to ClickHouse
+pnpm migrate:storage -- --from mongodb --to clickhouse`}
+      />
     </div>
 
     <h3 id="data-migration" class="text-lg font-semibold mb-3 scroll-mt-24">Data Migration</h3>

@@ -102,14 +102,15 @@ const pythonCode = `import requests
 from datetime import datetime, timezone
 
 # Configuration
-API_URL = "https://api.logtide.dev/api/v1/ingest"  # or http://localhost:8080 for self-hosted
-API_KEY = "lp_your_api_key_here"
+# DSN format: https://lp_APIKEY@api.logtide.dev
+DSN = "https://lp_your_api_key_here@api.logtide.dev"
+API_URL = "https://api.logtide.dev/api/v1/ingest"
 
 # Send a log
 response = requests.post(
     API_URL,
     headers={
-        "X-API-Key": API_KEY,
+        "X-API-Key": "lp_your_api_key_here",
         "Content-Type": "application/json"
     },
     json={
@@ -125,32 +126,14 @@ response = requests.post(
 
 print(f"Status: {response.status_code}")`;
 
-const nodejsCode = `// Node.js 18+ (native fetch) or install node-fetch
-const API_URL = "https://api.logtide.dev/api/v1/ingest"; // or http://localhost:8080
-const API_KEY = "lp_your_api_key_here";
+const nodejsCode = `import { hub } from '@logtide/core';
 
-async function sendLog() {
-  const response = await fetch(API_URL, {
-    method: "POST",
-    headers: {
-      "X-API-Key": API_KEY,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      logs: [{
-        time: new Date().toISOString(),
-        service: "my-node-app",
-        level: "info",
-        message: "Hello from Node.js!",
-        metadata: { userId: 123 }
-      }]
-    })
-  });
+hub.init({
+  dsn: 'https://lp_your_api_key_here@api.logtide.dev',
+  service: 'my-node-app'
+});
 
-  console.log('Status: ' + response.status);
-}
-
-sendLog();`;
+hub.captureLog('info', 'Hello from Node.js!');`;
 
 const dockerCode = `# Add to your docker-compose.yml
 services:
