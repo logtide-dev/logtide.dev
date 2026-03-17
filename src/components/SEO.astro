@@ -10,6 +10,7 @@ interface Props {
   datePublished?: string | null;
   dateModified?: string | null;
   author?: string;
+  keywords?: string[];
 }
 
 const {
@@ -20,7 +21,8 @@ const {
   breadcrumbs = [],
   datePublished = null,
   dateModified = null,
-  author = SITE_NAME
+  author = SITE_NAME,
+  keywords = []
 } = Astro.props;
 
 // Compute canonical URL - ensure trailing slash to match trailingSlash: 'always' config in astro.config.mjs
@@ -47,6 +49,23 @@ if (isHomepage) {
     "name": SITE_NAME,
     "url": SITE_URL,
     "description": SITE_DESCRIPTION
+  });
+
+  // SoftwareApplication schema (homepage only)
+  schemas.push({
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": SITE_NAME,
+    "operatingSystem": "Linux, Docker",
+    "applicationCategory": "DeveloperApplication",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": SITE_DESCRIPTION,
+    "softwareVersion": "1.0.0",
+    "url": SITE_URL
   });
 }
 
@@ -110,6 +129,9 @@ if (type === 'article' && (datePublished || dateModified)) {
 
 <!-- Meta Description -->
 <meta name="description" content={description} />
+
+<!-- Meta Keywords -->
+{keywords.length > 0 && <meta name="keywords" content={keywords.join(', ')} />}
 
 <!-- Additional SEO meta tags -->
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />

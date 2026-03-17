@@ -17,6 +17,7 @@ interface Props {
   frontmatter?: {
     title: string;
     description?: string;
+    keywords?: string[];
   };
 }
 
@@ -24,6 +25,7 @@ const { title: propTitle, description: propDescription, headings: propHeadings =
 
 const title = frontmatter?.title || propTitle || 'LogTide Documentation';
 const description = frontmatter?.description || propDescription || 'LogTide Documentation';
+const keywords = frontmatter?.keywords || [];
 
 // Normalize headings from MDX (slug/depth) or manual (id/level)
 const headings = propHeadings.map(h => ({
@@ -165,6 +167,7 @@ try {
       breadcrumbs={seoBreadcrumbs}
       datePublished={datePublishedISO}
       dateModified={dateModifiedISO}
+      keywords={keywords}
     />
     <meta name="theme-color" content="#7c3aed" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
