@@ -13,6 +13,7 @@ import { execSync } from 'child_process';
 interface Props {
   title?: string;
   description?: string;
+  keywords?: string[];
   headings?: { id?: string; slug?: string; text: string; level?: number; depth?: number }[];
   frontmatter?: {
     title: string;
@@ -21,11 +22,11 @@ interface Props {
   };
 }
 
-const { title: propTitle, description: propDescription, headings: propHeadings = [], frontmatter } = Astro.props;
+const { title: propTitle, description: propDescription, keywords: propKeywords = [], headings: propHeadings = [], frontmatter } = Astro.props;
 
 const title = frontmatter?.title || propTitle || 'LogTide Documentation';
 const description = frontmatter?.description || propDescription || 'LogTide Documentation';
-const keywords = frontmatter?.keywords || [];
+const keywords = frontmatter?.keywords || propKeywords;
 
 // Normalize headings from MDX (slug/depth) or manual (id/level)
 const headings = propHeadings.map(h => ({
