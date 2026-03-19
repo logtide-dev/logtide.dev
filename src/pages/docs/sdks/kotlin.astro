@@ -31,7 +31,7 @@ const headings = [
       <h1 class="text-3xl font-bold">Kotlin SDK</h1>
       <div class="flex items-center gap-2">
           <a
-              href="https://github.com/logtide-dev/logtide-sdk-kotlin"
+              href="https://github.com/logtide-dev/logtide-kotlin-java"
               target="_blank"
               rel="noopener noreferrer"
           >
@@ -41,7 +41,7 @@ const headings = [
               </Button>
           </a>
           <a
-              href="https://central.sonatype.com/artifact/io.github.logtide-dev/logtide-sdk-kotlin"
+              href="https://central.sonatype.com/artifact/io.github.logtide-dev/logtide-core"
               target="_blank"
               rel="noopener noreferrer"
           >
@@ -66,39 +66,87 @@ const headings = [
       Installation
   </h2>
 
-  <div class="mb-8 space-y-6">
+  <p class="text-sm text-muted-foreground mb-6">
+      The SDK is split into separate modules. Add <code class="bg-muted px-1 rounded">logtide-core</code> plus
+      the module for your framework.
+  </p>
+
+  <div class="mb-8 space-y-8">
       <div>
-          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Gradle (Kotlin DSL)</h3>
+          <h3 class="text-lg font-semibold mb-1 scroll-mt-24">Core Module</h3>
+          <p class="text-sm text-muted-foreground mb-3">Required for all integrations.</p>
+          <div class="space-y-4">
+              <div>
+                  <p class="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wide">Gradle (Kotlin DSL)</p>
+                  <Code
+                      lang="kotlin"
+                      theme="one-dark-pro"
+                      code={`dependencies {
+  implementation("io.github.logtide-dev:logtide-core:0.5.0")
+}`}
+                  />
+              </div>
+              <div>
+                  <p class="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wide">Gradle (Groovy)</p>
+                  <Code
+                      lang="groovy"
+                      theme="one-dark-pro"
+                      code={`dependencies {
+  implementation 'io.github.logtide-dev:logtide-core:0.5.0'
+}`}
+                  />
+              </div>
+              <div>
+                  <p class="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wide">Maven</p>
+                  <Code
+                      lang="xml"
+                      theme="one-dark-pro"
+                      code={`<dependency>
+  <groupId>io.github.logtide-dev</groupId>
+  <artifactId>logtide-core</artifactId>
+  <version>0.5.0</version>
+</dependency>`}
+                  />
+              </div>
+          </div>
+      </div>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-1 scroll-mt-24">Ktor Integration</h3>
+          <p class="text-sm text-muted-foreground mb-3">Add alongside core for Ktor applications.</p>
           <Code
               lang="kotlin"
               theme="one-dark-pro"
               code={`dependencies {
-  implementation("io.github.logtide-dev:logtide-sdk-kotlin:0.2.1")
+  implementation("io.github.logtide-dev:logtide-core:0.5.0")
+  implementation("io.github.logtide-dev:logtide-ktor:0.5.0")
 }`}
           />
       </div>
 
       <div>
-          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Gradle (Groovy)</h3>
+          <h3 class="text-lg font-semibold mb-1 scroll-mt-24">Spring Boot Integration</h3>
+          <p class="text-sm text-muted-foreground mb-3">Add alongside core for Spring Boot applications.</p>
           <Code
-              lang="groovy"
+              lang="kotlin"
               theme="one-dark-pro"
               code={`dependencies {
-  implementation 'io.github.logtide-dev:logtide-sdk-kotlin:0.2.1'
+  implementation("io.github.logtide-dev:logtide-core:0.5.0")
+  implementation("io.github.logtide-dev:logtide-spring:0.5.0")
 }`}
           />
       </div>
 
       <div>
-          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Maven</h3>
+          <h3 class="text-lg font-semibold mb-1 scroll-mt-24">Jakarta Servlet Integration</h3>
+          <p class="text-sm text-muted-foreground mb-3">Add alongside core for Jakarta Servlet applications (Tomcat, Jetty, etc.).</p>
           <Code
-              lang="xml"
+              lang="kotlin"
               theme="one-dark-pro"
-              code={`<dependency>
-  <groupId>io.github.logtide-dev</groupId>
-  <artifactId>logtide-sdk-kotlin</artifactId>
-  <version>0.2.1</version>
-</dependency>`}
+              code={`dependencies {
+  implementation("io.github.logtide-dev:logtide-core:0.5.0")
+  implementation("io.github.logtide-dev:logtide-jakarta:0.5.0")
+}`}
           />
       </div>
   </div>
@@ -260,13 +308,19 @@ try {
           <Code
               lang="kotlin"
               theme="one-dark-pro"
-              code={`// Manual trace ID
+              code={`// Manual trace ID (UUIDs and custom string IDs are both accepted)
 client.withTraceId("550e8400-e29b-41d4-a716-446655440000") {
   client.info("api", "Processing request")
   client.info("db", "Query executed")
 }
 
-// Scoped trace ID (coroutines)
+// Custom string ID (non-UUID)
+client.withTraceId("order-processing-\${orderId}") {
+  client.info("payment", "Charge initiated")
+  client.info("inventory", "Stock reserved")
+}
+
+// Scoped trace ID (propagates to child coroutines automatically)
 coroutineScope {
   client.withTraceId("my-trace-id") {
       launch { client.info("worker-1", "Task started") }
