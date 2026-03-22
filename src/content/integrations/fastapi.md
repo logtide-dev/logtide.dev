@@ -1,6 +1,6 @@
 ---
 title: "FastAPI Application Logging Integration"
-description: "Add structured logging to FastAPI applications with the LogTide Python SDK — built-in async middleware, dependency injection, WebSocket support, and Uvicorn deployment."
+description: "Add structured logging to FastAPI apps with the LogTide Python SDK — async middleware, dependency injection, WebSocket support, and Uvicorn deployment."
 category: "framework"
 difficulty: "easy"
 sdk: "python"
