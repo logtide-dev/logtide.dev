@@ -71,8 +71,13 @@ LOGTIDE_CLIENT = LogTideClient(
 
 LOGTIDE_SERVICE_NAME = "django-app"
 
-# Optional: paths to skip (health checks are skipped by default)
-LOGTIDE_SKIP_PATHS = ["/health", "/healthz", "/metrics"]
+# Optional settings (all have defaults)
+LOGTIDE_LOG_REQUESTS = True         # Log incoming requests
+LOGTIDE_LOG_RESPONSES = True        # Log responses with status and duration
+LOGTIDE_LOG_ERRORS = True           # Log unhandled exceptions
+LOGTIDE_INCLUDE_HEADERS = False     # Include request headers in metadata
+LOGTIDE_SKIP_HEALTH_CHECK = True    # Auto-skip /health and /healthz
+LOGTIDE_SKIP_PATHS = ["/metrics"]   # Additional paths to skip
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

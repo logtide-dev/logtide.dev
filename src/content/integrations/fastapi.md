@@ -65,37 +65,34 @@ from fastapi import FastAPI
 from logtide_sdk import LogTideClient, ClientOptions
 from logtide_sdk.middleware import LogTideFastAPIMiddleware
 
+# Create client at module level so it is available for add_middleware()
+client = LogTideClient(
+    ClientOptions(
+        api_url=os.environ["LOGTIDE_API_URL"],
+        api_key=os.environ["LOGTIDE_API_KEY"],
+        global_metadata={
+            "environment": os.environ.get("APP_ENV", "production"),
+            "version": os.environ.get("APP_VERSION", "unknown"),
+        },
+    )
+)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
-    client = LogTideClient(
-        ClientOptions(
-            api_url=os.environ["LOGTIDE_API_URL"],
-            api_key=os.environ["LOGTIDE_API_KEY"],
-            global_metadata={
-                "environment": os.environ.get("APP_ENV", "production"),
-                "version": os.environ.get("APP_VERSION", "unknown"),
-            },
-        )
-    )
     app.state.logtide = client
     yield
-    # Shutdown
     client.close()
 
 
 app = FastAPI(title="My API", lifespan=lifespan)
-
-app.add_middleware(LogTideFastAPIMiddleware, client=app.state.logtide, service_name="fastapi-app")
+app.add_middleware(LogTideFastAPIMiddleware, client=client, service_name="fastapi-app")
 
 
 @app.get("/")
 async def root():
     return {"message": "Hello, World!"}
 ```
-
-> **Note**: Because `app.state.logtide` is not available at module load time, pass the client to the middleware inside the lifespan startup or use a factory function.
 
 ### Simpler Setup (Sync Client)
 
@@ -120,6 +117,19 @@ app.add_middleware(LogTideFastAPIMiddleware, client=client, service_name="fastap
 export LOGTIDE_API_URL="http://your-logtide-instance:8080"
 export LOGTIDE_API_KEY="lp_your_api_key_here"
 uvicorn main:app --reload
+```
+
+## Skipped Paths
+
+When `skip_health_check=True` (the default), the middleware skips logging for `/health`, `/healthz`, `/docs`, `/redoc`, and `/openapi.json`. Use `skip_paths` for any additional paths:
+
+```python
+app.add_middleware(
+    LogTideFastAPIMiddleware,
+    client=client,
+    service_name="fastapi-app",
+    skip_paths=["/metrics", "/ready"],
+)
 ```
 
 ## Request Logging Output

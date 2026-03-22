@@ -125,6 +125,12 @@ client = LogTideClient(
             "version": os.environ.get("APP_VERSION", "unknown"),
         },
 
+        # Auto-generate a UUID trace ID for every log that has none (default: False)
+        auto_trace_id=False,
+
+        # Disable internal metrics collection if not needed (default: True)
+        enable_metrics=True,
+
         # Payload safety
         payload_limits=PayloadLimitsOptions(
             max_field_size=10 * 1024,        # Truncate strings > 10 KB
