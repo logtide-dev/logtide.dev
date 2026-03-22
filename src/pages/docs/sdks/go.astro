@@ -11,11 +11,11 @@ import { Icon } from 'astro-icon/components';
 const headings = [
   { text: "Installation", slug: "installation", depth: 2 },
   { text: "Quick Start", slug: "quick-start", depth: 2 },
-  { text: "Features", slug: "features", depth: 2 },
   { text: "Configuration", slug: "configuration", depth: 2 },
   { text: "Logging Methods", slug: "logging", depth: 2 },
-  { text: "Error Handling", slug: "error-handling", depth: 2 },
-  { text: "OpenTelemetry Integration", slug: "opentelemetry", depth: 2 },
+  { text: "Hub & Scope", slug: "hub-scope", depth: 2 },
+  { text: "Error Capture", slug: "error-capture", depth: 2 },
+  { text: "OpenTelemetry", slug: "opentelemetry", depth: 2 },
   { text: "HTTP Middleware", slug: "http-middleware", depth: 2 },
   { text: "Best Practices", slug: "best-practices", depth: 2 }
 ];
@@ -23,14 +23,14 @@ const headings = [
 
 <DocsLayout
   title="Go SDK"
-  description="Official Go SDK for LogTide with batching, retry logic, and OpenTelemetry integration."
+  description="Official Go SDK for LogTide with batching, retry logic, circuit breaker, and OpenTelemetry integration."
   headings={headings}
 >
   <div class="flex items-center justify-between mb-4">
       <h1 class="text-3xl font-bold">Go SDK</h1>
       <div class="flex items-center gap-2">
           <a
-              href="https://github.com/logtide-dev/logtide-sdk-go"
+              href="https://github.com/logtide-dev/logtide-go"
               target="_blank"
               rel="noopener noreferrer"
           >
@@ -54,7 +54,7 @@ const headings = [
 
   <p class="text-lg text-muted-foreground mb-8">
       Official Go SDK for LogTide with automatic batching, retry logic,
-      circuit breaker pattern, and native OpenTelemetry integration.
+      circuit breaker pattern, Hub/Scope context isolation, and native OpenTelemetry integration.
   </p>
 
   <h2
@@ -72,6 +72,8 @@ const headings = [
       />
   </div>
 
+  <p class="text-sm text-muted-foreground mb-8">Requires Go 1.23 or later.</p>
+
   <h2
       id="quick-start"
       class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
@@ -79,62 +81,51 @@ const headings = [
       Quick Start
   </h2>
 
-  <div class="mb-8">
+  <div class="mb-4">
+      <h3 class="text-lg font-semibold mb-3">Global singleton (recommended)</h3>
       <Code
           lang="go"
           theme="one-dark-pro"
           code={`package main
 
 import (
-  "context"
-  "github.com/logtide-dev/logtide-sdk-go"
+    "context"
+    logtide "github.com/logtide-dev/logtide-sdk-go"
 )
 
 func main() {
-  client, err := logtide.New(
-      logtide.WithAPIKey("lp_your_api_key"),
-      logtide.WithService("my-service"),
-  )
-  if err != nil {
-      panic(err)
-  }
-  defer client.Close()
+    flush := logtide.Init(logtide.ClientOptions{
+        DSN:         "https://lp_your_api_key@api.logtide.dev",
+        Service:     "my-service",
+        Environment: "production",
+        Release:     "v1.2.3",
+    })
+    defer flush()
 
-  ctx := context.Background()
-
-  // Send logs
-  client.Info(ctx, "Server started", map[string]any{"port": 8080})
-  client.Error(ctx, "Connection failed", map[string]any{"error": "timeout"})
+    ctx := context.Background()
+    logtide.Info(ctx, "Server started", map[string]any{"port": 8080})
+    logtide.Error(ctx, "Connection failed", map[string]any{"host": "db.example.com"})
 }`}
       />
   </div>
 
-  <h2
-      id="features"
-      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
-  >
-      Features
-  </h2>
+  <div class="mb-8">
+      <h3 class="text-lg font-semibold mb-3">Explicit client</h3>
+      <Code
+          lang="go"
+          theme="one-dark-pro"
+          code={`opts := logtide.NewClientOptions()
+opts.DSN     = "https://lp_your_api_key@api.logtide.dev"
+opts.Service = "my-service"
 
-  <div class="mb-8 grid gap-3">
-      <Card>
-          <CardContent class="pt-4 text-sm">
-              <ul class="space-y-2 list-none pl-0">
-                  <li>
-                      ✅ Automatic batching with configurable size and
-                      interval
-                  </li>
-                  <li>✅ Retry logic with exponential backoff</li>
-                  <li>✅ Circuit breaker pattern for fault tolerance</li>
-                  <li>✅ Goroutine-safe logging</li>
-                  <li>✅ Context support for request-scoped logging</li>
-                  <li>✅ Native OpenTelemetry integration</li>
-                  <li>✅ Graceful shutdown with flush</li>
-                  <li>✅ Structured metadata support</li>
-                  <li>✅ 87% test coverage</li>
-              </ul>
-          </CardContent>
-      </Card>
+client, err := logtide.NewClient(opts)
+if err != nil {
+    log.Fatal(err)
+}
+defer client.Close()
+
+client.Info(context.Background(), "Hello LogTide!", nil)`}
+      />
   </div>
 
   <h2
@@ -148,29 +139,29 @@ func main() {
       <Code
           lang="go"
           theme="one-dark-pro"
-          code={`client, err := logtide.New(
-  // Required
-  logtide.WithAPIKey("lp_your_api_key"),
-  logtide.WithService("my-service"),
+          code={`opts := logtide.NewClientOptions()
 
-  // Optional - API
-  logtide.WithBaseURL("https://api.logtide.dev"),
+// Identity
+opts.DSN         = "https://lp_your_api_key@api.logtide.dev" // required
+opts.Service     = "my-service"                               // required
+opts.Release     = "v1.2.3"
+opts.Environment = "production"
+opts.Tags        = map[string]string{"region": "eu-west-1"}
 
-  // Optional - Performance
-  logtide.WithBatchSize(100),              // Max logs per batch (default: 100)
-  logtide.WithFlushInterval(5*time.Second), // Flush interval (default: 5s)
-  logtide.WithTimeout(30*time.Second),      // HTTP timeout (default: 30s)
+// Batching
+opts.BatchSize     = 100               // entries per HTTP batch (default: 100)
+opts.FlushInterval = 5 * time.Second   // (default: 5s)
+opts.FlushTimeout  = 10 * time.Second  // (default: 10s)
 
-  // Optional - Reliability
-  logtide.WithRetry(3, 1*time.Second, 60*time.Second), // maxRetries, delay, maxDelay
-  logtide.WithCircuitBreaker(5, 30*time.Second),       // threshold, timeout
+// Reliability
+opts.MaxRetries             = 3
+opts.RetryMinBackoff        = 1 * time.Second
+opts.RetryMaxBackoff        = 60 * time.Second
+opts.CircuitBreakerThreshold = 5               // failures before open (default: 5)
+opts.CircuitBreakerTimeout  = 30 * time.Second
 
-  // Optional - Metadata
-  logtide.WithGlobalMetadata(map[string]any{
-      "environment": "production",
-      "version":     "1.0.0",
-  }),
-)`}
+// Stack traces
+opts.AttachStacktrace = logtide.Bool(true) // default: true`}
       />
   </div>
 
@@ -181,62 +172,104 @@ func main() {
       Logging Methods
   </h2>
 
-  <div class="mb-8 space-y-6">
-      <div>
-          <h3 id="basic-logging" class="text-lg font-semibold mb-3 scroll-mt-24">Basic Logging</h3>
-          <Code
-              lang="go"
-              theme="one-dark-pro"
-              code={`ctx := context.Background()
+  <div class="mb-8">
+      <p class="text-sm text-muted-foreground mb-3">
+          All methods return an <code class="bg-muted px-1 rounded">EventID</code> (empty string if the entry was dropped).
+      </p>
+      <Code
+          lang="go"
+          theme="one-dark-pro"
+          code={`ctx := context.Background()
 
-// Log levels: Debug, Info, Warn, Error, Critical
-client.Debug(ctx, "Debug message", map[string]any{"detail": "value"})
-client.Info(ctx, "Request received", map[string]any{"method": "GET", "path": "/users"})
-client.Warn(ctx, "Cache miss", map[string]any{"key": "user:123"})
-client.Error(ctx, "Query failed", map[string]any{"query": "SELECT *"})
-client.Critical(ctx, "Out of memory", map[string]any{"used": "95%"})`}
-          />
-      </div>
-
-      <div>
-          <h3 id="with-trace-id" class="text-lg font-semibold mb-3 scroll-mt-24">With Trace ID</h3>
-          <Code
-              lang="go"
-              theme="one-dark-pro"
-              code={`// Add trace ID to context
-ctx := logtide.WithTraceID(context.Background(), "550e8400-e29b-41d4-a716-446655440000")
-
-// All logs will include the trace ID
-client.Info(ctx, "Processing request", nil)
-client.Info(ctx, "Query executed", nil)`}
-          />
-      </div>
+client.Debug(ctx, "cache miss", map[string]any{"key": "user:42"})
+client.Info(ctx, "request handled", map[string]any{"status": 200, "ms": 12})
+client.Warn(ctx, "rate limit approaching", nil)
+client.Error(ctx, "db query failed", map[string]any{"query": "SELECT ..."})
+client.Critical(ctx, "out of memory", nil)`}
+      />
   </div>
 
   <h2
-      id="error-handling"
+      id="hub-scope"
       class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
   >
-      Error Handling
+      Hub &amp; Scope
+  </h2>
+
+  <p class="text-sm text-muted-foreground mb-4">
+      The Hub/Scope model lets you attach tags, breadcrumbs, and user info to all log entries
+      within a logical unit of work — without passing extra parameters everywhere.
+  </p>
+
+  <div class="mb-4">
+      <h3 class="text-lg font-semibold mb-3">Global scope</h3>
+      <Code
+          lang="go"
+          theme="one-dark-pro"
+          code={`logtide.ConfigureScope(func(s *logtide.Scope) {
+    s.SetTag("region", "eu-west-1")
+    s.SetUser(logtide.User{ID: "u123", Email: "alice@example.com"})
+})`}
+      />
+  </div>
+
+  <div class="mb-4">
+      <h3 class="text-lg font-semibold mb-3">Per-request isolation</h3>
+      <Code
+          lang="go"
+          theme="one-dark-pro"
+          code={`logtide.PushScope()
+defer logtide.PopScope()
+
+logtide.ConfigureScope(func(s *logtide.Scope) {
+    s.SetTag("request_id", requestID)
+    s.AddBreadcrumb(&logtide.Breadcrumb{
+        Category:  "auth",
+        Message:   "user authenticated",
+        Level:     logtide.LevelInfo,
+        Timestamp: time.Now(),
+    }, nil)
+})
+
+// All log calls here include request_id tag + breadcrumb
+logtide.Info(ctx, "processing order", nil)`}
+      />
+  </div>
+
+  <div class="mb-8">
+      <h3 class="text-lg font-semibold mb-3">Per-request with explicit Hub</h3>
+      <Code
+          lang="go"
+          theme="one-dark-pro"
+          code={`hub := logtide.CurrentHub().Clone()
+hub.ConfigureScope(func(s *logtide.Scope) {
+    s.SetTag("request_id", r.Header.Get("X-Request-ID"))
+})
+
+// Inject into context for use downstream
+ctx := logtide.SetHubOnContext(r.Context(), hub)
+hub.Info(ctx, "request received", nil)`}
+      />
+  </div>
+
+  <h2
+      id="error-capture"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Error Capture
   </h2>
 
   <div class="mb-8">
       <Code
           lang="go"
           theme="one-dark-pro"
-          code={`err := client.Info(ctx, "message", nil)
+          code={`result, err := db.Query(ctx, "SELECT ...")
 if err != nil {
-  switch {
-  case errors.Is(err, logtide.ErrClientClosed):
-      // Client was closed, logs won't be sent
-  case errors.Is(err, logtide.ErrCircuitOpen):
-      // Circuit breaker is open, too many failures
-  case errors.Is(err, logtide.ErrInvalidAPIKey):
-      // Invalid API key configuration
-  default:
-      // Other error
-      log.Printf("Failed to send log: %v", err)
-  }
+    // Captures the error with full stack trace automatically
+    client.CaptureError(ctx, err, map[string]any{
+        "query": "SELECT ...",
+        "user":  userID,
+    })
 }`}
       />
   </div>
@@ -248,30 +281,44 @@ if err != nil {
       OpenTelemetry Integration
   </h2>
 
-  <div class="mb-8">
+  <div class="mb-4">
+      <h3 class="text-lg font-semibold mb-3">Automatic trace context</h3>
       <Code
           lang="go"
           theme="one-dark-pro"
-          code={`import (
-  "go.opentelemetry.io/otel"
-)
-
-tracer := otel.Tracer("my-service")
+          code={`tracer := otel.Tracer("my-service")
 
 func handleRequest(ctx context.Context) {
-  ctx, span := tracer.Start(ctx, "handle-request")
-  defer span.End()
+    ctx, span := tracer.Start(ctx, "handle-request")
+    defer span.End()
 
-  // Trace ID and Span ID are automatically extracted from context
-  client.Info(ctx, "Processing request", map[string]any{
-      "user_id": 123,
-  })
-
-  // Nested spans work too
-  ctx, dbSpan := tracer.Start(ctx, "database-query")
-  client.Debug(ctx, "Executing query", nil)
-  dbSpan.End()
+    // trace_id and span_id are included automatically
+    client.Info(ctx, "Processing request", map[string]any{"user_id": 123})
 }`}
+      />
+  </div>
+
+  <div class="mb-8">
+      <h3 class="text-lg font-semibold mb-3">Span exporter</h3>
+      <Code
+          lang="go"
+          theme="one-dark-pro"
+          code={`import "github.com/logtide-dev/logtide-sdk-go/integrations/otelexport"
+
+integration := otelexport.New()
+
+flush := logtide.Init(logtide.ClientOptions{
+    DSN:     "https://lp_your_api_key@api.logtide.dev",
+    Service: "my-service",
+    Integrations: func(defaults []logtide.Integration) []logtide.Integration {
+        return append(defaults, integration)
+    },
+})
+defer flush()
+
+tp := sdktrace.NewTracerProvider(
+    sdktrace.WithBatcher(integration.Exporter()),
+)`}
       />
   </div>
 
@@ -282,64 +329,22 @@ func handleRequest(ctx context.Context) {
       HTTP Middleware
   </h2>
 
-  <div class="mb-8 space-y-6">
-      <div>
-          <h3 id="standard-library" class="text-lg font-semibold mb-3 scroll-mt-24">Standard Library</h3>
-          <Code
-              lang="go"
-              theme="one-dark-pro"
-              code={`func LoggingMiddleware(client *logtide.Client) func(http.Handler) http.Handler {
-  return func(next http.Handler) http.Handler {
-      return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-          start := time.Now()
+  <div class="mb-8">
+      <p class="text-sm text-muted-foreground mb-3">
+          The built-in middleware automatically isolates scope per request, sets HTTP tags,
+          parses <code class="bg-muted px-1 rounded">Traceparent</code> headers, and adds request/response breadcrumbs.
+      </p>
+      <Code
+          lang="go"
+          theme="one-dark-pro"
+          code={`import lnethttp "github.com/logtide-dev/logtide-sdk-go/integrations/nethttp"
 
-          // Create wrapped response writer to capture status
-          wrapped := &responseWriter{ResponseWriter: w, statusCode: 200}
-
-          next.ServeHTTP(wrapped, r)
-
-          client.Info(r.Context(), "HTTP request", map[string]any{
-              "method":      r.Method,
-              "path":        r.URL.Path,
-              "status":      wrapped.statusCode,
-              "duration_ms": time.Since(start).Milliseconds(),
-          })
-      })
-  }
-}
-
-// Usage
 mux := http.NewServeMux()
-handler := LoggingMiddleware(client)(mux)
-http.ListenAndServe(":8080", handler)`}
-          />
-      </div>
+mux.HandleFunc("/users", usersHandler)
 
-      <div>
-          <h3 id="gin-framework" class="text-lg font-semibold mb-3 scroll-mt-24">Gin Framework</h3>
-          <Code
-              lang="go"
-              theme="one-dark-pro"
-              code={`func GinLoggingMiddleware(client *logtide.Client) gin.HandlerFunc {
-  return func(c *gin.Context) {
-      start := time.Now()
-
-      c.Next()
-
-      client.Info(c.Request.Context(), "HTTP request", map[string]any{
-          "method":      c.Request.Method,
-          "path":        c.Request.URL.Path,
-          "status":      c.Writer.Status(),
-          "duration_ms": time.Since(start).Milliseconds(),
-      })
-  }
-}
-
-// Usage
-r := gin.Default()
-r.Use(GinLoggingMiddleware(client))`}
-          />
-      </div>
+// Wrap with LogTide middleware
+http.ListenAndServe(":8080", lnethttp.Middleware(mux))`}
+      />
   </div>
 
   <h2
@@ -352,47 +357,44 @@ r.Use(GinLoggingMiddleware(client))`}
   <div class="space-y-4">
       <Card>
           <CardHeader>
-              <CardTitle class="text-base"
-                  >1. Always Defer Close</CardTitle
-              >
+              <CardTitle class="text-base">1. Always defer flush/Close</CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              Use <code class="bg-muted px-1 rounded">defer client.Close()</code> immediately after creating
-              the client to ensure all buffered logs are flushed on shutdown.
+              Use <code class="bg-muted px-1 rounded">defer flush()</code> (global) or
+              <code class="bg-muted px-1 rounded">defer client.Close()</code> (explicit client)
+              immediately after initialisation to guarantee buffered entries are delivered on shutdown.
           </CardContent>
       </Card>
 
       <Card>
           <CardHeader>
-              <CardTitle class="text-base">2. Pass Context</CardTitle>
+              <CardTitle class="text-base">2. Clone the Hub per request</CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              Always pass the request context to logging methods. This enables
-              trace correlation and allows logs to be cancelled with the request.
+              Never share a Hub across goroutines with different lifecycles.
+              Call <code class="bg-muted px-1 rounded">hub.Clone()</code> at the start of each
+              request or goroutine to get an isolated scope.
           </CardContent>
       </Card>
 
       <Card>
           <CardHeader>
-              <CardTitle class="text-base"
-                  >3. Use Global Metadata</CardTitle
-              >
+              <CardTitle class="text-base">3. Use CaptureError for Go errors</CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              Add environment, version, and hostname as global metadata
-              instead of repeating them in every log call.
+              <code class="bg-muted px-1 rounded">CaptureError</code> attaches a full stack trace automatically.
+              Use it instead of <code class="bg-muted px-1 rounded">Error</code> whenever you have a Go
+              <code class="bg-muted px-1 rounded">error</code> value.
           </CardContent>
       </Card>
 
       <Card>
           <CardHeader>
-              <CardTitle class="text-base"
-                  >4. Handle Errors Appropriately</CardTitle
-              >
+              <CardTitle class="text-base">4. Use the net/http middleware</CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              Check for specific errors like <code class="bg-muted px-1 rounded">ErrCircuitOpen</code> to implement
-              fallback logging strategies when LogTide is unavailable.
+              <code class="bg-muted px-1 rounded">nethttp.Middleware</code> handles scope isolation,
+              HTTP tagging, and breadcrumbs automatically — no boilerplate needed.
           </CardContent>
       </Card>
   </div>
