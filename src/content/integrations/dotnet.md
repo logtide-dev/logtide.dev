@@ -46,22 +46,22 @@ LogTide's C# SDK integrates with ASP.NET Core's built-in `ILogger` infrastructur
 
 ## Installation
 
-Install the `LogTide.Client` NuGet package:
+Install the `LogTide.SDK` NuGet package:
 
 ```bash
-dotnet add package LogTide.Client
+dotnet add package LogTide.SDK
 ```
 
 Or via the Package Manager Console:
 
 ```powershell
-Install-Package LogTide.Client
+Install-Package LogTide.SDK
 ```
 
 Or add directly to your `.csproj`:
 
 ```xml
-<PackageReference Include="LogTide.Client" Version="0.4.0" />
+<PackageReference Include="LogTide.SDK" Version="0.8.3" />
 ```
 
 ## Quick Start
@@ -70,7 +70,7 @@ Or add directly to your `.csproj`:
 
 ```csharp
 // Program.cs
-using LogTide.Client;
+using LogTide.SDK.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -189,7 +189,7 @@ Create middleware that logs every request with timing, trace IDs, and user conte
 ```csharp
 // Middleware/LogTideRequestMiddleware.cs
 using System.Diagnostics;
-using LogTide.Client;
+using LogTide.SDK.Core;
 
 public class LogTideRequestMiddleware
 {
@@ -436,7 +436,7 @@ Intercept Entity Framework queries to log slow or problematic operations:
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Data.Common;
 using System.Diagnostics;
-using LogTide.Client;
+using LogTide.SDK.Core;
 
 public class LogTideDbInterceptor : DbCommandInterceptor
 {
@@ -613,7 +613,7 @@ Add a LogTide connectivity health check:
 ```csharp
 // HealthChecks/LogTideHealthCheck.cs
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using LogTide.Client;
+using LogTide.SDK.Core;
 
 public class LogTideHealthCheck : IHealthCheck
 {
