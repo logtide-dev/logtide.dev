@@ -333,6 +333,38 @@ logger.emit({
             <span>Starts frontend dashboard</span>
           </li>
         </ul>
+        <p class="mt-3 text-muted-foreground">
+          The default <code class="bg-muted px-1 rounded">docker compose up</code> starts <strong>5 services</strong> (PostgreSQL, Redis, backend, worker, frontend).
+          ClickHouse, MongoDB, and Fluent Bit are <strong>opt-in via profiles</strong> and won't run unless you add <code class="bg-muted px-1 rounded">--profile</code> flags.
+        </p>
+      </CardContent>
+    </Card>
+
+    <Card class="border-green-500/30 bg-green-500/5">
+      <CardHeader>
+        <div class="flex items-start gap-3">
+          <Icon name="lucide:leaf" class="w-5 h-5 text-green-500 mt-0.5" />
+          <div>
+            <CardTitle class="text-base">Need an even lighter setup?</CardTitle>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground">
+        <p class="mb-3">
+          For Raspberry Pi, homelabs, or low-resource environments, use the <strong>simplified compose</strong> which removes Redis and runs only <strong>3 containers</strong> (PostgreSQL + backend + frontend):
+        </p>
+        <Code
+          lang="bash"
+          theme="one-dark-pro"
+          code={`# Download simplified compose (no Redis)
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/docker-compose.simple.yml
+
+# Start with fewer containers, less memory
+docker compose -f docker-compose.simple.yml up -d`}
+        />
+        <p class="mt-3">
+          See the <a href="/docs/deployment#simplified-deployment" class="text-primary hover:underline">Deployment guide</a> for full details on the simplified setup and trade-offs.
+        </p>
       </CardContent>
     </Card>
 
