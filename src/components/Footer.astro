@@ -15,6 +15,7 @@ const resourceLinks = [
   { href: '/docs/migration/', label: 'Migration Guides' },
   { href: '/docs/', label: 'Documentation' },
   { href: '/contact/', label: 'Contact' },
+  { href: 'https://app.logtide.dev/status/logtide/overview', label: 'Status', external: true },
 ];
 
 const openSourceLinks = [
@@ -72,6 +73,8 @@ const legalLinks = [
               <a
                 href={link.href}
                 class="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                target={'external' in link ? '_blank' : undefined}
+                rel={'external' in link ? 'noopener noreferrer' : undefined}
               >
                 {link.label}
               </a>
@@ -120,11 +123,45 @@ const legalLinks = [
         &copy; {new Date().getFullYear()} Solture S.R.L. — LogTide. Built with care in Europe.
       </p>
       <div class="flex items-center gap-2 text-sm text-muted-foreground">
-        <span class="flex items-center gap-1">
-          <span class="h-2 w-2 rounded-full bg-green-500" aria-hidden="true"></span>
-          <span role="status">All systems operational</span>
-        </span>
+        <a
+          id="logtide-status-badge"
+          href="https://app.logtide.dev/status/logtide/overview"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center gap-1 transition-colors hover:text-foreground"
+        >
+          <span
+            id="logtide-status-dot"
+            class="h-2 w-2 rounded-full bg-green-500"
+            style="background-color: #16a34a;"
+            aria-hidden="true"
+          ></span>
+          <span id="logtide-status-label" role="status">All systems operational</span>
+        </a>
       </div>
+
+      <script>
+        (async () => {
+          const label = document.getElementById('logtide-status-label');
+          const dot = document.getElementById('logtide-status-dot');
+          if (!label || !dot) return;
+          try {
+            const res = await fetch('https://api.logtide.dev/api/v1/status/logtide/overview/badge.json', {
+              headers: { Accept: 'application/json' },
+            });
+            if (!res.ok) return;
+            const data = await res.json();
+            if (typeof data.label === 'string' && data.label.length > 0) {
+              label.textContent = data.label.charAt(0).toUpperCase() + data.label.slice(1);
+            }
+            if (typeof data.color === 'string' && data.color.length > 0) {
+              dot.style.backgroundColor = data.color;
+            }
+          } catch {
+            /* keep fallback */
+          }
+        })();
+      </script>
     </div>
   </div>
 </footer>
