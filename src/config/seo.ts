@@ -12,6 +12,7 @@ export const ORG_SCHEMA = {
   "description": SITE_DESCRIPTION,
   "sameAs": [
     "https://github.com/logtide-dev",
-    "https://twitter.com/logtide_dev"
+    "https://x.com/Logtide_dev",
+    "https://bsky.app/profile/logtide.bsky.social"
   ]
 };
