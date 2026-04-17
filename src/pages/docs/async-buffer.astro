@@ -1,0 +1,472 @@
+---
+import DocsLayout from '../../layouts/Docs.astro';
+import Card from '../../components/ui/Card.astro';
+import CardHeader from '../../components/ui/CardHeader.astro';
+import CardTitle from '../../components/ui/CardTitle.astro';
+import CardContent from '../../components/ui/CardContent.astro';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Overview", slug: "overview", depth: 2 },
+  { text: "When to Enable", slug: "when-to-enable", depth: 2 },
+  { text: "When NOT to Enable", slug: "when-not-to-enable", depth: 2 },
+  { text: "Transports", slug: "transports", depth: 2 },
+  { text: "In-Memory", slug: "in-memory", depth: 3 },
+  { text: "Redis Streams", slug: "redis-streams", depth: 3 },
+  { text: "Configuration", slug: "configuration", depth: 2 },
+  { text: "How It Works", slug: "how-it-works", depth: 2 },
+  { text: "Circuit Breaker", slug: "circuit-breaker", depth: 2 },
+  { text: "Graceful Shutdown", slug: "graceful-shutdown", depth: 2 },
+  { text: "Benchmark Results", slug: "benchmark-results", depth: 2 },
+  { text: "Metrics", slug: "metrics", depth: 2 },
+];
+---
+
+<DocsLayout
+  title="Async Buffer"
+  description="Optional async buffer layer that decouples log ingestion from storage writes on the hot path. Opt-in, disabled by default."
+  headings={headings}
+>
+  <h1 class="text-3xl font-bold mb-4">Async Buffer</h1>
+  <p class="text-lg text-muted-foreground mb-8">
+    The <strong>async buffer</strong> is an optional decorator that sits between the ingestion API and the storage
+    engine. When enabled, logs are accepted into a short-lived queue and flushed to storage in background by a
+    consumer pool, so a slow storage write does not block the producer. It is <strong>disabled by default</strong>
+    and <strong>not appropriate for every storage engine</strong>.
+  </p>
+
+  <Card class="border-yellow-500/30 bg-yellow-500/5 mb-8">
+    <CardHeader>
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:alert-triangle" class="w-5 h-5 text-yellow-500 mt-0.5" />
+        <div>
+          <CardTitle class="text-base">Read this before enabling</CardTitle>
+        </div>
+      </div>
+    </CardHeader>
+    <CardContent class="text-sm text-muted-foreground">
+      The buffer is <strong>only a win on TimescaleDB</strong>. On ClickHouse and MongoDB our load tests measured
+      a regression under saturation (the buffer fills faster than the consumer pool can drain, the breaker trips,
+      and you pay overhead for nothing). If you are running ClickHouse or MongoDB, leave the buffer off and tune
+      storage-side batching instead.
+    </CardContent>
+  </Card>
+
+  <h2
+    id="overview"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Overview
+  </h2>
+
+  <div class="mb-12 space-y-6">
+    <p class="text-muted-foreground">
+      Every ingest call normally runs:
+    </p>
+    <pre class="text-sm bg-muted p-4 rounded-md overflow-x-auto font-mono text-foreground">POST /api/v1/ingest -&gt; validate -&gt; reservoir.ingest(logs) -&gt; storage.write(logs) -&gt; 200 OK</pre>
+    <p class="text-muted-foreground">
+      With the buffer enabled the chain becomes:
+    </p>
+    <pre class="text-sm bg-muted p-4 rounded-md overflow-x-auto font-mono text-foreground">POST /api/v1/ingest -&gt; validate -&gt; buffer.enqueue(logs) -&gt; 200 OK
+                                   |
+                                   v
+                         flush consumer pool (async)
+                                   |
+                                   v
+                           storage.write(logs)</pre>
+    <p class="text-muted-foreground">
+      The producer returns as soon as the records are in the buffer. The consumer pool runs in the same backend
+      process and drains shards concurrently. The buffer itself is pluggable: either a pure in-memory queue (single
+      instance, not crash-safe) or Redis Streams (multi-instance, crash-safe, durable).
+    </p>
+
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-base">What the buffer gives you</CardTitle>
+      </CardHeader>
+      <CardContent class="text-sm space-y-2 text-muted-foreground">
+        <p><strong>Lower producer latency</strong> under bursty load, provided the storage engine is fast enough that enqueue completes well before the next batch arrives.</p>
+        <p><strong>Smoothed write pressure</strong> on the storage engine: the consumer pool batches records per shard and flushes on size or age.</p>
+        <p><strong>Backpressure via circuit breaker</strong>: when the buffer fills beyond a configured threshold, new ingests bypass the buffer and go straight to storage (sync).</p>
+        <p><strong>Dead-letter queue</strong> on Redis transport: batches that fail after max retry attempts are parked on a side stream for manual inspection.</p>
+      </CardContent>
+    </Card>
+
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-base">What the buffer does NOT give you</CardTitle>
+      </CardHeader>
+      <CardContent class="text-sm space-y-2 text-muted-foreground">
+        <p><strong>It does not remove the storage bottleneck.</strong> If your storage engine cannot keep up with the ingest rate, the buffer only delays the inevitable. You will see the breaker trip and latency spike regardless.</p>
+        <p><strong>It does not improve query performance.</strong> Queries always go to the underlying storage directly.</p>
+        <p><strong>It does not provide exactly-once delivery.</strong> On partial flush failure the succeeded kinds get re-delivered on retry. Observability workloads tolerate this; strict accounting workloads do not.</p>
+      </CardContent>
+    </Card>
+  </div>
+
+  <h2
+    id="when-to-enable"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    When to Enable
+  </h2>
+
+  <div class="mb-12 space-y-6">
+    <Card class="border-green-500/30 bg-green-500/5">
+      <CardHeader>
+        <div class="flex items-start gap-3">
+          <Icon name="lucide:check-circle" class="w-5 h-5 text-green-500 mt-0.5" />
+          <div>
+            <CardTitle class="text-base">Good fit</CardTitle>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground">
+        <ul class="space-y-1 list-disc list-inside">
+          <li>You are running <strong>TimescaleDB</strong> and you see producer latency spikes during bursts.</li>
+          <li>You need <strong>crash-safe queuing</strong> (Redis transport) because producers and consumers may run on different processes or hosts.</li>
+          <li>You want to <strong>decouple the ingest API from storage maintenance windows</strong> (small windows only, not sustained downtime).</li>
+          <li>You want a <strong>circuit breaker</strong> that falls back to sync ingestion automatically when the buffer is overloaded.</li>
+        </ul>
+      </CardContent>
+    </Card>
+  </div>
+
+  <h2
+    id="when-not-to-enable"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    When NOT to Enable
+  </h2>
+
+  <div class="mb-12 space-y-6">
+    <Card class="border-red-500/30 bg-red-500/5">
+      <CardHeader>
+        <div class="flex items-start gap-3">
+          <Icon name="lucide:x-circle" class="w-5 h-5 text-red-500 mt-0.5" />
+          <div>
+            <CardTitle class="text-base">Bad fit</CardTitle>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent class="text-sm text-muted-foreground">
+        <ul class="space-y-1 list-disc list-inside">
+          <li>You are running <strong>ClickHouse</strong> or <strong>MongoDB</strong>. Both showed worse p95 with the buffer enabled under sustained 100 req/s. The bottleneck is the flush side (HTTP or mongo driver round-trip), which the buffer cannot hide.</li>
+          <li>Your ingestion rate is low enough that the sync path already meets your latency target.</li>
+          <li>You require strict exactly-once semantics. The buffer re-delivers succeeded kinds on partial flush failure.</li>
+          <li>You cannot tolerate losing in-flight records if the backend is killed without graceful shutdown (in-memory transport only; Redis transport is crash-safe).</li>
+        </ul>
+      </CardContent>
+    </Card>
+  </div>
+
+  <h2
+    id="transports"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Transports
+  </h2>
+
+  <div class="mb-12 space-y-6">
+    <h3 id="in-memory" class="text-xl font-semibold mb-3 scroll-mt-24">In-Memory Transport</h3>
+    <p class="text-muted-foreground">
+      A per-process queue partitioned by shard. Producers push into a shard-specific list and signal waiting
+      consumers; consumers claim entries into an inflight set until they are acked or reclaim-expired. There is
+      no persistence: on crash or kill the contents are lost.
+    </p>
+    <Card>
+      <CardContent class="text-sm space-y-2 text-muted-foreground pt-6">
+        <p><strong>Use it when:</strong> you run a single backend instance, you can tolerate losing in-flight records on crash, and you want the lowest possible enqueue latency.</p>
+        <p><strong>Avoid it when:</strong> you run more than one backend replica, or you cannot afford to lose the in-memory queue contents.</p>
+      </CardContent>
+    </Card>
+
+    <h3 id="redis-streams" class="text-xl font-semibold mb-3 scroll-mt-24 mt-8">Redis Streams Transport</h3>
+    <p class="text-muted-foreground">
+      Each shard is a Redis Stream (<code class="bg-muted px-1 rounded">XADD</code> / <code class="bg-muted px-1 rounded">XREADGROUP</code>). Consumer groups track pending entries, reclaim stale deliveries via <code class="bg-muted px-1 rounded">XAUTOCLAIM</code>, and send permanently-failed batches to a DLQ stream. Atomic nack uses <code class="bg-muted px-1 rounded">MULTI</code> / <code class="bg-muted px-1 rounded">EXEC</code> so DLQ writes and acks either both land or neither does.
+    </p>
+    <Card>
+      <CardContent class="text-sm space-y-2 text-muted-foreground pt-6">
+        <p><strong>Use it when:</strong> you run more than one backend instance, you want crash-safety, or you want to be able to replay the DLQ later.</p>
+        <p><strong>Avoid it when:</strong> adding a Redis dependency is not an option. The rest of LogTide can run without Redis (BullMQ falls back), but this transport cannot.</p>
+      </CardContent>
+    </Card>
+  </div>
+
+  <h2
+    id="configuration"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Configuration
+  </h2>
+
+  <div class="mb-12 space-y-6">
+    <p class="text-muted-foreground">
+      All settings are environment variables. The buffer is off by default; setting the enable flag to
+      <code class="bg-muted px-1 rounded">true</code> is the only change needed to activate it.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="border-b border-border">
+          <tr>
+            <th class="text-left p-2 font-semibold">Variable</th>
+            <th class="text-left p-2 font-semibold">Default</th>
+            <th class="text-left p-2 font-semibold">Notes</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_ENABLED</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">false</code></td>
+            <td class="p-2">Master switch. Set to <code class="bg-muted px-1 rounded">true</code> to enable.</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_TRANSPORT</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">memory</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">memory</code>, <code class="bg-muted px-1 rounded">redis</code>, or <code class="bg-muted px-1 rounded">passthrough</code> (tests only).</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_SHARDS</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">8</code></td>
+            <td class="p-2">Number of shards and flush-consumer tasks.</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_MAX_BATCH_SIZE</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">500</code></td>
+            <td class="p-2">Max records a consumer claims per dequeue.</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_MAX_BATCH_AGE_MS</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">1000</code></td>
+            <td class="p-2">Longest a consumer waits for records before returning empty.</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_GRACEFUL_SHUTDOWN_MS</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">10000</code></td>
+            <td class="p-2">Drain timeout on SIGTERM / SIGINT.</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_PENDING_THRESHOLD</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">10000</code></td>
+            <td class="p-2">Open circuit breaker when pending record count crosses this.</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_FAILURE_THRESHOLD</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">20</code></td>
+            <td class="p-2">Flush failures in the rolling window that open the breaker.</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_COOLDOWN_MS</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">30000</code></td>
+            <td class="p-2">Time the breaker stays open before probing half-open.</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_MAX_RETRY_ATTEMPTS</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">3</code></td>
+            <td class="p-2">Attempts before a batch is sent to the DLQ.</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_BASE_DELAY_MS</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">100</code></td>
+            <td class="p-2">Base for jittered exponential backoff between retries.</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_STREAM_PREFIX</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">logtide:buffer</code></td>
+            <td class="p-2">Redis Streams key prefix (one stream per shard).</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">REDIS_URL</code></td>
+            <td class="p-2"><em>inherited from app</em></td>
+            <td class="p-2">Required when <code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_TRANSPORT=redis</code>. Missing value falls back to memory with a warning.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2
+    id="how-it-works"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    How It Works
+  </h2>
+
+  <div class="mb-12 space-y-6">
+    <p class="text-muted-foreground">
+      The buffer is implemented as a decorator that wraps the standard <code class="bg-muted px-1 rounded">Reservoir</code>
+      instance and implements the same public interface (<code class="bg-muted px-1 rounded">IReservoir</code>).
+      Read operations pass through to the underlying reservoir unchanged. Write operations
+      (<code class="bg-muted px-1 rounded">ingest</code>, <code class="bg-muted px-1 rounded">ingestSpans</code>,
+      <code class="bg-muted px-1 rounded">ingestMetrics</code>) enqueue into the transport and return immediately.
+    </p>
+
+    <p class="text-muted-foreground">
+      Records are hashed by <code class="bg-muted px-1 rounded">projectId</code> into one of N shards (default 8)
+      using murmur3. Each shard has a dedicated flush consumer task. Consumers dequeue a batch of records, group
+      them by kind (log / span / metric), and call the three ingest methods on the underlying storage in parallel.
+      Per-kind success is tracked separately so a partial failure only marks the failed kinds for retry.
+    </p>
+  </div>
+
+  <h2
+    id="circuit-breaker"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Circuit Breaker
+  </h2>
+
+  <div class="mb-12 space-y-6">
+    <p class="text-muted-foreground">
+      Two conditions open the breaker:
+    </p>
+    <ul class="text-muted-foreground space-y-1 list-disc list-inside ml-4">
+      <li>Pending record count crosses <code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_PENDING_THRESHOLD</code>.</li>
+      <li>Consecutive flush failures within the rolling window cross <code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_FAILURE_THRESHOLD</code>.</li>
+    </ul>
+    <p class="text-muted-foreground">
+      While open, new <code class="bg-muted px-1 rounded">ingest()</code> calls bypass the buffer and go straight
+      to storage (synchronous path). This trades lower aggregate throughput for keeping the ingest API responsive
+      and giving the consumer pool time to drain the backlog. After
+      <code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_COOLDOWN_MS</code> the breaker half-opens and the next
+      successful flush closes it.
+    </p>
+  </div>
+
+  <h2
+    id="graceful-shutdown"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Graceful Shutdown
+  </h2>
+
+  <div class="mb-12 space-y-6">
+    <p class="text-muted-foreground">
+      On SIGTERM / SIGINT the backend runs
+      <code class="bg-muted px-1 rounded">shutdownReservoir()</code> after Fastify has stopped accepting new
+      requests. The call stops the consumer pool and waits up to
+      <code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_GRACEFUL_SHUTDOWN_MS</code> for pending records to
+      drain. Any in-flight Redis client is explicitly
+      <code class="bg-muted px-1 rounded">quit()</code>-ed so the connection closes cleanly instead of being
+      torn down by the process exit.
+    </p>
+    <p class="text-muted-foreground">
+      Records that cannot drain within the deadline remain in the transport. For the Redis transport they are
+      durable and will be picked up by the next backend instance that joins the consumer group. For the in-memory
+      transport they are lost, which is the main reason to prefer Redis for any deployment that values durability.
+    </p>
+  </div>
+
+  <h2
+    id="benchmark-results"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Benchmark Results
+  </h2>
+
+  <div class="mb-12 space-y-6">
+    <p class="text-muted-foreground">
+      Methodology: k6, 100 req/s constant-arrival-rate for 3 minutes, 10 logs per batch, one backend container,
+      storage container on the same host. Zero errors in all 9 runs.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="border-b border-border">
+          <tr>
+            <th class="text-left p-2 font-semibold">Engine</th>
+            <th class="text-left p-2 font-semibold">Buffer OFF</th>
+            <th class="text-left p-2 font-semibold">Buffer ON (memory)</th>
+            <th class="text-left p-2 font-semibold">Buffer ON (redis)</th>
+            <th class="text-left p-2 font-semibold">Recommendation</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50">
+            <td class="p-2"><strong>TimescaleDB</strong></td>
+            <td class="p-2">p95 2471 ms</td>
+            <td class="p-2 text-green-600 dark:text-green-400"><strong>p95 24 ms</strong></td>
+            <td class="p-2">p95 623 ms</td>
+            <td class="p-2">memory (single-instance) or redis (multi-instance)</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><strong>ClickHouse</strong></td>
+            <td class="p-2 text-green-600 dark:text-green-400"><strong>p95 3305 ms</strong></td>
+            <td class="p-2">p95 4129 ms</td>
+            <td class="p-2">p95 6078 ms</td>
+            <td class="p-2">keep buffer OFF</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><strong>MongoDB</strong></td>
+            <td class="p-2 text-green-600 dark:text-green-400"><strong>p95 675 ms</strong></td>
+            <td class="p-2">p95 844 ms</td>
+            <td class="p-2">p95 756 ms</td>
+            <td class="p-2">keep buffer OFF</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-muted-foreground text-sm">
+      The TimescaleDB numbers assume the in-process <code class="bg-muted px-1 rounded">pg</code> connection pool is
+      shared between the backend and the buffer flush consumers. ClickHouse and MongoDB both require out-of-process
+      round-trips on the flush side, which is the reason the buffer cannot hide their latency under saturation.
+    </p>
+  </div>
+
+  <h2
+    id="metrics"
+    class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+    Metrics
+  </h2>
+
+  <div class="mb-12 space-y-6">
+    <p class="text-muted-foreground">
+      When the buffer is enabled, the backend exposes the following Prometheus-compatible metrics. All metrics
+      are labelled by record kind (<code class="bg-muted px-1 rounded">log</code> / <code class="bg-muted px-1 rounded">span</code> / <code class="bg-muted px-1 rounded">metric</code>) and shard where relevant.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="border-b border-border">
+          <tr>
+            <th class="text-left p-2 font-semibold">Metric</th>
+            <th class="text-left p-2 font-semibold">Meaning</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">reservoir_buffer_enqueued_total</code></td>
+            <td class="p-2">Records accepted into the buffer.</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">reservoir_buffer_bypass_total</code></td>
+            <td class="p-2">Records that bypassed the buffer (breaker open).</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">reservoir_buffer_flush_success_total</code></td>
+            <td class="p-2">Records successfully flushed to storage.</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">reservoir_buffer_flush_failure_total</code></td>
+            <td class="p-2">Flush attempts that raised an error.</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">reservoir_buffer_flush_duration_ms</code></td>
+            <td class="p-2">Histogram of flush durations.</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">reservoir_buffer_dlq_total</code></td>
+            <td class="p-2">Records moved to the DLQ after max retry attempts.</td>
+          </tr>
+          <tr class="border-b border-border/50">
+            <td class="p-2"><code class="bg-muted px-1 rounded">reservoir_buffer_breaker_state</code></td>
+            <td class="p-2">0 = closed, 1 = open, 2 = half-open.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</DocsLayout>
