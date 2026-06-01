@@ -106,6 +106,28 @@ docker compose up -d`}
           <p class="text-sm text-muted-foreground mt-3">
               Database migrations run automatically on first start.
           </p>
+          <Card class="border-yellow-500/30 bg-yellow-500/5 mt-4">
+              <CardHeader>
+                  <div class="flex items-start gap-3">
+                      <Icon name="lucide:shield" class="w-5 h-5 text-yellow-500 mt-0.5" />
+                      <div>
+                          <CardTitle class="text-base">Monitoring private/internal targets</CardTitle>
+                      </div>
+                  </div>
+              </CardHeader>
+              <CardContent class="text-sm text-muted-foreground space-y-2">
+                  <p>
+                      To prevent SSRF, uptime monitors and webhook delivery <strong>deny private and internal
+                      destinations by default</strong> (loopback, private, link-local incl. cloud metadata
+                      <code class="bg-muted px-1 rounded">169.254.169.254</code>, CGNAT, multicast and reserved IPv4/IPv6 ranges).
+                  </p>
+                  <p>
+                      Self-hosted deployments that legitimately monitor internal services can opt back in:
+                  </p>
+                  <Code lang="bash" theme="one-dark-pro" code={`# Allow monitors and webhooks to reach private/internal targets
+MONITOR_ALLOW_PRIVATE_TARGETS=true`} />
+              </CardContent>
+          </Card>
       </div>
 
       <div>
@@ -250,8 +272,8 @@ FLUENT_BIT_IMAGE=myregistry/fluent-bit-arm64:latest`}
                   lang="bash"
                   theme="one-dark-pro"
                   code={`# In your .env file
-LOGTIDE_BACKEND_IMAGE=logtide/backend:0.9.5
-LOGTIDE_FRONTEND_IMAGE=logtide/frontend:0.9.5`}
+LOGTIDE_BACKEND_IMAGE=logtide/backend:0.9.6
+LOGTIDE_FRONTEND_IMAGE=logtide/frontend:0.9.6`}
               />
           </CardContent>
       </Card>
@@ -700,7 +722,7 @@ docker compose ps`}
                           <td class="p-3 border-b border-border font-mono text-xs">Frontend</td>
                           <td class="p-3 border-b border-border">1 instance</td>
                           <td class="p-3 border-b border-border">N instances</td>
-                          <td class="p-3 border-b border-border">SvelteKit SSR</td>
+                          <td class="p-3 border-b border-border">SvelteKit SPA (served by adapter-node)</td>
                       </tr>
                       <tr>
                           <td class="p-3 border-b border-border font-mono text-xs">Redis</td>
