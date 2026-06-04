@@ -18,6 +18,10 @@ relatedIntegrations:
 relatedUseCases:
   - "cost-optimization"
   - "gdpr-compliance"
+relatedComparisons:
+  - "aws-cloudwatch"
+  - "azure-monitor"
+  - "datadog"
 keywords:
   - "Google Cloud Logging alternative"
   - "GCP logging alternative"

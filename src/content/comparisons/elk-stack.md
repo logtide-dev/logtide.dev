@@ -17,6 +17,10 @@ relatedIntegrations:
 relatedUseCases:
   - "cost-optimization"
   - "incident-response"
+relatedComparisons:
+  - "grafana-loki"
+  - "graylog"
+  - "splunk"
 keywords:
   - "ELK alternative"
   - "Elasticsearch alternative"

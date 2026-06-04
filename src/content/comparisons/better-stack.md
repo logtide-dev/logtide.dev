@@ -17,6 +17,10 @@ relatedIntegrations:
 relatedUseCases:
   - "cost-optimization"
   - "real-time-alerting"
+relatedComparisons:
+  - "datadog"
+  - "new-relic"
+  - "grafana-loki"
 keywords:
   - "Better Stack alternative"
   - "Logtail alternative"

@@ -18,6 +18,10 @@ relatedIntegrations:
 relatedUseCases:
   - "cost-optimization"
   - "security-monitoring"
+relatedComparisons:
+  - "aws-cloudwatch"
+  - "gcp-cloud-logging"
+  - "datadog"
 keywords:
   - "Azure Monitor alternative"
   - "Azure Log Analytics alternative"

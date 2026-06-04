@@ -17,6 +17,10 @@ relatedIntegrations:
 relatedUseCases:
   - "cost-optimization"
   - "security-monitoring"
+relatedComparisons:
+  - "datadog"
+  - "elk-stack"
+  - "graylog"
 keywords:
   - "Splunk alternative"
   - "Splunk vs LogTide"

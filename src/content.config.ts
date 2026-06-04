@@ -132,6 +132,7 @@ const comparisons = defineCollection({
     migrationDoc: z.string().optional(),
     relatedIntegrations: z.array(z.string()).default([]),
     relatedUseCases: z.array(z.string()).default([]),
+    relatedComparisons: z.array(z.string()).default([]),
 
     // SEO keywords
     keywords: z.array(z.string()).default([]),

@@ -18,6 +18,10 @@ relatedIntegrations:
 relatedUseCases:
   - "cost-optimization"
   - "security-monitoring"
+relatedComparisons:
+  - "datadog"
+  - "better-stack"
+  - "sumo-logic"
 keywords:
   - "New Relic alternative"
   - "New Relic vs LogTide"

@@ -17,6 +17,10 @@ relatedIntegrations:
 relatedUseCases:
   - "security-monitoring"
   - "incident-response"
+relatedComparisons:
+  - "elk-stack"
+  - "signoz"
+  - "graylog"
 keywords:
   - "Loki alternative"
   - "Grafana Loki vs LogTide"

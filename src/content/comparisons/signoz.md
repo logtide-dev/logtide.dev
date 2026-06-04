@@ -17,6 +17,10 @@ relatedIntegrations:
 relatedUseCases:
   - "security-monitoring"
   - "compliance-audit-trail"
+relatedComparisons:
+  - "grafana-loki"
+  - "elk-stack"
+  - "datadog"
 keywords:
   - "SigNoz alternative"
   - "SigNoz vs LogTide"

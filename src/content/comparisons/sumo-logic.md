@@ -17,6 +17,10 @@ relatedIntegrations:
 relatedUseCases:
   - "cost-optimization"
   - "compliance-audit-trail"
+relatedComparisons:
+  - "datadog"
+  - "splunk"
+  - "new-relic"
 keywords:
   - "Sumo Logic alternative"
   - "Sumo Logic vs LogTide"

@@ -18,6 +18,10 @@ relatedIntegrations:
 relatedUseCases:
   - "cost-optimization"
   - "security-monitoring"
+relatedComparisons:
+  - "new-relic"
+  - "splunk"
+  - "sumo-logic"
 keywords:
   - "Datadog alternative"
   - "Datadog vs LogTide"

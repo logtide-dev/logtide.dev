@@ -6,7 +6,7 @@ competitorUrl: "https://aws.amazon.com/cloudwatch/"
 brandIcon: "simple-icons:amazonwebservices"
 competitorPricing: "$0.50/GB ingestion + $0.03/GB/month storage"
 logtidePricing: "Free (self-hosted)"
-migrationDoc: "/docs/migration/cloudwatch/"
+migrationDoc: "/docs/migration/"
 highlights:
   - "80-90% cost savings"
   - "No AWS lock-in"
@@ -19,6 +19,10 @@ relatedIntegrations:
 relatedUseCases:
   - "cost-optimization"
   - "gdpr-compliance"
+relatedComparisons:
+  - "gcp-cloud-logging"
+  - "azure-monitor"
+  - "datadog"
 keywords:
   - "CloudWatch alternative"
   - "AWS CloudWatch alternative"
@@ -34,7 +38,7 @@ faqs:
   - question: "When is AWS CloudWatch the better choice over LogTide?"
     answer: "CloudWatch is the better fit when you run entirely on AWS, rely heavily on Lambda (which logs to CloudWatch automatically with zero configuration), or keep log volume under 10 GB/day where the cost difference is small. Its native integration with EC2, ECS, RDS, and API Gateway also eliminates any agent setup."
   - question: "How do I migrate from CloudWatch Logs to LogTide?"
-    answer: "The recommended path is a parallel run: first ship logs to both platforms via the LogTide SDK or a CloudWatch subscription filter forwarded by a Lambda function, then compare results for 1-2 weeks, and finally cut over by pointing applications directly to LogTide and reducing CloudWatch retention. A full migration guide is available at /docs/migration/cloudwatch/."
+    answer: "The recommended path is a parallel run: first ship logs to both platforms via the LogTide SDK or a CloudWatch subscription filter forwarded by a Lambda function, then compare results for 1-2 weeks, and finally cut over by pointing applications directly to LogTide and reducing CloudWatch retention. See the migration overview at /docs/migration/ for the general step-by-step process."
 ---
 
 AWS CloudWatch Logs is the default log management service for AWS workloads. LogTide is a self-hosted, open-source log management platform with built-in SIEM. Here's an honest comparison.

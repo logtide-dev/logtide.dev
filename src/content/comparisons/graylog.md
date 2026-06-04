@@ -18,6 +18,10 @@ relatedIntegrations:
 relatedUseCases:
   - "security-monitoring"
   - "incident-response"
+relatedComparisons:
+  - "elk-stack"
+  - "splunk"
+  - "grafana-loki"
 keywords:
   - "Graylog alternative"
   - "Graylog vs LogTide"
