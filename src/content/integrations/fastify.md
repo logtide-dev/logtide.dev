@@ -21,6 +21,15 @@ keywords:
   - "fastify plugin logging"
   - "fastify request tracing"
   - "fastify log management"
+faqs:
+  - question: "How do I integrate LogTide with a Fastify application?"
+    answer: "Install @logtide/fastify and register the plugin with await fastify.register(logtide, { dsn, service, environment }). The plugin follows Fastify plugin conventions and hooks into the lifecycle automatically — no extra configuration is required to start capturing request logs."
+  - question: "Which Fastify lifecycle hooks does LogTide use?"
+    answer: "The plugin hooks into onRequest to create a scoped context and extract the traceparent header, onResponse to log the completed request with duration and status code, onError to capture exceptions with full request context, and onClose to flush any pending log events on server shutdown."
+  - question: "Does LogTide replace Fastify built-in pino logging?"
+    answer: "LogTide operates alongside Fastify's built-in pino logger rather than replacing it. You can keep pino for local development output while LogTide ships structured logs to your self-hosted LogTide instance for centralised search and alerting."
+  - question: "How does per-request scoping work in the Fastify plugin?"
+    answer: "Each request receives an isolated scope accessible via request.logtideScope. You can call setTag() and setExtra() on it inside routes or hooks, and those values are included only on log events produced during that request — they do not leak into other concurrent requests."
 ---
 
 LogTide's Fastify SDK provides a native plugin that hooks into Fastify's lifecycle for automatic request logging, per-request scoping, and distributed tracing.

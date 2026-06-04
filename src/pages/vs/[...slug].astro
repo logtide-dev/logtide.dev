@@ -74,6 +74,7 @@ try {
   breadcrumbs={seoBreadcrumbs}
   datePublished={datePublishedISO}
   dateModified={dateModifiedISO}
+  faqs={entry.data.faqs}
 >
   <!-- Navigation breadcrumb -->
   <nav class="mb-6" aria-label="Breadcrumb">
@@ -140,6 +141,7 @@ try {
   <RelatedContent
     integrations={entry.data.relatedIntegrations}
     useCases={entry.data.relatedUseCases}
+    comparisons={entry.data.relatedComparisons}
   />
 
   <!-- Edit Link -->

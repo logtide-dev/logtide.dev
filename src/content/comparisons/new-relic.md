@@ -1,6 +1,6 @@
 ---
 title: "LogTide vs New Relic for Log Management"
-description: "Compare LogTide and New Relic for log management. Self-hosted vs SaaS, pricing, SIEM capabilities, and migration path."
+description: "LogTide vs New Relic: self-hosted, open-source log management with built-in SIEM and no per-user pricing. Save 90%+ beyond New Relic's 100 GB free tier."
 competitor: "New Relic"
 competitorUrl: "https://newrelic.com/"
 brandIcon: "simple-icons:newrelic"
@@ -18,6 +18,10 @@ relatedIntegrations:
 relatedUseCases:
   - "cost-optimization"
   - "security-monitoring"
+relatedComparisons:
+  - "datadog"
+  - "better-stack"
+  - "sumo-logic"
 keywords:
   - "New Relic alternative"
   - "New Relic vs LogTide"
@@ -25,6 +29,15 @@ keywords:
   - "New Relic cost"
   - "open source log management"
   - "New Relic pricing alternative"
+faqs:
+  - question: "Is LogTide cheaper than New Relic for logs?"
+    answer: "New Relic includes 100 GB/month free, then charges about $0.35/GB ingested. Beyond the free tier, self-hosting LogTide saves 90%+ at scale because you pay for infrastructure rather than per-GB ingestion and per-user seats."
+  - question: "Does LogTide have per-user pricing like New Relic?"
+    answer: "No. LogTide is self-hosted and free with unlimited users. There are no full-platform or core-user seat charges — a frequent source of surprise costs on New Relic."
+  - question: "Can LogTide replace New Relic's log security features?"
+    answer: "Yes for logs — LogTide ships built-in SIEM with Sigma detection rules and MITRE ATT&CK mapping at no extra cost. New Relic remains broader for APM and full-stack observability beyond log management."
+  - question: "How hard is it to switch from New Relic to LogTide?"
+    answer: "Re-point your log forwarders (Fluent Bit, Vector, OpenTelemetry) to LogTide's HTTP endpoint, validate in parallel, then disable New Relic log ingestion. Application code generally needs no changes."
 ---
 
 New Relic is a popular SaaS observability platform offering metrics, traces, and logs in a unified experience. LogTide is a self-hosted, open-source log management platform with built-in SIEM capabilities. Here's an honest comparison to help you decide which fits your needs.

@@ -28,6 +28,15 @@ keywords:
   - "on-call"
   - "incident management"
   - "observability"
+faqs:
+  - question: "How does LogTide help reduce MTTR during incidents?"
+    answer: "LogTide reduces MTTR by giving on-call engineers a single place to search structured logs with correlation IDs, so they can trace a failing request across every service in seconds instead of grepping through fragmented log files. Structured events with consistent fields and alert-driven detection mean issues are surfaced and triaged faster."
+  - question: "What is request correlation and why does it matter for incident response?"
+    answer: "Request correlation assigns a unique trace ID to every incoming request and forwards it through every downstream service call. During an incident, a single query like trace_id:abc-123 in LogTide instantly shows the complete timeline of that request across all services, eliminating the 30+ minutes teams typically spend reconstructing what happened."
+  - question: "Does LogTide support post-mortem workflows?"
+    answer: "Yes. LogTide stores structured, timestamped log events that you can query by trace ID and time range to reconstruct an exact incident timeline. This data feeds directly into post-mortem documents and helps teams identify detection gaps and implement improvements."
+  - question: "Can LogTide alert on-call engineers when errors spike in production?"
+    answer: "Yes. LogTide supports threshold-based alert rules that fire on error counts, log patterns, or health check failures within configurable time windows. Alerts are delivered via email or webhook, enabling routing to Slack, PagerDuty, or any on-call tool."
 ---
 
 When production breaks at 3 AM, the difference between a 5-minute fix and a 3-hour outage comes down to one thing: can you find the relevant logs fast enough? This guide shows how to structure your logging for rapid incident response with LogTide.

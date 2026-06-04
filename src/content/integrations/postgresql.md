@@ -20,6 +20,15 @@ keywords:
   - "postgresql monitoring"
   - "database observability"
   - "postgres error tracking"
+faqs:
+  - question: "How do I send PostgreSQL logs to LogTide?"
+    answer: "Configure PostgreSQL to write logs in CSV format by setting log_destination to csvlog in postgresql.conf, then deploy Fluent Bit with the provided configuration to tail the CSV log files and forward them to LogTide via the HTTP output plugin using your API key."
+  - question: "Will enabling PostgreSQL logging affect database performance?"
+    answer: "Basic logging and slow query logging (log_min_duration_statement) add less than 1% CPU overhead and around 2-5% I/O overhead. Logging all statements raises overhead significantly to 5-10% CPU and 20-30% I/O, so it is not recommended for production unless debugging a specific issue."
+  - question: "What threshold should I set for slow query logging?"
+    answer: "The guide recommends setting log_min_duration_statement to 500, which logs any query taking longer than 500 milliseconds. You can alert in LogTide on queries over 5000 milliseconds using the filter service:postgresql AND duration_ms:>5000."
+  - question: "Can I use LogTide with PostgreSQL alongside pgAudit for compliance?"
+    answer: "Yes. You can install the pgAudit extension and configure pgaudit.log to capture DDL, role, and write operations. Fluent Bit ships these audit log entries to LogTide in the same structured format, giving you a full compliance and audit trail alongside your operational logs."
 ---
 
 PostgreSQL generates valuable operational data: slow queries, connection errors, and checkpoint statistics. This guide shows you how to collect PostgreSQL logs and ship them to LogTide for analysis and alerting.

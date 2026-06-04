@@ -23,6 +23,15 @@ keywords:
   - "message queue logging"
   - "rabbitmq dead letter"
   - "rabbitmq cluster monitoring"
+faqs:
+  - question: "How do I forward RabbitMQ server logs to LogTide?"
+    answer: "Enable JSON structured logging in rabbitmq.conf by setting log.file.formatter to json, then run Fluent Bit with the tail input pointed at /var/log/rabbitmq/rabbit.log and the HTTP output configured with your LogTide API key. RabbitMQ 3.9 or later is required for native JSON log formatting."
+  - question: "How can I monitor dead letter queues with LogTide?"
+    answer: "Deploy the provided dead-letter-monitor TypeScript service, which connects to your dead-letters queue via amqplib, reads failed messages, and ships each one as a structured log event with the original queue, death reason, and routing key to LogTide via the HTTP ingest API."
+  - question: "Can I collect RabbitMQ queue depth and consumer metrics, not just text logs?"
+    answer: "Yes. The guide provides a Python metrics collector that queries the RabbitMQ Management HTTP API every 30 seconds to collect queue depth, consumer count, publish rate, and node health, then ships those as structured log events to LogTide. The management plugin must be enabled."
+  - question: "What is the performance overhead of adding LogTide monitoring to RabbitMQ?"
+    answer: "JSON log formatting adds less than 1% overhead compared to the default format. The Python metrics collector uses around 30 MB of memory and under 1% CPU when running every 30 seconds, and the dead letter monitor uses around 20 MB as a Node.js AMQP consumer."
 ---
 
 RabbitMQ is a widely used message broker that sits at the heart of event-driven architectures. When queues back up, consumers crash, or messages land in dead letter exchanges, you need centralized visibility. This guide shows you how to forward RabbitMQ server logs, queue metrics, consumer patterns, and dead letter events to LogTide.

@@ -18,6 +18,10 @@ relatedIntegrations:
 relatedUseCases:
   - "security-monitoring"
   - "incident-response"
+relatedComparisons:
+  - "elk-stack"
+  - "splunk"
+  - "grafana-loki"
 keywords:
   - "Graylog alternative"
   - "Graylog vs LogTide"
@@ -25,6 +29,15 @@ keywords:
   - "open source log management"
   - "Graylog replacement"
   - "self-hosted log management"
+faqs:
+  - question: "Is LogTide cheaper to run than Graylog?"
+    answer: "Both tools are free open-source software, but infrastructure costs differ dramatically. Graylog requires Elasticsearch (3 nodes), MongoDB, and a JVM-based server, totalling 30-60 GB of RAM. LogTide runs on 6-12 GB total, saving roughly 60-80% on infrastructure. For a 50 GB/day workload, LogTide infrastructure costs around $250/month versus ~$700/month for Graylog Open — and if you need SIEM, Graylog Security adds $1,550+/month more."
+  - question: "Does LogTide include SIEM features that Graylog locks behind a paid tier?"
+    answer: "Yes. Sigma detection rules, MITRE ATT&CK mapping, and incident management are locked behind the paid Graylog Security tier (from $1,550/month). LogTide includes all of these capabilities in its free, open-source AGPLv3 release with no feature gating."
+  - question: "How do I migrate from Graylog to LogTide?"
+    answer: "Run both systems in parallel using Fluent Bit to fan out logs to both a LogTide HTTP output and your existing Graylog GELF output. For network devices sending native Syslog or GELF, add a Fluent Bit relay that receives those protocols and forwards to LogTide. After 1-2 weeks of validation, redirect all sources to LogTide and decommission the Graylog stack (Elasticsearch, MongoDB, and Graylog Server)."
+  - question: "When is Graylog the better choice over LogTide?"
+    answer: "Graylog is the stronger choice if you already receive logs primarily via Syslog or GELF from network devices and firewalls, need its mature processing pipelines and extractors for complex log transformation, or have an existing team with deep Graylog expertise and established dashboards. If you are already running an Elasticsearch cluster and want to leverage that investment, Graylog integrates naturally."
 ---
 
 Graylog is an established open-source log management platform built on Java, MongoDB, and Elasticsearch (or OpenSearch). LogTide is a modern alternative with simpler architecture, lower resource needs, and built-in SIEM. Both are self-hosted and open-source, so this comparison focuses on architecture, operational complexity, and capabilities.

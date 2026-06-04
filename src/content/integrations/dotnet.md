@@ -24,6 +24,15 @@ keywords:
   - ".net log management"
   - "entity framework logging"
   - "ilogger logtide"
+faqs:
+  - question: "How do I add LogTide to an ASP.NET Core application?"
+    answer: "Install the LogTide.SDK NuGet package with dotnet add package LogTide.SDK, then call builder.Services.AddLogTide() and builder.Logging.AddLogTide() in Program.cs, and add app.UseLogTideMiddleware() to register request logging."
+  - question: "Do I need to rewrite my existing ILogger calls to use LogTide?"
+    answer: "No. LogTide provides an ILogger provider that routes all standard ILogger<T> calls to LogTide automatically, preserving scopes and message templates. Your existing _logger.LogInformation() and _logger.LogError() calls work without modification."
+  - question: "Can LogTide log slow Entity Framework queries in .NET?"
+    answer: "Yes. The guide shows a LogTideDbInterceptor that extends DbCommandInterceptor and logs any query exceeding a configurable threshold, including the SQL text and execution time in milliseconds."
+  - question: "Will adding LogTide noticeably affect ASP.NET Core request performance?"
+    answer: "The middleware overhead is documented as under 1ms per request, the ILogger provider adds under 0.2ms per log entry, and the Entity Framework interceptor adds under 0.5ms per query, all enabled by async batching in the background."
 ---
 
 LogTide's C# SDK integrates with ASP.NET Core's built-in `ILogger` infrastructure, providing structured logging with automatic request tracing, Entity Framework query logging, and dependency injection support. This guide covers middleware setup, the ILogger provider, background services, and production deployment.

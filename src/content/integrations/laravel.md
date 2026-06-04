@@ -22,6 +22,15 @@ keywords:
   - "laravel monolog"
   - "laravel structured logging"
   - "php structured logs"
+faqs:
+  - question: "How do I integrate LogTide with a Laravel application?"
+    answer: "Run composer require logtide/logtide-laravel, then publish the config file with php artisan vendor:publish --tag=logtide-config and add LOGTIDE_DSN to your .env file. Laravel package auto-discovery registers the service provider and facade automatically — no manual setup is required beyond that."
+  - question: "Do I need to change my existing Log::info() calls to use LogTide?"
+    answer: "No. Adding logtide to your logging stack in config/logging.php is all that is needed. Your existing Log::info(), Log::warning(), and Log::error() calls continue to work and their output is forwarded to LogTide alongside any other channels in your stack."
+  - question: "Does the Laravel integration support structured context on log entries?"
+    answer: "Yes. You can pass an associative array as the second argument to any Log:: call (for example Log::info('Order placed', ['order_id' => $order->id])) and those fields are sent to LogTide as structured metadata. You can also use the LogtideFacade to attach tags and breadcrumbs scoped to the current request."
+  - question: "Are database queries, cache events, and queue jobs tracked automatically?"
+    answer: "Yes. The service provider automatically registers breadcrumb integrations for database queries (QueryExecuted events with query and duration), cache hits and misses, and queue job processing. Each integration can be individually toggled in config/logtide.php under the breadcrumbs key."
 ---
 
 The LogTide Laravel package provides a drop-in integration for Laravel 10, 11, and 12 with zero-configuration needed. It auto-registers middleware, a log channel, a Facade, and breadcrumb integrations for database queries, cache events, and queue jobs.

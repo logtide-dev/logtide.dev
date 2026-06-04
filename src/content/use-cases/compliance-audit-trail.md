@@ -27,6 +27,15 @@ keywords:
   - "audit log"
   - "security audit"
   - "compliance evidence"
+faqs:
+  - question: "How does LogTide support SOC2 audit trail requirements?"
+    answer: "LogTide captures structured audit events covering authentication, authorization changes, data access, and configuration modifications — the evidence categories that SOC2 Type II auditors specifically request. Logs are stored in append-only TimescaleDB storage, and retention can be configured per log type to meet the 1-year minimum for most SOC2 controls."
+  - question: "Can LogTide satisfy ISO27001 Annex A logging controls?"
+    answer: "Yes. LogTide addresses ISO27001 controls A.8.15 (event logging), A.8.16 (anomaly monitoring via Sigma rules), A.5.33 (record protection via immutable TimescaleDB storage), and A.5.23 (cloud-service access logging) through its self-hosted, structured audit logging capabilities."
+  - question: "How do I respond to an auditor asking who accessed production systems in the last 90 days?"
+    answer: "With LogTide you can run a single query such as service:audit AND action:auth.* AND time:>90d to retrieve all authentication events within the window. The structured schema captures actor ID, email, role, IP address, and outcome for every event."
+  - question: "Does LogTide prevent log tampering to satisfy integrity requirements?"
+    answer: "Log data is written to TimescaleDB in append-only hypertables, making retroactive modification difficult. Access to the log storage is restricted through role-based controls, and access to the logs themselves can be audited as a meta-audit layer."
 ---
 
 SOC2 and ISO27001 certifications require comprehensive audit trails. This guide shows how to implement compliant logging with LogTide that satisfies auditor requirements and makes evidence collection straightforward.

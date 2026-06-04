@@ -21,6 +21,15 @@ keywords:
   - "vue monitoring"
   - "vue capture errors"
   - "vue global error handler"
+faqs:
+  - question: "How do I send Vue.js errors to LogTide?"
+    answer: "Install @logtide/browser, call initLogtide in main.ts before mounting your app, then assign a function to app.config.errorHandler that calls hub.captureError. This single handler catches all errors thrown inside components, watchers, and lifecycle hooks."
+  - question: "Does LogTide work with both the Composition API and the Options API?"
+    answer: "Yes. You can import hub from @logtide/core and call hub.captureError or hub.addBreadcrumb from any Composition API setup function. In Options API components, the same hub import works directly inside methods, or you can access it via this.$hub if you register it as a plugin."
+  - question: "Does LogTide support performance monitoring for Vue applications?"
+    answer: "Yes. The @logtide/browser SDK automatically tracks Core Web Vitals including LCP, FID, and CLS with no extra setup. Metrics are available in the LogTide Dashboard under the Metrics tab and require no changes to your Vue component tree."
+  - question: "Can I use LogTide alongside my existing Vue error monitoring tool?"
+    answer: "Yes. The LogTide Vue integration is additive: assigning app.config.errorHandler does not remove any existing Vue internal behavior, and the @logtide/browser SDK does not conflict with other monitoring libraries. You can run both in the same app and compare coverage before fully switching."
 ---
 
 LogTide's Vue.js integration provides professional-grade error tracking and performance monitoring for Vue applications. It includes automatic unhandled error capture, Vue global error handlers, and Core Web Vitals collection.

@@ -17,6 +17,10 @@ relatedIntegrations:
 relatedUseCases:
   - "cost-optimization"
   - "security-monitoring"
+relatedComparisons:
+  - "datadog"
+  - "elk-stack"
+  - "graylog"
 keywords:
   - "Splunk alternative"
   - "Splunk vs LogTide"
@@ -24,6 +28,15 @@ keywords:
   - "Splunk replacement"
   - "Splunk cost"
   - "Splunk Enterprise alternative"
+faqs:
+  - question: "How much can I save by switching from Splunk to LogTide?"
+    answer: "For a 50 GB/day workload, Splunk Enterprise licensing plus Enterprise Security and infrastructure typically runs $150,000-350,000 per year. LogTide infrastructure for the same volume costs roughly $4,800/year — a saving of $145,000-345,000/year (97%+). The savings grow as ingest volume increases because LogTide has no per-GB license fee."
+  - question: "Can I use my existing Sigma detection rules in LogTide instead of rewriting SPL?"
+    answer: "Yes. LogTide uses Sigma as its native detection rule format, giving you access to 2,000+ community rules from SigmaHQ out of the box. This contrasts with Splunk, which requires proprietary SPL queries and a separate Splunk Enterprise Security license. Any Sigma rules your team already owns are fully portable to LogTide."
+  - question: "How do I migrate log collection from Splunk Universal Forwarders to LogTide?"
+    answer: "Replace Splunk Universal Forwarders with Fluent Bit, which ships logs to LogTide via its native HTTP ingest API (equivalent to Splunk HEC). SPL saved searches translate to LogTide Alert Rules, and Splunk ES detection logic can be migrated to Sigma rules. A detailed migration guide is available at /docs/migration/splunk/."
+  - question: "When does it make sense to stick with Splunk instead of switching to LogTide?"
+    answer: "Splunk remains the stronger choice if your team has years of institutional SPL expertise and large investments in Splunk apps from Splunkbase, you need the most advanced ML-based correlation available in Splunk ES, you require enterprise-grade vendor SLAs, or your organization is already deeply integrated into the Splunk ecosystem and the switching cost outweighs the licensing savings."
 ---
 
 Splunk is a legacy enterprise log management and SIEM platform. LogTide is a modern, open-source alternative with native Sigma rules support. Here's how they compare.

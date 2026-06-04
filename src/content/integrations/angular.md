@@ -20,6 +20,15 @@ keywords:
   - "angular structured logging"
   - "angular http interceptor logging"
   - "angular error handler"
+faqs:
+  - question: "How do I add LogTide logging to an Angular application?"
+    answer: "Install the @logtide/angular package and call provideLogtide() in your bootstrapApplication providers (Angular 17+ standalone) or spread getLogtideProviders() inside your NgModule providers array. Both approaches require only your DSN, service name, and environment."
+  - question: "Do I need to manually wrap every component to capture errors?"
+    answer: "No. The logtide plugin registers a custom Angular ErrorHandler that automatically captures all uncaught errors across components, services, and templates, including the component name and lifecycle hook where the error occurred."
+  - question: "Does LogTide trace outgoing HTTP requests made with Angular HttpClient?"
+    answer: "Yes. The included HttpInterceptor automatically adds a W3C traceparent header to every outgoing HttpClient request and captures failed requests as errors, with no changes needed to your service code."
+  - question: "Can I send manual log events alongside the automatic error capture?"
+    answer: "Yes. Import hub from @logtide/core anywhere in your application to call hub.captureLog(), hub.captureError(), or hub.addBreadcrumb() for custom events alongside the automatic error and HTTP tracking."
 ---
 
 LogTide's Angular SDK provides a custom ErrorHandler for automatic error capture, an HttpInterceptor for distributed tracing, and providers for both standalone and NgModule-based applications.

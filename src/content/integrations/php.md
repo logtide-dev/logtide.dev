@@ -23,6 +23,15 @@ keywords:
   - "php structured logging"
   - "php observability"
   - "php logging best practices"
+faqs:
+  - question: "How do I send PHP application logs to LogTide?"
+    answer: "Install the SDK with composer require logtide/logtide, call init with your DSN and service name, then use the info, warn, error, and critical functions to emit structured logs. The SDK automatically registers a shutdown function to flush remaining logs when the script ends."
+  - question: "Does the LogTide PHP SDK work with Monolog?"
+    answer: "Yes. The SDK ships with built-in LogtideHandler and BreadcrumbHandler classes that integrate directly with Monolog without any additional package. You can stack them with existing handlers such as StreamHandler or RotatingFileHandler."
+  - question: "Does LogTide support distributed tracing across PHP microservices?"
+    answer: "Yes. The SDK implements W3C Trace Context via the traceparent header. Use continueTrace to pick up an incoming trace and getTraceparent to propagate it to outgoing HTTP requests, linking spans across services."
+  - question: "Can I use LogTide with frameworks like Laravel or Symfony, or does it only work with plain PHP?"
+    answer: "The core SDK works with any PHP 8.1+ application including plain PHP, and dedicated packages are available for Laravel, Symfony, Slim, and WordPress. These framework-specific packages add auto-discovery, Facade support, and framework-native configuration."
 ---
 
 The LogTide PHP SDK provides structured logging for any PHP application, whether you're using a framework or plain PHP. With DSN-based configuration, Hub/Scope architecture, and built-in Monolog handlers, it fits naturally into your existing logging setup.

@@ -26,6 +26,15 @@ keywords:
   - "brute force detection"
   - "security monitoring"
   - "audit logging"
+faqs:
+  - question: "How does LogTide detect security threats like brute force attacks?"
+    answer: "LogTide applies detection rules to incoming log streams in real time, so when your application logs failed login events with source IP, a rule that counts login_failed events grouped by IP over a five-minute window will fire an alert as soon as the threshold is crossed. Built-in Sigma rule support means you can also import community-maintained threat detection rules without writing custom logic."
+  - question: "Is LogTide a viable open-source SIEM alternative?"
+    answer: "LogTide provides core SIEM capabilities including real-time threat detection, Sigma rule support, structured audit trails, and immediate alerting to Slack or PagerDuty, at a fraction of the cost of traditional SIEM solutions. Because it is self-hosted, your security logs never leave your own infrastructure."
+  - question: "What types of security events can LogTide monitor?"
+    answer: "LogTide can monitor authentication events such as login successes and failures, brute force and impossible travel detection, privilege escalation via role changes, API abuse through rate limit violations, SQL injection and XSS attempts, and off-hours admin activity. The structured security logger pattern described in this guide standardises severity levels across all these event types."
+  - question: "How does LogTide support compliance audit trails for SOC2 or ISO27001?"
+    answer: "LogTide stores every security and audit event as a structured, timestamped log record covering who performed an action, what resource was affected, where the request originated, and whether it succeeded. You can configure retention policies per event type, with security events recommended at a minimum of one year, making LogTide suitable as the audit log backbone for compliance frameworks such as SOC2 and ISO27001."
 ---
 
 Traditional SIEM solutions are expensive and complex. LogTide provides the foundation for security monitoring at a fraction of the cost. This guide shows you how to detect threats, monitor for anomalies, and maintain audit trails.

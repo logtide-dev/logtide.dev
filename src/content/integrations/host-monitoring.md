@@ -26,6 +26,15 @@ keywords:
   - "fluent bit metrics"
   - "otlp metrics"
   - "opentelemetry metrics"
+faqs:
+  - question: "What metrics does LogTide collect from a host machine?"
+    answer: "Using the included Fluent Bit configuration, LogTide collects CPU utilisation, user and system CPU percentages, memory usage and total, disk read and write throughput, and network received and transmitted data. All metrics appear under the service name host-system in the Metrics Explorer."
+  - question: "Do I have to use Fluent Bit to send host metrics to LogTide?"
+    answer: "No. LogTide exposes a standard OpenTelemetry OTLP endpoint at /v1/otlp/metrics, so you can use any OTLP-compatible tool such as the OpenTelemetry Collector, Grafana Alloy, Vector, or even application OTel SDKs. Fluent Bit is simply included in the Docker Compose setup for zero-config convenience."
+  - question: "How do I start collecting host metrics with the Docker Compose setup?"
+    answer: "Download fluent-bit-metrics.conf and format_metrics.lua into the same directory as your docker-compose.yml, add your FLUENT_BIT_API_KEY to the .env file, and run docker compose --profile metrics up -d. You can combine it with log collection by starting both the logging and metrics profiles together."
+  - question: "Will host metrics work on macOS or Windows with Docker Desktop?"
+    answer: "System metrics via Fluent Bit require the Linux /proc filesystem and will not reflect the actual host on macOS or Windows Docker Desktop because the container sees the VM's /proc rather than the host. Use the OpenTelemetry Collector with its hostmetrics receiver as an alternative on those platforms."
 ---
 
 Monitor your host machine's health by collecting system metrics and viewing them in the LogTide Metrics Explorer. LogTide accepts metrics via the standard **OpenTelemetry (OTLP)** endpoint, so you can use Fluent Bit (included in Docker Compose), or any OTLP-compatible tool you already have.

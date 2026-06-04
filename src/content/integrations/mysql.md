@@ -24,6 +24,15 @@ keywords:
   - "mariadb logging"
   - "mysql error log"
   - "mysql performance monitoring"
+faqs:
+  - question: "How do I send MySQL slow query logs to LogTide?"
+    answer: "Enable the slow query log in MySQL by setting slow_query_log = 1 and configuring slow_query_log_file, then deploy Fluent Bit with the tail input pointed at /var/log/mysql/slow.log and the HTTP output sending to LogTide using your API key."
+  - question: "What is the performance overhead of enabling MySQL slow query logging?"
+    answer: "According to this guide, slow query logging reduces QPS by approximately 0.5% and adds 0.5% to average query latency, with minimal disk I/O impact. The general query log has significant overhead and should only be used for debugging."
+  - question: "Does LogTide support structured parsing of MySQL error and slow query logs?"
+    answer: "Yes. The Fluent Bit parser configuration in this guide includes regex parsers for both the MySQL error log format and the multi-line slow query log format, extracting fields like level, error_code, user, host, query_time, lock_time, rows_sent, and rows_examined."
+  - question: "Can I use LogTide alongside my existing MySQL setup without changing application code?"
+    answer: "Yes. Log collection is handled entirely by Fluent Bit reading MySQL log files out-of-band, so no application code changes are needed. You can also query the performance_schema with the provided Python script to get aggregated slow query digests."
 ---
 
 MySQL and MariaDB generate slow query logs, error logs, and general query logs that are critical for performance monitoring and security. This guide shows you how to collect, parse, and ship these logs to LogTide using Fluent Bit.

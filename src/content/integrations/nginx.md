@@ -19,6 +19,15 @@ keywords:
   - "nginx error log"
   - "web server logging"
   - "nginx monitoring"
+faqs:
+  - question: "How do I send nginx access logs to LogTide?"
+    answer: "Configure nginx to write JSON-formatted access logs using the log_format directive with escape=json, then deploy Fluent Bit with a tail input reading /var/log/nginx/access.log and the HTTP output sending to your LogTide instance using your API key."
+  - question: "Do I need to change my application code to ship nginx logs to LogTide?"
+    answer: "No. Log collection is handled entirely by nginx and Fluent Bit running out-of-band. You only need to update your nginx configuration to use the JSON log format and set up Fluent Bit as a sidecar or system service."
+  - question: "Does LogTide support structured parsing of nginx logs including request timing?"
+    answer: "Yes. The JSON log format defined in this guide includes fields like request_time, upstream_response_time, status, request_method, and request_uri, all of which become queryable structured fields in LogTide."
+  - question: "Can I use LogTide alongside existing nginx monitoring tools like Prometheus or Datadog?"
+    answer: "Yes. Fluent Bit reads nginx log files independently and forwards them to LogTide without affecting nginx itself or any other monitoring agents. You can run multiple collectors in parallel with no conflict."
 ---
 
 nginx is one of the most popular web servers. This guide shows you how to send nginx access and error logs to LogTide with full structured parsing, enabling powerful queries and alerting.

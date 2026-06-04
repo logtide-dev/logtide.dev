@@ -22,6 +22,15 @@ keywords:
   - "mongodb profiler"
   - "mongodb replica set logs"
   - "mongodb observability"
+faqs:
+  - question: "How do I send MongoDB logs to LogTide?"
+    answer: "Configure MongoDB to write structured JSON logs to a file (MongoDB 4.4+ does this by default), then use Fluent Bit with the tail input to read from /var/log/mongodb/mongod.log and forward to LogTide via the HTTP output plugin using your API key."
+  - question: "Will enabling the MongoDB profiler impact production performance?"
+    answer: "Using slowOp profiling mode (which only logs operations exceeding the slowOpThresholdMs threshold) adds roughly 0.4% overhead on QPS and about 1% to average latency based on the figures in this guide. Avoid level 2 profiling, which logs all operations and carries significant overhead."
+  - question: "Does LogTide support MongoDB structured JSON log format?"
+    answer: "Yes. MongoDB 4.4+ outputs structured JSON logs by default, and the Fluent Bit configuration in this guide uses a JSON parser to parse them directly. A Lua script maps MongoDB severity codes (F, E, W, I, D) to standard log levels."
+  - question: "Can I monitor MongoDB replica set events alongside application logs in LogTide?"
+    answer: "Yes. Set the replication verbosity to 1 in mongod.conf and Fluent Bit will forward those events to LogTide tagged as mongodb.log. You can then create detection rules that alert on election, stepDown, or replSetReconfig messages."
 ---
 
 MongoDB 4.4+ outputs structured JSON logs by default, making it straightforward to ship to LogTide. This guide covers log collection with Fluent Bit, profiler configuration for slow operations, and replica set event monitoring.

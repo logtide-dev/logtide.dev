@@ -23,6 +23,15 @@ keywords:
   - "kafka fluent bit"
   - "log streaming kafka"
   - "high volume logging"
+faqs:
+  - question: "Why should I use Kafka as a log transport layer in front of LogTide?"
+    answer: "Kafka acts as a durable buffer between your applications and LogTide, absorbing traffic bursts without blocking application code. It provides at-least-once delivery with disk persistence, the ability to replay logs by resetting consumer offsets, and fanout so the same stream can feed LogTide, S3 archival, and real-time alerting simultaneously."
+  - question: "How do I ship logs from Kafka into LogTide?"
+    answer: "The recommended approach is to run Fluent Bit as a Kafka consumer using its built-in kafka input plugin, then configure an http output that posts to your LogTide instance at /api/v1/ingest/single with your API key in the X-API-Key header. Alternatively you can write a custom Node.js or Python consumer that batches records and posts them to /api/v1/ingest/batch."
+  - question: "Does LogTide support structured JSON logs coming through Kafka?"
+    answer: "Yes. Both the Fluent Bit consumer and the example Node.js and Python producers serialize log events as JSON. As long as each message includes the expected fields (level, message, service, timestamp), LogTide ingests and indexes them as fully structured log events."
+  - question: "Can I use Redpanda instead of Apache Kafka with this setup?"
+    answer: "Yes. The guide explicitly lists Redpanda as a Kafka-compatible alternative. Because Redpanda implements the Kafka protocol, the same Fluent Bit configuration, producer code, and consumer setup work without changes."
 ---
 
 When you're generating millions of log events per second, shipping directly to LogTide may not be enough. Apache Kafka acts as a durable buffer between your applications and LogTide, providing backpressure handling, replay capability, and multi-consumer fanout. This guide shows you how to build a Kafka-backed log pipeline.

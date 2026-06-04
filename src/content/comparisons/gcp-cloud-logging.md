@@ -1,6 +1,6 @@
 ---
 title: "LogTide vs Google Cloud Logging"
-description: "Compare LogTide and Google Cloud Logging for log management. Self-hosted vs GCP-native, pricing, and data ownership."
+description: "LogTide vs Google Cloud Logging: self-hosted, open-source log management with built-in SIEM. Cut GCP logging costs ~73% beyond the 50 GiB free tier."
 competitor: "Google Cloud Logging"
 competitorUrl: "https://cloud.google.com/logging"
 brandIcon: "simple-icons:googlecloud"
@@ -18,6 +18,10 @@ relatedIntegrations:
 relatedUseCases:
   - "cost-optimization"
   - "gdpr-compliance"
+relatedComparisons:
+  - "aws-cloudwatch"
+  - "azure-monitor"
+  - "datadog"
 keywords:
   - "Google Cloud Logging alternative"
   - "GCP logging alternative"
@@ -25,6 +29,15 @@ keywords:
   - "self-hosted GCP logging"
   - "Stackdriver alternative"
   - "GCP log management cost"
+faqs:
+  - question: "Is LogTide cheaper than Google Cloud Logging?"
+    answer: "Beyond GCP's 50 GiB/month free tier, Cloud Logging charges $0.50/GiB. At 100 GiB/day, LogTide on a GCE instance costs roughly $450/month versus about $1,675/month for Cloud Logging plus Log Analytics — around 73% less, or ~$14,700/year saved."
+  - question: "Can I migrate from Cloud Logging to LogTide without losing data?"
+    answer: "Yes. Use Cloud Logging's Log Router to forward logs to LogTide through a Pub/Sub sink, run both in parallel to validate, then reduce Cloud Logging retention to minimize cost. No re-instrumentation of your apps is required."
+  - question: "Does LogTide include SIEM like Chronicle?"
+    answer: "Yes. LogTide ships Sigma detection rules and MITRE ATT&CK mapping at no extra cost. Cloud Logging has no native SIEM — you would need Chronicle or a third-party tool, both billed separately."
+  - question: "When is Google Cloud Logging the better choice?"
+    answer: "Under ~50 GiB/month it is effectively free, and it auto-collects logs from GKE, Cloud Run and other GCP services with zero setup. If you run exclusively on GCP at low volume and don't want to manage infrastructure, Cloud Logging wins."
 ---
 
 Google Cloud Logging (formerly Stackdriver) is GCP's native log management service. LogTide is a self-hosted, open-source alternative with built-in SIEM. Here's how they compare.

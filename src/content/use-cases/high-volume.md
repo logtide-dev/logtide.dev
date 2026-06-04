@@ -28,6 +28,15 @@ keywords:
   - "log ingestion performance"
   - "log pipeline architecture"
   - "log retention strategy"
+faqs:
+  - question: "Can LogTide handle high log volume at scale?"
+    answer: "Yes. LogTide supports sustained ingestion of 1 million or more events per second using a Kafka buffer layer, horizontally scaled ingestion workers, and TimescaleDB hypertables for storage. A real-world gaming platform example in the documentation demonstrates 500,000 events per second with a p99 ingestion latency of 200ms."
+  - question: "How does LogTide prevent log loss during traffic bursts?"
+    answer: "LogTide recommends placing Apache Kafka between your application SDKs and the LogTide ingesters. Kafka absorbs burst traffic so that temporary slowdowns in ingestion do not cause backpressure or dropped events in your application. The SDK also provides configurable in-memory queues with a maxQueueSize limit to protect application memory."
+  - question: "How do I reduce storage costs at high log volume with LogTide?"
+    answer: "LogTide supports tiered retention: recent data (hot tier) stays in TimescaleDB on fast SSD, older data moves to compressed chunks (warm tier), and archival data is offloaded to object storage such as S3 (cold tier). At 100 GB/day this tiered approach costs roughly $123 per month in storage versus approximately $1,000 per month for keeping everything in hot storage."
+  - question: "What SDK settings should I tune for high-throughput logging?"
+    answer: "For high-volume workloads, increase batchSize to 500 or more, reduce flushInterval to 1-2 seconds, enable gzip compression, and raise maxQueueSize to accommodate burst traffic. Filtering out debug logs in production and sampling high-frequency successful requests at a low rate (such as 1%) are also strongly recommended to control storage growth."
 ---
 
 When your systems generate millions of log events per second, naive logging approaches fail. Buffers overflow, disks fill up, and your observability pipeline becomes a liability. This guide covers the architecture and configuration patterns for handling high-volume log workloads with LogTide.

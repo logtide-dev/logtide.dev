@@ -20,6 +20,15 @@ keywords:
   - "go structured logging"
   - "opentelemetry go"
   - "net/http middleware"
+faqs:
+  - question: "How do I send Go application logs to LogTide?"
+    answer: "Run go get github.com/logtide-dev/logtide-sdk-go, then call logtide.Init() with your DSN and service name. Use logtide.Info(), logtide.Error(), and similar functions, and defer the returned flush function to ensure buffered logs are flushed on shutdown."
+  - question: "Does the Go SDK support structured log metadata?"
+    answer: "Yes. Every log call accepts a map[string]any as its third argument, which is sent as structured JSON metadata alongside the service name, message, and log level."
+  - question: "How do I add LogTide logging to a Go HTTP server without changing every handler?"
+    answer: "Use the built-in net/http middleware by wrapping your mux with lnethttp.Middleware(mux). It handles scope isolation, HTTP tagging, and breadcrumbs per request automatically."
+  - question: "Does LogTide integrate with OpenTelemetry in Go?"
+    answer: "Yes. If an active OpenTelemetry span is present in the context passed to a log call, the SDK automatically extracts and attaches the trace_id and span_id to the log entry."
 ---
 
 Send structured logs from any Go application to LogTide using the official SDK. It handles batching, retries, and circuit breaking automatically.

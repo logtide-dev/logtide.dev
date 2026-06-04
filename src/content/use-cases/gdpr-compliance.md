@@ -24,6 +24,15 @@ keywords:
   - "data protection"
   - "compliant logging"
   - "EU data residency"
+faqs:
+  - question: "Is LogTide GDPR-compliant?"
+    answer: "LogTide is designed with privacy-first principles including pseudonymization helpers, configurable retention with automatic deletion, and a self-hosted deployment model that lets you keep all log data within your own EU infrastructure. This makes it significantly easier to meet GDPR obligations than using SaaS logging platforms where data leaves your control."
+  - question: "How does LogTide handle EU data residency for logs?"
+    answer: "Because LogTide is self-hosted, you choose where it runs. Deploying on EU infrastructure means log data never leaves your jurisdiction, removing the need for Standard Contractual Clauses or other data-transfer mechanisms required when sending logs to non-EU SaaS providers."
+  - question: "How does LogTide support the GDPR right to erasure?"
+    answer: "LogTide recommends pseudonymizing personal identifiers such as user IDs and email addresses with one-way HMAC hashes at log time. For complete erasure requests, pseudonymized identifiers can be searched and deleted via the LogTide deletion API, and the deletion event itself is logged as an audit trail."
+  - question: "How do I avoid logging personal data by accident with LogTide?"
+    answer: "The guide provides a PrivacyLogger wrapper that automatically sanitizes known PII fields before they reach LogTide: emails are replaced with HMAC hashes, IP addresses are truncated to remove the last octet, user IDs are pseudonymized, and sensitive fields like passwords and tokens are dropped entirely."
 ---
 
 GDPR compliance isn't just about consent forms—it extends to how you collect, store, and process log data. This guide shows you how to implement privacy-first logging with LogTide.

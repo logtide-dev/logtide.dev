@@ -22,6 +22,15 @@ keywords:
   - "aiohttp logging"
   - "python sdk"
   - "logtide python"
+faqs:
+  - question: "How do I send Python logs to LogTide?"
+    answer: "Install the SDK with pip install logtide-sdk, create a LogTideClient with your API URL and key, then call methods like client.info() or client.error() with a service name, message, and optional metadata dict or Exception object."
+  - question: "Can I use LogTide with my existing Python stdlib logging setup?"
+    answer: "Yes. LogTideHandler is a standard logging.Handler that you can add to any existing logger with logger.addHandler(). No changes to the rest of your logging configuration are required."
+  - question: "Does the Python SDK support structured and async logging?"
+    answer: "Yes. Every log call accepts a metadata dict (or Exception) that is sent as structured JSON. For async applications, AsyncLogTideClient uses aiohttp and is installed via pip install logtide-sdk[async]."
+  - question: "Will LogTide slow down or crash my Python application if it becomes unreachable?"
+    answer: "No. The SDK uses automatic batching and a circuit breaker pattern: if LogTide is unreachable after a configurable number of consecutive failures, logs are silently dropped rather than blocking your application."
 ---
 
 The LogTide Python SDK provides structured logging with automatic batching, sync and async clients, stdlib `logging` integration, payload limits, and middleware for Flask, Django, FastAPI, and Starlette.

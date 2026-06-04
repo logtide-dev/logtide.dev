@@ -17,6 +17,10 @@ relatedIntegrations:
 relatedUseCases:
   - "security-monitoring"
   - "incident-response"
+relatedComparisons:
+  - "elk-stack"
+  - "signoz"
+  - "graylog"
 keywords:
   - "Loki alternative"
   - "Grafana Loki vs LogTide"
@@ -24,6 +28,15 @@ keywords:
   - "Loki full-text search"
   - "self-hosted log management"
   - "Loki SIEM alternative"
+faqs:
+  - question: "Does LogTide support full-text search, unlike Grafana Loki?"
+    answer: "Yes. Loki indexes only labels and requires regex scanning across log chunks to search message content, which is slow and resource-intensive at scale. LogTide indexes both labels and log content, so any text search with the q parameter returns results instantly without scanning raw chunks."
+  - question: "Does LogTide include SIEM and alerting without needing Grafana?"
+    answer: "Yes. Loki ships no UI, no alerting engine, and no security detection — you must add Grafana for dashboards and AlertManager for alerts. LogTide bundles its own web UI, native alert rules, Sigma detection rules, MITRE ATT&CK mapping, and incident management in a single Docker Compose stack."
+  - question: "When is Grafana Loki the better choice over LogTide?"
+    answer: "Loki is the better fit when you already run Grafana for metrics (Prometheus, Mimir) and want logs in the same familiar interface, when you primarily filter by labels and rarely need content search, or when you need Kubernetes-native pod log collection with minimal overhead. Its label-only indexing also makes it extremely cost-efficient for very high volumes where content search is not required."
+  - question: "How do I migrate from Grafana Loki to LogTide?"
+    answer: "Because both Loki and LogTide support Fluent Bit and OpenTelemetry, migration is straightforward: reconfigure your Promtail or Fluent Bit outputs to point at the LogTide HTTP ingest endpoint, translate your LogQL label selectors and regex filters to LogTide REST API parameters (see the query mapping table on this page), and recreate your Grafana alerting rules as LogTide native alert rules. A full migration guide is at /docs/migration/loki/."
 ---
 
 Grafana Loki and LogTide are both open-source log management tools. Loki excels at lightweight label-based indexing within the Grafana ecosystem. LogTide provides an all-in-one solution with full-text search, built-in alerting, and SIEM capabilities. Here's how they compare.

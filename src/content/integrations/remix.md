@@ -22,6 +22,15 @@ keywords:
   - "remix loader logging"
   - "remix action logging"
   - "remix observability"
+faqs:
+  - question: "How do I add LogTide logging to a Remix application?"
+    answer: "Install @logtide/node, create a logtide.server.ts file using the .server.ts suffix so it is excluded from the client bundle, initialize LogTideClient with your DSN, then call logtide.info or logtide.error directly inside your loader and action functions."
+  - question: "Do I need to change every loader and action to get request logging?"
+    answer: "No. You can add automatic request logging to all routes by instrumenting entry.server.tsx, which captures the method, path, status code, and duration for every server-rendered request. For per-route control the guide also provides a withLogging wrapper you can apply selectively."
+  - question: "How does LogTide handle logs from nested Remix route loaders?"
+    answer: "Remix runs nested route loaders in parallel, so logs can appear out of order. The recommended pattern is to generate or propagate a traceId from the x-trace-id request header in each loader and include it in every log call, allowing you to filter by traceId in LogTide to reconstruct a full page load."
+  - question: "What is the performance overhead of LogTide in a Remix application?"
+    answer: "Each log call adds under 0.5 milliseconds of overhead, memory usage increases by approximately 8 MB, and logs are shipped in batches of up to 100 per network request using async shipping so SSR response times are not affected."
 ---
 
 Remix runs loaders and actions on the server, making it a natural fit for structured logging. This guide shows you how to add LogTide to Remix for automatic request tracing, loader/action logging, and error boundary capture.

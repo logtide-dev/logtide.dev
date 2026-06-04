@@ -20,6 +20,15 @@ keywords:
   - "sveltekit error tracking"
   - "sveltekit hooks logging"
   - "svelte server logging"
+faqs:
+  - question: "How do I add LogTide to a SvelteKit application?"
+    answer: "Install @logtide/sveltekit, then export logtideHandle and logtideHandleError from src/hooks.server.ts, passing your DSN, service name, and environment. For client-side error capture, export logtideHandleError from src/hooks.client.ts as well."
+  - question: "Can I use LogTide alongside my existing SvelteKit hooks?"
+    answer: "Yes. Use SvelteKit's built-in sequence helper from @sveltejs/kit/hooks to compose logtideHandle with your other handle functions. The LogTide handle can be placed first in the sequence so it captures request context before your custom logic runs."
+  - question: "Does LogTide capture errors from SvelteKit form actions?"
+    answer: "Yes. Inside form action handlers you can call hub.captureError to capture exceptions and hub.addBreadcrumb to record form submission events. These are sent to LogTide with the action context so you can trace which form and route triggered the error."
+  - question: "Does LogTide instrument outgoing fetch calls in SvelteKit load functions?"
+    answer: "Yes. Export logtideHandleFetch from src/hooks.server.ts to automatically add traceparent headers to outgoing fetch requests made inside server load functions, enabling distributed trace propagation to downstream services."
 ---
 
 LogTide's SvelteKit SDK integrates through SvelteKit's hooks system — `handle`, `handleError`, and `handleFetch` — with support for both server-side and client-side error capture.

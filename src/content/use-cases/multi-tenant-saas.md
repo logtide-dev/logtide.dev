@@ -24,6 +24,15 @@ keywords:
   - "per-customer analytics"
   - "b2b logging"
   - "tenant context"
+faqs:
+  - question: "How does LogTide enforce per-tenant log isolation in a multi-tenant SaaS?"
+    answer: "LogTide stores a tenant_id field on every log entry, which is injected automatically by tenant-aware middleware using AsyncLocalStorage. This means every query, dashboard, and API endpoint can be scoped to a single tenant, and tenants accessing their own log data through your admin API will only ever see their own records."
+  - question: "Can individual tenants access their own logs through LogTide?"
+    answer: "Yes. You can expose a tenant-facing API endpoint that queries LogTide filtered by the authenticated tenant_id, strips internal fields before returning results, and gives enterprise customers full visibility into their own activity without exposing other tenants data."
+  - question: "Does LogTide support cross-tenant analytics for platform operators?"
+    answer: "Yes. Because every log entry carries tenant_id and tenant_plan, platform operators can aggregate across all tenants to find the highest error rates, heaviest API consumers, and slowest tenants. This same data supports cost allocation and chargeback reporting per tenant plan."
+  - question: "How should background jobs be handled in a multi-tenant logging setup?"
+    answer: "Background jobs run outside of HTTP request context, so tenant context must be set manually before the job runs. The recommended approach is to load the tenant details from the job payload and wrap the job execution inside a tenantStorage.run call so all log entries produced by that job are automatically tagged with the correct tenant_id."
 ---
 
 Multi-tenant SaaS applications need logging that respects tenant boundaries while enabling platform-wide observability. This guide shows you how to implement tenant-aware logging with LogTide.

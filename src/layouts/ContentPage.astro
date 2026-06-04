@@ -2,6 +2,7 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import SEO from '../components/SEO.astro';
+import FAQSection from '../components/content/FAQSection.astro';
 import { ClientRouter } from 'astro:transitions';
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
   datePublished?: string | null;
   dateModified?: string | null;
   keywords?: string[];
+  faqs?: Array<{ question: string; answer: string }>;
 }
 
 const {
@@ -21,7 +23,8 @@ const {
   breadcrumbs = [],
   datePublished = null,
   dateModified = null,
-  keywords = []
+  keywords = [],
+  faqs = []
 } = Astro.props;
 
 const SITE_URL = 'https://logtide.dev';
@@ -42,6 +45,7 @@ const defaultOgImage = ogImage || `${SITE_URL}/docs/images/sections/guides.png`;
       datePublished={datePublished}
       dateModified={dateModified}
       keywords={keywords}
+      faqs={faqs}
     />
     <meta name="theme-color" content="#7c3aed" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
@@ -74,6 +78,7 @@ const defaultOgImage = ogImage || `${SITE_URL}/docs/images/sections/guides.png`;
     <main class="content-page">
       <div class="content-container mx-auto max-w-4xl px-6 py-12">
         <slot />
+        <FAQSection faqs={faqs} />
       </div>
     </main>
 

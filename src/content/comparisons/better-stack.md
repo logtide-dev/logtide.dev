@@ -17,6 +17,10 @@ relatedIntegrations:
 relatedUseCases:
   - "cost-optimization"
   - "real-time-alerting"
+relatedComparisons:
+  - "datadog"
+  - "new-relic"
+  - "grafana-loki"
 keywords:
   - "Better Stack alternative"
   - "Logtail alternative"
@@ -24,6 +28,15 @@ keywords:
   - "Betterstack cost"
   - "self-hosted log management"
   - "Logtail replacement"
+faqs:
+  - question: "Is LogTide cheaper than Better Stack (Logtail)?"
+    answer: "For most teams, yes. A startup ingesting 50 GB/day with 8 users pays around $675/month on Better Stack ($375 data + $200 seats + $100 extended retention), versus roughly $250/month on LogTide infrastructure — saving about $5,100/year (63%). At 200 GB/day with 15 users the saving grows to around $21,300/year (82%), because LogTide has no per-user fees and no per-GB charges."
+  - question: "Does LogTide support self-hosting, unlike Better Stack?"
+    answer: "Yes. Better Stack is a SaaS-only platform with no self-hosted option. LogTide is open-source (AGPLv3) and runs on your own infrastructure — on-premises, in your cloud VPC, or in an air-gapped environment — giving you full data sovereignty and GDPR compliance without relying on a third-party data processor."
+  - question: "When is Better Stack the better choice over LogTide?"
+    answer: "Better Stack excels when you want zero infrastructure management, polished developer experience, and built-in uptime monitoring or status pages bundled with log management. It is particularly well-suited for small teams (under 5 users) with low log volume (under 5 GB/day) who value fast onboarding over cost savings."
+  - question: "How do I migrate from Better Stack to LogTide?"
+    answer: "Run both platforms in parallel: add the LogTide SDK alongside your existing Better Stack (Logtail) SDK, or use Fluent Bit with two HTTP output blocks to fan logs to both destinations. After 1-2 weeks of validation — comparing search results, alert behavior, and SSE streaming — remove the Better Stack SDK and Fluent Bit output block, then cancel your subscription."
 ---
 
 Better Stack (formerly Logtail) is a modern SaaS log management platform with uptime monitoring and incident management. LogTide is a self-hosted, open-source log management platform with built-in SIEM. Both target developers who want clean, modern tooling -- here's how they compare.

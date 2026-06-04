@@ -22,6 +22,15 @@ keywords:
   - "javascript logging"
   - "typescript logging"
   - "node structured logging"
+faqs:
+  - question: "How do I send Node.js application logs to LogTide?"
+    answer: "Install @logtide/core, call hub.init with your DSN and service name, then use hub.captureLog to emit structured logs at levels like debug, info, warn, error, and critical. Logs are automatically batched and flushed every 5 seconds or after 100 entries by default."
+  - question: "Does the LogTide Node.js SDK support TypeScript?"
+    answer: "Yes. @logtide/core ships with full TypeScript type definitions and works with Node.js 18 or later. Framework-specific packages such as @logtide/express, @logtide/fastify, and @logtide/nextjs are also available and equally typed."
+  - question: "What is the performance overhead of using the LogTide JavaScript SDK?"
+    answer: "According to this guide, the SDK adds approximately 5 MB of memory, less than 1 ms of latency per log call (due to batching), and under 0.1% CPU impact. A single network call is made per batch of up to 100 logs."
+  - question: "Can I automatically capture console.log calls without changing all my existing code?"
+    answer: "Yes. Pass new ConsoleIntegration() in the integrations array when calling hub.init, and the SDK will intercept console.warn and console.error calls and forward them to LogTide automatically."
 ---
 
 The LogTide JavaScript SDK (`@logtide/core`) provides structured logging with DSN-based configuration, automatic batching, distributed tracing (W3C Trace Context), breadcrumbs, and scopes.
