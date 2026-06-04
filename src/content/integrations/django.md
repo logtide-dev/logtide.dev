@@ -24,6 +24,15 @@ keywords:
   - "django request tracing"
   - "django celery logging"
   - "django audit log"
+faqs:
+  - question: "How do I add LogTide logging to a Django application?"
+    answer: "Install the SDK with pip install logtide-sdk[django], create a LogTideClient in settings.py, and add logtide_sdk.middleware.LogTideDjangoMiddleware near the top of your MIDDLEWARE list. Each request is then logged automatically with method, path, status code, and duration."
+  - question: "Do I need to change my Django views to get request logging?"
+    answer: "No. LogTideDjangoMiddleware hooks into Django's middleware system and logs every request and response automatically. You only need to call client methods explicitly in views when you want additional context beyond what the middleware captures."
+  - question: "Does LogTide support Celery task logging in Django projects?"
+    answer: "Yes. You can connect LogTide to Celery signals such as task_prerun, task_postrun, and task_failure, and pass a trace_id from the originating request to your tasks so that async work is traceable back to the request that triggered it."
+  - question: "Can I use LogTide alongside Django's built-in LOGGING configuration?"
+    answer: "Yes. LogTideHandler is a standard logging.Handler and can be added to Django loggers either programmatically or via the LOGGING dict in settings.py. The guide recommends using one approach to avoid duplicate log entries."
 ---
 
 LogTide's Python SDK ships a built-in Django middleware that hooks into Django's middleware system for automatic request logging, per-request context, and structured output. This guide covers middleware setup, Celery task logging, admin audit trails, and stdlib logging integration.

@@ -24,6 +24,15 @@ keywords:
   - "spring webflux logging"
   - "kotlin structured logging"
   - "spring boot observability"
+faqs:
+  - question: "How do I integrate LogTide into a Spring Boot application?"
+    answer: "Add the logtide-sdk-kotlin dependency to your Gradle or Maven build, declare a LogTideClient Spring bean in a configuration class annotated with @Configuration, and inject the client into any service or controller to call logtide.info or logtide.error with structured metadata maps."
+  - question: "Does LogTide work with both Kotlin coroutines and traditional Spring MVC?"
+    answer: "Yes. The guide covers both models: for Spring MVC you use a TraceIdFilter extending OncePerRequestFilter with MDC, and for Spring WebFlux or coroutine-based controllers you use a ReactiveTraceFilter and withContext(MDCContext()) to propagate trace IDs across reactive and suspend function boundaries."
+  - question: "Will LogTide logging block my Spring Boot request threads?"
+    answer: "No. The SDK ships logs asynchronously using configurable batching. In production benchmarks at 1000 requests per second, average latency increased by only 2% and P99 latency by 2.4%, with the AsyncAppender ensuring logging never blocks request processing."
+  - question: "Can I use LogTide alongside Spring Boot Actuator?"
+    answer: "Yes. The guide shows how to expose the loggers and health endpoints via Actuator and how to implement a custom LogTideHealthIndicator bean that reports LogTide connectivity status as part of your application health check."
 ---
 
 LogTide integrates with Spring Boot through the native Kotlin SDK, providing structured logging with automatic batching, retry logic, circuit breaker pattern, and seamless integration with Spring's ecosystem.

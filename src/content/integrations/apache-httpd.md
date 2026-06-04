@@ -23,6 +23,15 @@ keywords:
   - "apache log management"
   - "httpd logging"
   - "apache mod_security"
+faqs:
+  - question: "How do I send Apache HTTP Server logs to LogTide?"
+    answer: "Configure a JSON CustomLog format using Apache's built-in LogFormat directive, then run Fluent Bit (or Vector) to tail the log file and forward records to LogTide's HTTP ingest endpoint using your API key. No Apache modules beyond mod_unique_id are required for the basic setup."
+  - question: "Do I need to change my Apache application code to use LogTide?"
+    answer: "No application code changes are needed. All configuration happens in Apache's httpd.conf (or apache2.conf) and in the Fluent Bit or Vector config files. Your existing PHP, Python, or other applications continue to run unchanged."
+  - question: "Does LogTide support structured JSON logs from Apache?"
+    answer: "Yes. The guide shows a JSON LogFormat string that produces structured access log entries with fields such as status, request_method, request_uri, request_time_ms, and vhost, all of which become queryable fields in LogTide after Fluent Bit parses them."
+  - question: "Can I forward Apache mod_security WAF audit events to LogTide alongside access logs?"
+    answer: "Yes. Enable SecAuditLogFormat JSON in your modsecurity.conf and add a separate Fluent Bit INPUT block tailing the modsec_audit.log file. A filter then tags those records with log_type:modsecurity so you can create dedicated detection rules for WAF events in LogTide."
 ---
 
 Apache HTTP Server (httpd) is one of the most widely deployed web servers on the internet. This guide shows you how to send Apache access logs, error logs, and mod_security audit events to LogTide with full structured parsing for powerful queries, alerting, and compliance reporting.

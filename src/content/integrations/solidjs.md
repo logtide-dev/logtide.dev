@@ -21,6 +21,15 @@ keywords:
   - "solidjs monitoring"
   - "solidjs capture errors"
   - "solidjs error boundary"
+faqs:
+  - question: "How do I add error tracking to a SolidJS application with LogTide?"
+    answer: "Install @logtide/browser, then call initLogtide with your DSN, service name, and environment at the top of index.tsx before the render call. LogTide automatically captures all unhandled exceptions and promise rejections from that point forward."
+  - question: "How does LogTide integrate with SolidJS ErrorBoundary?"
+    answer: "Use SolidJS native ErrorBoundary from solid-js and call hub.captureError inside the fallback function, passing the caught error and any relevant tags. This lets Solid handle the UI recovery while LogTide records the full error context for your LogTide Dashboard."
+  - question: "Does LogTide collect Core Web Vitals for SolidJS apps?"
+    answer: "Yes. The @logtide/browser SDK automatically tracks LCP, FID, CLS, and INP with no additional configuration. Because SolidJS compiles to fine-grained DOM updates without a virtual DOM, the overhead of the Web Vitals instrumentation is minimal."
+  - question: "Can I manually log custom events and breadcrumbs in SolidJS?"
+    answer: "Yes. Import hub from @logtide/core and call hub.addBreadcrumb to record user interactions, or hub.captureLog to send structured log entries at any level. You can also capture try/catch errors with hub.captureError and attach extra metadata such as tags or a cart ID."
 ---
 
 LogTide's SolidJS integration provides professional-grade error tracking and performance monitoring for Solid applications. It includes automatic unhandled error capture, Solid Error Boundaries, and Core Web Vitals collection.

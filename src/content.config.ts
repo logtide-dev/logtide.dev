@@ -57,6 +57,9 @@ const integrations = defineCollection({
     // Feature highlights for cards
     highlights: z.array(z.string()).max(4).default([]),
 
+    // FAQ entries (rendered visibly + emitted as FAQPage JSON-LD for rich results)
+    faqs: z.array(z.object({ question: z.string(), answer: z.string() })).default([]),
+
     // Publication metadata
     draft: z.boolean().default(false),
   }),
@@ -95,6 +98,9 @@ const useCases = defineCollection({
     // Feature highlights for cards
     highlights: z.array(z.string()).max(4).default([]),
 
+    // FAQ entries (rendered visibly + emitted as FAQPage JSON-LD for rich results)
+    faqs: z.array(z.object({ question: z.string(), answer: z.string() })).default([]),
+
     // Publication metadata
     draft: z.boolean().default(false),
   }),
@@ -132,6 +138,9 @@ const comparisons = defineCollection({
 
     // Feature highlights for cards
     highlights: z.array(z.string()).max(4).default([]),
+
+    // FAQ entries (rendered visibly + emitted as FAQPage JSON-LD for rich results)
+    faqs: z.array(z.object({ question: z.string(), answer: z.string() })).default([]),
 
     // Publication metadata
     draft: z.boolean().default(false),

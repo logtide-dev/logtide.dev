@@ -24,6 +24,15 @@ keywords:
   - "Elasticsearch replacement"
   - "Kibana alternative"
   - "simpler ELK alternative"
+faqs:
+  - question: "Does LogTide use fewer resources than the ELK Stack?"
+    answer: "Yes, substantially. A production ELK deployment requires 22-44 GB of RAM across Elasticsearch, Logstash, and Kibana, while LogTide runs on 6-12 GB total — a reduction of 60-75%. This directly translates to lower infrastructure costs and makes LogTide viable on smaller servers."
+  - question: "Does LogTide include SIEM without extra licensing, unlike ELK?"
+    answer: "Yes. Elastic's SIEM and endpoint-security features require paid licenses. LogTide includes Sigma detection rules, MITRE ATT&CK mapping, and incident management as part of the free, open-source release with no additional licensing fees."
+  - question: "When is the ELK Stack the better choice over LogTide?"
+    answer: "ELK is the better fit when you need Elasticsearch advanced query DSL for highly complex aggregations, Kibana's extensive dashboard and visualization library, existing Beats agents already deployed at scale, or petabyte-scale distributed search across hundreds of nodes. Teams with deep Elasticsearch expertise also benefit from staying in that ecosystem."
+  - question: "How do I migrate from the ELK Stack to LogTide?"
+    answer: "Replace Beats or Logstash with Fluent Bit pointed at the LogTide HTTP ingest endpoint, translate your Elasticsearch or KQL queries to LogTide REST API parameters (see the query mapping table in this page), and convert Watcher alert rules to LogTide alert rules. A full step-by-step guide is available at /docs/migration/elk/."
 ---
 
 The ELK Stack (Elasticsearch, Logstash, Kibana) is the most widely deployed open-source log management solution. LogTide offers a simpler alternative with fewer components, lower resource requirements, and built-in SIEM. Here's a detailed comparison.

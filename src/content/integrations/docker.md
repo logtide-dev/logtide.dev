@@ -21,6 +21,15 @@ keywords:
   - "container logging"
   - "fluent bit docker"
   - "docker log driver"
+faqs:
+  - question: "How do I send Docker container logs to LogTide?"
+    answer: "Run a Fluent Bit container with its forward input listening on port 24224, then start your application containers with --log-driver=fluentd and --log-opt fluentd-address=localhost:24224. Fluent Bit receives the logs and forwards them to LogTide's HTTP ingest endpoint via your API key."
+  - question: "Do I need to modify my container images or application code?"
+    answer: "No code or image changes are required. LogTide collects whatever your containers write to stdout and stderr through the Fluentd log driver, so the integration works with any language or framework."
+  - question: "Does LogTide support structured JSON logs from Docker containers?"
+    answer: "Yes. If your application outputs JSON to stdout, the Fluent Bit parser filter with the json parser extracts all fields from the log key and merges them into the record, making every JSON field searchable in LogTide."
+  - question: "How resource-intensive is Fluent Bit when collecting Docker logs?"
+    answer: "A single Fluent Bit instance uses approximately 50MB of memory and less than 1% CPU at 1,000 logs per second. For higher volumes, the guide recommends running multiple Fluent Bit instances behind a load balancer or enabling the batch ingest endpoint with buffering."
 ---
 
 Collecting logs from Docker containers is essential for debugging, monitoring, and security. This guide shows you how to send container logs to LogTide using Fluent Bit - no code changes required.

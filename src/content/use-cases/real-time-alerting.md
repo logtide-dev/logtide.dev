@@ -27,6 +27,15 @@ keywords:
   - "production monitoring"
   - "alerting best practices"
   - "on-call alerts"
+faqs:
+  - question: "Does LogTide support real-time alerting on log events?"
+    answer: "Yes. LogTide provides threshold-based alert rules that evaluate log volume, error rates, and search patterns within configurable time windows. When a threshold is crossed, LogTide immediately delivers notifications via email and webhooks, enabling routing to Slack, PagerDuty, Microsoft Teams, or any webhook-compatible tool."
+  - question: "How does LogTide help reduce alert fatigue for on-call engineers?"
+    answer: "LogTide recommends alerting on error rates within a time window rather than on every individual error, and supports per-service scoping so alerts only fire when a meaningful volume of errors accumulates. Combining tiered severity levels with deduplication within the alert time window prevents the same issue from generating dozens of duplicate notifications."
+  - question: "What is Sigma rule support in LogTide alerting?"
+    answer: "LogTide has built-in support for Sigma detection rules, an open standard for log-based threat detection. You can import Sigma rules directly through the LogTide dashboard to detect patterns such as brute force login attempts or suspicious privilege escalation, without writing custom alerting logic from scratch."
+  - question: "Can LogTide route critical alerts to PagerDuty and lower-priority alerts to Slack?"
+    answer: "Yes. LogTide fires alerts to a webhook endpoint of your choice, and you can build a lightweight webhook router that inspects the alert payload and forwards it to PagerDuty for critical events while sending all other alerts to a Slack channel. The alert payload includes the alert name, service, threshold, current count, and sample log entries to give responders immediate context."
 ---
 
 Good alerting tells you about problems before your users do. Bad alerting wakes you up at 3 AM for nothing. This guide shows how to build effective log-based alerting with LogTide that catches real issues without alert fatigue.

@@ -21,6 +21,15 @@ keywords:
   - "astro monitoring"
   - "astro capture errors"
   - "astro middleware logging"
+faqs:
+  - question: "How do I monitor both server-side and client-side code in an Astro project?"
+    answer: "Install @logtide/core and @logtide/browser. Initialize @logtide/browser inside a client-side script tag in your Layout.astro for island and browser monitoring, and initialize @logtide/core inside src/middleware.ts using Astro middleware for server-side request logging and error capture. Both sides report to the same LogTide instance."
+  - question: "Does LogTide require changes to individual Astro page files?"
+    answer: "No changes are required for automatic request logging. The onRequest middleware in src/middleware.ts intercepts every server-rendered request and logs its method, path, status, and duration automatically. You can optionally call hub.captureLog directly in any .astro file frontmatter for page-level events like missing resources."
+  - question: "Can LogTide track Core Web Vitals for Astro sites?"
+    answer: "Yes. Adding the @logtide/browser initialization script in your shared layout means the SDK automatically collects LCP, FID, and CLS on every page. Results appear in the LogTide Dashboard under the Metrics tab without any per-page configuration."
+  - question: "How do I connect frontend errors to backend server logs in Astro?"
+    answer: "The Astro middleware setup logs server-side requests and errors with the astro-server service name, while the client-side SDK logs with astro-frontend. Both share the same LogTide instance, so you can filter or correlate them in the dashboard. For deeper linking, the middleware example captures request URL and method alongside each error for end-to-end traceability."
 ---
 
 LogTide's Astro integration provides professional-grade observability for both server-side and client-side code. It includes automatic unhandled error capture, middleware-based request logging, and Core Web Vitals collection.

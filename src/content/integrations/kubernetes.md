@@ -23,6 +23,15 @@ keywords:
   - "kubernetes log aggregation"
   - "container logs"
   - "pod logging"
+faqs:
+  - question: "How do I collect logs from all pods in a Kubernetes cluster and send them to LogTide?"
+    answer: "Deploy Fluent Bit as a DaemonSet so that one Fluent Bit pod runs on every node and reads from /var/log/containers/. Configure the http output to point at your LogTide instance with your API key in the X-API-Key header, apply the ConfigMap and DaemonSet manifests with kubectl apply, and logs from every pod begin arriving in LogTide automatically."
+  - question: "Do I need to modify my application containers to ship logs to LogTide?"
+    answer: "No. The DaemonSet approach captures logs written to standard output and standard error by any container on the node without any changes to application images or code. Kubernetes metadata such as pod name, namespace, and labels is automatically enriched by the Fluent Bit Kubernetes filter."
+  - question: "Can I filter logs by Kubernetes namespace or send different namespaces to separate LogTide projects?"
+    answer: "Yes. You can use the Fluent Bit grep filter or Exclude_Path patterns to drop logs from system namespaces such as kube-system, and you can define multiple http output blocks that match different namespace patterns and use different API keys to route logs to separate LogTide projects."
+  - question: "Can I deploy LogTide log collection for Kubernetes using Helm?"
+    answer: "Yes. The guide shows how to use the official Fluent Bit Helm chart by adding the fluent Helm repository and running helm install with a values.yaml that configures the LogTide http output, Kubernetes metadata filters, and resource limits. The Helm approach is recommended for production deployments."
 ---
 
 Kubernetes generates logs from multiple sources: application containers, system components, and the control plane. This guide shows you how to collect all these logs and ship them to LogTide using Fluent Bit.

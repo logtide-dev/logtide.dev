@@ -22,6 +22,15 @@ keywords:
   - "bun observability"
   - "bun typescript logging"
   - "bun runtime logs"
+faqs:
+  - question: "How do I add LogTide logging to a Bun application?"
+    answer: "Run bun add @logtide/node, then import LogTideClient and initialise it with your DSN. Because Bun is Node.js API compatible, the @logtide/node SDK works without any extra configuration or compatibility shims."
+  - question: "Do I need a build step or TypeScript transpiler to use LogTide with Bun?"
+    answer: "No. Bun executes TypeScript files directly, so you can import the SDK and run bun run index.ts without a separate compile step. Bun also loads .env files automatically, so no dotenv package is needed for your DSN."
+  - question: "What is the performance overhead of LogTide logging in a Bun application?"
+    answer: "Log call overhead is less than 0.2ms because the SDK batches events before sending them. Memory overhead is approximately 6MB and the SDK supports over 15,000 logs per second according to the performance benchmarks in the guide."
+  - question: "Can I use LogTide with Hono or Elysia on Bun?"
+    answer: "Yes. The guide shows middleware implementations for both Hono and Elysia. For Hono you add a wildcard app.use middleware, and for Elysia you use the onRequest and onAfterResponse lifecycle hooks to log every request with duration and trace ID."
 ---
 
 Bun is a fast JavaScript runtime that is Node.js API compatible. The LogTide JavaScript SDK works with Bun out of the box — no extra configuration needed. This guide covers setup, framework integration (Hono, Elysia), and Bun-specific patterns.

@@ -23,6 +23,15 @@ keywords:
   - "multi-container logging"
   - "docker stack logging"
   - "container log aggregation"
+faqs:
+  - question: "How do I centralize Docker Compose service logs in LogTide?"
+    answer: "Add a Fluent Bit service to your docker-compose.yml, expose port 24224, and set the logging driver to fluentd on every other service with fluentd-address pointing to that Fluent Bit container. Fluent Bit then forwards all received records to LogTide's HTTP ingest endpoint using your API key."
+  - question: "Do I need to change my application code to collect Docker Compose logs?"
+    answer: "No. The entire setup is done through Docker Compose logging driver configuration and the Fluent Bit config file. Any container that writes to stdout or stderr will have its logs collected and forwarded without code changes."
+  - question: "How are logs from different Compose services identified in LogTide?"
+    answer: "Fluent Bit includes the container name in each record, and a Lua script extracts the service segment from the container name (for example myapp-web-1 becomes web) and sets it as the service field so you can filter by service in LogTide."
+  - question: "What happens to logs if LogTide is temporarily unreachable?"
+    answer: "The production Fluent Bit configuration enables disk buffering under storage.path with a 100MB limit per output and a retry limit of 5 attempts with exponential backoff, so logs are queued on disk and delivered once the connection is restored."
 ---
 
 Docker Compose makes it easy to run multi-container applications, but logs are scattered across containers. This guide shows you how to centralize all your Docker Compose logs in LogTide without modifying your application code.

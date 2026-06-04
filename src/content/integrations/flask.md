@@ -23,6 +23,15 @@ keywords:
   - "flask middleware logging"
   - "flask request tracing"
   - "flask blueprint logging"
+faqs:
+  - question: "How do I add structured request logging to a Flask application?"
+    answer: "Install logtide-sdk[flask], create a LogTideClient with your API URL and key, then pass it to LogTideFlaskMiddleware along with your app instance. Every request and response is automatically logged with timing, status code, and trace ID, with no changes needed to individual route functions."
+  - question: "Does LogTide work with the Flask app factory pattern?"
+    answer: "Yes. Instantiate LogTideClient and register LogTideFlaskMiddleware inside your create_app function, then attach the client to app.logtide so blueprints can access it via current_app.logtide. The guide includes a complete example with blueprint registration and error handlers all wired inside create_app."
+  - question: "Does adding LogTide middleware slow down Flask responses?"
+    answer: "No measurably. The middleware overhead is under 1ms per request because log entries are batched and shipped in the background, not inline with the request/response cycle. The SDK also works correctly with Gunicorn gthread, gevent, and sync workers."
+  - question: "Can I use LogTide alongside Python stdlib logging in Flask?"
+    answer: "Yes. The SDK ships a LogTideHandler that you attach to any Python logger with addHandler. This lets you keep existing logging.getLogger calls and have their output forwarded to LogTide alongside the automatic request logs from LogTideFlaskMiddleware."
 ---
 
 LogTide's Python SDK ships a built-in Flask middleware that auto-logs every request and response with timing, status code, and trace IDs. This guide covers the app factory pattern, blueprint-scoped logging, error handling, and production deployment with Gunicorn.

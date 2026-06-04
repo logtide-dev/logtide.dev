@@ -23,6 +23,15 @@ keywords:
   - "redis sentinel logs"
   - "redis cluster monitoring"
   - "redis performance"
+faqs:
+  - question: "How do I send Redis slow query logs to LogTide?"
+    answer: "Configure Redis with slowlog-log-slower-than set to your desired threshold in microseconds, then use either the provided Python collector script (pip install redis) or a Fluent Bit exec input running redis-cli SLOWLOG GET to periodically harvest slow log entries and ship them to LogTide."
+  - question: "Does logging Redis slow queries affect Redis performance?"
+    answer: "Benchmarks from a production Redis instance at 100,000 operations per second show that slow log collection adds approximately 0.5% throughput reduction and 4% average latency overhead. Fluent Bit runs out-of-band and has no direct impact on Redis itself."
+  - question: "Does LogTide support Redis Sentinel and Cluster monitoring?"
+    answer: "Yes. The guide includes a Fluent Bit configuration for tailing the Sentinel log file and tagging entries as redis.sentinel, along with a shell script that queries CLUSTER INFO from each node and outputs structured JSON that Fluent Bit can forward to LogTide."
+  - question: "How can I avoid logging sensitive Redis commands like AUTH or CONFIG SET?"
+    answer: "The guide provides a Lua script for Fluent Bit that detects sensitive commands such as AUTH, CONFIG SET, and ACL SETUSER in slow log entries and replaces their arguments with [REDACTED] before the data is shipped to LogTide."
 ---
 
 Redis is often a critical component in your stack, but its logs are frequently overlooked. This guide shows you how to capture Redis slow queries, operational events, and cluster health metrics in LogTide for proactive monitoring.

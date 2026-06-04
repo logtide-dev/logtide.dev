@@ -30,6 +30,15 @@ keywords:
   - "request logging"
   - "API performance"
   - "endpoint monitoring"
+faqs:
+  - question: "How does LogTide help with API monitoring?"
+    answer: "LogTide turns every API request into a structured, queryable event by capturing method, path, status code, latency, consumer identity, and API version. This gives you real-time dashboards, latency percentile reports, and consumer analytics without any per-GB pricing."
+  - question: "Can LogTide track API latency percentiles?"
+    answer: "Yes. LogTide supports latency percentile tracking (p50, p95, p99) by aggregating per-route timing data and flushing periodic reports. Because average latency hides outliers, alerting on p99 rather than averages is the recommended approach."
+  - question: "How do I detect which API consumer is abusing rate limits?"
+    answer: "LogTide logs every rate-limit event with the consumer identifier extracted from the API key or JWT. You can query across consumers to find who is hitting limits most frequently and correlate those events with downstream latency spikes."
+  - question: "Does LogTide work with Express and Fastify?"
+    answer: "LogTide provides ready-made middleware for Express and a plugin for Fastify. Both implementations capture request metadata asynchronously using batched, compressed payloads to minimise performance overhead on your API."
 ---
 
 Your API is your product. When response times creep up, error rates spike, or a specific consumer hammers your endpoints, you need to know immediately -- not when customers start complaining. This guide shows how to build comprehensive API monitoring with LogTide, from basic request logging to latency percentile tracking and consumer analytics.

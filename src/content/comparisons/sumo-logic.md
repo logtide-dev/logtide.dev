@@ -24,6 +24,15 @@ keywords:
   - "enterprise log management"
   - "self-hosted Sumo Logic"
   - "Sumo Logic pricing alternative"
+faqs:
+  - question: "How much cheaper is LogTide compared to Sumo Logic?"
+    answer: "At 50 GB/day, Sumo Logic Essentials costs roughly $5,000-7,000/month including extended retention and the Cloud SIEM add-on. LogTide infrastructure for the same volume runs around $250/month — a saving of $57,000-81,000/year (95%+). At 200 GB/day the savings can exceed $200,000 per year, since LogTide has no per-GB license fee."
+  - question: "Does LogTide enforce daily data caps like Sumo Logic does?"
+    answer: "No. Sumo Logic enforces daily ingestion limits tied to your plan, and exceeding them triggers overage charges or throttling — which can cause you to lose logs during incidents, exactly when you need them most. LogTide has no artificial ingestion caps; it processes as much data as your underlying infrastructure can handle."
+  - question: "How do I migrate from Sumo Logic to LogTide?"
+    answer: "Run both systems in parallel for 1-2 weeks by adding the LogTide SDK alongside existing Sumo Logic Installed Collectors, or by using Fluent Bit to fan out logs to both platforms simultaneously. Once you have verified that search results, alerts, and SIEM detection rules match expectations in LogTide, remove the Sumo Logic collectors and cancel your subscription."
+  - question: "When is Sumo Logic still the better option over LogTide?"
+    answer: "Sumo Logic is the stronger choice when your organization requires pre-existing enterprise compliance certifications (FedRAMP Moderate, SOC 2, HIPAA, PCI DSS) without managing them yourself, when you need advanced ML analytics like LogReduce or anomaly detection, or when your team has no capacity to manage infrastructure and wants a fully managed SaaS platform with zero operational overhead."
 ---
 
 Sumo Logic is a cloud-native SaaS platform for log management, analytics, and security. LogTide is a self-hosted, open-source log management platform with built-in SIEM. Here's an honest comparison to help you evaluate both options for your log management needs.

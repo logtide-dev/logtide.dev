@@ -26,6 +26,15 @@ keywords:
   - "self-hosted CloudWatch"
   - "CloudWatch Logs cost"
   - "AWS logging alternative"
+faqs:
+  - question: "Is LogTide cheaper than AWS CloudWatch Logs?"
+    answer: "Yes, significantly for most workloads. A mid-size SaaS ingesting 50 GB/day pays roughly $870/month with CloudWatch ($0.50/GB ingestion plus storage and query costs), versus about $330/month running LogTide on equivalent AWS infrastructure — a saving of around $6,480/year (62%). At 200+ GB/day the savings exceed 80%."
+  - question: "Does LogTide include SIEM, unlike CloudWatch?"
+    answer: "Yes. LogTide ships Sigma detection rules, MITRE ATT&CK mapping, and incident management at no extra cost. CloudWatch has no native SIEM — you would need Amazon Security Lake or a separate third-party tool to reach equivalent security-detection capabilities."
+  - question: "When is AWS CloudWatch the better choice over LogTide?"
+    answer: "CloudWatch is the better fit when you run entirely on AWS, rely heavily on Lambda (which logs to CloudWatch automatically with zero configuration), or keep log volume under 10 GB/day where the cost difference is small. Its native integration with EC2, ECS, RDS, and API Gateway also eliminates any agent setup."
+  - question: "How do I migrate from CloudWatch Logs to LogTide?"
+    answer: "The recommended path is a parallel run: first ship logs to both platforms via the LogTide SDK or a CloudWatch subscription filter forwarded by a Lambda function, then compare results for 1-2 weeks, and finally cut over by pointing applications directly to LogTide and reducing CloudWatch retention. A full migration guide is available at /docs/migration/cloudwatch/."
 ---
 
 AWS CloudWatch Logs is the default log management service for AWS workloads. LogTide is a self-hosted, open-source log management platform with built-in SIEM. Here's an honest comparison.

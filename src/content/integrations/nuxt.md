@@ -20,6 +20,15 @@ keywords:
   - "nuxt error tracking"
   - "nuxt module logging"
   - "vue ssr logging"
+faqs:
+  - question: "How do I add LogTide logging to my Nuxt application?"
+    answer: "Install @logtide/nuxt, add it to the modules array in nuxt.config.ts, and set the dsn option pointing to your LogTide DSN. The module handles initialization on both the server and client automatically with no additional setup required."
+  - question: "Does @logtide/nuxt support separate logging for server-side and client-side code?"
+    answer: "Yes. You can provide a separate clientDsn for browser-side logging and control each side independently with the clientEnabled and serverEnabled options. Server-side logs use LOGTIDE_DSN while client-side logs use NUXT_PUBLIC_LOGTIDE_DSN."
+  - question: "How do I log events from Vue components in a Nuxt application?"
+    answer: "Import useLogtide from #imports inside your Vue component, then call methods like captureLog, captureError, and addBreadcrumb on the returned composable. This works in both client-side and universal rendering contexts."
+  - question: "Can I override the LogTide DSN at deploy time without rebuilding my Nuxt app?"
+    answer: "Yes. The module injects configuration through Nuxt runtime config, so you can override the DSN by setting the LOGTIDE_DSN environment variable at deploy time without triggering a new build."
 ---
 
 LogTide's Nuxt module provides zero-config structured logging for Nuxt applications with automatic server and client initialization, runtime config injection, and Vue composables.

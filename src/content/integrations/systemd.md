@@ -23,6 +23,15 @@ keywords:
   - "linux centralized logging"
   - "systemd log forwarding"
   - "journalctl remote"
+faqs:
+  - question: "How do I forward systemd journal logs to LogTide?"
+    answer: "Install Fluent Bit, create /etc/fluent-bit/fluent-bit.conf with the systemd input plugin pointing at /var/log/journal, store your API key in /etc/fluent-bit/environment, configure the HTTP output to send to LogTide, and enable the fluent-bit systemd service."
+  - question: "Do I need to change my application code to get logs into LogTide via systemd?"
+    answer: "No. Any service that writes to stdout or stderr under systemd automatically has its output captured by the journal. Fluent Bit reads those journal entries and ships them to LogTide, so no code changes are required for existing services."
+  - question: "Can I collect only logs from specific systemd units instead of everything?"
+    answer: "Yes. Use the Systemd_Filter option in the Fluent Bit INPUT block to limit collection to named units such as nginx.service or myapp.service. You can also use a grep filter with the Exclude directive to drop output from noisy units like systemd-timesyncd or snapd."
+  - question: "Does LogTide support structured JSON logs written by applications running under systemd?"
+    answer: "Yes. For application services that write JSON to stdout, add a Fluent Bit parser filter with Key_Name MESSAGE and Parser json to the matching tag. This parses the structured fields from the journal MESSAGE field and forwards them as top-level attributes in LogTide."
 ---
 
 systemd's journal provides rich structured logging for Linux services. This guide shows you how to forward journal logs to LogTide while preserving all the valuable metadata systemd captures automatically.

@@ -23,6 +23,15 @@ keywords:
   - "lambda log management"
   - "cloudwatch alternative"
   - "lambda observability"
+faqs:
+  - question: "How do I send AWS Lambda logs to LogTide?"
+    answer: "Three options: call the LogTide JavaScript SDK directly inside your handler for structured logs, forward existing CloudWatch logs via a subscription filter and forwarder Lambda, or use a Lambda extension. The SDK approach gives the richest structured data."
+  - question: "Is LogTide cheaper than CloudWatch Logs for Lambda?"
+    answer: "Often yes. CloudWatch charges for ingestion, storage and queries (CloudWatch Logs Insights). Shipping Lambda logs to self-hosted LogTide removes per-query costs and reduces retention costs, while adding real-time search and alerting."
+  - question: "Will logging to LogTide slow down my Lambda or add cold starts?"
+    answer: "The SDK batches and flushes asynchronously, so steady-state overhead is minimal. To avoid losing logs when a function freezes, flush before the handler returns; the guide shows the recommended pattern for short-lived invocations."
+  - question: "Can I keep CloudWatch and use LogTide at the same time?"
+    answer: "Yes. A common setup keeps CloudWatch as the default sink and forwards a copy to LogTide via a subscription filter, so you get LogTide's search, alerting and SIEM without removing existing AWS tooling."
 ---
 
 AWS Lambda functions generate logs that end up in CloudWatch by default, but searching, alerting, and retaining those logs can be expensive and cumbersome. This guide shows you how to send Lambda logs directly to LogTide using the JavaScript SDK, forward them from CloudWatch, or use Lambda extensions -- giving you structured queries, real-time alerting, and significant cost savings.

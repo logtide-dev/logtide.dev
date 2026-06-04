@@ -24,6 +24,15 @@ keywords:
   - "fastapi request tracing"
   - "fastapi websocket logging"
   - "fastapi async logging"
+faqs:
+  - question: "How do I add structured logging to a FastAPI application?"
+    answer: "Install logtide-sdk[fastapi], create a LogTideClient with your API URL and key, then call app.add_middleware(LogTideFastAPIMiddleware, client=client, service_name=...) after creating the FastAPI instance. Every request is automatically logged with method, path, status code, duration in milliseconds, and a trace ID."
+  - question: "Does the LogTide FastAPI middleware support async and high-throughput workloads?"
+    answer: "Yes. The middleware is built for async use and adds less than 0.5ms overhead per request by batching log shipment in the background. For maximum throughput you can install logtide-sdk[fastapi,async] and use AsyncLogTideClient, which is fully compatible with uvloop."
+  - question: "Can I inject a request-scoped logger into FastAPI route handlers?"
+    answer: "Yes. The guide shows a RequestLogger class wired via FastAPI dependency injection using Depends(get_logger). Each injected logger automatically includes the trace ID from the X-Trace-ID request header, so all log lines from a single request are correlated without manual plumbing."
+  - question: "Does LogTide support logging for FastAPI WebSocket connections?"
+    answer: "Yes. You can call client.info and client.debug directly inside your WebSocket endpoint to log connection open, message received, and connection closed events with a unique connection ID. The guide recommends using debug level for individual message events and info only for connection lifecycle events to avoid log flooding in high-traffic scenarios."
 ---
 
 LogTide's Python SDK ships a built-in FastAPI/Starlette middleware for automatic structured logging with timing and trace IDs. This guide covers middleware setup, dependency-based logging, WebSocket tracing, background tasks, and production deployment with Uvicorn.

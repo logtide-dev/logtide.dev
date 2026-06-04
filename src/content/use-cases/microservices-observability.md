@@ -30,6 +30,15 @@ keywords:
   - "microservices observability"
   - "service mesh logging"
   - "cross-service correlation"
+faqs:
+  - question: "How does LogTide provide observability across microservices?"
+    answer: "LogTide centralises logs from every service into a single destination and propagates a trace ID across all service-to-service HTTP calls. This lets you search trace_id:any-value to see the complete request timeline across your entire distributed system, regardless of how many services or programming languages are involved."
+  - question: "Does LogTide support distributed tracing without a separate tracing backend?"
+    answer: "Yes. LogTide implements distributed tracing through correlation IDs in structured log events rather than requiring a separate tool like Jaeger or Zipkin. Each service attaches trace_id, span_id, and parent_span_id to every log, giving you parent-child relationships and service dependency maps from log data alone."
+  - question: "Can LogTide detect cascading failures across multiple microservices?"
+    answer: "Yes. You can configure cross-service alert rules that detect when multiple services begin erroring simultaneously or when downstream call failures spike above a threshold. Because all services log to a single LogTide instance with consistent schemas, queries like grouping errors by service across a five-minute window work out of the box."
+  - question: "How does LogTide handle microservices written in different languages?"
+    answer: "LogTide provides SDKs for Node.js frameworks such as Express and Fastify as well as a Python client, and the same trace propagation pattern works across all of them via HTTP headers. The shared structured schema ensures that cross-service queries return consistent results regardless of which language each service uses."
 ---
 
 In a microservices architecture, every user action fans out across dozens of services. When something breaks, the error you see in one service is often just a symptom -- the root cause lives three hops upstream, buried in a different service's logs. This guide shows how to build full observability across your distributed system with LogTide.

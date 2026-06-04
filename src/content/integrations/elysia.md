@@ -20,6 +20,15 @@ keywords:
   - "bun logging"
   - "elysia plugin logging"
   - "elysia error tracking"
+faqs:
+  - question: "How do I add LogTide logging to an Elysia application?"
+    answer: "Install @logtide/elysia with bun add @logtide/elysia, then call app.use(logtide({ dsn, service, environment })) in your Elysia setup. Use .as('global') on the plugin to ensure all routes, including those registered after the plugin, are covered."
+  - question: "Does the LogTide Elysia plugin automatically log every request?"
+    answer: "Yes. The plugin hooks into Elysia's onRequest lifecycle to start a span and extract any incoming traceparent header, and into afterResponse to log the completed request with its duration, with no per-route code required."
+  - question: "How does LogTide handle Elysia errors and exceptions?"
+    answer: "The plugin registers an onError lifecycle hook that captures errors with full request context automatically. You can still add your own onError handler to return a custom response; the error is already recorded by LogTide before your handler runs."
+  - question: "Does LogTide flush pending logs when the Elysia server stops?"
+    answer: "Yes. The plugin registers an onStop lifecycle hook that flushes any buffered log events before the process exits, ensuring no logs are lost during graceful shutdown."
 ---
 
 LogTide's Elysia SDK provides a Bun-optimized plugin for automatic request logging, scoped context, lifecycle hooks, and W3C trace propagation.

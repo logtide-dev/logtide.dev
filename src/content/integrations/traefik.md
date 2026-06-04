@@ -24,6 +24,15 @@ keywords:
   - "traefik monitoring"
   - "traefik reverse proxy logs"
   - "traefik middleware logging"
+faqs:
+  - question: "How do I send Traefik access logs to LogTide?"
+    answer: "Enable JSON access logging in Traefik via traefik.yml or CLI flags, then use Vector or Fluent Bit to tail the log file and ship entries to the LogTide HTTP ingest endpoint using your API key. The guide includes ready-to-use Vector and Fluent Bit configurations for both Docker and Kubernetes environments."
+  - question: "Does LogTide support structured JSON logs from Traefik?"
+    answer: "Yes. Traefik natively supports JSON-formatted access logs via the accessLog.format: json setting, and LogTide parses all standard fields such as DownstreamStatus, RequestMethod, RequestPath, Duration, and ClientHost automatically. No custom parsing rules are required on the LogTide side."
+  - question: "Can I monitor Traefik middleware events like rate limiting and authentication failures?"
+    answer: "Yes. Rate-limited requests appear as 429 status codes and authentication failures as 401 codes in the access log, so you can create LogTide alerts using queries like service:traefik AND DownstreamStatus:429. The guide includes example alert queries for rate limiting, auth failures, circuit breaker trips, and slow backend responses."
+  - question: "What is the performance overhead of forwarding Traefik logs to LogTide?"
+    answer: "Access log writing adds less than 1ms per request when using the recommended bufferingSize of 100. Vector uses approximately 50MB of memory tailing two log files, and Fluent Bit uses approximately 30MB as a lighter alternative. Log forwarding is fully decoupled from Traefik's request processing."
 ---
 
 Traefik is a modern, cloud-native reverse proxy and ingress controller designed for microservices. This guide shows you how to forward Traefik access logs, middleware metrics, and error events to LogTide for centralized visibility across your infrastructure.

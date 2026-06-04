@@ -20,6 +20,15 @@ keywords:
   - "deno observability"
   - "deno deploy logging"
   - "deno npm logging"
+faqs:
+  - question: "How do I send Deno application logs to LogTide?"
+    answer: "Import the SDK using the npm: specifier (import { LogTideClient } from 'npm:@logtide/node'), initialise it with your DSN from Deno.env.get('LOGTIDE_DSN'), then run your script with at least --allow-net and --allow-env flags so Deno permits the outbound connection."
+  - question: "Does Deno's permission model affect how LogTide sends logs?"
+    answer: "Yes. LogTide makes outbound HTTP requests to your ingest endpoint, which requires the --allow-net flag. You can scope it to just your LogTide host (for example --allow-net=api.logtide.dev) to follow the principle of least privilege. On Deno Deploy, network permissions are granted automatically."
+  - question: "Can I use LogTide with Deno Deploy edge functions?"
+    answer: "Yes. Set LOGTIDE_DSN in the Deno Deploy dashboard environment variables and use smaller batchSize and flushInterval values (the guide suggests batchSize: 10 and flushInterval: 2000) because edge function processes may terminate quickly before a full batch is ready."
+  - question: "Does LogTide work with Deno frameworks like Fresh or Oak?"
+    answer: "Yes. The guide includes a Fresh middleware example that injects the client into ctx.state for use in API route handlers, and an Oak middleware example that wraps app.use to log every request with method, path, status code, and duration."
 ---
 
 Deno supports npm packages via `npm:` specifiers, making the LogTide JavaScript SDK work directly. This guide covers setup, Fresh framework integration, Deno.serve patterns, and Deno Deploy considerations.

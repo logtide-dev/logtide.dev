@@ -1,6 +1,6 @@
 ---
 title: "LogTide vs Azure Monitor Logs"
-description: "Compare LogTide and Azure Monitor for log analytics. Self-hosted vs Azure-native, pricing breakdown, and migration path."
+description: "LogTide vs Azure Monitor: self-hosted, open-source log management with built-in SIEM. Azure Log Analytics charges $2.76/GB — LogTide saves 85-95% at scale."
 competitor: "Azure Monitor"
 competitorUrl: "https://azure.microsoft.com/en-us/products/monitor"
 brandIcon: "simple-icons:microsoftazure"
@@ -25,6 +25,15 @@ keywords:
   - "Azure logging cost"
   - "self-hosted Azure logging"
   - "Azure SIEM alternative"
+faqs:
+  - question: "How much can LogTide save versus Azure Monitor Log Analytics?"
+    answer: "Azure Log Analytics charges about $2.76/GB for ingestion. At meaningful volume, self-hosting LogTide typically cuts log management costs by 85-95%, since you pay for infrastructure instead of per-GB ingestion."
+  - question: "Is LogTide a drop-in replacement for Azure Sentinel's SIEM?"
+    answer: "LogTide includes built-in SIEM with Sigma detection rules and MITRE ATT&CK mapping at no extra cost. It covers core log-based threat detection that would otherwise require Microsoft Sentinel, which is billed on top of Log Analytics."
+  - question: "Can I run LogTide inside Azure?"
+    answer: "Yes. LogTide is infrastructure-agnostic and runs on any Azure VM or AKS cluster, as well as AWS, GCP, or on-premises. You keep full data sovereignty without Azure lock-in."
+  - question: "When does Azure Monitor make more sense?"
+    answer: "If your workloads are entirely on Azure and you want automatic, zero-config log collection from Azure services — and your volume is low enough that per-GB pricing stays cheap — Azure Monitor's native integration is hard to beat."
 ---
 
 Azure Monitor with Log Analytics is Microsoft's observability platform for Azure workloads. LogTide is a self-hosted, open-source alternative with built-in SIEM. Here's how they compare.
