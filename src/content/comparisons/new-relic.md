@@ -179,18 +179,18 @@ At 200 GB/day:
 Run LogTide in parallel with New Relic during evaluation. Use the LogTide SDK alongside the New Relic agent:
 
 ```typescript
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 
 const logtide = new LogTideClient({
-  dsn: process.env.LOGTIDE_DSN!,
-  service: 'my-service',
+  apiUrl: process.env.LOGTIDE_API_URL!,
+  apiKey: process.env.LOGTIDE_API_KEY!,
 });
 
 // Your existing New Relic agent continues capturing logs
 // LogTide receives the same events via its SDK
-logtide.info('Order processed', { orderId: 'abc-123', total: 49.99 });
-logtide.warn('Slow query detected', { query: 'SELECT ...', duration_ms: 3200 });
-logtide.error('Payment failed', { provider: 'stripe', error: 'card_declined' });
+logtide.info('my-service', 'Order processed', { orderId: 'abc-123', total: 49.99 });
+logtide.warn('my-service', 'Slow query detected', { query: 'SELECT ...', duration_ms: 3200 });
+logtide.error('my-service', 'Payment failed', { provider: 'stripe', error: 'card_declined' });
 ```
 
 ### Step 2: Forward with Fluent Bit

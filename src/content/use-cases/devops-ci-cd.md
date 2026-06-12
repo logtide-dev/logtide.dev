@@ -260,19 +260,19 @@ For more control, use the LogTide SDK directly in deploy scripts:
 
 ```typescript
 // scripts/deploy.ts
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 import { execSync } from 'child_process';
 
 const client = new LogTideClient({
-  dsn: process.env.LOGTIDE_DSN!,
-  service: 'deploy-script',
+  apiUrl: process.env.LOGTIDE_API_URL!,
+  apiKey: process.env.LOGTIDE_API_KEY!,
 });
 
 async function deploy(service: string, env: string, imageTag: string) {
   const deployId = `deploy-${Date.now()}`;
   const startTime = Date.now();
 
-  client.info('Deployment started', {
+  client.info('deploy-script', 'Deployment started', {
     event: 'deploy.started',
     deploy_id: deployId,
     service, environment: env, image_tag: imageTag,
@@ -285,14 +285,14 @@ async function deploy(service: string, env: string, imageTag: string) {
     execSync(`kubectl set image deployment/${service} ${service}=${imageTag} -n ${env}`);
     execSync(`kubectl rollout status deployment/${service} -n ${env} --timeout=300s`);
 
-    client.info('Deployment succeeded', {
+    client.info('deploy-script', 'Deployment succeeded', {
       event: 'deploy.success',
       deploy_id: deployId,
       duration_seconds: Math.round((Date.now() - startTime) / 1000),
       service, environment: env,
     });
   } catch (error) {
-    client.error('Deployment failed', {
+    client.error('deploy-script', 'Deployment failed', {
       event: 'deploy.failure',
       deploy_id: deployId,
       error: error.message,
@@ -300,9 +300,9 @@ async function deploy(service: string, env: string, imageTag: string) {
     });
 
     // Automatic rollback
-    client.warn('Initiating rollback', { event: 'deploy.rollback', deploy_id: deployId });
+    client.warn('deploy-script', 'Initiating rollback', { event: 'deploy.rollback', deploy_id: deployId });
     execSync(`kubectl rollout undo deployment/${service} -n ${env}`);
-    client.info('Rollback completed', { event: 'deploy.rollback.completed', deploy_id: deployId });
+    client.info('deploy-script', 'Rollback completed', { event: 'deploy.rollback.completed', deploy_id: deployId });
 
     throw error;
   } finally {
@@ -317,12 +317,12 @@ For compliance, capture comprehensive release metadata:
 
 ```typescript
 // scripts/release-audit.ts
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 import { execSync } from 'child_process';
 
 const client = new LogTideClient({
-  dsn: process.env.LOGTIDE_DSN!,
-  service: 'release-audit',
+  apiUrl: process.env.LOGTIDE_API_URL!,
+  apiKey: process.env.LOGTIDE_API_KEY!,
 });
 
 async function logRelease(version: string, environment: string) {
@@ -330,7 +330,7 @@ async function logRelease(version: string, environment: string) {
     'git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo HEAD~10'
   ).toString().trim();
 
-  client.info('Release published', {
+  client.info('release-audit', 'Release published', {
     event: 'release.published',
     version,
     environment,

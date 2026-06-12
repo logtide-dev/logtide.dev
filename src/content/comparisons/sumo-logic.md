@@ -183,18 +183,18 @@ At 200 GB/day:
 Run LogTide in parallel with Sumo Logic during evaluation. Add the LogTide SDK alongside existing Sumo Logic collectors:
 
 ```typescript
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 
 const logtide = new LogTideClient({
-  dsn: process.env.LOGTIDE_DSN!,
-  service: 'my-service',
+  apiUrl: process.env.LOGTIDE_API_URL!,
+  apiKey: process.env.LOGTIDE_API_KEY!,
 });
 
 // Your existing Sumo Logic installed collectors continue running
 // LogTide receives the same events via its SDK
-logtide.info('Payment processed', { amount: 99.00, currency: 'USD' });
-logtide.warn('Rate limit approaching', { endpoint: '/api/v1/users', usage: '85%' });
-logtide.error('Database connection failed', { host: 'db-primary', retries: 3 });
+logtide.info('my-service', 'Payment processed', { amount: 99.00, currency: 'USD' });
+logtide.warn('my-service', 'Rate limit approaching', { endpoint: '/api/v1/users', usage: '85%' });
+logtide.error('my-service', 'Database connection failed', { host: 'db-primary', retries: 3 });
 ```
 
 ### Step 2: Forward via Fluent Bit

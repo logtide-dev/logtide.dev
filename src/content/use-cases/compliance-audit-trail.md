@@ -121,8 +121,6 @@ interface AuditEvent {
 const client = new LogTideClient({
   apiUrl: process.env.LOGTIDE_API_URL!,
   apiKey: process.env.LOGTIDE_API_KEY!,
-  // Or use a DSN string instead:
-  // dsn: process.env.LOGTIDE_DSN,
   globalMetadata: {
     service: 'audit',
     environment: process.env.NODE_ENV,
@@ -397,32 +395,33 @@ async function generateAuditReport(startDate: string, endDate: string) {
   const client = new LogTideClient({
     apiUrl: process.env.LOGTIDE_API_URL!,
     apiKey: process.env.LOGTIDE_API_KEY!,
-    // Or use a DSN string instead:
-    // dsn: process.env.LOGTIDE_DSN,
   });
 
   // Authentication summary
-  const authEvents = await client.search({
+  const { logs: authEvents } = await client.query({
     service: 'audit',
-    q: 'action:auth.*',
+    q: 'auth.',
     from: startDate,
     to: endDate,
+    limit: 1000,
   });
 
   // Access denied events
-  const deniedEvents = await client.search({
+  const { logs: deniedEvents } = await client.query({
     service: 'audit',
-    q: 'outcome:denied',
+    q: 'denied',
     from: startDate,
     to: endDate,
+    limit: 1000,
   });
 
   // Configuration changes
-  const configChanges = await client.search({
+  const { logs: configChanges } = await client.query({
     service: 'audit',
-    q: 'action:settings.*',
+    q: 'settings.',
     from: startDate,
     to: endDate,
+    limit: 1000,
   });
 
   return {

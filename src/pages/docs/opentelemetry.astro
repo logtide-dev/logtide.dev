@@ -744,9 +744,8 @@ logging.basicConfig(level=logging.DEBUG)`}
                       code={`import { LogTideClient } from '@logtide/sdk-node';
 
 const client = new LogTideClient({
-apiKey: 'your-key',
-// Or use a DSN string instead:
-// dsn: 'http://lp_your_key@localhost:8080',
+apiUrl: 'http://localhost:8080',
+apiKey: 'lp_your_key',
 });
 
 client.info('api', 'User logged in', {

@@ -52,7 +52,7 @@ Remix runs loaders and actions on the server, making it a natural fit for struct
 ## Installation
 
 ```bash
-npm install @logtide/node
+npm install @logtide/sdk-node
 ```
 
 ## Quick Start
@@ -61,12 +61,12 @@ npm install @logtide/node
 
 ```typescript
 // app/lib/logtide.server.ts
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 
 export const logtide = new LogTideClient({
-  dsn: process.env.LOGTIDE_DSN!,
-  service: 'remix-app',
-  environment: process.env.NODE_ENV,
+  apiUrl: process.env.LOGTIDE_API_URL!,
+  apiKey: process.env.LOGTIDE_API_KEY!,
+  globalMetadata: { environment: process.env.NODE_ENV },
 });
 ```
 
@@ -82,7 +82,7 @@ import { logtide } from '~/lib/logtide.server';
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const traceId = request.headers.get('x-trace-id') ?? crypto.randomUUID();
 
-  logtide.info('Loading user profile', {
+  logtide.info('remix-app', 'Loading user profile', {
     userId: params.id,
     traceId,
   });
@@ -90,7 +90,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const user = await db.user.findUnique({ where: { id: params.id } });
 
   if (!user) {
-    logtide.warning('User not found', { userId: params.id, traceId });
+    logtide.warn('remix-app', 'User not found', { userId: params.id, traceId });
     throw new Response('Not found', { status: 404 });
   }
 
@@ -110,7 +110,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const userId = session.get('userId');
   const formData = await request.formData();
 
-  logtide.info('Settings updated', {
+  logtide.info('remix-app', 'Settings updated', {
     userId,
     fields: [...formData.keys()],
   });
@@ -162,7 +162,7 @@ export default function handleRequest(
 
           const durationMs = Math.round(performance.now() - start);
 
-          logtide.info(`${request.method} ${url.pathname} ${responseStatusCode}`, {
+          logtide.info('remix-app', `${request.method} ${url.pathname} ${responseStatusCode}`, {
             method: request.method,
             path: url.pathname,
             statusCode: responseStatusCode,
@@ -178,7 +178,7 @@ export default function handleRequest(
           pipe(body);
         },
         onShellError(error) {
-          logtide.error('Remix shell render error', {
+          logtide.error('remix-app', 'Remix shell render error', {
             error: String(error),
             path: url.pathname,
             traceId,
@@ -187,7 +187,7 @@ export default function handleRequest(
         },
         onError(error) {
           responseStatusCode = 500;
-          logtide.error('Remix render error', {
+          logtide.error('remix-app', 'Remix render error', {
             error: String(error),
             path: url.pathname,
             traceId,
@@ -253,10 +253,10 @@ export function withLogging<T>(
       const result = await handler(args);
       const durationMs = Math.round(performance.now() - start);
 
-      logtide.info(`${routeName} completed`, { durationMs, traceId });
+      logtide.info('remix-app', `${routeName} completed`, { durationMs, traceId });
       return result;
     } catch (error) {
-      logtide.error(`${routeName} failed`, {
+      logtide.error('remix-app', `${routeName} failed`, {
         error: error instanceof Error ? error.message : String(error),
         errorType: error instanceof Error ? error.constructor.name : 'Unknown',
         traceId,
@@ -286,13 +286,13 @@ export function logWithSession(session: Session) {
 
   return {
     info(message: string, metadata?: Record<string, unknown>) {
-      logtide.info(message, { userId, role, ...metadata });
+      logtide.info('remix-app', message, { userId, role, ...metadata });
     },
-    warning(message: string, metadata?: Record<string, unknown>) {
-      logtide.warning(message, { userId, role, ...metadata });
+    warn(message: string, metadata?: Record<string, unknown>) {
+      logtide.warn('remix-app', message, { userId, role, ...metadata });
     },
     error(message: string, metadata?: Record<string, unknown>) {
-      logtide.error(message, { userId, role, ...metadata });
+      logtide.error('remix-app', message, { userId, role, ...metadata });
     },
   };
 }
@@ -325,7 +325,8 @@ COPY --from=build /app/package*.json ./
 RUN npm ci --omit=dev
 
 ENV NODE_ENV=production
-ENV LOGTIDE_DSN=""
+ENV LOGTIDE_API_URL=""
+ENV LOGTIDE_API_KEY=""
 
 EXPOSE 3000
 CMD ["npm", "start"]
@@ -340,7 +341,8 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - LOGTIDE_DSN=${LOGTIDE_DSN}
+      - LOGTIDE_API_URL=${LOGTIDE_API_URL}
+      - LOGTIDE_API_KEY=${LOGTIDE_API_KEY}
       - SESSION_SECRET=${SESSION_SECRET}
 ```
 
@@ -358,8 +360,8 @@ services:
 ### Logs not appearing
 
 1. Ensure `logtide.server.ts` has the `.server.ts` suffix — without it, the client bundle may try to import server-only code
-2. Check DSN is set: `echo $LOGTIDE_DSN`
-3. Add `logtide.shutdown()` to your server's graceful shutdown handler
+2. Check credentials are set: `echo $LOGTIDE_API_URL` and `echo $LOGTIDE_API_KEY`
+3. Add `await logtide.close()` to your server's graceful shutdown handler
 
 ### "Cannot use import statement outside a module"
 

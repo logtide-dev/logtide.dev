@@ -22,11 +22,11 @@ keywords:
   - "deno npm logging"
 faqs:
   - question: "How do I send Deno application logs to LogTide?"
-    answer: "Import the SDK using the npm: specifier (import { LogTideClient } from 'npm:@logtide/node'), initialise it with your DSN from Deno.env.get('LOGTIDE_DSN'), then run your script with at least --allow-net and --allow-env flags so Deno permits the outbound connection."
+    answer: "Import the SDK using the npm: specifier (import { LogTideClient } from 'npm:@logtide/sdk-node'), initialise it with apiUrl and apiKey from Deno.env.get('LOGTIDE_API_URL') and Deno.env.get('LOGTIDE_API_KEY'), then run your script with at least --allow-net and --allow-env flags so Deno permits the outbound connection."
   - question: "Does Deno's permission model affect how LogTide sends logs?"
     answer: "Yes. LogTide makes outbound HTTP requests to your ingest endpoint, which requires the --allow-net flag. You can scope it to just your LogTide host (for example --allow-net=api.logtide.dev) to follow the principle of least privilege. On Deno Deploy, network permissions are granted automatically."
   - question: "Can I use LogTide with Deno Deploy edge functions?"
-    answer: "Yes. Set LOGTIDE_DSN in the Deno Deploy dashboard environment variables and use smaller batchSize and flushInterval values (the guide suggests batchSize: 10 and flushInterval: 2000) because edge function processes may terminate quickly before a full batch is ready."
+    answer: "Yes. Set LOGTIDE_API_URL and LOGTIDE_API_KEY in the Deno Deploy dashboard environment variables and use smaller batchSize and flushInterval values (the guide suggests batchSize: 10 and flushInterval: 2000) because edge function processes may terminate quickly before a full batch is ready."
   - question: "Does LogTide work with Deno frameworks like Fresh or Oak?"
     answer: "Yes. The guide includes a Fresh middleware example that injects the client into ctx.state for use in API route handlers, and an Oak middleware example that wraps app.use to log every request with method, path, status code, and duration."
 ---
@@ -50,19 +50,19 @@ Deno supports npm packages via `npm:` specifiers, making the LogTide JavaScript 
 
 ```typescript
 // main.ts
-import { LogTideClient } from 'npm:@logtide/node';
+import { LogTideClient } from 'npm:@logtide/sdk-node';
 
 const client = new LogTideClient({
-  dsn: Deno.env.get('LOGTIDE_DSN')!,
-  service: 'deno-app',
-  environment: Deno.env.get('DENO_ENV') ?? 'development',
+  apiUrl: Deno.env.get('LOGTIDE_API_URL')!,
+  apiKey: Deno.env.get('LOGTIDE_API_KEY')!,
+  globalMetadata: { environment: Deno.env.get('DENO_ENV') ?? 'development' },
 });
 
-client.info('Application started', { runtime: 'deno', version: Deno.version.deno });
+client.info('deno-app', 'Application started', { runtime: 'deno', version: Deno.version.deno });
 
 Deno.serve({ port: 8000 }, async (req) => {
   const url = new URL(req.url);
-  client.info(`${req.method} ${url.pathname}`);
+  client.info('deno-app', `${req.method} ${url.pathname}`);
   return new Response('OK');
 });
 ```
@@ -79,7 +79,8 @@ Create a `.env` file and load it:
 
 ```bash
 # .env
-LOGTIDE_DSN=http://lp_your_key@logtide.internal:8080
+LOGTIDE_API_URL=http://logtide.internal:8080
+LOGTIDE_API_KEY=lp_your_key
 DENO_ENV=development
 ```
 
@@ -93,11 +94,11 @@ Or with Deno 2.x, `.env` files load automatically with `--allow-env`.
 
 ```typescript
 // main.ts
-import { LogTideClient } from 'npm:@logtide/node';
+import { LogTideClient } from 'npm:@logtide/sdk-node';
 
 const client = new LogTideClient({
-  dsn: Deno.env.get('LOGTIDE_DSN')!,
-  service: 'api',
+  apiUrl: Deno.env.get('LOGTIDE_API_URL')!,
+  apiKey: Deno.env.get('LOGTIDE_API_KEY')!,
 });
 
 Deno.serve({ port: 8000 }, async (req) => {
@@ -112,7 +113,7 @@ Deno.serve({ port: 8000 }, async (req) => {
     const response = await handleRequest(req, url);
     const durationMs = Math.round(performance.now() - start);
 
-    client.info(`${req.method} ${url.pathname} ${response.status}`, {
+    client.info('api', `${req.method} ${url.pathname} ${response.status}`, {
       method: req.method,
       path: url.pathname,
       statusCode: response.status,
@@ -123,7 +124,7 @@ Deno.serve({ port: 8000 }, async (req) => {
     response.headers.set('X-Trace-Id', traceId);
     return response;
   } catch (error) {
-    client.error(`${req.method} ${url.pathname} 500`, {
+    client.error('api', `${req.method} ${url.pathname} 500`, {
       method: req.method,
       path: url.pathname,
       statusCode: 500,
@@ -154,11 +155,11 @@ Fresh is Deno's full-stack framework. Add logging to middleware and routes:
 ```typescript
 // routes/_middleware.ts
 import { FreshContext } from '$fresh/server.ts';
-import { LogTideClient } from 'npm:@logtide/node';
+import { LogTideClient } from 'npm:@logtide/sdk-node';
 
 const client = new LogTideClient({
-  dsn: Deno.env.get('LOGTIDE_DSN')!,
-  service: 'fresh-app',
+  apiUrl: Deno.env.get('LOGTIDE_API_URL')!,
+  apiKey: Deno.env.get('LOGTIDE_API_KEY')!,
 });
 
 export async function handler(req: Request, ctx: FreshContext) {
@@ -175,7 +176,7 @@ export async function handler(req: Request, ctx: FreshContext) {
 
   // Skip static assets
   if (!url.pathname.startsWith('/_frsh/')) {
-    client.info(`${req.method} ${url.pathname} ${response.status}`, {
+    client.info('fresh-app', `${req.method} ${url.pathname} ${response.status}`, {
       method: req.method,
       path: url.pathname,
       statusCode: response.status,
@@ -200,11 +201,11 @@ export const handler: Handlers = {
     const { logtide, traceId } = ctx.state;
     const { id } = ctx.params;
 
-    logtide.info('Fetching user', { userId: id, traceId });
+    logtide.info('fresh-app', 'Fetching user', { userId: id, traceId });
 
     const user = await db.getUser(id);
     if (!user) {
-      logtide.warning('User not found', { userId: id, traceId });
+      logtide.warn('fresh-app', 'User not found', { userId: id, traceId });
       return new Response('Not Found', { status: 404 });
     }
 
@@ -224,11 +225,11 @@ If using Oak (Deno's Express-like framework):
 ```typescript
 // main.ts
 import { Application, Router } from 'https://deno.land/x/oak/mod.ts';
-import { LogTideClient } from 'npm:@logtide/node';
+import { LogTideClient } from 'npm:@logtide/sdk-node';
 
 const client = new LogTideClient({
-  dsn: Deno.env.get('LOGTIDE_DSN')!,
-  service: 'oak-api',
+  apiUrl: Deno.env.get('LOGTIDE_API_URL')!,
+  apiKey: Deno.env.get('LOGTIDE_API_KEY')!,
 });
 
 const app = new Application();
@@ -239,7 +240,7 @@ app.use(async (ctx, next) => {
   await next();
   const durationMs = Math.round(performance.now() - start);
 
-  client.info(`${ctx.request.method} ${ctx.request.url.pathname} ${ctx.response.status}`, {
+  client.info('oak-api', `${ctx.request.method} ${ctx.request.url.pathname} ${ctx.response.status}`, {
     method: ctx.request.method,
     path: ctx.request.url.pathname,
     statusCode: ctx.response.status,
@@ -252,7 +253,7 @@ app.use(async (ctx, next) => {
   try {
     await next();
   } catch (error) {
-    client.error('Unhandled error', {
+    client.error('oak-api', 'Unhandled error', {
       error: error instanceof Error ? error.message : String(error),
       path: ctx.request.url.pathname,
     });
@@ -263,7 +264,7 @@ app.use(async (ctx, next) => {
 
 const router = new Router();
 router.get('/users/:id', (ctx) => {
-  client.info('Fetching user', { userId: ctx.params.id });
+  client.info('oak-api', 'Fetching user', { userId: ctx.params.id });
   ctx.response.body = { id: ctx.params.id };
 });
 
@@ -279,11 +280,11 @@ Deno Deploy runs your code at the edge. LogTide works there with some considerat
 
 ```typescript
 // main.ts (for Deno Deploy)
-import { LogTideClient } from 'npm:@logtide/node';
+import { LogTideClient } from 'npm:@logtide/sdk-node';
 
 const client = new LogTideClient({
-  dsn: Deno.env.get('LOGTIDE_DSN')!,
-  service: 'edge-api',
+  apiUrl: Deno.env.get('LOGTIDE_API_URL')!,
+  apiKey: Deno.env.get('LOGTIDE_API_KEY')!,
   // Smaller batches for edge (shorter-lived processes)
   batchSize: 10,
   flushInterval: 2000,
@@ -296,7 +297,7 @@ Deno.serve(async (req) => {
   const response = await handleRequest(req, url);
   const durationMs = Math.round(performance.now() - start);
 
-  client.info(`${req.method} ${url.pathname} ${response.status}`, {
+  client.info('edge-api', `${req.method} ${url.pathname} ${response.status}`, {
     method: req.method,
     path: url.pathname,
     statusCode: response.status,
@@ -309,7 +310,7 @@ Deno.serve(async (req) => {
 ```
 
 **Notes for Deploy:**
-- Set `LOGTIDE_DSN` in the Deno Deploy dashboard environment variables
+- Set `LOGTIDE_API_URL` and `LOGTIDE_API_KEY` in the Deno Deploy dashboard environment variables
 - Use smaller batch sizes since edge functions may terminate quickly
 - Network permissions are granted automatically on Deploy
 
@@ -320,8 +321,8 @@ Deno requires explicit permissions. For LogTide:
 ```bash
 # Minimum permissions
 deno run \
-  --allow-net=your-logtide-host:8080 \  # Network to LogTide
-  --allow-env=LOGTIDE_DSN,DENO_ENV \    # Environment variables
+  --allow-net=your-logtide-host:8080 \                # Network to LogTide
+  --allow-env=LOGTIDE_API_URL,LOGTIDE_API_KEY,DENO_ENV \  # Environment variables
   main.ts
 
 # Development (more permissive)
@@ -345,7 +346,8 @@ COPY . .
 # Cache the main module
 RUN deno cache main.ts
 
-ENV LOGTIDE_DSN=""
+ENV LOGTIDE_API_URL=""
+ENV LOGTIDE_API_KEY=""
 
 EXPOSE 8000
 CMD ["deno", "run", "--allow-net", "--allow-env", "main.ts"]
@@ -376,10 +378,10 @@ Ensure you're using the `npm:` prefix:
 
 ```typescript
 // Correct
-import { LogTideClient } from 'npm:@logtide/node';
+import { LogTideClient } from 'npm:@logtide/sdk-node';
 
 // Wrong (won't resolve)
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 ```
 
 ### Slow first run

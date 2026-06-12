@@ -194,8 +194,6 @@ import { LogTideClient } from '@logtide/sdk-node';
 const logtide = new LogTideClient({
   apiUrl: process.env.LOGTIDE_API_URL!,
   apiKey: process.env.LOGTIDE_API_KEY!,
-  // Or use a DSN string instead:
-  // dsn: process.env.LOGTIDE_DSN,
 });
 
 // Dual-write during migration

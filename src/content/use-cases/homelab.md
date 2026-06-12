@@ -60,12 +60,18 @@ One central Fluent Bit (or Vector) instance receives everything and ships it to 
 
 ## Step 1: Deploy LogTide in an LXC or VM
 
-A container or VM with **2 vCPU / 4 GB RAM / 50+ GB disk** is plenty:
+A container or VM with **2 vCPU / 4 GB RAM / 50+ GB disk** is plenty. For homelab-sized hardware, use the **lightweight compose** (3 containers — PostgreSQL, backend, frontend — no Redis):
 
 ```bash
-git clone https://github.com/logtide-dev/logtide
-cd logtide
-docker compose up -d
+mkdir logtide && cd logtide
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/docker-compose.simple.yml
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/.env.example
+mv .env.example .env
+
+# Edit .env: set DB_PASSWORD and API_KEY_SECRET (openssl rand -base64 32)
+nano .env
+
+docker compose -f docker-compose.simple.yml up -d
 ```
 
 Create an organization, a project (e.g. `homelab`), and an API key. Full steps in the [getting started guide](/docs/getting-started/) — including the low-resource Docker setup.

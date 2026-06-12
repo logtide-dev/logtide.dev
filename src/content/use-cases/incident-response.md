@@ -143,8 +143,6 @@ import { getContext } from './middleware/correlation';
 const client = new LogTideClient({
   apiUrl: process.env.LOGTIDE_API_URL!,
   apiKey: process.env.LOGTIDE_API_KEY!,
-  // Or use a DSN string instead:
-  // dsn: process.env.LOGTIDE_DSN,
 });
 
 function enrichMetadata(metadata: Record<string, unknown> = {}) {
@@ -440,20 +438,22 @@ async function generateTimeline(
   startTime: string,
   endTime: string
 ) {
-  const events = await logtide.search({
-    q: `trace_id:${traceId} OR incident_relevant:true`,
+  const { logs: events } = await logtide.query({
+    q: traceId,
     from: startTime,
     to: endTime,
-    sort: 'asc',
+    limit: 1000,
   });
 
-  return events.map(event => ({
-    time: event.timestamp,
-    service: event.service,
-    level: event.level,
-    message: event.message,
-    metadata: event.metadata,
-  }));
+  return events
+    .sort((a, b) => a.time.localeCompare(b.time))
+    .map(event => ({
+      time: event.time,
+      service: event.service,
+      level: event.level,
+      message: event.message,
+      metadata: event.metadata,
+    }));
 }
 ```
 

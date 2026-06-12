@@ -74,8 +74,6 @@ import { LogTideClient } from '@logtide/sdk-node';
 const client = new LogTideClient({
   apiUrl: process.env.LOGTIDE_API_URL!,
   apiKey: process.env.LOGTIDE_API_KEY!,
-  // Or use a DSN string instead:
-  // dsn: process.env.LOGTIDE_DSN,
   globalMetadata: {
     service: 'security',
     environment: process.env.NODE_ENV,
@@ -99,7 +97,7 @@ export const securityLogger = {
       ? 'warn'
       : 'info';
 
-    client[level](`SECURITY: ${event.event}`, {
+    client[level]('security', `SECURITY: ${event.event}`, {
       security_event: event.event,
       severity: event.severity,
       user_id: event.userId,
@@ -616,7 +614,7 @@ interface AuditEvent {
 }
 
 export function logAuditEvent(event: AuditEvent) {
-  client.info('AUDIT', {
+  client.info('audit', 'AUDIT', {
     ...event,
     audit: true, // Flag for compliance queries
   });

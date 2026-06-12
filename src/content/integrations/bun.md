@@ -51,34 +51,34 @@ Bun is a fast JavaScript runtime that is Node.js API compatible. The LogTide Jav
 ## Installation
 
 ```bash
-bun add @logtide/node
+bun add @logtide/sdk-node
 ```
 
 ## Quick Start
 
 ```typescript
 // index.ts
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 
 const client = new LogTideClient({
-  dsn: process.env.LOGTIDE_DSN!,
-  service: 'bun-app',
-  environment: process.env.NODE_ENV ?? 'development',
+  apiUrl: process.env.LOGTIDE_API_URL!,
+  apiKey: process.env.LOGTIDE_API_KEY!,
+  globalMetadata: { environment: process.env.NODE_ENV ?? 'development' },
 });
 
-client.info('Application started', { runtime: 'bun', version: Bun.version });
+client.info('bun-app', 'Application started', { runtime: 'bun', version: Bun.version });
 
 // Your application logic
 const server = Bun.serve({
   port: 3000,
   fetch(req) {
     const url = new URL(req.url);
-    client.info(`${req.method} ${url.pathname}`);
+    client.info('bun-app', `${req.method} ${url.pathname}`);
     return new Response('OK');
   },
 });
 
-client.info('Server listening', { port: server.port });
+client.info('bun-app', 'Server listening', { port: server.port });
 ```
 
 Run directly — no build step:
@@ -93,7 +93,8 @@ Bun loads `.env` files automatically:
 
 ```bash
 # .env
-LOGTIDE_DSN=http://lp_your_key@logtide.internal:8080
+LOGTIDE_API_URL=http://logtide.internal:8080
+LOGTIDE_API_KEY=lp_your_key
 NODE_ENV=development
 ```
 
@@ -105,11 +106,11 @@ No `dotenv` package needed.
 
 ```typescript
 // server.ts
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 
 const client = new LogTideClient({
-  dsn: process.env.LOGTIDE_DSN!,
-  service: 'api',
+  apiUrl: process.env.LOGTIDE_API_URL!,
+  apiKey: process.env.LOGTIDE_API_KEY!,
 });
 
 const server = Bun.serve({
@@ -124,7 +125,7 @@ const server = Bun.serve({
       const response = await handleRequest(req, url);
       const durationMs = Math.round(performance.now() - start);
 
-      client.info(`${req.method} ${url.pathname} ${response.status}`, {
+      client.info('api', `${req.method} ${url.pathname} ${response.status}`, {
         method: req.method,
         path: url.pathname,
         statusCode: response.status,
@@ -137,7 +138,7 @@ const server = Bun.serve({
     } catch (error) {
       const durationMs = Math.round(performance.now() - start);
 
-      client.error(`${req.method} ${url.pathname} 500`, {
+      client.error('api', `${req.method} ${url.pathname} 500`, {
         method: req.method,
         path: url.pathname,
         statusCode: 500,
@@ -151,7 +152,7 @@ const server = Bun.serve({
   },
 
   error(error) {
-    client.error('Server error', { error: error.message });
+    client.error('api', 'Server error', { error: error.message });
     return new Response('Internal Server Error', { status: 500 });
   },
 });
@@ -172,11 +173,11 @@ Hono is a lightweight framework that runs on Bun. Use the LogTide middleware:
 ```typescript
 // index.ts
 import { Hono } from 'hono';
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 
 const client = new LogTideClient({
-  dsn: process.env.LOGTIDE_DSN!,
-  service: 'hono-api',
+  apiUrl: process.env.LOGTIDE_API_URL!,
+  apiKey: process.env.LOGTIDE_API_KEY!,
 });
 
 const app = new Hono();
@@ -193,7 +194,7 @@ app.use('*', async (c, next) => {
   const path = new URL(c.req.url).pathname;
 
   if (path !== '/health') {
-    client.info(`${c.req.method} ${path} ${c.res.status}`, {
+    client.info('hono-api', `${c.req.method} ${path} ${c.res.status}`, {
       method: c.req.method,
       path,
       statusCode: c.res.status,
@@ -207,7 +208,7 @@ app.use('*', async (c, next) => {
 
 // Error handler
 app.onError((err, c) => {
-  client.error('Unhandled error', {
+  client.error('hono-api', 'Unhandled error', {
     error: err.message,
     path: new URL(c.req.url).pathname,
     traceId: c.get('traceId'),
@@ -217,7 +218,7 @@ app.onError((err, c) => {
 
 app.get('/users/:id', (c) => {
   const id = c.req.param('id');
-  client.info('Fetching user', { userId: id, traceId: c.get('traceId') });
+  client.info('hono-api', 'Fetching user', { userId: id, traceId: c.get('traceId') });
   return c.json({ id, name: 'User' });
 });
 
@@ -231,11 +232,11 @@ Elysia is a Bun-native framework with plugin support:
 ```typescript
 // index.ts
 import { Elysia } from 'elysia';
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 
 const client = new LogTideClient({
-  dsn: process.env.LOGTIDE_DSN!,
-  service: 'elysia-api',
+  apiUrl: process.env.LOGTIDE_API_URL!,
+  apiKey: process.env.LOGTIDE_API_KEY!,
 });
 
 const app = new Elysia()
@@ -250,25 +251,25 @@ const app = new Elysia()
     const start = Number(set.headers['x-start-time']);
     const durationMs = Math.round(performance.now() - start);
 
-    client.info(`${request.method} ${url.pathname}`, {
+    client.info('elysia-api', `${request.method} ${url.pathname}`, {
       method: request.method,
       path: url.pathname,
       durationMs,
     });
   })
   .onError(({ error, request }) => {
-    client.error('Request error', {
+    client.error('elysia-api', 'Request error', {
       error: error.message,
       path: new URL(request.url).pathname,
     });
   })
   .get('/users/:id', ({ params }) => {
-    client.info('Fetching user', { userId: params.id });
+    client.info('elysia-api', 'Fetching user', { userId: params.id });
     return { id: params.id, name: 'User' };
   })
   .listen(3000);
 
-client.info('Server started', { port: app.server?.port });
+client.info('elysia-api', 'Server started', { port: app.server?.port });
 ```
 
 ## Graceful Shutdown
@@ -277,15 +278,15 @@ Bun supports `process.on('beforeExit')` and signal handlers:
 
 ```typescript
 // Flush logs before exit
-process.on('SIGINT', () => {
-  client.info('Shutting down (SIGINT)');
-  client.shutdown();
+process.on('SIGINT', async () => {
+  client.info('bun-app', 'Shutting down (SIGINT)');
+  await client.close();
   process.exit(0);
 });
 
-process.on('SIGTERM', () => {
-  client.info('Shutting down (SIGTERM)');
-  client.shutdown();
+process.on('SIGTERM', async () => {
+  client.info('bun-app', 'Shutting down (SIGTERM)');
+  await client.close();
   process.exit(0);
 });
 ```
@@ -305,7 +306,8 @@ RUN bun install --frozen-lockfile --production
 COPY . .
 
 ENV NODE_ENV=production
-ENV LOGTIDE_DSN=""
+ENV LOGTIDE_API_URL=""
+ENV LOGTIDE_API_KEY=""
 
 EXPOSE 3000
 CMD ["bun", "run", "index.ts"]
@@ -319,7 +321,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - LOGTIDE_DSN=${LOGTIDE_DSN}
+      - LOGTIDE_API_URL=${LOGTIDE_API_URL}
+      - LOGTIDE_API_KEY=${LOGTIDE_API_KEY}
       - NODE_ENV=production
 ```
 
