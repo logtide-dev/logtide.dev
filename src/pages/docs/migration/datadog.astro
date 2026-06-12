@@ -377,8 +377,6 @@ email: 'user@example.com'
 const client = new LogTideClient({
 apiUrl: 'http://logtide.internal:8080',
 apiKey: 'lp_xxx',
-// Or use a DSN string instead:
-// dsn: 'http://lp_xxx@logtide.internal:8080',
 globalMetadata: { env: 'production' }
 });
 
@@ -583,8 +581,6 @@ datadogLogs.init({ clientToken: 'xxx', site: 'datadoghq.com' });
 const logtide = new LogTideClient({
 apiUrl: 'http://logtide.internal:8080',
 apiKey: 'lp_xxx',
-// Or use a DSN string instead:
-// dsn: 'http://lp_xxx@logtide.internal:8080',
 });
 
 // Wrapper to send to both

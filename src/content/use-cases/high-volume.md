@@ -32,11 +32,11 @@ faqs:
   - question: "Can LogTide handle high log volume at scale?"
     answer: "Yes. LogTide supports sustained ingestion of 1 million or more events per second using a Kafka buffer layer, horizontally scaled ingestion workers, and TimescaleDB hypertables for storage. A real-world gaming platform example in the documentation demonstrates 500,000 events per second with a p99 ingestion latency of 200ms."
   - question: "How does LogTide prevent log loss during traffic bursts?"
-    answer: "LogTide recommends placing Apache Kafka between your application SDKs and the LogTide ingesters. Kafka absorbs burst traffic so that temporary slowdowns in ingestion do not cause backpressure or dropped events in your application. The SDK also provides configurable in-memory queues with a maxQueueSize limit to protect application memory."
+    answer: "LogTide recommends placing Apache Kafka between your application SDKs and the LogTide ingesters. Kafka absorbs burst traffic so that temporary slowdowns in ingestion do not cause backpressure or dropped events in your application. The SDK also provides a configurable in-memory buffer with a maxBufferSize limit and drop policy to protect application memory."
   - question: "How do I reduce storage costs at high log volume with LogTide?"
     answer: "LogTide supports tiered retention: recent data (hot tier) stays in TimescaleDB on fast SSD, older data moves to compressed chunks (warm tier), and archival data is offloaded to object storage such as S3 (cold tier). At 100 GB/day this tiered approach costs roughly $123 per month in storage versus approximately $1,000 per month for keeping everything in hot storage."
   - question: "What SDK settings should I tune for high-throughput logging?"
-    answer: "For high-volume workloads, increase batchSize to 500 or more, reduce flushInterval to 1-2 seconds, enable gzip compression, and raise maxQueueSize to accommodate burst traffic. Filtering out debug logs in production and sampling high-frequency successful requests at a low rate (such as 1%) are also strongly recommended to control storage growth."
+    answer: "For high-volume workloads, increase batchSize to 500 or more, reduce flushInterval to 1-2 seconds, and raise maxBufferSize to accommodate burst traffic. Filtering out debug logs in production and sampling high-frequency successful requests at a low rate (such as 1%) are also strongly recommended to control storage growth."
 ---
 
 When your systems generate millions of log events per second, naive logging approaches fail. Buffers overflow, disks fill up, and your observability pipeline becomes a liability. This guide covers the architecture and configuration patterns for handling high-volume log workloads with LogTide.
@@ -97,43 +97,41 @@ Configure your application SDKs for high-throughput batching:
 
 ```typescript
 // Node.js SDK - tuned for high volume
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 
 const client = new LogTideClient({
-  dsn: process.env.LOGTIDE_DSN!,
-  service: 'high-throughput-api',
+  apiUrl: process.env.LOGTIDE_API_URL!,
+  apiKey: process.env.LOGTIDE_API_KEY!,
 
   // Batching tuning
   batchSize: 500,           // Larger batches (default: 100)
   flushInterval: 2000,      // Flush every 2s (default: 5s)
-  maxQueueSize: 50000,      // Larger in-memory buffer
-
-  // Compression
-  compress: true,            // gzip batches before sending
+  maxBufferSize: 50000,     // Larger in-memory buffer
 
   // Reliability
   maxRetries: 3,
-  retryDelay: 1000,
+  retryDelayMs: 1000,
 });
 ```
 
 ```python
 # Python SDK - tuned for high volume
-from logtide import LogTideClient
+import os
 
-client = LogTideClient(
+from logtide_sdk import LogTideClient, ClientOptions
+
+client = LogTideClient(ClientOptions(
     api_url=os.environ["LOGTIDE_API_URL"],
     api_key=os.environ["LOGTIDE_API_KEY"],
 
     batch_size=500,
     flush_interval=2.0,
-    async_mode=True,
 
     global_metadata={
         "environment": "production",
         "tier": "critical",
     },
-)
+))
 ```
 
 ### 2. Log Level Filtering
@@ -141,18 +139,19 @@ client = LogTideClient(
 At high volume, not every log needs to reach LogTide. Filter at the SDK level:
 
 ```typescript
-// Only ship warning+ in production, debug+ in staging
-const minLevel = process.env.NODE_ENV === 'production' ? 'warning' : 'debug';
-
 const client = new LogTideClient({
-  dsn: process.env.LOGTIDE_DSN!,
-  service: 'api',
-  minLevel,
+  apiUrl: process.env.LOGTIDE_API_URL!,
+  apiKey: process.env.LOGTIDE_API_KEY!,
 });
 
-// In hot paths, use conditional logging
-if (client.isEnabled('debug')) {
-  client.debug('Processing item', { itemId, step: 'validation' });
+// Only ship warn+ in production, debug+ in staging
+const LEVELS = ['debug', 'info', 'warn', 'error', 'critical'];
+const minLevel = process.env.NODE_ENV === 'production' ? 'warn' : 'debug';
+const enabled = (level: string) => LEVELS.indexOf(level) >= LEVELS.indexOf(minLevel);
+
+// In hot paths, gate logging before the call
+if (enabled('debug')) {
+  client.debug('api', 'Processing item', { itemId, step: 'validation' });
 }
 ```
 
@@ -173,7 +172,7 @@ app.use((req, res, next) => {
 
   res.on('finish', () => {
     if (shouldLog(res.statusCode)) {
-      client.info(`${req.method} ${req.path} ${res.statusCode}`, {
+      client.info('api', `${req.method} ${req.path} ${res.statusCode}`, {
         durationMs: Math.round(performance.now() - start),
         sampled: res.statusCode < 300,
         sampleRate: res.statusCode < 300 ? 0.01 : 1.0,
@@ -336,17 +335,16 @@ S3 (cold: 90 days)
 ```typescript
 // Game server SDK config
 const client = new LogTideClient({
-  dsn: process.env.LOGTIDE_DSN!,
-  service: 'game-server',
+  apiUrl: process.env.LOGTIDE_API_URL!,
+  apiKey: process.env.LOGTIDE_API_KEY!,
   batchSize: 1000,
   flushInterval: 1000,
-  compress: true,
-  maxQueueSize: 100000,
+  maxBufferSize: 100000,
 });
 
 // Only log actionable events in production
 // Debug events sampled at 0.1%
-client.info('match_started', {
+client.info('game-server', 'match_started', {
   matchId,
   players: playerIds.length,
   map: mapName,
@@ -402,7 +400,7 @@ At 100,000 events/sec, "everything" means 4.3 TB/day. Storage costs dominate.
 
 SDKs buffer in memory. If LogTide or Kafka is down for 5 minutes at 100k events/sec, that's 30 million events in memory — potentially GBs of RAM.
 
-**Solution:** Set `maxQueueSize` limits. Accept that during extended outages, some logs may be dropped. Log the drop count itself.
+**Solution:** Set `maxBufferSize` limits. Accept that during extended outages, some logs may be dropped. Log the drop count itself.
 
 ### 3. "We'll tune performance later"
 

@@ -1,0 +1,412 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import SEO from '../components/SEO.astro';
+import FAQSection from '../components/content/FAQSection.astro';
+import { ClientRouter } from 'astro:transitions';
+import { Icon } from 'astro-icon/components';
+
+const title = 'Cloud Logging Pricing: CloudWatch vs GCP vs Azure Costs Compared | LogTide';
+const description =
+  'What AWS CloudWatch, Google Cloud Logging and Azure Monitor really cost per GB — ingestion, storage, query fees and worked examples, plus the self-hosted alternative.';
+const keywords = [
+  'cloud logging pricing',
+  'google cloud logging pricing',
+  'gcp logging pricing',
+  'cloudwatch logs pricing',
+  'azure monitor logs pricing',
+  'log analytics pricing',
+  'logging costs per GB',
+  'reduce cloud logging costs',
+];
+
+const seoBreadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Cloud Logging Pricing', url: '/cloud-logging-pricing/' },
+];
+
+// Provider price cards — figures match the detailed /vs/ pages.
+const providers = [
+  {
+    name: 'AWS CloudWatch Logs',
+    vsLink: '/vs/aws-cloudwatch/',
+    rows: [
+      ['Ingestion', '$0.50/GB'],
+      ['Storage', '$0.03/GB/month'],
+      ['Logs Insights queries', '$0.005/GB scanned'],
+      ['Live Tail', '$0.01/minute'],
+    ],
+    note: 'Every Logs Insights query bills for the data it scans — debugging sessions have a meter running.',
+  },
+  {
+    name: 'Google Cloud Logging',
+    vsLink: '/vs/gcp-cloud-logging/',
+    rows: [
+      ['First 50 GiB/month', 'Free'],
+      ['Additional ingestion', '$0.50/GiB'],
+      ['Storage (>30 days)', '$0.01/GiB/month'],
+      ['Log Analytics', 'BigQuery query costs'],
+    ],
+    note: 'The free tier is generous for small projects, but beyond it costs scale linearly with volume.',
+  },
+  {
+    name: 'Azure Monitor (Log Analytics)',
+    vsLink: '/vs/azure-monitor/',
+    rows: [
+      ['Ingestion (pay-as-you-go)', '$2.76/GB'],
+      ['Ingestion (commitment, 100 GB/day)', '$1.96/GB'],
+      ['Extra retention', '$0.10/GB/month'],
+      ['Sentinel SIEM add-on', '+$2.46/GB'],
+    ],
+    note: 'The highest per-GB price of the three — and security detection (Sentinel) nearly doubles it.',
+  },
+];
+
+const faqs = [
+  {
+    question: 'How much does Google Cloud Logging cost?',
+    answer:
+      'Google Cloud Logging includes 50 GiB of ingestion per project per month for free, then charges $0.50/GiB. Storage beyond the default 30-day retention costs $0.01/GiB/month, and querying logs through Log Analytics adds BigQuery costs. A workload ingesting 100 GiB/day runs roughly $1,675/month including analytics.',
+  },
+  {
+    question: 'How much do AWS CloudWatch Logs cost?',
+    answer:
+      'CloudWatch Logs charges $0.50/GB for ingestion, $0.03/GB/month for storage, and $0.005 per GB scanned by each Logs Insights query. A 50 GB/day workload with 30-day retention and regular queries costs around $870/month — and query costs grow the more you actually use your logs.',
+  },
+  {
+    question: 'How much does Azure Monitor Log Analytics cost?',
+    answer:
+      'Azure Log Analytics charges about $2.76/GB pay-as-you-go, dropping to roughly $1.96/GB on a 100 GB/day commitment tier. Retention beyond the included period adds $0.10/GB/month, and Microsoft Sentinel (the SIEM layer) adds another $2.46/GB on top.',
+  },
+  {
+    question: 'Why do cloud logging bills grow so fast?',
+    answer:
+      'Because every dimension is metered: ingestion per GB, storage per GB-month, and often queries per GB scanned. Log volume grows with traffic and with every new service, so the bill compounds. Teams end up dropping logs or cutting retention to control costs — losing exactly the data they need during incidents.',
+  },
+  {
+    question: 'How can I reduce cloud logging costs?',
+    answer:
+      'Short term: filter noisy debug logs at the source, sample high-volume access logs, and reduce retention on low-value log groups. Structurally: move log search and retention to self-hosted infrastructure. Self-hosting LogTide replaces per-GB fees with a fixed infrastructure cost, typically saving 60-90% beyond ~50 GB/day.',
+  },
+  {
+    question: 'Is self-hosted logging really cheaper than CloudWatch or GCP?',
+    answer:
+      'Beyond moderate volume, yes. At 50 GB/day, CloudWatch costs ~$870/month versus ~$330/month for LogTide on equivalent AWS infrastructure. At 100 GiB/day on GCP, Cloud Logging runs ~$1,675/month versus ~$450/month self-hosted. Below ~50 GiB/month, cloud free tiers win and self-hosting is not worth the overhead.',
+  },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <SEO
+      title={title}
+      description={description}
+      type="website"
+      ogImage="https://logtide.dev/images/default.png"
+      breadcrumbs={seoBreadcrumbs}
+      keywords={keywords}
+      faqs={faqs}
+    />
+    <meta name="theme-color" content="#7c3aed" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <title>{title}</title>
+    <ClientRouter />
+    <script is:inline>
+      (function () {
+        function applyTheme() {
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const theme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        }
+        applyTheme();
+        document.addEventListener('astro:after-swap', applyTheme);
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen bg-background text-foreground antialiased">
+    <Header />
+
+    <main>
+      <!-- Hero -->
+      <section class="relative overflow-hidden px-6 py-16 md:py-24" aria-labelledby="hero-heading">
+        <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" aria-hidden="true"></div>
+        <div class="relative mx-auto max-w-4xl text-center">
+          <div class="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+            <Icon name="lucide:calculator" class="h-3.5 w-3.5" />
+            Updated pricing breakdown
+          </div>
+          <h1 id="hero-heading" class="mb-6 text-4xl font-bold tracking-tight md:text-5xl">
+            What cloud logging <span class="text-primary">really costs</span>
+          </h1>
+          <p class="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground">
+            AWS CloudWatch, Google Cloud Logging and Azure Monitor all meter ingestion, storage and
+            queries separately. Here's the per-GB breakdown, worked examples at real volumes, and
+            where the bill actually comes from.
+          </p>
+        </div>
+      </section>
+
+      <!-- Provider pricing cards -->
+      <section class="px-6 pb-12" aria-labelledby="providers-heading">
+        <div class="mx-auto max-w-6xl">
+          <h2 id="providers-heading" class="sr-only">Pricing by provider</h2>
+          <div class="grid gap-6 lg:grid-cols-3">
+            {providers.map((p) => (
+              <article class="flex flex-col rounded-2xl border border-border bg-card p-6">
+                <h3 class="mb-4 text-lg font-semibold">{p.name}</h3>
+                <table class="mb-4 w-full text-sm">
+                  <tbody>
+                    {p.rows.map(([label, value]) => (
+                      <tr class="border-b border-border/60 last:border-0">
+                        <td class="py-2 pr-2 text-muted-foreground">{label}</td>
+                        <td class="py-2 text-right font-medium">{value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <p class="mb-4 flex-1 text-sm text-muted-foreground">{p.note}</p>
+                <a href={p.vsLink} class="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+                  Full comparison vs LogTide
+                  <Icon name="lucide:arrow-right" class="h-4 w-4" />
+                </a>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- Worked example -->
+      <section class="border-t border-border bg-muted/30 px-6 py-20" aria-labelledby="example-heading">
+        <div class="mx-auto max-w-4xl">
+          <div class="mb-10 text-center">
+            <span class="text-sm font-medium uppercase tracking-wider text-primary">Worked example</span>
+            <h2 id="example-heading" class="mb-4 mt-2 text-3xl font-bold md:text-4xl">
+              The same logs, four very different bills
+            </h2>
+            <p class="mx-auto max-w-2xl text-lg text-muted-foreground">
+              A mid-size SaaS ingesting <strong class="text-foreground">50 GB/day</strong> (~1.5 TB/month)
+              with 30-day searchable retention and regular debugging queries:
+            </p>
+          </div>
+
+          <div class="overflow-x-auto rounded-2xl border border-border bg-card">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-border bg-muted/50 text-left">
+                  <th class="px-5 py-3 font-semibold">Platform</th>
+                  <th class="px-5 py-3 font-semibold">Monthly cost</th>
+                  <th class="px-5 py-3 font-semibold">Annual cost</th>
+                  <th class="px-5 py-3 font-semibold">Main cost drivers</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-border/60">
+                  <td class="px-5 py-3">AWS CloudWatch Logs</td>
+                  <td class="px-5 py-3 font-medium">~$870</td>
+                  <td class="px-5 py-3">~$10,440</td>
+                  <td class="px-5 py-3 text-muted-foreground">$750 ingestion + storage + Insights queries</td>
+                </tr>
+                <tr class="border-b border-border/60">
+                  <td class="px-5 py-3">Google Cloud Logging</td>
+                  <td class="px-5 py-3 font-medium">~$725</td>
+                  <td class="px-5 py-3">~$8,700</td>
+                  <td class="px-5 py-3 text-muted-foreground">$0.50/GiB beyond 50 GiB free + analytics</td>
+                </tr>
+                <tr class="border-b border-border/60">
+                  <td class="px-5 py-3">Azure Log Analytics</td>
+                  <td class="px-5 py-3 font-medium">~$3,240</td>
+                  <td class="px-5 py-3">~$38,880</td>
+                  <td class="px-5 py-3 text-muted-foreground">$1.96/GB commitment tier + retention</td>
+                </tr>
+                <tr class="bg-primary/5">
+                  <td class="px-5 py-3 font-semibold">LogTide (self-hosted)</td>
+                  <td class="px-5 py-3 font-semibold text-primary">~$330</td>
+                  <td class="px-5 py-3 font-semibold text-primary">~$3,960</td>
+                  <td class="px-5 py-3 text-muted-foreground">VM + storage only. Unlimited queries & users</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="mt-6 text-center text-sm text-muted-foreground">
+            Figures from the detailed comparisons:
+            <a href="/vs/aws-cloudwatch/" class="text-primary hover:underline">vs CloudWatch</a>,
+            <a href="/vs/gcp-cloud-logging/" class="text-primary hover:underline">vs Cloud Logging</a>,
+            <a href="/vs/azure-monitor/" class="text-primary hover:underline">vs Azure Monitor</a>.
+            Below ~50 GiB/month, cloud free tiers win — self-hosting pays off as volume grows.
+          </p>
+        </div>
+      </section>
+
+      <!-- Hidden costs -->
+      <section class="px-6 py-20" aria-labelledby="hidden-heading">
+        <div class="mx-auto max-w-6xl">
+          <div class="mb-12 text-center">
+            <span class="text-sm font-medium uppercase tracking-wider text-primary">Beyond the sticker price</span>
+            <h2 id="hidden-heading" class="mb-4 mt-2 text-3xl font-bold md:text-4xl">
+              Where cloud logging bills actually come from
+            </h2>
+          </div>
+          <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <article class="rounded-2xl border border-border bg-card p-6">
+              <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                <Icon name="lucide:search" class="h-6 w-6 text-primary" />
+              </div>
+              <h3 class="mb-2 font-semibold">Pay-per-query</h3>
+              <p class="text-sm text-muted-foreground">
+                CloudWatch Logs Insights bills $0.005/GB scanned and Azure Basic Logs $0.006/GB. The more
+                you debug, the more you pay — a perverse incentive during incidents.
+              </p>
+            </article>
+            <article class="rounded-2xl border border-border bg-card p-6">
+              <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                <Icon name="lucide:archive" class="h-6 w-6 text-primary" />
+              </div>
+              <h3 class="mb-2 font-semibold">Retention fees</h3>
+              <p class="text-sm text-muted-foreground">
+                Keeping logs searchable past 30 days costs extra everywhere. Compliance teams needing
+                12-month retention pay storage fees on every GB, every month.
+              </p>
+            </article>
+            <article class="rounded-2xl border border-border bg-card p-6">
+              <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                <Icon name="lucide:shield-alert" class="h-6 w-6 text-primary" />
+              </div>
+              <h3 class="mb-2 font-semibold">SIEM add-ons</h3>
+              <p class="text-sm text-muted-foreground">
+                Security detection is never included: Microsoft Sentinel adds $2.46/GB on top of Log
+                Analytics. LogTide ships Sigma rules and MITRE ATT&CK mapping in the box.
+              </p>
+            </article>
+            <article class="rounded-2xl border border-border bg-card p-6">
+              <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                <Icon name="lucide:trending-up" class="h-6 w-6 text-primary" />
+              </div>
+              <h3 class="mb-2 font-semibold">Growth coupling</h3>
+              <p class="text-sm text-muted-foreground">
+                Per-GB pricing means every new service, traffic spike or verbose deploy raises the bill.
+                Teams respond by dropping logs — losing the data they need most.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- How to cut costs -->
+      <section class="border-t border-border bg-muted/30 px-6 py-20" aria-labelledby="cut-heading">
+        <div class="mx-auto max-w-4xl">
+          <div class="mb-10 text-center">
+            <span class="text-sm font-medium uppercase tracking-wider text-primary">Cutting the bill</span>
+            <h2 id="cut-heading" class="mb-4 mt-2 text-3xl font-bold md:text-4xl">
+              Three ways to reduce cloud logging costs
+            </h2>
+          </div>
+          <ol class="space-y-6">
+            <li class="rounded-2xl border border-border bg-card p-6">
+              <h3 class="mb-2 font-semibold">1. Filter and sample at the source</h3>
+              <p class="text-sm text-muted-foreground">
+                Drop debug-level noise before it ships, sample high-volume access logs, and route
+                low-value log groups to short retention. This buys 20-40% but caps out quickly — and
+                every filter is data you can't get back.
+              </p>
+            </li>
+            <li class="rounded-2xl border border-border bg-card p-6">
+              <h3 class="mb-2 font-semibold">2. Use commitment tiers and basic-log SKUs</h3>
+              <p class="text-sm text-muted-foreground">
+                Azure commitment tiers and CloudWatch infrequent-access classes trade flexibility for
+                discounts. You're still metered per GB — the bill grows with you, just slightly slower.
+              </p>
+            </li>
+            <li class="rounded-2xl border border-border bg-card p-6">
+              <h3 class="mb-2 font-semibold">3. Move search and retention off the meter</h3>
+              <p class="text-sm text-muted-foreground">
+                The structural fix: keep cloud logging as a thin transport (or bypass it entirely) and
+                run search, alerting and retention on
+                <a href="/self-hosted-log-management/" class="text-primary hover:underline">self-hosted infrastructure</a>.
+                LogTide turns logging into a flat infrastructure line item — unlimited queries, users
+                and retention. See the
+                <a href="/use-cases/cost-optimization/" class="text-primary hover:underline">cost optimization guide</a>
+                for worked migrations.
+              </p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section class="border-t border-border px-6 py-20" aria-labelledby="faq-wrap">
+        <div class="mx-auto max-w-3xl">
+          <h2 id="faq-wrap" class="sr-only">Cloud logging pricing FAQ</h2>
+          <FAQSection faqs={faqs} title="Cloud logging pricing: FAQ" />
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="relative overflow-hidden px-6 py-24" aria-labelledby="cta-heading">
+        <div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent" aria-hidden="true"></div>
+        <div class="relative mx-auto max-w-3xl text-center">
+          <h2 id="cta-heading" class="mb-6 text-3xl font-bold md:text-4xl">Take logging off the meter</h2>
+          <p class="mx-auto mb-10 max-w-xl text-lg text-muted-foreground">
+            LogTide is free, open-source log management with built-in SIEM. Deploy with Docker Compose
+            and stop paying per gigabyte.
+          </p>
+          <div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <a
+              href="/docs/getting-started/"
+              class="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-lg font-medium text-white transition-colors hover:bg-primary-600"
+            >
+              Get started
+              <Icon name="lucide:arrow-right" class="h-5 w-5" />
+            </a>
+            <a
+              href="/vs/"
+              class="inline-flex items-center gap-2 rounded-lg border border-border bg-card/50 px-8 py-4 text-lg font-medium text-foreground transition-colors hover:bg-muted"
+            >
+              All comparisons
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+
+    <style is:global>
+      @import '../styles/tailwind.css';
+      @import '../styles/custom.css';
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: 'Inter', system-ui, sans-serif;
+      }
+
+      code,
+      pre {
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      }
+
+      .header-container,
+      .footer-container {
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+      }
+    </style>
+  </body>
+</html>

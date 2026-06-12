@@ -148,16 +148,16 @@ At higher volumes (200+ GB/day), savings exceed 80%.
 Run LogTide in parallel with CloudWatch during evaluation:
 
 ```typescript
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 
 const logtide = new LogTideClient({
-  dsn: process.env.LOGTIDE_DSN!,
-  service: 'my-service',
+  apiUrl: process.env.LOGTIDE_API_URL!,
+  apiKey: process.env.LOGTIDE_API_KEY!,
 });
 
 // Your existing CloudWatch logging continues
 // LogTide receives the same events via SDK
-logtide.info('Request processed', { path: '/api/users', status: 200 });
+logtide.info('my-service', 'Request processed', { path: '/api/users', status: 200 });
 ```
 
 ### Step 2: Forward CloudWatch to LogTide
@@ -180,13 +180,13 @@ export const handler = async (event: CloudWatchLogsEvent) => {
     },
   }));
 
-  await fetch(`${process.env.LOGTIDE_API_URL}/api/v1/ingest/batch`, {
+  await fetch(`${process.env.LOGTIDE_API_URL}/api/v1/ingest`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'X-API-Key': process.env.LOGTIDE_API_KEY!,
     },
-    body: JSON.stringify({ events }),
+    body: JSON.stringify({ logs: events }),
   });
 };
 ```

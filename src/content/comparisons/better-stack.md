@@ -185,18 +185,18 @@ The cost gap widens further as team size grows, since LogTide has zero per-user 
 Run LogTide alongside Better Stack during evaluation. Use both SDKs in parallel:
 
 ```typescript
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 
 const logtide = new LogTideClient({
-  dsn: process.env.LOGTIDE_DSN!,
-  service: 'my-service',
+  apiUrl: process.env.LOGTIDE_API_URL!,
+  apiKey: process.env.LOGTIDE_API_KEY!,
 });
 
 // Your existing Better Stack (Logtail) SDK continues running
 // LogTide receives the same events via its SDK
-logtide.info('User signed up', { plan: 'pro', source: 'website' });
-logtide.warn('Disk usage high', { mount: '/data', usage_pct: 87 });
-logtide.error('Webhook delivery failed', { url: 'https://...', status: 503 });
+logtide.info('my-service', 'User signed up', { plan: 'pro', source: 'website' });
+logtide.warn('my-service', 'Disk usage high', { mount: '/data', usage_pct: 87 });
+logtide.error('my-service', 'Webhook delivery failed', { url: 'https://...', status: 503 });
 ```
 
 ### Step 2: Forward via Fluent Bit

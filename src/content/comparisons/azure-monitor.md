@@ -168,16 +168,16 @@ kubectl apply -f logtide-deployment.yaml
 Configure your applications to send logs to both Azure Monitor and LogTide:
 
 ```typescript
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 
 const logtide = new LogTideClient({
-  dsn: process.env.LOGTIDE_DSN!,
-  service: 'my-service',
+  apiUrl: process.env.LOGTIDE_API_URL!,
+  apiKey: process.env.LOGTIDE_API_KEY!,
 });
 
 // Existing Azure Application Insights continues
 // LogTide also receives events
-logtide.info('Request processed', { path: '/api/users', status: 200 });
+logtide.info('my-service', 'Request processed', { path: '/api/users', status: 200 });
 ```
 
 ### Step 3: Forward via Event Hub

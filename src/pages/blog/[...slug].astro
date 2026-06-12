@@ -1,0 +1,220 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import ContentPage from '../../layouts/ContentPage.astro';
+import { Icon } from 'astro-icon/components';
+import { execSync } from 'child_process';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('blog', ({ data }) => !data.draft);
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<'blog'>;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+const title = entry.data.title;
+const description = entry.data.description;
+
+const rawPathname = Astro.url.pathname;
+const pathname = rawPathname.endsWith('/') ? rawPathname : rawPathname + '/';
+
+const seoBreadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Blog', url: '/blog/' },
+  { name: entry.data.title, url: pathname },
+];
+
+const pubDate = entry.data.pubDate;
+const pubDateFormatted = pubDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+});
+
+// File path for git dates
+const filePath = `src/content/blog/${entry.id}.md`;
+const editUrl = `https://github.com/logtide-dev/logtide.dev/edit/main/${filePath}`;
+
+let lastUpdated: string | null = null;
+let dateModifiedISO: string | null = null;
+
+try {
+  const cwd = process.cwd();
+  const gitDateModified = execSync(`git log -1 --format="%ci" -- "${filePath}"`, { encoding: 'utf-8', cwd }).trim();
+  if (gitDateModified) {
+    const date = new Date(gitDateModified);
+    lastUpdated = date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+    dateModifiedISO = date.toISOString();
+  }
+} catch {
+  // Git command failed
+}
+---
+
+<ContentPage
+  title={`${title} | LogTide Blog`}
+  description={description}
+  breadcrumbs={seoBreadcrumbs}
+  datePublished={pubDate.toISOString()}
+  dateModified={dateModifiedISO}
+  keywords={entry.data.keywords}
+  faqs={entry.data.faqs}
+>
+  <!-- Navigation breadcrumb -->
+  <nav class="mb-6" aria-label="Breadcrumb">
+    <ol class="flex items-center gap-2 text-sm text-muted-foreground">
+      <li>
+        <a href="/" class="hover:text-foreground transition-colors">Home</a>
+      </li>
+      <li class="text-muted-foreground/50">/</li>
+      <li>
+        <a href="/blog/" class="hover:text-foreground transition-colors">Blog</a>
+      </li>
+      <li class="text-muted-foreground/50">/</li>
+      <li class="text-foreground line-clamp-1">{title}</li>
+    </ol>
+  </nav>
+
+  <!-- Page Header -->
+  <header class="mb-8">
+    <div class="flex flex-wrap items-center gap-3 mb-4">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary">
+        <Icon name="lucide:newspaper" class="w-4 h-4" />
+        Blog
+      </span>
+      <time datetime={pubDate.toISOString()} class="text-sm text-muted-foreground">
+        {pubDateFormatted}
+      </time>
+      <span class="text-sm text-muted-foreground">· {entry.data.author}</span>
+    </div>
+
+    <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent leading-tight">
+      {title}
+    </h1>
+
+    <p class="text-lg text-muted-foreground">
+      {description}
+    </p>
+
+    {entry.data.tags.length > 0 && (
+      <div class="flex flex-wrap gap-2 mt-4">
+        {entry.data.tags.map((tag) => (
+          <span class="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+            {tag}
+          </span>
+        ))}
+      </div>
+    )}
+  </header>
+
+  <!-- Markdown Content -->
+  <div class="prose-content">
+    <Content />
+  </div>
+
+  <!-- Edit Link -->
+  <div class="mt-16 pt-8 border-t border-border">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      {lastUpdated && (
+        <span class="text-sm text-muted-foreground">
+          Last updated: {lastUpdated}
+        </span>
+      )}
+      <a
+        href={editUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors no-underline"
+      >
+        <Icon name="lucide:pencil" class="w-4 h-4" />
+        Edit this page on GitHub
+      </a>
+    </div>
+  </div>
+</ContentPage>
+
+<style>
+  .prose-content > * + * {
+    margin-top: 1.5em;
+  }
+
+  .prose-content :global(h2) {
+    @apply text-2xl font-semibold mt-12 mb-6 pb-2 border-b border-border scroll-mt-24;
+  }
+
+  .prose-content :global(h3) {
+    @apply text-xl font-semibold mt-8 mb-4 scroll-mt-24;
+  }
+
+  .prose-content :global(h4) {
+    @apply text-lg font-semibold mt-6 mb-2;
+  }
+
+  .prose-content :global(p) {
+    @apply leading-7;
+  }
+
+  .prose-content :global(ul) {
+    @apply list-disc list-inside space-y-2 mb-4;
+  }
+
+  .prose-content :global(ol) {
+    @apply list-decimal list-inside space-y-2 mb-4;
+  }
+
+  .prose-content :global(li > p) {
+    @apply my-0 inline;
+  }
+
+  .prose-content :global(a) {
+    @apply font-medium text-primary underline underline-offset-4 decoration-primary/20 hover:decoration-primary transition-all cursor-pointer;
+  }
+
+  .prose-content :global(blockquote) {
+    @apply pl-6 py-1 my-6 border-l-4 border-primary/20 italic text-muted-foreground bg-primary/5 rounded-r-lg;
+  }
+
+  .prose-content :global(:not(pre) > code) {
+    @apply relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-normal text-foreground;
+  }
+
+  .prose-content :global(table) {
+    @apply w-full text-left border-collapse;
+  }
+
+  .prose-content :global(thead) {
+    @apply bg-muted/50 text-foreground;
+  }
+
+  .prose-content :global(th) {
+    @apply p-4 font-semibold border-b border-border;
+  }
+
+  .prose-content :global(td) {
+    @apply p-4 border-b border-border text-muted-foreground;
+  }
+
+  .prose-content :global(tr:last-child td) {
+    @apply border-0;
+  }
+
+  .prose-content :global(pre) {
+    @apply p-4 rounded-lg overflow-x-auto border border-border my-6 font-normal;
+  }
+
+  .prose-content :global(pre code) {
+    @apply font-normal;
+    background-color: transparent !important;
+  }
+</style>

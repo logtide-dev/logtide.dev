@@ -204,8 +204,10 @@ const faqs = [
                 <span class="ml-2 text-xs text-muted-foreground">deploy.sh</span>
               </div>
               <pre class="overflow-x-auto p-5 text-sm leading-relaxed"><code><span class="text-muted-foreground"># Self-host LogTide on your own box</span>
-<span class="text-primary">git</span> clone https://github.com/logtide-dev/logtide
-<span class="text-primary">cd</span> logtide
+<span class="text-primary">mkdir</span> logtide && <span class="text-primary">cd</span> logtide
+<span class="text-primary">curl</span> -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/docker-compose.yml
+<span class="text-primary">curl</span> -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/.env.example
+<span class="text-primary">mv</span> .env.example .env
 <span class="text-primary">docker</span> compose up -d
 
 <span class="text-muted-foreground"># Your logs. Your server. Your rules.</span></code></pre>

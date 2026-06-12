@@ -156,8 +156,6 @@ class PrivacyLogger {
     this.client = new LogTideClient({
       apiUrl: process.env.LOGTIDE_API_URL!,
       apiKey: process.env.LOGTIDE_API_KEY!,
-      // Or use a DSN string instead:
-      // dsn: process.env.LOGTIDE_DSN,
       globalMetadata: {
         environment: process.env.NODE_ENV,
         dataClassification: 'gdpr-compliant',
@@ -168,7 +166,7 @@ class PrivacyLogger {
   // Safe logging method that sanitizes data
   log(level: string, message: string, data: Record<string, unknown> = {}) {
     const sanitized = this.sanitize(data);
-    this.client[level](message, sanitized);
+    this.client[level]('app', message, sanitized);
   }
 
   private sanitize(data: Record<string, unknown>): Record<string, unknown> {

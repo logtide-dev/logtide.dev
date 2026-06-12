@@ -250,8 +250,6 @@ interface StructuredStackFrame {
 const client = new LogTideClient({
   apiUrl: 'https://logs.example.com',
   apiKey: 'lp_your_api_key',
-  // Or use a DSN string instead:
-  // dsn: 'https://lp_your_api_key@logs.example.com',
 });
 
 try {
@@ -278,18 +276,20 @@ try {
       <Code
         lang="python"
         theme="one-dark-pro"
-        code={`from logtide import LogTideClient
+        code={`from logtide_sdk import LogTideClient, ClientOptions
 
 client = LogTideClient(
-    api_url="https://logs.example.com",
-    api_key="lp_your_api_key"
+    ClientOptions(
+        api_url="https://logs.example.com",
+        api_key="lp_your_api_key",
+    )
 )
 
 try:
     risky_operation()
 except Exception as e:
     # Exception is automatically serialized with traceback
-    client.error("api", "Operation failed", exc=e)
+    client.error("api", "Operation failed", e)
 
 # With exception chaining
 try:
@@ -307,16 +307,22 @@ except IOError as e:
       <Code
         lang="go"
         theme="one-dark-pro"
-        code={`import "github.com/logtide-dev/logtide-sdk-go"
+        code={`import (
+    "context"
+    logtide "github.com/logtide-dev/logtide-sdk-go"
+)
 
-client := logtide.NewClient(logtide.Config{
-    ApiURL: "https://logs.example.com",
-    ApiKey: "lp_your_api_key",
+cleanup := logtide.Init(logtide.ClientOptions{
+    DSN:     "https://lp_your_api_key@logs.example.com",
+    Service: "api",
 })
+defer cleanup()
 
 if err := riskyOperation(); err != nil {
-    // Error is serialized with stack trace (if using pkg/errors or similar)
-    client.Error("api", "Operation failed", logtide.WithError(err))
+    // Error is captured with a stack trace automatically
+    logtide.CaptureError(context.Background(), err, map[string]any{
+        "operation": "risky_operation",
+    })
 }
 
 // With wrapped errors

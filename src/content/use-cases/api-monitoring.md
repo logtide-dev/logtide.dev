@@ -101,15 +101,14 @@ A production-ready middleware that captures everything you need:
 
 ```typescript
 // middleware/api-logger.ts
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 import { Request, Response, NextFunction } from 'express';
 
 const client = new LogTideClient({
-  dsn: process.env.LOGTIDE_DSN!,
-  service: 'api',
+  apiUrl: process.env.LOGTIDE_API_URL!,
+  apiKey: process.env.LOGTIDE_API_KEY!,
   batchSize: 200,
   flushInterval: 3000,
-  compress: true,
 });
 
 export function apiLogger() {
@@ -145,11 +144,11 @@ export function apiLogger() {
       };
 
       if (res.statusCode >= 500) {
-        client.error(`${req.method} ${req.path} ${res.statusCode}`, metrics);
+        client.error('api', `${req.method} ${req.path} ${res.statusCode}`, metrics);
       } else if (res.statusCode >= 400) {
-        client.warn(`${req.method} ${req.path} ${res.statusCode}`, metrics);
+        client.warn('api', `${req.method} ${req.path} ${res.statusCode}`, metrics);
       } else {
-        client.info(`${req.method} ${req.path} ${res.statusCode}`, metrics);
+        client.info('api', `${req.method} ${req.path} ${res.statusCode}`, metrics);
       }
     });
 
@@ -184,11 +183,11 @@ function extractApiVersion(req: Request): string | null {
 // plugins/api-logger.ts
 import { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 
 const client = new LogTideClient({
-  dsn: process.env.LOGTIDE_DSN!,
-  service: 'api',
+  apiUrl: process.env.LOGTIDE_API_URL!,
+  apiKey: process.env.LOGTIDE_API_KEY!,
   batchSize: 200,
   flushInterval: 3000,
 });
@@ -211,11 +210,11 @@ const apiLoggerPlugin: FastifyPluginAsync = async (fastify) => {
     };
 
     if (reply.statusCode >= 500) {
-      client.error(`${request.method} ${request.url} ${reply.statusCode}`, metrics);
+      client.error('api', `${request.method} ${request.url} ${reply.statusCode}`, metrics);
     } else if (reply.statusCode >= 400) {
-      client.warn(`${request.method} ${request.url} ${reply.statusCode}`, metrics);
+      client.warn('api', `${request.method} ${request.url} ${reply.statusCode}`, metrics);
     } else {
-      client.info(`${request.method} ${request.url} ${reply.statusCode}`, metrics);
+      client.info('api', `${request.method} ${request.url} ${reply.statusCode}`, metrics);
     }
   });
 
@@ -231,9 +230,9 @@ Average latency hides problems. A p50 of 50ms with a p99 of 5000ms means 1 in 10
 
 ```typescript
 // middleware/latency-tracker.ts
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 
-const client = new LogTideClient({ dsn: process.env.LOGTIDE_DSN!, service: 'api-metrics' });
+const client = new LogTideClient({ apiUrl: process.env.LOGTIDE_API_URL!, apiKey: process.env.LOGTIDE_API_KEY! });
 
 const latencyBuffer: Map<string, number[]> = new Map();
 
@@ -250,7 +249,7 @@ setInterval(() => {
 
     const pct = (p: number) => latencies[Math.max(0, Math.ceil((p / 100) * latencies.length) - 1)];
 
-    client.info('API latency report', {
+    client.info('api-metrics', 'API latency report', {
       event: 'api.latency_report',
       route,
       request_count: latencies.length,
@@ -272,10 +271,10 @@ When you enforce rate limits, log the events for analysis:
 
 ```typescript
 // middleware/rate-limiter.ts
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 import { Request, Response, NextFunction } from 'express';
 
-const client = new LogTideClient({ dsn: process.env.LOGTIDE_DSN!, service: 'api' });
+const client = new LogTideClient({ apiUrl: process.env.LOGTIDE_API_URL!, apiKey: process.env.LOGTIDE_API_KEY! });
 
 const requestCounts: Map<string, { count: number; resetAt: number }> = new Map();
 
@@ -295,7 +294,7 @@ export function rateLimiter(windowMs: number, maxRequests: number) {
     res.setHeader('X-RateLimit-Remaining', Math.max(0, maxRequests - entry.count));
 
     if (entry.count > maxRequests) {
-      client.warn('Rate limit exceeded', {
+      client.warn('api', 'Rate limit exceeded', {
         event: 'api.rate_limit_exceeded',
         consumer: key,
         path: req.path,
@@ -307,7 +306,7 @@ export function rateLimiter(windowMs: number, maxRequests: number) {
 
     // Warn when approaching limit (80%)
     if (entry.count > maxRequests * 0.8) {
-      client.info('Consumer approaching rate limit', {
+      client.info('api', 'Consumer approaching rate limit', {
         event: 'api.rate_limit_warning',
         consumer: key,
         request_count: entry.count,
@@ -326,9 +325,9 @@ Track which consumers use which endpoints and how much:
 
 ```typescript
 // analytics/consumer-tracker.ts
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 
-const client = new LogTideClient({ dsn: process.env.LOGTIDE_DSN!, service: 'api-analytics' });
+const client = new LogTideClient({ apiUrl: process.env.LOGTIDE_API_URL!, apiKey: process.env.LOGTIDE_API_KEY! });
 
 const activity: Map<string, {
   requests: number; errors: number;
@@ -351,7 +350,7 @@ export function trackConsumer(consumerId: string, route: string, status: number,
 setInterval(() => {
   for (const [id, a] of activity.entries()) {
     if (a.requests === 0) continue;
-    client.info('Consumer activity report', {
+    client.info('api-analytics', 'Consumer activity report', {
       event: 'api.consumer_report',
       consumer_id: id,
       request_count: a.requests,

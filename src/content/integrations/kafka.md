@@ -27,7 +27,7 @@ faqs:
   - question: "Why should I use Kafka as a log transport layer in front of LogTide?"
     answer: "Kafka acts as a durable buffer between your applications and LogTide, absorbing traffic bursts without blocking application code. It provides at-least-once delivery with disk persistence, the ability to replay logs by resetting consumer offsets, and fanout so the same stream can feed LogTide, S3 archival, and real-time alerting simultaneously."
   - question: "How do I ship logs from Kafka into LogTide?"
-    answer: "The recommended approach is to run Fluent Bit as a Kafka consumer using its built-in kafka input plugin, then configure an http output that posts to your LogTide instance at /api/v1/ingest/single with your API key in the X-API-Key header. Alternatively you can write a custom Node.js or Python consumer that batches records and posts them to /api/v1/ingest/batch."
+    answer: "The recommended approach is to run Fluent Bit as a Kafka consumer using its built-in kafka input plugin, then configure an http output that posts to your LogTide instance at /api/v1/ingest/single with your API key in the X-API-Key header. Alternatively you can write a custom Node.js or Python consumer that batches records and posts them to /api/v1/ingest."
   - question: "Does LogTide support structured JSON logs coming through Kafka?"
     answer: "Yes. Both the Fluent Bit consumer and the example Node.js and Python producers serialize log events as JSON. As long as each message includes the expected fields (level, message, service, timestamp), LogTide ingests and indexes them as fully structured log events."
   - question: "Can I use Redpanda instead of Apache Kafka with this setup?"
@@ -235,7 +235,7 @@ def flush():
     Host          api.logtide.dev
     Port          443
     URI           /api/v1/ingest/single
-    Format        json
+    Format        json_lines
     Header        X-API-Key ${LOGTIDE_API_KEY}
     Header        Content-Type application/json
     tls           On
@@ -274,13 +274,13 @@ async function flushToLogTide() {
 
   const batch = buffer.splice(0, BATCH_SIZE);
 
-  const response = await fetch(`${LOGTIDE_API_URL}/api/v1/ingest/batch`, {
+  const response = await fetch(`${LOGTIDE_API_URL}/api/v1/ingest`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'X-API-Key': LOGTIDE_API_KEY,
     },
-    body: JSON.stringify({ events: batch }),
+    body: JSON.stringify({ logs: batch }),
   });
 
   if (!response.ok) {

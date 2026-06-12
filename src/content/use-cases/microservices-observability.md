@@ -160,15 +160,16 @@ Wrap the LogTide SDK so every log event automatically includes trace context:
 
 ```typescript
 // shared/logger.ts
-import { LogTideClient } from '@logtide/node';
+import { LogTideClient } from '@logtide/sdk-node';
 import { getTrace } from './correlation';
 
+const SERVICE_NAME = process.env.SERVICE_NAME || 'unknown';
+
 const client = new LogTideClient({
-  dsn: process.env.LOGTIDE_DSN!,
-  service: process.env.SERVICE_NAME || 'unknown',
+  apiUrl: process.env.LOGTIDE_API_URL!,
+  apiKey: process.env.LOGTIDE_API_KEY!,
   batchSize: 200,
   flushInterval: 3000,
-  compress: true,
 });
 
 function enrichWithTrace(metadata: Record<string, unknown> = {}) {
@@ -187,13 +188,13 @@ function enrichWithTrace(metadata: Record<string, unknown> = {}) {
 
 export const logger = {
   info(message: string, meta?: Record<string, unknown>) {
-    client.info(message, enrichWithTrace(meta));
+    client.info(SERVICE_NAME, message, enrichWithTrace(meta));
   },
   warn(message: string, meta?: Record<string, unknown>) {
-    client.warn(message, enrichWithTrace(meta));
+    client.warn(SERVICE_NAME, message, enrichWithTrace(meta));
   },
   error(message: string, meta?: Record<string, unknown>) {
-    client.error(message, enrichWithTrace(meta));
+    client.error(SERVICE_NAME, message, enrichWithTrace(meta));
   },
 };
 
@@ -267,17 +268,17 @@ Not all services are in Node.js. Here is a Python downstream service using LogTi
 import os, time, uuid
 from contextvars import ContextVar
 from fastapi import FastAPI, Request, Response
-from logtide import LogTideClient
+from logtide_sdk import LogTideClient, ClientOptions
 
 trace_context: ContextVar[dict] = ContextVar("trace_context", default={})
 
-client = LogTideClient(
+client = LogTideClient(ClientOptions(
     api_url=os.environ["LOGTIDE_API_URL"],
     api_key=os.environ["LOGTIDE_API_KEY"],
     batch_size=200,
     flush_interval=3.0,
     global_metadata={"service": "inventory-service"},
-)
+))
 
 app = FastAPI()
 
@@ -295,15 +296,16 @@ async def trace_middleware(request: Request, call_next):
     duration_ms = round((time.time() - start) * 1000)
 
     client.info(
+        "inventory-service",
         f"{request.method} {request.url.path} {response.status_code}",
-        metadata={**ctx, "duration_ms": duration_ms},
+        {**ctx, "duration_ms": duration_ms},
     )
     return response
 
 @app.post("/check")
 async def check_inventory(items: list[dict]):
     ctx = trace_context.get({})
-    client.info("Inventory check started", metadata={**ctx, "item_count": len(items)})
+    client.info("inventory-service", "Inventory check started", {**ctx, "item_count": len(items)})
 
     unavailable = []
     for item in items:
@@ -354,7 +356,8 @@ metadata:
   namespace: ecommerce
 type: Opaque
 stringData:
-  LOGTIDE_DSN: "https://key@logtide.internal/org/project"
+  LOGTIDE_API_URL: "https://logtide.internal"
+  LOGTIDE_API_KEY: "lp_your_api_key"
 
 ---
 apiVersion: apps/v1
@@ -380,11 +383,16 @@ spec:
           env:
             - name: SERVICE_NAME
               value: "api-gateway"
-            - name: LOGTIDE_DSN
+            - name: LOGTIDE_API_URL
               valueFrom:
                 secretKeyRef:
                   name: logtide-credentials
-                  key: LOGTIDE_DSN
+                  key: LOGTIDE_API_URL
+            - name: LOGTIDE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: logtide-credentials
+                  key: LOGTIDE_API_KEY
 ```
 
 Repeat this pattern for each service, changing the `SERVICE_NAME` and image. See the [Kubernetes Integration](/integrations/kubernetes/) guide for full setup.

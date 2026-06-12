@@ -148,6 +148,36 @@ const comparisons = defineCollection({
   }),
 });
 
+/**
+ * Blog Collection
+ *
+ * Informational articles targeting queries that don't fit the
+ * integration/use-case/comparison formats (third-party comparisons,
+ * tutorials, industry commentary).
+ */
+const blog = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
+  schema: z.object({
+    // Required SEO fields
+    title: z.string().min(10).max(80),
+    description: z.string().min(50).max(160),
+
+    // Publication metadata
+    pubDate: z.coerce.date(),
+    updatedDate: z.coerce.date().optional(),
+    author: z.string().default('LogTide Team'),
+
+    // Categorization & SEO
+    tags: z.array(z.string()).default([]),
+    keywords: z.array(z.string()).default([]),
+
+    // FAQ entries (rendered visibly + emitted as FAQPage JSON-LD for rich results)
+    faqs: z.array(z.object({ question: z.string(), answer: z.string() })).default([]),
+
+    draft: z.boolean().default(false),
+  }),
+});
+
 // Changelog entry types and statuses
 const changelogTypes = ['feature', 'fix', 'breaking', 'improvement', 'security'] as const;
 const changelogStatuses = ['released', 'in-progress', 'planned'] as const;
@@ -179,6 +209,7 @@ export const collections = {
   'use-cases': useCases,
   comparisons,
   changelog,
+  blog,
 };
 
 // Export types for use in components

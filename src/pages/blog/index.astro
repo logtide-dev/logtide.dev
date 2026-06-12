@@ -1,0 +1,133 @@
+---
+import { getCollection } from 'astro:content';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import SEO from '../../components/SEO.astro';
+import { ClientRouter } from 'astro:transitions';
+import { Icon } from 'astro-icon/components';
+
+const title = 'Blog | LogTide';
+const description =
+  'Articles on log management, observability costs, SIEM and self-hosting from the LogTide team: comparisons, tutorials and engineering deep dives.';
+
+const seoBreadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Blog', url: '/blog/' },
+];
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <SEO
+      title={title}
+      description={description}
+      type="website"
+      ogImage="https://logtide.dev/images/default.png"
+      breadcrumbs={seoBreadcrumbs}
+    />
+    <meta name="theme-color" content="#7c3aed" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <title>{title}</title>
+    <ClientRouter />
+    <script is:inline>
+      (function () {
+        function applyTheme() {
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const theme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        }
+        applyTheme();
+        document.addEventListener('astro:after-swap', applyTheme);
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen bg-background text-foreground antialiased">
+    <Header />
+
+    <main class="min-h-[60vh]">
+      <section class="relative overflow-hidden px-6 py-16" aria-labelledby="hero-heading">
+        <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" aria-hidden="true"></div>
+        <div class="relative mx-auto max-w-4xl">
+          <h1 id="hero-heading" class="mb-4 text-4xl font-bold tracking-tight md:text-5xl">
+            Blog
+          </h1>
+          <p class="max-w-2xl text-lg text-muted-foreground">
+            Log management, observability costs, SIEM and self-hosting — comparisons, tutorials
+            and engineering notes from the LogTide team.
+          </p>
+        </div>
+      </section>
+
+      <section class="px-6 pb-24" aria-label="Articles">
+        <div class="mx-auto max-w-4xl space-y-6">
+          {posts.map((post) => (
+            <article class="group rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-lg">
+              <a href={`/blog/${post.id}/`} class="block">
+                <div class="mb-3 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                  <time datetime={post.data.pubDate.toISOString()}>
+                    {post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                  </time>
+                  <span>· {post.data.author}</span>
+                  {post.data.tags.map((tag) => (
+                    <span class="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium">{tag}</span>
+                  ))}
+                </div>
+                <h2 class="mb-2 text-2xl font-semibold transition-colors group-hover:text-primary">
+                  {post.data.title}
+                </h2>
+                <p class="mb-4 text-muted-foreground">{post.data.description}</p>
+                <span class="inline-flex items-center gap-1 text-sm font-medium text-primary">
+                  Read article
+                  <Icon name="lucide:arrow-right" class="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </a>
+            </article>
+          ))}
+
+          {posts.length === 0 && (
+            <p class="text-center text-muted-foreground">No articles yet — check back soon.</p>
+          )}
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+
+    <style is:global>
+      @import '../../styles/tailwind.css';
+      @import '../../styles/custom.css';
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: 'Inter', system-ui, sans-serif;
+      }
+
+      .header-container,
+      .footer-container {
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+      }
+    </style>
+  </body>
+</html>

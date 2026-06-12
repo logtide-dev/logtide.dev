@@ -145,8 +145,6 @@ import { getTenantContext } from './middleware/tenant-context';
 const baseClient = new LogTideClient({
   apiUrl: process.env.LOGTIDE_API_URL!,
   apiKey: process.env.LOGTIDE_API_KEY!,
-  // Or use a DSN string instead:
-  // dsn: process.env.LOGTIDE_DSN,
   globalMetadata: {
     service: 'saas-platform',
     environment: process.env.NODE_ENV,
@@ -181,19 +179,19 @@ class TenantAwareLogger {
   }
 
   info(message: string, metadata?: Record<string, unknown>) {
-    this.client.info(message, this.enrichWithTenant(metadata));
+    this.client.info('saas-platform', message, this.enrichWithTenant(metadata));
   }
 
   warn(message: string, metadata?: Record<string, unknown>) {
-    this.client.warn(message, this.enrichWithTenant(metadata));
+    this.client.warn('saas-platform', message, this.enrichWithTenant(metadata));
   }
 
   error(message: string, metadata?: Record<string, unknown>) {
-    this.client.error(message, this.enrichWithTenant(metadata));
+    this.client.error('saas-platform', message, this.enrichWithTenant(metadata));
   }
 
   debug(message: string, metadata?: Record<string, unknown>) {
-    this.client.debug(message, this.enrichWithTenant(metadata));
+    this.client.debug('saas-platform', message, this.enrichWithTenant(metadata));
   }
 }
 
@@ -320,26 +318,23 @@ app.get('/api/admin/logs', requireTenantAdmin, async (req, res) => {
   const { tenantId } = req.tenant;
   const { startDate, endDate, level, search } = req.query;
 
-  // Query LogTide with tenant filter
-  const logs = await logtide.search({
-    filter: {
-      tenant_id: tenantId, // Only this tenant's logs
-      level: level,
-      time: {
-        gte: startDate,
-        lte: endDate,
-      },
-    },
-    search: search,
-    limit: 100,
+  // Query LogTide, then enforce the tenant boundary on metadata
+  const { logs } = await logtide.query({
+    level,
+    from: startDate,
+    to: endDate,
+    q: search,
+    limit: 500,
   });
 
+  const tenantLogs = logs.filter(log => log.metadata?.tenant_id === tenantId);
+
   // Sanitize logs before returning (remove internal fields)
-  const sanitizedLogs = logs.map(log => ({
-    timestamp: log.timestamp,
+  const sanitizedLogs = tenantLogs.slice(0, 100).map(log => ({
+    timestamp: log.time,
     level: log.level,
     message: log.message,
-    metadata: sanitizeMetadata(log.metadata),
+    metadata: sanitizeMetadata(log.metadata ?? {}),
   }));
 
   res.json(sanitizedLogs);
@@ -361,63 +356,83 @@ For your internal dashboards:
 ```typescript
 // Analytics for platform operators
 async function getPlatformMetrics() {
-  // Errors by tenant (find problematic tenants)
-  const errorsByTenant = await logtide.aggregate({
-    filter: { level: 'error' },
-    groupBy: ['tenant_id', 'tenant_plan'],
-    metrics: ['count'],
-    timeRange: 'last_24h',
+  const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  // Hourly volume + top services and errors, straight from the stats API
+  const stats = await logtide.getAggregatedStats({
+    from: last24h,
+    to: new Date(),
+    interval: '1h',
   });
 
-  // API usage by tenant (for billing/throttling)
-  const usageByTenant = await logtide.aggregate({
-    filter: { message: 'HTTP *' },
-    groupBy: ['tenant_id'],
-    metrics: ['count'],
-    timeRange: 'last_month',
+  // Errors by tenant (find problematic tenants): query, then group on metadata
+  const { logs: recentErrors } = await logtide.query({
+    level: 'error',
+    from: last24h,
+    limit: 1000,
   });
 
-  // Slowest tenants (performance issues)
-  const slowestTenants = await logtide.aggregate({
-    filter: { 'metadata.duration_ms': { exists: true } },
-    groupBy: ['tenant_id'],
-    metrics: ['avg:metadata.duration_ms', 'p99:metadata.duration_ms'],
-    orderBy: 'avg:metadata.duration_ms',
-    limit: 10,
+  const errorsByTenant = new Map<string, number>();
+  for (const log of recentErrors) {
+    const tenant = String(log.metadata?.tenant_id ?? 'unknown');
+    errorsByTenant.set(tenant, (errorsByTenant.get(tenant) ?? 0) + 1);
+  }
+
+  // Slowest tenants: average duration_ms per tenant from the same window
+  const { logs: requests } = await logtide.query({
+    q: 'HTTP',
+    from: last24h,
+    limit: 1000,
   });
 
-  return { errorsByTenant, usageByTenant, slowestTenants };
+  const durations = new Map<string, number[]>();
+  for (const log of requests) {
+    const tenant = String(log.metadata?.tenant_id ?? 'unknown');
+    const ms = Number(log.metadata?.duration_ms);
+    if (!Number.isNaN(ms)) {
+      durations.set(tenant, [...(durations.get(tenant) ?? []), ms]);
+    }
+  }
+  const slowestTenants = [...durations.entries()]
+    .map(([tenant, ms]) => ({ tenant, avgMs: ms.reduce((a, b) => a + b, 0) / ms.length }))
+    .sort((a, b) => b.avgMs - a.avgMs)
+    .slice(0, 10);
+
+  return { stats, errorsByTenant, slowestTenants };
 }
 ```
+
+For heavier analytics (billing-grade counts over a month, percentiles across millions of rows), query the storage engine directly — LogTide's data lives in TimescaleDB or ClickHouse you own, so plain SQL with `GROUP BY` on the tenant metadata is always available without API pagination.
 
 ### Per-Tenant Dashboards
 
 ```typescript
 // Dashboard for tenant admins
 async function getTenantDashboard(tenantId: string) {
-  const [errorRate, requestCount, slowestEndpoints] = await Promise.all([
-    logtide.aggregate({
-      filter: { tenant_id: tenantId, level: 'error' },
-      timeRange: 'last_24h',
-      interval: '1h',
-    }),
+  const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-    logtide.aggregate({
-      filter: { tenant_id: tenantId, message: 'HTTP *' },
-      timeRange: 'last_24h',
-      interval: '1h',
-    }),
+  // Pull the tenant's recent logs once, then derive the dashboard numbers
+  const { logs } = await logtide.query({ q: tenantId, from: last24h, limit: 1000 });
+  const tenantLogs = logs.filter(log => log.metadata?.tenant_id === tenantId);
 
-    logtide.aggregate({
-      filter: { tenant_id: tenantId, 'metadata.duration_ms': { exists: true } },
-      groupBy: ['metadata.path'],
-      metrics: ['avg:metadata.duration_ms'],
-      orderBy: 'avg:metadata.duration_ms',
-      limit: 5,
-    }),
-  ]);
+  const errorCount = tenantLogs.filter(log => log.level === 'error').length;
+  const requestLogs = tenantLogs.filter(log => log.metadata?.duration_ms != null);
 
-  return { errorRate, requestCount, slowestEndpoints };
+  const byEndpoint = new Map<string, number[]>();
+  for (const log of requestLogs) {
+    const path = String(log.metadata?.path ?? 'unknown');
+    byEndpoint.set(path, [...(byEndpoint.get(path) ?? []), Number(log.metadata?.duration_ms)]);
+  }
+  const slowestEndpoints = [...byEndpoint.entries()]
+    .map(([path, ms]) => ({ path, avgMs: ms.reduce((a, b) => a + b, 0) / ms.length }))
+    .sort((a, b) => b.avgMs - a.avgMs)
+    .slice(0, 5);
+
+  return {
+    errorRate: requestLogs.length ? errorCount / requestLogs.length : 0,
+    requestCount: requestLogs.length,
+    slowestEndpoints,
+  };
 }
 ```
 
@@ -425,33 +440,36 @@ async function getTenantDashboard(tenantId: string) {
 
 ### Track Log Volume Per Tenant
 
+A month of per-tenant volume is an aggregation job, not an API loop — run it as SQL directly on the storage engine you already own (TimescaleDB here; the ClickHouse equivalent is nearly identical):
+
+```sql
+-- Monthly log volume per tenant, straight from TimescaleDB
+SELECT
+  metadata->>'tenant_id'   AS tenant_id,
+  metadata->>'tenant_plan' AS plan,
+  count(*)                 AS log_count
+FROM logs
+WHERE time >= date_trunc('month', now())
+GROUP BY 1, 2
+ORDER BY log_count DESC;
+```
+
+Then price it in application code:
+
 ```typescript
 // Monthly cost allocation report
-async function generateCostReport(month: string) {
-  const logCounts = await logtide.aggregate({
-    filter: {
-      time: {
-        gte: `${month}-01`,
-        lte: `${month}-31`,
-      },
-    },
-    groupBy: ['tenant_id', 'tenant_plan'],
-    metrics: ['count', 'sum:metadata.bytes'],
-  });
+async function generateCostReport() {
+  const logCounts = await db.query(MONTHLY_VOLUME_SQL); // the SQL above
 
-  // Calculate costs based on plan
-  const costs = logCounts.map(tenant => ({
+  return logCounts.rows.map(tenant => ({
     tenantId: tenant.tenant_id,
-    plan: tenant.tenant_plan,
-    logCount: tenant.count,
-    bytesStored: tenant.sum_bytes,
-    cost: calculateCost(tenant.tenant_plan, tenant.count, tenant.sum_bytes),
+    plan: tenant.plan,
+    logCount: Number(tenant.log_count),
+    cost: calculateCost(tenant.plan, Number(tenant.log_count)),
   }));
-
-  return costs;
 }
 
-function calculateCost(plan: string, logCount: number, bytes: number): number {
+function calculateCost(plan: string, logCount: number): number {
   const rates = {
     free: { includedLogs: 10000, perExtraLog: 0.001 },
     pro: { includedLogs: 100000, perExtraLog: 0.0005 },
