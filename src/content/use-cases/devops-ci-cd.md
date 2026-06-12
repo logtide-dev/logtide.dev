@@ -1,6 +1,6 @@
 ---
 title: "DevOps CI/CD Pipeline Logging"
-description: "Centralize build, test, and deployment logs from GitHub Actions, GitLab CI, and other pipelines with LogTide for full release visibility."
+description: "Centralize and audit CI/CD pipeline logs from GitHub Actions, GitLab CI and others with LogTide: release visibility, audit trail and pipeline analytics."
 category: "operations"
 difficulty: "easy"
 icon: "lucide:git-branch"
@@ -23,6 +23,9 @@ relatedUseCases:
 keywords:
   - "CI/CD logging"
   - "pipeline logging"
+  - "audit pipeline CI/CD"
+  - "CI/CD audit trail"
+  - "CI/CD pipeline analytics"
   - "build log management"
   - "deployment tracking"
   - "devops logging"
@@ -34,6 +37,8 @@ faqs:
     answer: "GitHub Actions retains logs for 90 days and GitLab CI for 30 days. When a production incident traces back to a deploy from weeks or months ago, those native logs are already gone. Shipping events to LogTide in real-time gives you permanent, queryable retention configured to match your compliance requirements."
   - question: "Can LogTide track DORA metrics like deployment frequency and change failure rate?"
     answer: "Yes. Because LogTide captures every deploy.completed and deploy.rollback event, you can query deployment frequency per environment and compute change failure rate directly from the structured log data."
+  - question: "How do I audit a CI/CD pipeline?"
+    answer: "Auditing a CI/CD pipeline means recording who triggered what, which commit was built, what tests ran, who approved, and what was deployed where — in a tamper-evident store outside the CI platform itself. Ship structured pipeline events (build.start, test.results, deploy.completed, deploy.rollback with actor and commit metadata) to LogTide, where retention outlives the CI platform's 30-90 day limits and auditors can query the full release history."
   - question: "How do I set up CI/CD logging with LogTide?"
     answer: "LogTide provides a reusable shell helper script that any CI platform can call via HTTP POST to the ingest API. For GitHub Actions you source the script and call helper functions such as logtide_build_start, logtide_test_results, and logtide_deploy at the relevant workflow steps."
 ---
