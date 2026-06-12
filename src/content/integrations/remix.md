@@ -24,7 +24,7 @@ keywords:
   - "remix observability"
 faqs:
   - question: "How do I add LogTide logging to a Remix application?"
-    answer: "Install @logtide/node, create a logtide.server.ts file using the .server.ts suffix so it is excluded from the client bundle, initialize LogTideClient with your DSN, then call logtide.info or logtide.error directly inside your loader and action functions."
+    answer: "Install @logtide/sdk-node, create a logtide.server.ts file using the .server.ts suffix so it is excluded from the client bundle, initialize LogTideClient with your apiUrl and apiKey, then call logtide.info or logtide.error directly inside your loader and action functions."
   - question: "Do I need to change every loader and action to get request logging?"
     answer: "No. You can add automatic request logging to all routes by instrumenting entry.server.tsx, which captures the method, path, status code, and duration for every server-rendered request. For per-route control the guide also provides a withLogging wrapper you can apply selectively."
   - question: "How does LogTide handle logs from nested Remix route loaders?"

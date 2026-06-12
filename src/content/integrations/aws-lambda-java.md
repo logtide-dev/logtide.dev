@@ -184,11 +184,11 @@ This is the same pattern used for Node.js functions, so follow the forwarder set
 
 ## Step 2, Option B: LogTide JVM SDK from the handler
 
-For the richest structured data, log directly to LogTide using the [Kotlin/Java SDK](/docs/sdks/kotlin/) (JVM 11+, works from plain Java via interop).
+For the richest structured data, log directly to LogTide using the [Kotlin/Java SDK](/docs/sdks/kotlin/) (JVM 17+, works from plain Java via interop).
 
 ```kotlin
 dependencies {
-    implementation("io.github.logtide-dev:logtide-sdk-kotlin:0.2.0")
+    implementation("io.github.logtide-dev:logtide-core:0.9.8")
 }
 ```
 

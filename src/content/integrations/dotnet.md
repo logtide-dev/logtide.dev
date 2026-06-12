@@ -70,7 +70,7 @@ Install-Package LogTide.SDK
 Or add directly to your `.csproj`:
 
 ```xml
-<PackageReference Include="LogTide.SDK" Version="0.8.3" />
+<PackageReference Include="LogTide.SDK" Version="0.9.4" />
 ```
 
 ## Quick Start

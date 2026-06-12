@@ -24,9 +24,9 @@ keywords:
   - "bun runtime logs"
 faqs:
   - question: "How do I add LogTide logging to a Bun application?"
-    answer: "Run bun add @logtide/node, then import LogTideClient and initialise it with your DSN. Because Bun is Node.js API compatible, the @logtide/node SDK works without any extra configuration or compatibility shims."
+    answer: "Run bun add @logtide/sdk-node, then import LogTideClient and initialise it with your apiUrl and apiKey. Because Bun is Node.js API compatible, the @logtide/sdk-node SDK works without any extra configuration or compatibility shims."
   - question: "Do I need a build step or TypeScript transpiler to use LogTide with Bun?"
-    answer: "No. Bun executes TypeScript files directly, so you can import the SDK and run bun run index.ts without a separate compile step. Bun also loads .env files automatically, so no dotenv package is needed for your DSN."
+    answer: "No. Bun executes TypeScript files directly, so you can import the SDK and run bun run index.ts without a separate compile step. Bun also loads .env files automatically, so no dotenv package is needed for your API credentials."
   - question: "What is the performance overhead of LogTide logging in a Bun application?"
     answer: "Log call overhead is less than 0.2ms because the SDK batches events before sending them. Memory overhead is approximately 6MB and the SDK supports over 15,000 logs per second according to the performance benchmarks in the guide."
   - question: "Can I use LogTide with Hono or Elysia on Bun?"
@@ -37,7 +37,7 @@ Bun is a fast JavaScript runtime that is Node.js API compatible. The LogTide Jav
 
 ## Why use LogTide with Bun?
 
-- **Zero config**: The `@logtide/node` SDK works directly on Bun
+- **Zero config**: The `@logtide/sdk-node` SDK works directly on Bun
 - **Native TypeScript**: No build step needed, Bun runs `.ts` files directly
 - **Built-in .env**: Bun loads `.env` files automatically
 - **Fast startup**: Bun's speed means your logging starts immediately

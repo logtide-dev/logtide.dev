@@ -35,7 +35,7 @@ Deno supports npm packages via `npm:` specifiers, making the LogTide JavaScript 
 
 ## Why use LogTide with Deno?
 
-- **npm: specifier**: Import `@logtide/node` directly — no import maps needed
+- **npm: specifier**: Import `@logtide/sdk-node` directly — no import maps needed
 - **Secure-by-default**: Deno's permission model means logging requires explicit `--allow-net`
 - **Native TypeScript**: No build step, full type checking out of the box
 - **Deno Deploy**: Ship logs from edge functions to your LogTide instance

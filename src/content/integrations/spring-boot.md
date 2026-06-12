@@ -26,7 +26,7 @@ keywords:
   - "spring boot observability"
 faqs:
   - question: "How do I integrate LogTide into a Spring Boot application?"
-    answer: "Add the logtide-sdk-kotlin dependency to your Gradle or Maven build, declare a LogTideClient Spring bean in a configuration class annotated with @Configuration, and inject the client into any service or controller to call logtide.info or logtide.error with structured metadata maps."
+    answer: "Add the logtide-core dependency to your Gradle or Maven build, declare a LogTideClient Spring bean in a configuration class annotated with @Configuration, and inject the client into any service or controller to call logtide.info or logtide.error with structured metadata maps."
   - question: "Does LogTide work with both Kotlin coroutines and traditional Spring MVC?"
     answer: "Yes. The guide covers both models: for Spring MVC you use a TraceIdFilter extending OncePerRequestFilter with MDC, and for Spring WebFlux or coroutine-based controllers you use a ReactiveTraceFilter and withContext(MDCContext()) to propagate trace IDs across reactive and suspend function boundaries."
   - question: "Will LogTide logging block my Spring Boot request threads?"
@@ -60,7 +60,7 @@ LogTide integrates with Spring Boot through the native Kotlin SDK, providing str
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("io.github.logtide-dev:logtide-sdk-kotlin:0.2.0")
+    implementation("io.github.logtide-dev:logtide-core:0.9.8")
 }
 ```
 
@@ -69,7 +69,7 @@ dependencies {
 ```groovy
 // build.gradle
 dependencies {
-    implementation 'io.github.logtide-dev:logtide-sdk-kotlin:0.2.0'
+    implementation 'io.github.logtide-dev:logtide-core:0.9.8'
 }
 ```
 
@@ -79,8 +79,8 @@ dependencies {
 <!-- pom.xml -->
 <dependency>
     <groupId>io.github.logtide-dev</groupId>
-    <artifactId>logtide-sdk-kotlin</artifactId>
-    <version>0.2.0</version>
+    <artifactId>logtide-core</artifactId>
+    <version>0.9.8</version>
 </dependency>
 ```
 
@@ -94,10 +94,12 @@ Create a Spring configuration bean:
 // LogTideConfig.kt
 import dev.logtide.sdk.LogTideClient
 import dev.logtide.sdk.models.LogTideClientOptions
+import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import jakarta.annotation.PreDestroy
+import kotlin.time.Duration.Companion.seconds
 
 @Configuration
 class LogTideConfig {
@@ -117,8 +119,8 @@ class LogTideConfig {
                 apiUrl = apiUrl,
                 apiKey = apiKey,
                 batchSize = 50,
-                flushIntervalMs = 5000,
-                defaultService = "spring-app"
+                flushInterval = 5.seconds,
+                service = "spring-app"
             )
         )
         return client!!
@@ -126,7 +128,7 @@ class LogTideConfig {
 
     @PreDestroy
     fun cleanup() {
-        client?.close()
+        runBlocking { client?.close() }
     }
 }
 ```
@@ -687,7 +689,7 @@ val client = LogTideClient(
         apiUrl = apiUrl,
         apiKey = apiKey,
         batchSize = 20,           // Smaller batches
-        flushIntervalMs = 2000,   // More frequent flushes
+        flushInterval = 2.seconds, // More frequent flushes
         maxBufferSize = 500       // Limit buffer size
     )
 )
