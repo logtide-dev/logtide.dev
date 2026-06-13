@@ -378,11 +378,37 @@ For each alert, ask:
 
 Not every alert needs to page someone:
 
-```
-P1 (Critical) → PagerDuty → Phone call
-P2 (High)     → Slack #incidents → Investigate within 30m
-P3 (Medium)   → Slack #alerts → Business hours
-P4 (Low)      → Email digest → Weekly review
+```d2
+direction: right
+style.fill: transparent
+
+classes: {
+  src:   { style: { fill: "#f5f3ff"; stroke: "#7c3aed"; stroke-width: 2; font-color: "#3b0764"; border-radius: 8; shadow: true } }
+  hub:   { style: { fill: "#7c3aed"; stroke: "#6d28d9"; stroke-width: 2; font-color: "#ffffff"; border-radius: 8; shadow: true } }
+  dest:  { style: { fill: "#f1f5f9"; stroke: "#94a3b8"; stroke-width: 1; font-color: "#475569"; border-radius: 6 } }
+  group: { style: { fill: "#ede9fe"; stroke: "#c4b5fd"; stroke-width: 2; font-color: "#3b0764"; border-radius: 10 } }
+  flow:  { style: { stroke: "#94a3b8"; stroke-width: 2; font-color: "#64748b" } }
+}
+
+p1: "P1 · Critical" { class: hub }
+p2: "P2 · High" { class: src }
+p3: "P3 · Medium" { class: src }
+p4: "P4 · Low" { class: src }
+
+pagerduty: PagerDuty { class: hub }
+slack_inc: "Slack #incidents" { class: hub }
+slack_alerts: "Slack #alerts" { class: hub }
+email: Email digest { class: hub }
+
+phone: Phone call { class: src }
+within30: Investigate within 30m { class: src }
+business: Business hours { class: src }
+weekly: Weekly review { class: src }
+
+p1 -> pagerduty -> phone { class: flow }
+p2 -> slack_inc -> within30 { class: flow }
+p3 -> slack_alerts -> business { class: flow }
+p4 -> email -> weekly { class: flow }
 ```
 
 ## Alert Configuration Checklist

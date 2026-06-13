@@ -68,29 +68,39 @@ Most teams start with no API monitoring at all. The first sign of trouble is a c
 
 Turn every API request into a structured, queryable event:
 
-```
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│   Mobile     │     │   Web        │     │   Partners   │
-└──────┬───────┘     └──────┬───────┘     └──────┬───────┘
-       │                    │                    │
-       ▼                    ▼                    ▼
-┌────────────────────────────────────────────────────────┐
-│              Express / Fastify API                     │
-│  ┌──────────────────────────────────────┐              │
-│  │   LogTide Request Middleware         │              │
-│  │   - method, path, status, latency   │              │
-│  │   - consumer identity, API version  │              │
-│  │   - request/response sizes          │              │
-│  └──────────────────┬───────────────────┘              │
-└─────────────────────┼──────────────────────────────────┘
-                      │  Batched, async
-                      ▼
-              ┌────────────────┐
-              │    LogTide     │
-              │  Dashboards    │
-              │  Alerts        │
-              │  Analytics     │
-              └────────────────┘
+```d2
+direction: down
+style.fill: transparent
+
+classes: {
+  src:   { style: { fill: "#f5f3ff"; stroke: "#7c3aed"; stroke-width: 2; font-color: "#3b0764"; border-radius: 8; shadow: true } }
+  hub:   { style: { fill: "#7c3aed"; stroke: "#6d28d9"; stroke-width: 2; font-color: "#ffffff"; border-radius: 8; shadow: true } }
+  dest:  { style: { fill: "#f1f5f9"; stroke: "#94a3b8"; stroke-width: 1; font-color: "#475569"; border-radius: 6 } }
+  group: { style: { fill: "#ede9fe"; stroke: "#c4b5fd"; stroke-width: 2; font-color: "#3b0764"; border-radius: 10 } }
+  flow:  { style: { stroke: "#94a3b8"; stroke-width: 2; font-color: "#64748b" } }
+}
+
+mobile: Mobile { class: src }
+web: Web { class: src }
+partners: Partners { class: src }
+
+api: "Express / Fastify API" {
+  class: group
+  mw: "LogTide Request Middleware\nmethod · path · status · latency\nconsumer identity · API version\nrequest / response sizes" { class: src }
+}
+
+lt: LogTide {
+  class: group
+  grid-rows: 3
+  dashboards: Dashboards { class: hub }
+  alerts: Alerts { class: hub }
+  analytics: Analytics { class: hub }
+}
+
+mobile -> api.mw { class: flow }
+web -> api.mw { class: flow }
+partners -> api.mw { class: flow }
+api.mw -> lt: "Batched, async" { class: flow }
 ```
 
 ## Implementation

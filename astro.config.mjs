@@ -3,6 +3,8 @@ import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
 import icon from 'astro-icon';
 import sitemap from '@astrojs/sitemap';
+import astroD2 from 'astro-d2';
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://logtide.dev',
@@ -51,6 +53,17 @@ export default defineConfig({
         }
         return item;
       },
+    }),
+    // Render ```d2 fenced blocks to diagrams. useD2js runs D2 via WebAssembly,
+    // so no `d2` binary is required (works on Windows, CI and Docker). One
+    // static SVG serves both themes (dark: false); brand colors live in the
+    // diagram source and are tuned to read on the light and dark backgrounds.
+    astroD2({
+      inline: true,
+      pad: 24,
+      layout: 'dagre',
+      theme: { default: '0', dark: false },
+      experimental: { useD2js: true },
     }),
   ],
   markdown: {

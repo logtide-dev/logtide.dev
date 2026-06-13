@@ -71,21 +71,33 @@ CI/CD platforms treat logs as ephemeral artifacts:
 
 Ship every pipeline event to LogTide and treat CI/CD as a first-class data source:
 
-```
-┌────────────────┐  ┌────────────────┐  ┌────────────────┐
-│ GitHub Actions │  │  GitLab CI     │  │  Jenkins /      │
-│                │  │                │  │  Other CI       │
-└───────┬────────┘  └───────┬────────┘  └───────┬────────┘
-        │                   │                   │
-        │  HTTP POST        │  HTTP POST        │  HTTP POST
-        ▼                   ▼                   ▼
-┌──────────────────────────────────────────────────────────┐
-│                       LogTide                            │
-│  ┌──────────┐  ┌──────────┐  ┌──────────────────────┐   │
-│  │ Pipeline │  │  Deploy  │  │  Release Audit       │   │
-│  │ Dashboard│  │  Tracker │  │  Trail               │   │
-│  └──────────┘  └──────────┘  └──────────────────────┘   │
-└──────────────────────────────────────────────────────────┘
+```d2
+direction: down
+style.fill: transparent
+
+classes: {
+  src:   { style: { fill: "#f5f3ff"; stroke: "#7c3aed"; stroke-width: 2; font-color: "#3b0764"; border-radius: 8; shadow: true } }
+  hub:   { style: { fill: "#7c3aed"; stroke: "#6d28d9"; stroke-width: 2; font-color: "#ffffff"; border-radius: 8; shadow: true } }
+  dest:  { style: { fill: "#f1f5f9"; stroke: "#94a3b8"; stroke-width: 1; font-color: "#475569"; border-radius: 6 } }
+  group: { style: { fill: "#ede9fe"; stroke: "#c4b5fd"; stroke-width: 2; font-color: "#3b0764"; border-radius: 10 } }
+  flow:  { style: { stroke: "#94a3b8"; stroke-width: 2; font-color: "#64748b" } }
+}
+
+gh: GitHub Actions { class: src }
+gl: GitLab CI { class: src }
+jenkins: "Jenkins / Other CI" { class: src }
+
+lt: LogTide {
+  class: group
+  grid-columns: 3
+  pipeline: Pipeline Dashboard { class: hub }
+  deploy: Deploy Tracker { class: hub }
+  audit: Release Audit Trail { class: hub }
+}
+
+gh -> lt: HTTP POST { class: flow }
+gl -> lt: HTTP POST { class: flow }
+jenkins -> lt: HTTP POST { class: flow }
 ```
 
 ## Implementation

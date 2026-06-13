@@ -162,3 +162,18 @@ html.dark .astro-code-themes span {
   color: var(--shiki-dark) !important;
   background-color: var(--shiki-dark-bg) !important;
 }
+
+/* Build-time D2 diagrams (astro-d2, inline SVG). One static SVG serves both
+   themes; brand colors are set in the diagram source to read on light AND dark.
+   D2 renders labels as real SVG <text>, so page prose CSS does not leak in.
+
+   Target the OUTER wrapper svg (it carries the viewBox and fills the column);
+   capping max-height makes tall/narrow flows shrink proportionally instead of
+   towering down the page, while wide diagrams keep filling the column width. */
+svg[data-d2-version] {
+  display: block;
+  height: auto;
+  max-width: 100%;
+  max-height: 460px;
+  margin: 1.75rem auto;
+}

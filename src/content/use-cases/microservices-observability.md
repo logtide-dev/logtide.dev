@@ -47,15 +47,42 @@ In a microservices architecture, every user action fans out across dozens of ser
 
 In a monolith, debugging is straightforward: one process, one log stream, one place to look. Microservices shatter that simplicity:
 
-```
-User Request
-    ├── API Gateway         → logs to stdout
-    ├── Auth Service         → logs to file
-    ├── Order Service        → logs to stdout
-    │   ├── Inventory API    → logs to CloudWatch
-    │   ├── Payment Service  → logs to Datadog
-    │   └── Notification Svc → logs to syslog
-    └── Analytics Service    → logs nowhere
+```d2
+direction: right
+style.fill: transparent
+
+classes: {
+  src:   { style: { fill: "#f5f3ff"; stroke: "#7c3aed"; stroke-width: 2; font-color: "#3b0764"; border-radius: 8; shadow: true } }
+  hub:   { style: { fill: "#7c3aed"; stroke: "#6d28d9"; stroke-width: 2; font-color: "#ffffff"; border-radius: 8; shadow: true } }
+  dest:  { style: { fill: "#f1f5f9"; stroke: "#94a3b8"; stroke-width: 1; font-color: "#475569"; border-radius: 6 } }
+  group: { style: { fill: "#ede9fe"; stroke: "#c4b5fd"; stroke-width: 2; font-color: "#3b0764"; border-radius: 10 } }
+  flow:  { style: { stroke: "#94a3b8"; stroke-width: 2; font-color: "#64748b" } }
+}
+
+req: User Request { class: src }
+gw: API Gateway { class: src }
+auth: Auth Service { class: src }
+order: Order Service { class: src }
+inv: Inventory API { class: src }
+pay: Payment Service { class: src }
+notif: Notification Svc { class: src }
+ana: Analytics Service { class: src }
+
+stdout1: stdout { class: dest }
+filed: file { class: dest }
+stdout2: stdout { class: dest }
+cloudwatch: CloudWatch { class: dest }
+datadog: Datadog { class: dest }
+syslogd: syslog { class: dest }
+nowhere: nowhere { class: dest }
+
+req -> gw -> stdout1 { class: flow }
+req -> auth -> filed { class: flow }
+req -> order -> stdout2 { class: flow }
+order -> inv -> cloudwatch { class: flow }
+order -> pay -> datadog { class: flow }
+order -> notif -> syslogd { class: flow }
+req -> ana -> nowhere { class: flow }
 ```
 
 ```
@@ -85,30 +112,37 @@ LogTide solves distributed observability with three principles:
 
 ### Architecture Overview
 
-```
-┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐
-│ API GW   │  │ Auth Svc │  │ Order Svc│  │ Payment  │
-│ (Express)│  │ (Fastify)│  │ (Python) │  │ (Go)     │
-└────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘
-     │             │             │              │
-     │  x-trace-id │  x-trace-id │   x-trace-id │
-     ▼             ▼             ▼              ▼
-┌────────────────────────────────────────────────────┐
-│              LogTide SDK Layer                      │
-│     (@logtide/express, @logtide/fastify, etc.)     │
-└──────────────────────┬─────────────────────────────┘
-                       │ Batched, compressed
-                       ▼
-              ┌────────────────┐
-              │    LogTide     │
-              │    Server      │
-              ├────────────────┤
-              │  Correlation   │
-              │  Engine        │
-              ├────────────────┤
-              │  SIEM / Sigma  │
-              │  Detection     │
-              └────────────────┘
+```d2
+direction: down
+style.fill: transparent
+
+classes: {
+  src:   { style: { fill: "#f5f3ff"; stroke: "#7c3aed"; stroke-width: 2; font-color: "#3b0764"; border-radius: 8; shadow: true } }
+  hub:   { style: { fill: "#7c3aed"; stroke: "#6d28d9"; stroke-width: 2; font-color: "#ffffff"; border-radius: 8; shadow: true } }
+  dest:  { style: { fill: "#f1f5f9"; stroke: "#94a3b8"; stroke-width: 1; font-color: "#475569"; border-radius: 6 } }
+  group: { style: { fill: "#ede9fe"; stroke: "#c4b5fd"; stroke-width: 2; font-color: "#3b0764"; border-radius: 10 } }
+  flow:  { style: { stroke: "#94a3b8"; stroke-width: 2; font-color: "#64748b" } }
+}
+
+gw: "API GW\n(Express)" { class: src }
+auth: "Auth Svc\n(Fastify)" { class: src }
+order: "Order Svc\n(Python)" { class: src }
+payment: "Payment\n(Go)" { class: src }
+
+sdk: "LogTide SDK Layer\n@logtide/express · @logtide/fastify · …" { class: hub }
+
+server: LogTide Server {
+  class: group
+  grid-rows: 2
+  correlation: Correlation Engine { class: hub }
+  siem: "SIEM / Sigma Detection" { class: hub }
+}
+
+gw -> sdk: x-trace-id { class: flow }
+auth -> sdk: x-trace-id { class: flow }
+order -> sdk: x-trace-id { class: flow }
+payment -> sdk: x-trace-id { class: flow }
+sdk -> server: "batched, compressed" { class: flow }
 ```
 
 ## Implementation
@@ -316,32 +350,33 @@ async def check_inventory(items: list[dict]):
     return {"available": len(unavailable) == 0, "unavailable": unavailable}
 ```
 
-### 5. Service Dependency Mapping
+```d2
+direction: right
+style.fill: transparent
 
-With trace context flowing through every call, LogTide reconstructs the dependency graph:
+classes: {
+  src:   { style: { fill: "#f5f3ff"; stroke: "#7c3aed"; stroke-width: 2; font-color: "#3b0764"; border-radius: 8; shadow: true } }
+  hub:   { style: { fill: "#7c3aed"; stroke: "#6d28d9"; stroke-width: 2; font-color: "#ffffff"; border-radius: 8; shadow: true } }
+  dest:  { style: { fill: "#f1f5f9"; stroke: "#94a3b8"; stroke-width: 1; font-color: "#475569"; border-radius: 6 } }
+  group: { style: { fill: "#ede9fe"; stroke: "#c4b5fd"; stroke-width: 2; font-color: "#3b0764"; border-radius: 10 } }
+  flow:  { style: { stroke: "#94a3b8"; stroke-width: 2; font-color: "#64748b" } }
+}
 
-```
-┌────────────────────────────────────────────────────────────────┐
-│                    Service Dependency Map                       │
-│                                                                │
-│   ┌──────────┐                                                 │
-│   │ api-gw   │────────────────────────────────────┐            │
-│   └──┬───┬───┘                                    │            │
-│      │   │                                        │            │
-│      │   │  ┌─────────────┐    ┌──────────────┐   │            │
-│      │   └─▶│ auth-service│    │ notification │   │            │
-│      │      │  45ms avg   │    │  120ms avg   │◀──┘            │
-│      │      └─────────────┘    └──────────────┘                │
-│      ▼                                                         │
-│   ┌──────────────┐                                             │
-│   │ order-service│─────────────┬───────────────┐               │
-│   │   85ms avg   │             │               │               │
-│   └──────────────┘             ▼               ▼               │
-│                        ┌──────────────┐ ┌──────────────┐       │
-│                        │  inventory   │ │   payment    │       │
-│                        │   30ms avg   │ │  200ms avg   │       │
-│                        └──────────────┘ └──────────────┘       │
-└────────────────────────────────────────────────────────────────┘
+map: "Service Dependency Map" {
+  class: group
+  apigw: api-gw { class: hub }
+  authsvc: "auth-service\n45ms avg" { class: src }
+  notif: "notification\n120ms avg" { class: src }
+  ordersvc: "order-service\n85ms avg" { class: src }
+  inv: "inventory\n30ms avg" { class: src }
+  pay: "payment\n200ms avg" { class: src }
+
+  apigw -> authsvc { class: flow }
+  apigw -> notif { class: flow }
+  apigw -> ordersvc { class: flow }
+  ordersvc -> inv { class: flow }
+  ordersvc -> pay { class: flow }
+}
 ```
 
 ### 6. Kubernetes Deployment

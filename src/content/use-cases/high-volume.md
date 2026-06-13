@@ -70,17 +70,28 @@ At 10,000 events/sec, most logging setups work fine. At 100,000+, problems start
 
 ### Architecture for High Volume
 
-```
-┌───────────┐     ┌─────────┐     ┌────────────┐     ┌─────────┐
-│ Your Apps │────▶│  Kafka  │────▶│  LogTide   │────▶│ Queries │
-│ (SDKs)    │     │ Cluster │     │  Ingesters │     │  & SIEM │
-└───────────┘     └─────────┘     └────────────┘     └─────────┘
-                       │                │
-                       ▼                ▼
-                  ┌─────────┐    ┌────────────┐
-                  │  S3/GCS │    │ PostgreSQL │
-                  │ Archive │    │ TimescaleDB│
-                  └─────────┘    └────────────┘
+```d2
+direction: right
+style.fill: transparent
+
+classes: {
+  src:   { style: { fill: "#f5f3ff"; stroke: "#7c3aed"; stroke-width: 2; font-color: "#3b0764"; border-radius: 8; shadow: true } }
+  hub:   { style: { fill: "#7c3aed"; stroke: "#6d28d9"; stroke-width: 2; font-color: "#ffffff"; border-radius: 8; shadow: true } }
+  dest:  { style: { fill: "#f1f5f9"; stroke: "#94a3b8"; stroke-width: 1; font-color: "#475569"; border-radius: 6 } }
+  group: { style: { fill: "#ede9fe"; stroke: "#c4b5fd"; stroke-width: 2; font-color: "#3b0764"; border-radius: 10 } }
+  flow:  { style: { stroke: "#94a3b8"; stroke-width: 2; font-color: "#64748b" } }
+}
+
+apps: "Your Apps\n(SDKs)" { class: src }
+kafka: Kafka Cluster { shape: queue; class: hub }
+ingesters: LogTide Ingesters { class: hub }
+queries: "Queries & SIEM" { class: src }
+s3: "S3 / GCS Archive" { shape: cylinder; class: src }
+pg: "PostgreSQL\nTimescaleDB" { shape: cylinder; class: src }
+
+apps -> kafka -> ingesters -> queries { class: flow }
+kafka -> s3 { class: flow }
+ingesters -> pg { class: flow }
 ```
 
 **Key principles:**
@@ -318,16 +329,28 @@ A real-time multiplayer platform generating 500,000 events/sec during peak hours
 
 **Architecture:**
 
-```
-Game Servers (200+)
-    ↓ (UDP → Kafka)
-Kafka (24 partitions, 3 brokers)
-    ↓ (Consumer group)
-LogTide Ingesters (6 replicas)
-    ↓
-TimescaleDB (hot: 7 days)
-    ↓ (scheduled job)
-S3 (cold: 90 days)
+```d2
+direction: down
+style.fill: transparent
+
+classes: {
+  src:   { style: { fill: "#f5f3ff"; stroke: "#7c3aed"; stroke-width: 2; font-color: "#3b0764"; border-radius: 8; shadow: true } }
+  hub:   { style: { fill: "#7c3aed"; stroke: "#6d28d9"; stroke-width: 2; font-color: "#ffffff"; border-radius: 8; shadow: true } }
+  dest:  { style: { fill: "#f1f5f9"; stroke: "#94a3b8"; stroke-width: 1; font-color: "#475569"; border-radius: 6 } }
+  group: { style: { fill: "#ede9fe"; stroke: "#c4b5fd"; stroke-width: 2; font-color: "#3b0764"; border-radius: 10 } }
+  flow:  { style: { stroke: "#94a3b8"; stroke-width: 2; font-color: "#64748b" } }
+}
+
+games: "Game Servers (200+)" { class: src }
+kafka: "Kafka\n24 partitions · 3 brokers" { shape: queue; class: hub }
+ingesters: "LogTide Ingesters\n6 replicas" { class: hub }
+tsdb: "TimescaleDB\nhot: 7 days" { shape: cylinder; class: src }
+s3: "S3\ncold: 90 days" { shape: cylinder; class: src }
+
+games -> kafka: "UDP" { class: flow }
+kafka -> ingesters: "consumer group" { class: flow }
+ingesters -> tsdb { class: flow }
+tsdb -> s3: "scheduled job" { class: flow }
 ```
 
 **Configuration:**

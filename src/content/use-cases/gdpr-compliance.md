@@ -53,37 +53,25 @@ logger.info('User logged in', {
 });
 ```
 
-**Issues:**
-- Personal data scattered across logs without consent
-- No retention limits—logs stored indefinitely
-- Data often sent to non-EU servers
-- No mechanism for deletion requests (right to erasure)
-- Difficult to audit what data is collected
+```d2
+direction: down
+style.fill: transparent
 
-**Potential impact:** GDPR fines up to €20 million or 4% of annual global turnover.
+classes: {
+  src:   { style: { fill: "#f5f3ff"; stroke: "#7c3aed"; stroke-width: 2; font-color: "#3b0764"; border-radius: 8; shadow: true } }
+  hub:   { style: { fill: "#7c3aed"; stroke: "#6d28d9"; stroke-width: 2; font-color: "#ffffff"; border-radius: 8; shadow: true } }
+  dest:  { style: { fill: "#f1f5f9"; stroke: "#94a3b8"; stroke-width: 1; font-color: "#475569"; border-radius: 6 } }
+  group: { style: { fill: "#ede9fe"; stroke: "#c4b5fd"; stroke-width: 2; font-color: "#3b0764"; border-radius: 10 } }
+  flow:  { style: { stroke: "#94a3b8"; stroke-width: 2; font-color: "#64748b" } }
+}
 
-## The LogTide Approach
+app: Your Application { class: src }
+pseudo: "Log with pseudonymization" { class: src }
+lt: "LogTide\nEU infrastructure" { class: hub }
+retention: "Retention policies applied" { class: src }
+deletion: "Automatic deletion" { class: src }
 
-LogTide is designed with privacy-first principles:
-
-1. **Self-hosted option**: Keep all data in your EU infrastructure
-2. **Data minimization**: Log only what you need
-3. **Retention policies**: Automatic deletion after configurable periods
-4. **Pseudonymization**: Hash or truncate identifiers
-5. **Audit logging**: Track who accessed what data
-
-### Architecture Overview
-
-```
-Your Application
-       ↓
-   [Log with pseudonymization]
-       ↓
-   LogTide (EU infrastructure)
-       ↓
-   [Retention policies applied]
-       ↓
-   [Automatic deletion]
+app -> pseudo -> lt -> retention -> deletion { class: flow }
 ```
 
 ## Implementation: Step by Step

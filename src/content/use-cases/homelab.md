@@ -47,13 +47,39 @@ LogTide gives a homelab the thing enterprises pay five figures for: every log se
 
 ## What a homelab deployment looks like
 
-```text
-Proxmox host ──── journald/rsyslog ─┐
-LXC: Forgejo ──── journald ─────────┤
-LXC: Vikunja ──── journald ─────────┼──► Fluent Bit ──► LogTide (LXC/VM)
-LXC: AdGuard ──── query log ────────┤    (one central     TimescaleDB
-Docker services ─ log driver ───────┤     collector)      ~3 GB RAM
-Firewall ──────── nftables/OPNsense ┘
+```d2
+direction: right
+style.fill: transparent
+
+classes: {
+  src: {
+    style: { fill: "#f5f3ff"; stroke: "#7c3aed"; stroke-width: 2; font-color: "#3b0764"; border-radius: 8; shadow: true }
+  }
+  hub: {
+    style: { fill: "#7c3aed"; stroke: "#6d28d9"; stroke-width: 2; font-color: "#ffffff"; border-radius: 8; shadow: true }
+  }
+  flow: {
+    style: { stroke: "#94a3b8"; stroke-width: 2; font-color: "#64748b" }
+  }
+}
+
+prox: Proxmox host { class: src }
+forgejo: LXC · Forgejo { class: src }
+vikunja: LXC · Vikunja { class: src }
+adguard: LXC · AdGuard { class: src }
+docker: Docker services { class: src }
+fw: Firewall { class: src }
+
+fb: Fluent Bit { shape: hexagon; class: hub }
+lt: "LogTide · TimescaleDB\n~3 GB RAM" { shape: cylinder; class: hub }
+
+prox -> fb: journald / rsyslog { class: flow }
+forgejo -> fb: journald { class: flow }
+vikunja -> fb: journald { class: flow }
+adguard -> fb: query log { class: flow }
+docker -> fb: log driver { class: flow }
+fw -> fb: nftables / OPNsense { class: flow }
+fb -> lt: { class: flow }
 ```
 
 One central Fluent Bit (or Vector) instance receives everything and ships it to LogTide's HTTP ingest API. No agents to license, no per-GB bill — your only constraint is disk, and homelab log volumes are tiny by enterprise standards (a busy homelab produces 100-500 MB/day; even a year of retention fits on a small SSD).

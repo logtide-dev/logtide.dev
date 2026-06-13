@@ -47,16 +47,34 @@ When you're generating millions of log events per second, shipping directly to L
 
 ## Architecture
 
-```
-┌─────────┐     ┌─────────┐     ┌─────────┐
-│  App 1  │────▶│         │     │         │
-├─────────┤     │  Kafka  │────▶│ LogTide │
-│  App 2  │────▶│ Cluster │     │         │
-├─────────┤     │         │     └─────────┘
-│  App 3  │────▶│         │────▶ S3 Archive
-├─────────┤     │         │
-│ nginx   │────▶│         │────▶ Alerting
-└─────────┘     └─────────┘
+```d2
+direction: right
+style.fill: transparent
+
+classes: {
+  src:   { style: { fill: "#f5f3ff"; stroke: "#7c3aed"; stroke-width: 2; font-color: "#3b0764"; border-radius: 8; shadow: true } }
+  hub:   { style: { fill: "#7c3aed"; stroke: "#6d28d9"; stroke-width: 2; font-color: "#ffffff"; border-radius: 8; shadow: true } }
+  dest:  { style: { fill: "#f1f5f9"; stroke: "#94a3b8"; stroke-width: 1; font-color: "#475569"; border-radius: 6 } }
+  group: { style: { fill: "#ede9fe"; stroke: "#c4b5fd"; stroke-width: 2; font-color: "#3b0764"; border-radius: 10 } }
+  flow:  { style: { stroke: "#94a3b8"; stroke-width: 2; font-color: "#64748b" } }
+}
+
+app1: App 1 { class: src }
+app2: App 2 { class: src }
+app3: App 3 { class: src }
+nginx: nginx { class: src }
+kafka: Kafka Cluster { shape: queue; class: hub }
+lt: LogTide { class: hub }
+s3: S3 Archive { shape: cylinder; class: src }
+alerting: Alerting { class: src }
+
+app1 -> kafka { class: flow }
+app2 -> kafka { class: flow }
+app3 -> kafka { class: flow }
+nginx -> kafka { class: flow }
+kafka -> lt { class: flow }
+kafka -> s3 { class: flow }
+kafka -> alerting { class: flow }
 ```
 
 Applications produce logs to Kafka topics. A Kafka Connect sink or Fluent Bit consumer ships logs to LogTide. Other consumers can archive to S3 or trigger real-time alerts.

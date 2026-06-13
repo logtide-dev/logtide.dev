@@ -55,18 +55,28 @@ Its job is answering security questions: *Is someone brute-forcing our VPN? Did 
 
 ## The relationship in one picture
 
-```text
-                        ┌────────────────────────┐
-   Azure resources ───► │ Log Analytics          │ ◄─── M365 / Entra ID /
-   apps, agents,        │ workspace              │      firewalls (connectors)
-   App Insights         │ (the shared data layer)│
-                        └───────────┬────────────┘
-                                    │
-                ┌───────────────────┴───────────────────┐
-                ▼                                       ▼
-        Azure Monitor                           Microsoft Sentinel
-        ops alerts, dashboards,                 detections, incidents,
-        APM, autoscale signals                  hunting, SOAR playbooks
+```d2
+direction: down
+style.fill: transparent
+
+classes: {
+  src:   { style: { fill: "#f5f3ff"; stroke: "#7c3aed"; stroke-width: 2; font-color: "#3b0764"; border-radius: 8; shadow: true } }
+  hub:   { style: { fill: "#7c3aed"; stroke: "#6d28d9"; stroke-width: 2; font-color: "#ffffff"; border-radius: 8; shadow: true } }
+  dest:  { style: { fill: "#f1f5f9"; stroke: "#94a3b8"; stroke-width: 1; font-color: "#475569"; border-radius: 6 } }
+  group: { style: { fill: "#ede9fe"; stroke: "#c4b5fd"; stroke-width: 2; font-color: "#3b0764"; border-radius: 10 } }
+  flow:  { style: { stroke: "#94a3b8"; stroke-width: 2; font-color: "#64748b" } }
+}
+
+azure: "Azure resources\napps, agents, App Insights" { class: src }
+connectors: "M365 / Entra ID / firewalls\n(connectors)" { class: src }
+law: "Log Analytics workspace\nshared data layer" { class: hub }
+monitor: "Azure Monitor\nops alerts · dashboards · APM · autoscale" { class: src }
+sentinel: "Microsoft Sentinel\ndetections · incidents · hunting · SOAR" { class: src }
+
+azure -> law { class: flow }
+connectors -> law { class: flow }
+law -> monitor { class: flow }
+law -> sentinel { class: flow }
 ```
 
 Same data, two lenses. Which is exactly why the pricing model stings.
