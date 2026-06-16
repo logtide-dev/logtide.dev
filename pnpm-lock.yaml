@@ -23,6 +23,9 @@ importers:
       astro:
         specifier: ^5.0.0
         version: 5.18.0(@types/node@25.0.8)(jiti@1.21.7)(rollup@4.55.1)(typescript@5.9.3)(yaml@2.8.2)
+      astro-d2:
+        specifier: ^0.9.0
+        version: 0.9.0(astro@5.18.0(@types/node@25.0.8)(jiti@1.21.7)(rollup@4.55.1)(typescript@5.9.3)(yaml@2.8.2))
       astro-icon:
         specifier: ^1.1.5
         version: 1.1.5
@@ -956,6 +959,9 @@ packages:
     peerDependencies:
       tailwindcss: '>=3.0.0 || insiders || >=4.0.0-alpha.20 || >=4.0.0-beta.1'
 
+  '@terrastruct/d2@0.1.33':
+    resolution: {integrity: sha512-eK5hyfGIJFolC7sUsiKvWdY9xGFctTe3d+PSijo09IYDso8psztC+A4SammizXtlwYZpnnW0AtDjfBYauceSeA==}
+
   '@trysound/sax@0.2.0':
     resolution: {integrity: sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==}
     engines: {node: '>=10.13.0'}
@@ -1076,6 +1082,12 @@ packages:
 
   array-iterate@2.0.1:
     resolution: {integrity: sha512-I1jXZMjAgCMmxT4qxXfPXa6SthSoE8h6gkSI9BGGNv8mP8G/v0blc+qFnZu6K42vTOiuME596QaLO0TP3Lk0xg==}
+
+  astro-d2@0.9.0:
+    resolution: {integrity: sha512-an5vkji/rPL5rgULj1u85cgWvW9Za5htrvYcx3My1jAQLFgBxgUmsw7p9Il9yFnpjj/KemZDlV6WdSzhJAlvbQ==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      astro: '>=5.0.0'
 
   astro-icon@1.1.5:
     resolution: {integrity: sha512-CJYS5nWOw9jz4RpGWmzNQY7D0y2ZZacH7atL2K9DeJXJVaz7/5WrxeyIxO8KASk1jCM96Q4LjRx/F3R+InjJrw==}
@@ -2210,6 +2222,7 @@ packages:
   tar@7.5.2:
     resolution: {integrity: sha512-7NyxrTE4Anh8km8iEy7o0QYPs+0JKBTj5ZaqHg6B39erLg0qYXN3BijtShwbsNSvQ+LN75+KV+C4QR/f6Gwnpg==}
     engines: {node: '>=18'}
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   thenify-all@1.6.0:
     resolution: {integrity: sha512-RNxQH/qI8/t3thXJDwcstUO4zeqo64+Uy/+sNVRBx4Xn2OX+OZ9oP+iJnNFqplFra2ZUVeKCSa2oVWi3T4uVmA==}
@@ -3355,6 +3368,8 @@ snapshots:
       postcss-selector-parser: 6.0.10
       tailwindcss: 3.4.19(yaml@2.8.2)
 
+  '@terrastruct/d2@0.1.33': {}
+
   '@trysound/sax@0.2.0': {}
 
   '@types/debug@4.1.12':
@@ -3487,6 +3502,14 @@ snapshots:
   aria-query@5.3.2: {}
 
   array-iterate@2.0.1: {}
+
+  astro-d2@0.9.0(astro@5.18.0(@types/node@25.0.8)(jiti@1.21.7)(rollup@4.55.1)(typescript@5.9.3)(yaml@2.8.2)):
+    dependencies:
+      '@terrastruct/d2': 0.1.33
+      astro: 5.18.0(@types/node@25.0.8)(jiti@1.21.7)(rollup@4.55.1)(typescript@5.9.3)(yaml@2.8.2)
+      hast-util-from-html: 2.0.3
+      hast-util-to-html: 9.0.5
+      unist-util-visit: 5.0.0
 
   astro-icon@1.1.5:
     dependencies:
