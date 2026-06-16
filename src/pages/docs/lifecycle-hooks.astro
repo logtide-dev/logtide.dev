@@ -1,0 +1,350 @@
+---
+import DocsLayout from '../../layouts/Docs.astro';
+import Card from '../../components/ui/Card.astro';
+import CardContent from '../../components/ui/CardContent.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Overview", slug: "overview", depth: 2 },
+  { text: "Phases", slug: "phases", depth: 2 },
+  { text: "Context Contract", slug: "context-contract", depth: 2 },
+  { text: "Rejecting an Operation", slug: "rejecting", depth: 2 },
+  { text: "Registering Hooks", slug: "registering", depth: 2 },
+  { text: "Conventions & Limits", slug: "conventions", depth: 2 }
+];
+
+const keywords = [
+  "LogTide lifecycle hooks",
+  "ingestion hook",
+  "webhook dispatch hook",
+  "backend extension points",
+  "HOOKS_MODULES",
+  "self-hosted log platform extensibility"
+];
+---
+
+<DocsLayout
+  title="Lifecycle Hooks"
+  description="Typed extension points inside the LogTide backend: observe, mutate, or reject ingestion, query, alert evaluation, and webhook dispatch without forking."
+  keywords={keywords}
+  headings={headings}
+>
+  <div class="flex items-center gap-3 mb-4">
+    <div class="p-2 bg-primary/10 rounded-lg">
+      <Icon name="lucide:plug-zap" class="w-6 h-6 text-primary" />
+    </div>
+    <h1 class="text-3xl font-bold">Lifecycle Hooks</h1>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+    Lifecycle hooks are a small, intentional set of named extension points inside the backend.
+    Each phase is a specific moment in a specific code path where a registered handler may
+    <strong>observe</strong> an operation, and on <em>before</em> phases also <strong>mutate</strong>
+    or <strong>reject</strong> it — without forking LogTide.
+  </p>
+
+  <h2 id="overview" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Overview
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Hooks are <strong>not</strong> a general event bus, an async emitter, or a plugin system.
+      They are a fixed contract aimed at operators and downstream distributions that need to
+      enforce policy or emit telemetry on the hot path.
+    </p>
+
+    <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:zap-off" class="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+        <div>
+          <h4 class="font-medium mb-1">Zero overhead by default</h4>
+          <p class="text-sm text-muted-foreground">
+            Nothing is registered by default. In an OSS deployment with no external modules,
+            a <code>hasHandlers</code> guard short-circuits every phase, and the hook path is
+            skipped entirely.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="phases" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Phases
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      <strong>Before</strong> phases can observe, mutate, and reject. <strong>After</strong> phases
+      are fire-and-forget observers — they cannot mutate or reject, and any error they throw is
+      caught, logged, and discarded.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Phase</th>
+            <th class="py-2 font-semibold">When it runs</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>beforeIngest</code></td><td class="py-2">After auth, PII masking and quota checks, immediately before the reservoir write. Covers both HTTP (<code>POST /api/v1/logs</code>) and OTLP log ingestion.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>beforeQuery</code></td><td class="py-2">At the top of the main log query path, before the cache key is built. (Stats, histogram, trace and context endpoints are not covered in v1.)</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>beforeAlertEvaluation</code></td><td class="py-2">Once per rule, inside the alert evaluation loop, before the rule is checked.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>beforeWebhookDispatch</code></td><td class="py-2">Immediately before the outbound request, after headers and payload are assembled. Covers both the notification-channel and legacy alert-rule <code>webhook_url</code> paths.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>afterIngest</code></td><td class="py-2">After the batch finishes, including paths where nothing was written. Carries counts only — no log content.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>afterAlertTriggered</code></td><td class="py-2">After an alert trigger is persisted to history, before notification jobs are enqueued.</td></tr>
+          <tr><td class="py-2 pr-4"><code>afterWebhookDispatch</code></td><td class="py-2">After each webhook delivery attempt completes, on both the queued and synchronous paths.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2 id="context-contract" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Context Contract
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Each phase receives a typed context object. Fields marked <code>readonly</code> must not be
+      mutated; the remaining fields are the intended mutation surface.
+    </p>
+
+    <h3 id="before-ingest-context" class="text-lg font-semibold mb-3 scroll-mt-24">
+      <code>BeforeIngestContext</code>
+    </h3>
+    <Code
+      lang="typescript"
+      theme="one-dark-pro"
+      code={`export interface BeforeIngestContext {
+  readonly organizationId: string | null;
+  readonly projectId: string;
+  /** Record count before hooks ran (snapshot; not recomputed after mutation). */
+  readonly eventCount: number;
+  /** Serialized-size estimate in bytes, computed only when handlers exist. */
+  readonly byteSize: number;
+  /** MUTABLE: filter/redact/modify entries, or assign a new array. */
+  records: IngestLogRecord[];
+}`}
+    />
+    <p class="text-sm text-muted-foreground">
+      Filtering or replacing <code>records</code> automatically realigns every downstream consumer
+      (Sigma detection, exception parsing, pipeline processing, metering, correlation) so they never
+      see phantom entries. Mutate fields in place or filter the array — do <strong>not</strong> clone
+      records you want to keep, since downstream realignment is keyed by object identity.
+    </p>
+
+    <div class="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:shield-alert" class="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
+        <div>
+          <h4 class="font-medium mb-1">Tenancy is enforced</h4>
+          <p class="text-sm text-muted-foreground">
+            Every record's <code>projectId</code> must still match the original project after hooks
+            run. Changing it is treated as a cross-tenant write and fails closed with HTTP 500.
+            Hooks cannot move data across tenant boundaries, even intentionally.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <h3 id="before-webhook-dispatch-context" class="text-lg font-semibold mb-3 scroll-mt-24">
+      <code>BeforeWebhookDispatchContext</code>
+    </h3>
+    <Code
+      lang="typescript"
+      theme="one-dark-pro"
+      code={`export interface BeforeWebhookDispatchContext {
+  readonly organizationId: string | null;
+  readonly channelId?: string;
+  readonly ruleId?: string;
+  /** READONLY: mutating the target would sidestep validated, SSRF-checked config. */
+  readonly url: string;
+  readonly targetHost: string;
+  /** MUTABLE: e.g. inject signing/compliance headers. */
+  headers: Record<string, string>;
+  /** MUTABLE: redact or enrich the payload before it leaves. */
+  body: Record<string, unknown>;
+}`}
+    />
+    <p class="text-sm text-muted-foreground">
+      The other before contexts follow the same shape: <code>BeforeQueryContext</code> exposes a
+      mutable <code>params</code> (mutations drive both the cache key and the read), and
+      <code>BeforeAlertEvaluationContext</code> is informational only (<code>organizationId</code>,
+      <code>ruleId</code>, <code>ruleType</code>) — rejecting it skips that rule for the cycle.
+      After-phase contexts are entirely <code>readonly</code>: counts, ids, and per-attempt delivery
+      results for telemetry and audit logging.
+    </p>
+  </div>
+
+  <h2 id="rejecting" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Rejecting an Operation
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      A before-phase handler aborts the operation by throwing <code>HookRejectionError(code,
+      message, statusCode)</code>. The registry propagates it as-is, and the global error handler
+      surfaces a machine-readable error body — the same path as capability and quota errors.
+    </p>
+
+    <Code
+      lang="typescript"
+      theme="one-dark-pro"
+      code={`hooks.register('beforeIngest', async (ctx) => {
+  if (ctx.byteSize > 5 * 1024 * 1024) {
+    throw new HookRejectionError('policy.batch_too_large', 'Batch exceeds 5MB', 429);
+  }
+});`}
+    />
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Phase</th>
+            <th class="py-2 font-semibold">Effect of a rejection</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>beforeIngest</code> / <code>beforeQuery</code></td><td class="py-2">The operation aborts; the client receives the <code>statusCode</code>, <code>code</code> and <code>message</code>.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>beforeAlertEvaluation</code></td><td class="py-2">That rule is skipped for this cycle; the rest of the batch continues.</td></tr>
+          <tr><td class="py-2 pr-4"><code>beforeWebhookDispatch</code></td><td class="py-2">The delivery is recorded as failed; no retry.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:alert-triangle" class="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
+        <div>
+          <h4 class="font-medium mb-1">Unexpected errors fail closed</h4>
+          <p class="text-sm text-muted-foreground">
+            Any thrown error that is <em>not</em> a <code>HookRejectionError</code> is wrapped in a
+            500. The operation is blocked, the original cause is chained into server logs only, and
+            the client receives a bare <code>Internal Server Error</code> with no detail. After-phase
+            handlers are the exception — their errors are logged and discarded, since the operation
+            has already completed.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="registering" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Registering Hooks
+  </h2>
+
+  <div class="mb-8 space-y-6">
+    <div>
+      <h3 id="hooks-modules" class="text-lg font-semibold mb-3 scroll-mt-24">
+        <code>HOOKS_MODULES</code> (container deployments)
+      </h3>
+      <p class="text-sm text-muted-foreground mb-3">
+        Set <code>HOOKS_MODULES</code> to a comma-separated list of absolute paths to <code>.js</code>
+        or <code>.mjs</code> files. Each must default-export a register function, called at boot on
+        both the server and worker. A load failure is fatal — the process exits rather than run
+        without the intended policy.
+      </p>
+      <Code
+        lang="bash"
+        theme="one-dark-pro"
+        code={`HOOKS_MODULES=/etc/logtide/hooks/policy.mjs,/etc/logtide/hooks/audit.mjs`}
+      />
+      <p class="text-sm text-muted-foreground my-3">
+        External modules receive <code>HookRejectionError</code> via the second argument, so they can
+        produce clean 4xx rejections without importing backend internals:
+      </p>
+      <Code
+        lang="javascript"
+        theme="one-dark-pro"
+        code={`// /etc/logtide/hooks/policy.mjs
+export default function register(hooks, { HookRejectionError }) {
+  hooks.register('beforeIngest', async (ctx) => {
+    // Reject batches over the policy limit with a clean 429
+    if (ctx.byteSize > 5 * 1024 * 1024) {
+      throw new HookRejectionError('policy.batch_too_large', 'Batch exceeds 5MB policy', 429);
+    }
+    // Mutate: strip a sensitive field before the reservoir write
+    for (const record of ctx.records) {
+      if (record.metadata) delete record.metadata.internal_token;
+    }
+  });
+
+  hooks.register('afterWebhookDispatch', async (ctx) => {
+    // Observe: emit a delivery metric
+    metrics.increment('webhook.delivery', { success: String(ctx.success) });
+  });
+}`}
+      />
+    </div>
+
+    <div>
+      <h3 id="code-registration" class="text-lg font-semibold mb-3 scroll-mt-24">
+        Code-level registration (downstream distributions)
+      </h3>
+      <p class="text-sm text-muted-foreground mb-3">
+        A distribution that builds from source can import and call <code>hooks.register()</code> in
+        its bootstrap, before the server starts accepting requests:
+      </p>
+      <Code
+        lang="typescript"
+        theme="one-dark-pro"
+        code={`import { hooks, HookRejectionError } from 'packages/backend/src/hooks/index.js';
+
+hooks.register('beforeIngest', async (ctx) => {
+  if (ctx.byteSize > 5 * 1024 * 1024) {
+    throw new HookRejectionError('policy.batch_too_large', 'Batch exceeds 5MB', 429);
+  }
+});`}
+      />
+    </div>
+  </div>
+
+  <h2 id="conventions" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Conventions & Limits
+  </h2>
+
+  <div class="space-y-4">
+    <Card>
+      <CardContent class="pt-4 text-sm text-muted-foreground">
+        <strong class="text-foreground">No unbounded I/O.</strong> Hooks run on the hot path and
+        there is no enforced timeout in v1. Handlers must not perform unbounded network calls or
+        uncached database reads. Keep them fast and add your own timeout wrapper if you call an
+        external service.
+      </CardContent>
+    </Card>
+    <Card>
+      <CardContent class="pt-4 text-sm text-muted-foreground">
+        <strong class="text-foreground">Sequential execution.</strong> Handlers for a phase run in
+        registration order; each awaits the previous, so a later handler sees earlier mutations. The
+        first handler to throw short-circuits the phase.
+      </CardContent>
+    </Card>
+    <Card>
+      <CardContent class="pt-4 text-sm text-muted-foreground">
+        <strong class="text-foreground">Request context.</strong> Handlers can read the current
+        request context via <code>context.currentOrNull()</code> from <code>@logtide/shared/context</code>
+        for <code>organizationId</code>, <code>requestId</code>, <code>ip</code>, <code>userAgent</code>
+        and the authenticated actor.
+      </CardContent>
+    </Card>
+    <Card>
+      <CardContent class="pt-4 text-sm text-muted-foreground">
+        <strong class="text-foreground">v1 scope.</strong> <code>beforeQuery</code> covers only the
+        main log query path (and fires once per live-tail poll tick — keep it cheap). There is no
+        hook for OTLP trace or metric ingestion, and no <code>afterQuery</code> phase.
+        <code>eventCount</code> and <code>byteSize</code> are pre-hook snapshots; use
+        <code>ctx.records.length</code> for the post-mutation count.
+      </CardContent>
+    </Card>
+
+    <p class="text-sm text-muted-foreground">
+      The <code>beforeWebhookDispatch</code> and <code>afterWebhookDispatch</code> phases hook
+      directly into the outbound dispatcher — see the <a href="/docs/webhooks/">Webhooks</a> guide
+      for the delivery contract and event envelope.
+    </p>
+  </div>
+</DocsLayout>

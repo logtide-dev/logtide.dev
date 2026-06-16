@@ -1,0 +1,273 @@
+---
+import DocsLayout from '../../layouts/Docs.astro';
+import Card from '../../components/ui/Card.astro';
+import CardContent from '../../components/ui/CardContent.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Overview", slug: "overview", depth: 2 },
+  { text: "Usage Metering", slug: "usage-metering", depth: 2 },
+  { text: "Capabilities & Limits", slug: "capabilities", depth: 2 },
+  { text: "Quota Enforcement", slug: "quota-enforcement", depth: 2 },
+  { text: "Audit Log", slug: "audit-log", depth: 2 },
+  { text: "Configuration", slug: "configuration", depth: 2 }
+];
+
+const keywords = [
+  "LogTide usage metering",
+  "per-organization quotas",
+  "feature gates entitlements",
+  "ingestion limits self-hosted",
+  "audit log retention",
+  "multi-tenant log platform"
+];
+---
+
+<DocsLayout
+  title="Usage, Metering & Capabilities"
+  description="Per-organization usage metering, a capability/entitlement system with feature gates, limits and quotas, and the structured audit log primitive — all OSS-permissive by default."
+  keywords={keywords}
+  headings={headings}
+>
+  <div class="flex items-center gap-3 mb-4">
+    <div class="p-2 bg-primary/10 rounded-lg">
+      <Icon name="lucide:gauge" class="w-6 h-6 text-primary" />
+    </div>
+    <h1 class="text-3xl font-bold">Usage, Metering & Capabilities</h1>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+    LogTide measures resource consumption per organization and project, and can gate features and
+    enforce limits and quotas through a typed capability system. Both are the groundwork for plan
+    tiers in a hosted distribution — and both are <strong>OSS-permissive by default</strong>, so
+    self-hosted behavior is unchanged until an operator sets a cap.
+  </p>
+
+  <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-8">
+    <div class="flex items-start gap-3">
+      <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+      <div>
+        <h4 class="font-medium mb-1">Self-hosted defaults</h4>
+        <p class="text-sm text-muted-foreground">
+          Every feature gate ships enabled and every limit/quota ships unlimited. Nothing here
+          restricts a self-hosted instance unless you deliberately configure an organization cap.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="overview" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Overview
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <div class="grid md:grid-cols-3 gap-4">
+      <Card>
+        <CardContent class="pt-4">
+          <Icon name="lucide:activity" class="w-5 h-5 text-primary mb-2" />
+          <h4 class="font-medium mb-1">Metering</h4>
+          <p class="text-sm text-muted-foreground">Records what each organization consumes — ingested bytes/events, spans, and estimated storage.</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent class="pt-4">
+          <Icon name="lucide:sliders-horizontal" class="w-5 h-5 text-primary mb-2" />
+          <h4 class="font-medium mb-1">Capabilities</h4>
+          <p class="text-sm text-muted-foreground">A typed registry of feature gates, static limits, and usage quotas, with per-org overrides.</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent class="pt-4">
+          <Icon name="lucide:scroll-text" class="w-5 h-5 text-primary mb-2" />
+          <h4 class="font-medium mb-1">Audit log</h4>
+          <p class="text-sm text-muted-foreground">A structured record of security-relevant actions, with typed actions, actors, outcomes and retention.</p>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+
+  <h2 id="usage-metering" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Usage Metering
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Metering records consumption events into a dedicated TimescaleDB hypertable through a
+      non-blocking, loss-tolerant in-process recorder. Calls are buffered and batch-inserted on a
+      size threshold, a flush interval, and on graceful shutdown — under back-pressure the recorder
+      <em>drops</em> rather than blocking the request path, because metering is measurement, not audit.
+    </p>
+
+    <p>Recording sites:</p>
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li><code>logs.ingested.bytes</code> and <code>logs.ingested.events</code> — recorded fire-and-forget after each log ingest (OTLP ingestion is metered too).</li>
+      <li><code>spans.ingested</code> — recorded after span ingestion, activating the tracing quota.</li>
+      <li><code>storage.snapshot</code> — a daily per-(organization, project) estimate of stored bytes, computed as the logical bytes ingested within the org's retention window. Engine-agnostic by design: it never scans the reservoir and ignores compression and manual deletions.</li>
+    </ul>
+
+    <p>The dashboard surfaces all of this under a <strong>Usage</strong> section. Read APIs:</p>
+
+    <Code
+      lang="http"
+      theme="one-dark-pro"
+      code={`GET /api/v1/usage              # grouped totals and a daily series
+GET /api/v1/usage/breakdown    # by type, project, service, and log level
+GET /api/v1/usage/storage      # current estimate + daily storage trend
+GET /api/v1/usage/capabilities # live usage vs each configured capability limit`}
+    />
+
+    <div class="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:alert-circle" class="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
+        <div>
+          <h4 class="font-medium mb-1">Storage estimate caveat</h4>
+          <p class="text-sm text-muted-foreground">
+            Organizations with pre-metering data under-estimate storage until a full
+            <code>retention_days</code> window of metering history accumulates. This is self-healing
+            (typically within 90 days).
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="capabilities" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Capabilities & Limits
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      A typed capability registry is the single source of truth for the platform's gates, limits and
+      quotas, across three kinds:
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Kind</th>
+            <th class="py-2 pr-4 font-semibold">Examples</th>
+            <th class="py-2 font-semibold">Enforced by</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Boolean gates</td><td class="py-2 pr-4"><code>auth.sso</code>, <code>detection.advanced</code>, <code>audit.enabled</code>, <code>isolation.dedicated</code></td><td class="py-2"><code>assertCapability</code> → 403</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Static limits</td><td class="py-2 pr-4"><code>alerts.max_rules</code>, <code>notifications.max_channels</code>, <code>apikeys.max</code>, <code>sigma.max_active_rules</code>, <code>dashboards.max_custom</code>, <code>audit.retention_days</code></td><td class="py-2"><code>assertWithinLimit</code> → 403</td></tr>
+          <tr><td class="py-2 pr-4">Usage quotas</td><td class="py-2 pr-4"><code>ingestion.max_bytes_monthly</code>, <code>ingestion.max_events_monthly</code>, <code>storage.max_bytes</code>, <code>tracing.max_spans_monthly</code></td><td class="py-2"><code>assertWithinUsageQuota</code> → 429</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Per-org overrides live in an <code>organization_entitlements</code> key-value table. A
+      cache-backed resolver merges those rows over the registry defaults, <strong>fails open</strong>
+      on database errors, and is swappable — a hosted distribution can source entitlements from
+      subscription state without patching core. Overrides are edited from the
+      <strong>Entitlements</strong> card on the admin organization page (boolean switches and numeric
+      caps; an empty cap means unlimited). Members can read the merged set for UI gating:
+    </p>
+
+    <Code
+      lang="http"
+      theme="one-dark-pro"
+      code={`GET  /api/v1/capabilities                            # merged set for the current org (UI gating)
+GET  /api/v1/admin/organizations/:id/entitlements    # admin: read per-org overrides
+PUT  /api/v1/admin/organizations/:id/entitlements    # admin: set per-org overrides`}
+    />
+  </div>
+
+  <h2 id="quota-enforcement" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Quota Enforcement
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Usage quotas join metering to enforcement through a periodic in-process evaluator. It reads
+      month-to-date totals for organizations that have at least one non-null quota cap and maintains
+      an in-memory over-quota flag — so the ingestion hot path never touches the database for a quota
+      check. Enforcement short-circuits on a null (unlimited) limit, which doubles as the defense when
+      an admin lifts a cap.
+    </p>
+    <p>
+      When a limit or quota is hit, the global error handler returns a machine-readable
+      <code>code</code> on the response (for example
+      <code>capability.alerts.max_rules.limit_reached</code>), so clients and the dashboard can react
+      precisely rather than parsing a message string.
+    </p>
+
+    <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:bar-chart-3" class="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+        <div>
+          <h4 class="font-medium mb-1">Plan limits on the usage page</h4>
+          <p class="text-sm text-muted-foreground">
+            The usage page shows current consumption against each configured limit as a color-coded
+            progress bar — green below 80%, amber 80–99%, red at or above 100%. A null limit renders
+            as “Unlimited”, so OSS defaults read correctly.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="audit-log" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Audit Log
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      The audit log is a structured security primitive backed by a canonical action registry — 70
+      typed actions across families like <code>org.*</code>, <code>apikey.*</code>,
+      <code>rule.*</code>, <code>auth.*</code> and <code>data.*</code>. Because actions are a typed
+      union, typos fail to compile, and the audit category is derived from the registry rather than
+      hand-passed at each callsite.
+    </p>
+    <p>
+      Records capture the organization, the actor (user, API key, or system), the outcome
+      (<code>success</code> / <code>failure</code>), and the request IP and user agent — read
+      automatically from the request context, so callsites only state the action and target. Because
+      actors now come from the request context, API-key access to query endpoints is audited too, and
+      failed local logins are recorded as <code>auth.login_failed</code> with a failure outcome.
+    </p>
+    <p>
+      The audit page in settings exposes actor-type, outcome and time-range filters; the query API and
+      CSV export carry the same columns. Retention is per organization: <code>audit_retention_days</code>
+      (1–3650 days, or NULL to keep forever — the default) is editable from the admin organization page
+      and enforced by the daily retention job.
+    </p>
+  </div>
+
+  <h2 id="configuration" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Configuration
+  </h2>
+
+  <div class="space-y-4">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Variable</th>
+            <th class="py-2 font-semibold">Description</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>METERING_ENABLED</code></td><td class="py-2">Toggle the usage recorder.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>METERING_FLUSH_INTERVAL_MS</code></td><td class="py-2">How often the buffered recorder flushes to the database.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>METERING_FLUSH_MAX_BUFFER</code></td><td class="py-2">Buffer size that triggers an early flush.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>QUOTA_EVALUATOR_ENABLED</code></td><td class="py-2">Toggle the periodic quota evaluator.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>QUOTA_EVALUATOR_INTERVAL_MS</code></td><td class="py-2">How often month-to-date totals are recomputed (default 60s).</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>STORAGE_SNAPSHOT_ENABLED</code></td><td class="py-2">Toggle the daily storage snapshot job.</td></tr>
+          <tr><td class="py-2 pr-4"><code>STORAGE_SNAPSHOT_INTERVAL_MS</code></td><td class="py-2">Storage snapshot cadence (default 24h).</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      To act on usage or enforce custom policy on the hot path, see the
+      <a href="/docs/lifecycle-hooks/">Lifecycle Hooks</a> guide — the <code>afterIngest</code> phase
+      reports per-batch accepted/rejected counts, and <code>beforeIngest</code> can reject a batch
+      outright.
+    </p>
+  </div>
+</DocsLayout>

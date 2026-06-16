@@ -1,0 +1,461 @@
+---
+import DocsLayout from '../../layouts/Docs.astro';
+import Card from '../../components/ui/Card.astro';
+import CardHeader from '../../components/ui/CardHeader.astro';
+import CardTitle from '../../components/ui/CardTitle.astro';
+import CardContent from '../../components/ui/CardContent.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Overview", slug: "overview", depth: 2 },
+  { text: "Delivery Semantics", slug: "delivery-semantics", depth: 2 },
+  { text: "Event Envelope", slug: "event-envelope", depth: 2 },
+  { text: "Event Types", slug: "event-types", depth: 2 },
+  { text: "Verifying Signatures", slug: "verifying-signatures", depth: 2 },
+  { text: "SSRF Protection", slug: "ssrf-protection", depth: 2 },
+  { text: "Replaying Deliveries", slug: "replaying-deliveries", depth: 2 },
+  { text: "Configuration", slug: "configuration", depth: 2 }
+];
+
+const keywords = [
+  "LogTide webhooks",
+  "webhook HMAC signature",
+  "webhook retry dead-letter queue",
+  "webhook SSRF protection",
+  "alert webhook payload",
+  "webhook event envelope"
+];
+---
+
+<DocsLayout
+  title="Webhooks"
+  description="Outbound webhook delivery in LogTide: a signed event envelope, HMAC verification, retry with backoff, a dead-letter queue, and SSRF protection."
+  keywords={keywords}
+  headings={headings}
+>
+  <div class="flex items-center gap-3 mb-4">
+    <div class="p-2 bg-primary/10 rounded-lg">
+      <Icon name="lucide:webhook" class="w-6 h-6 text-primary" />
+    </div>
+    <h1 class="text-3xl font-bold">Webhooks</h1>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+    LogTide delivers events — alerts, anomalies, errors, monitor status changes, security
+    incidents, and notification-channel webhooks — to your endpoints through a centralized
+    dispatcher with SSRF protection, retry with exponential backoff, a dead-letter queue, and
+    delivery logging.
+  </p>
+
+  <h2 id="overview" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Overview
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Every outbound delivery — whether it originates from an alert rule, an uptime monitor, an
+      error group, a security incident, or a notification channel — flows through one well-tested
+      dispatcher. That gives every webhook the same guarantees:
+    </p>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:shield-check" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">Signed payloads</h4>
+              <p class="text-sm text-muted-foreground">Optional HMAC-SHA256 signature so you can verify each delivery came from LogTide untampered.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:repeat" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">Automatic retries</h4>
+              <p class="text-sm text-muted-foreground">Transient failures are retried with exponential backoff before being parked.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:inbox" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">Dead-letter queue</h4>
+              <p class="text-sm text-muted-foreground">Exhausted deliveries are kept and can be replayed from the dashboard.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:lock" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">SSRF protection</h4>
+              <p class="text-sm text-muted-foreground">Targets are resolved and validated on every request and every redirect hop.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+
+  <h2 id="delivery-semantics" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Delivery Semantics
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li><strong>Retries</strong> — transient failures (network errors, timeouts, HTTP 5xx, 429) are retried with exponential backoff (<code>1s, 5s, 25s, 2m, 10m</code>), up to <code>WEBHOOK_MAX_ATTEMPTS</code> (default 5). Other 4xx responses and SSRF-blocked targets are terminal and not retried.</li>
+      <li><strong>Dead-letter queue</strong> — after the final failed attempt a delivery is marked <code>dead</code>. Dead and failed deliveries can be replayed from <strong>Settings → Webhook Deliveries</strong>.</li>
+      <li><strong>Idempotency</strong> — each delivery carries a stable id, and the same logical event is never enqueued twice. A receiver can safely deduplicate on the envelope <code>id</code>.</li>
+      <li><strong>Timeout</strong> — each attempt times out after <code>WEBHOOK_REQUEST_TIMEOUT_MS</code> (default 10s).</li>
+    </ul>
+
+    <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+        <div>
+          <h4 class="font-medium mb-1">Return 2xx quickly</h4>
+          <p class="text-sm text-muted-foreground">
+            Acknowledge the delivery with a 2xx as soon as you have persisted it, then do your
+            work asynchronously. A slow handler that exceeds the request timeout is treated as a
+            failed attempt and will be retried.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="event-envelope" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Event Envelope
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Every delivery body is a JSON object with a top-level envelope. The <code>data</code> field
+      carries the event-specific payload.
+    </p>
+
+    <Code
+      lang="json"
+      theme="one-dark-pro"
+      code={`{
+  "id": "evt_4b3e1a2c-8f7d-4e6b-9c0a-1d2e3f4a5b6c",
+  "type": "alert.triggered",
+  "version": 1,
+  "occurredAt": "2026-06-11T14:32:07.841Z",
+  "organizationId": "9f8e7d6c-5b4a-3c2d-1e0f-a1b2c3d4e5f6",
+  "projectId": "3a4b5c6d-7e8f-9a0b-1c2d-3e4f5a6b7c8d",
+  "data": {
+    "alert_name": "Error rate spike",
+    "log_count": 142,
+    "threshold": 50,
+    "time_window": 300,
+    "baseline_metadata": null,
+    "link": "https://app.logtide.dev/alerts/history/abc123"
+  }
+}`}
+    />
+
+    <h3 id="envelope-fields" class="text-lg font-semibold mb-3 scroll-mt-24">Envelope fields</h3>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Field</th>
+            <th class="py-2 pr-4 font-semibold">Type</th>
+            <th class="py-2 font-semibold">Description</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>id</code></td><td class="py-2 pr-4">string</td><td class="py-2">Stable delivery id, prefix <code>evt_</code> followed by a UUID. Doubles as the dedup id when the producer does not supply one.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>type</code></td><td class="py-2 pr-4">string</td><td class="py-2">Event type (see table below).</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>version</code></td><td class="py-2 pr-4">number</td><td class="py-2">Schema version. Currently always <code>1</code>; the <code>X-Logtide-Event-Version</code> header carries the same value for routing without parsing the body.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>occurredAt</code></td><td class="py-2 pr-4">string</td><td class="py-2">ISO 8601 timestamp of when the event occurred.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>organizationId</code></td><td class="py-2 pr-4">UUID</td><td class="py-2">Organization that owns the event.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>projectId</code></td><td class="py-2 pr-4">UUID | null</td><td class="py-2">Project scope. <code>null</code> for org-wide events (e.g. alert rules without a project filter).</td></tr>
+          <tr><td class="py-2 pr-4"><code>data</code></td><td class="py-2 pr-4">object</td><td class="py-2">Event-specific payload. See per-type fields below.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="zod-schemas" class="text-lg font-semibold mb-3 scroll-mt-24">Validating with <code>@logtide/shared</code></h3>
+
+    <p class="text-sm text-muted-foreground">
+      The envelope and per-type data schemas ship as Zod schemas, so a TypeScript receiver can
+      parse and validate in one step:
+    </p>
+
+    <Code
+      lang="typescript"
+      theme="one-dark-pro"
+      code={`import { webhookEnvelopeSchema, parseWebhookEvent } from '@logtide/shared';
+
+// Parse the envelope only (data stays Record<string, unknown>)
+const envelope = webhookEnvelopeSchema.parse(body);
+
+// Parse the envelope AND validate the per-type data schema
+const event = parseWebhookEvent(body);`}
+    />
+
+    <p class="text-sm text-muted-foreground">
+      <code>parseWebhookEvent</code> throws a Zod <code>ZodError</code> if either the envelope shape
+      or the per-type <code>data</code> fields are invalid.
+    </p>
+  </div>
+
+  <h2 id="event-types" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Event Types
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Type</th>
+            <th class="py-2 font-semibold">Description</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>alert.triggered</code></td><td class="py-2">An alert rule or anomaly detection fired. Anomaly detections carry a non-null <code>data.baseline_metadata</code>.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>incident.created</code></td><td class="py-2">A new security incident was created (typically from a Sigma rule detection).</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>error.detected</code></td><td class="py-2">An exception group crossed its notification threshold.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>monitor.status_changed</code></td><td class="py-2">An uptime monitor changed status (e.g. up → down).</td></tr>
+          <tr><td class="py-2 pr-4"><code>channel.test</code></td><td class="py-2">A test delivery sent when verifying a notification channel.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      Each type's <code>data</code> payload keeps the snake_case fields you may already consume,
+      minus the legacy <code>event_type</code> / <code>timestamp</code> keys (now <code>type</code>
+      and <code>occurredAt</code> on the envelope). The most common shapes:
+    </p>
+
+    <h3 id="alert-triggered" class="text-lg font-semibold mb-3 scroll-mt-24">
+      <code>alert.triggered</code> data
+    </h3>
+    <Code
+      lang="json"
+      theme="one-dark-pro"
+      code={`{
+  "alert_name": "Error rate spike",
+  "log_count": 142,
+  "threshold": 50,
+  "time_window": 300,
+  "baseline_metadata": {
+    "baseline_value": 30,
+    "current_value": 142,
+    "deviation_ratio": 4.7,
+    "baseline_type": "rate_of_change",
+    "evaluation_time": "2026-06-11T14:32:07.841Z"
+  },
+  "link": "https://app.logtide.dev/alerts/history/abc123"
+}`}
+    />
+    <p class="text-sm text-muted-foreground">
+      <code>baseline_metadata</code> is <code>null</code> for plain threshold rules and non-null
+      for anomaly / rate-of-change detections.
+    </p>
+
+    <h3 id="error-detected" class="text-lg font-semibold mb-3 scroll-mt-24">
+      <code>error.detected</code> data
+    </h3>
+    <Code
+      lang="json"
+      theme="one-dark-pro"
+      code={`{
+  "title": "TypeError: cannot read property 'id' of undefined",
+  "message": "TypeError: cannot read property 'id' of undefined",
+  "severity": "high",
+  "organization": { "id": "9f8e...", "name": "Acme" },
+  "project": { "id": "3a4b...", "name": "api" },
+  "error_group_id": "grp_8d2f...",
+  "exception_type": "TypeError",
+  "language": "nodejs",
+  "service": "checkout",
+  "is_new": true,
+  "link": "https://app.logtide.dev/errors/grp_8d2f"
+}`}
+    />
+
+    <h3 id="monitor-status-changed" class="text-lg font-semibold mb-3 scroll-mt-24">
+      <code>monitor.status_changed</code> data
+    </h3>
+    <Code
+      lang="json"
+      theme="one-dark-pro"
+      code={`{
+  "monitor_id": "mon_1a2b...",
+  "monitor_name": "Checkout API",
+  "status": "down",
+  "severity": "critical",
+  "title": "Checkout API is down",
+  "message": "HTTP 503 from https://api.example.com/health",
+  "organization": { "id": "9f8e...", "name": "Acme" },
+  "target": "https://api.example.com/health",
+  "error_code": "503",
+  "response_time_ms": null,
+  "consecutive_failures": 3,
+  "downtime_duration": null,
+  "link": "https://app.logtide.dev/monitoring/mon_1a2b"
+}`}
+    />
+
+    <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+        <div>
+          <h4 class="font-medium mb-1">incident.created and channel.test</h4>
+          <p class="text-sm text-muted-foreground">
+            <code>incident.created</code> carries <code>title</code>, <code>message</code>,
+            <code>severity</code>, <code>organization</code>, <code>incident_id</code>, optional
+            <code>affected_services</code>, and <code>link</code>. <code>channel.test</code> carries
+            a <code>title</code> / <code>message</code> with optional <code>severity</code>,
+            <code>organization</code>, <code>link</code> and a free-form <code>metadata</code> map.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="verifying-signatures" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Verifying Signatures
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      When a signing secret is configured for a webhook, LogTide signs each delivery so you can
+      verify it came from LogTide and was not tampered with. Two headers are added:
+    </p>
+
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li><code>X-Logtide-Timestamp: &lt;unix seconds&gt;</code></li>
+      <li><code>X-Logtide-Signature: t=&lt;unix&gt;,v1=&lt;hex hmac&gt;</code></li>
+    </ul>
+
+    <p>
+      The signature is <code>HMAC-SHA256(secret, "&lt;timestamp&gt;.&lt;raw request body&gt;")</code>,
+      hex-encoded, and covers the serialized envelope.
+    </p>
+
+    <Code
+      lang="javascript"
+      theme="one-dark-pro"
+      code={`import crypto from 'crypto';
+
+function verify(secret, headers, rawBody) {
+  const ts = headers['x-logtide-timestamp'];
+  const sig = headers['x-logtide-signature'].split('v1=')[1];
+  const expected = crypto
+    .createHmac('sha256', secret)
+    .update(\`\${ts}.\${rawBody}\`)
+    .digest('hex');
+  const a = Buffer.from(expected, 'hex');
+  const b = Buffer.from(sig, 'hex');
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}`}
+    />
+
+    <div class="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:alert-circle" class="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
+        <div>
+          <h4 class="font-medium mb-1">Verify against the raw body</h4>
+          <p class="text-sm text-muted-foreground">
+            Compute the HMAC over the <strong>raw</strong> request body (before JSON parsing) —
+            any reserialization can change the bytes and break the signature. Reject deliveries
+            whose timestamp is older than your tolerance (e.g. 5 minutes) to prevent replay.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="ssrf-protection" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    SSRF Protection
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Outbound targets are resolved and validated before each request. Loopback, private,
+      link-local (including cloud metadata), CGNAT, multicast, and reserved IPv4/IPv6 ranges are
+      rejected, and every redirect hop is revalidated.
+    </p>
+    <p>
+      Self-hosted deployments that need to reach internal endpoints can opt in by setting
+      <code>MONITOR_ALLOW_PRIVATE_TARGETS=true</code>.
+    </p>
+  </div>
+
+  <h2 id="replaying-deliveries" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Replaying Deliveries
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Every delivery and each of its attempts are recorded in a bounded delivery log, browsable
+      under <strong>Settings → Webhook Deliveries</strong> with a status filter. Failed and
+      dead-lettered deliveries can be replayed from there.
+    </p>
+    <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:history" class="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+        <div>
+          <h4 class="font-medium mb-1">Historical replays</h4>
+          <p class="text-sm text-muted-foreground">
+            Deliveries created before the envelope change re-send their stored pre-envelope payload
+            when replayed, while still carrying the <code>X-Logtide-Event-Version</code> header.
+            Treat the header as advisory for replayed historical deliveries.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="configuration" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Configuration
+  </h2>
+
+  <div class="space-y-4">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Variable</th>
+            <th class="py-2 pr-4 font-semibold">Default</th>
+            <th class="py-2 font-semibold">Description</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>WEBHOOK_MAX_ATTEMPTS</code></td><td class="py-2 pr-4"><code>5</code></td><td class="py-2">Maximum delivery attempts before the dead-letter queue.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>WEBHOOK_PER_ORG_CONCURRENCY</code></td><td class="py-2 pr-4"><code>5</code></td><td class="py-2">Concurrent deliveries per organization.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>WEBHOOK_GLOBAL_CONCURRENCY</code></td><td class="py-2 pr-4"><code>50</code></td><td class="py-2">Concurrent deliveries across all organizations.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>WEBHOOK_DELIVERY_LOG_LIMIT</code></td><td class="py-2 pr-4"><code>1000</code></td><td class="py-2">Attempts retained per delivery in the delivery log.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>WEBHOOK_REQUEST_TIMEOUT_MS</code></td><td class="py-2 pr-4"><code>10000</code></td><td class="py-2">Per-attempt request timeout in milliseconds.</td></tr>
+          <tr><td class="py-2 pr-4"><code>MONITOR_ALLOW_PRIVATE_TARGETS</code></td><td class="py-2 pr-4"><code>false</code></td><td class="py-2">Allow delivery to private/internal addresses (self-hosted).</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      Want to observe, enrich, or reject deliveries before they leave the backend? See the
+      <a href="/docs/lifecycle-hooks/">Lifecycle Hooks</a> guide — the
+      <code>beforeWebhookDispatch</code> and <code>afterWebhookDispatch</code> phases hook directly
+      into this dispatcher.
+    </p>
+  </div>
+</DocsLayout>
