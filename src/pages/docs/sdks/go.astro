@@ -15,6 +15,7 @@ const headings = [
   { text: "Logging Methods", slug: "logging", depth: 2 },
   { text: "Hub & Scope", slug: "hub-scope", depth: 2 },
   { text: "Error Capture", slug: "error-capture", depth: 2 },
+  { text: "slog Handler", slug: "slog", depth: 2 },
   { text: "OpenTelemetry", slug: "opentelemetry", depth: 2 },
   { text: "HTTP Middleware", slug: "http-middleware", depth: 2 },
   { text: "Best Practices", slug: "best-practices", depth: 2 }
@@ -273,6 +274,55 @@ if err != nil {
 }`}
       />
   </div>
+
+  <h2
+      id="slog"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      slog Handler
+  </h2>
+
+  <p class="text-sm text-muted-foreground mb-4">
+      The <code class="bg-muted px-1 rounded">logtideslog</code> integration provides a
+      <code class="bg-muted px-1 rounded">log/slog</code> handler, so existing slog-based logging
+      flows to LogTide without code changes. Records honour the client's full pipeline — scope merge,
+      processors, <code class="bg-muted px-1 rounded">BeforeSend</code>, sampling, and batching.
+  </p>
+
+  <div class="mb-4">
+      <Code
+          lang="go"
+          theme="one-dark-pro"
+          code={`import (
+    "log/slog"
+
+    logtide "github.com/logtide-dev/logtide-sdk-go"
+    "github.com/logtide-dev/logtide-sdk-go/integrations/logtideslog"
+)
+
+client, err := logtide.NewClient(logtide.ClientOptions{
+    DSN:     "https://lp_your_api_key@api.logtide.dev",
+    Service: "my-service",
+})
+if err != nil {
+    log.Fatal(err)
+}
+defer client.Close()
+
+// opts may be nil (defaults to slog.LevelInfo).
+handler := logtideslog.New(client, &logtideslog.Options{Level: slog.LevelDebug})
+slog.SetDefault(slog.New(handler))
+
+slog.Info("user signed in", "user_id", 42, "plan", "pro")
+slog.Error("checkout failed", "err", err, "order_id", 1234)`}
+      />
+  </div>
+
+  <p class="text-sm text-muted-foreground mb-8">
+      Attributes become entry metadata, slog groups become nested metadata objects, and attribute
+      values implementing <code class="bg-muted px-1 rounded">error</code> are promoted to structured
+      exceptions so server-side error grouping works.
+  </p>
 
   <h2
       id="opentelemetry"
