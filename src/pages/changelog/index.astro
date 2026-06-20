@@ -77,6 +77,8 @@ for (const year of sortedYears) {
 const totalReleased = releasedEntries.length;
 const totalPlanned = roadmapEntries.length;
 const latestVersion = releasedEntries[0]?.entry.data.version ?? null;
+// Keep the latest released entry expanded by default; collapse the rest.
+const latestReleasedId = releasedEntries[0]?.entry.id ?? null;
 
 const title = 'Changelog & Roadmap | LogTide';
 const description = 'Track what we have shipped and what is coming next. Released versions, improvements in progress, and planned features for LogTide.';
@@ -176,6 +178,7 @@ const description = 'Track what we have shipped and what is coming next. Release
                   <TimelineNode
                     entry={item.entry}
                     isLast={isLastEntry}
+                    defaultOpen={item.entry.id === latestReleasedId}
                   >
                     <item.Content />
                   </TimelineNode>
