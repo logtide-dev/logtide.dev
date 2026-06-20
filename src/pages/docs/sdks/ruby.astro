@@ -1,0 +1,438 @@
+---
+import DocsLayout from '../../../layouts/Docs.astro';
+import Card from '../../../components/ui/Card.astro';
+import CardHeader from '../../../components/ui/CardHeader.astro';
+import CardTitle from '../../../components/ui/CardTitle.astro';
+import CardContent from '../../../components/ui/CardContent.astro';
+import Button from '../../../components/ui/Button.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Installation", slug: "installation", depth: 2 },
+  { text: "Quick Start", slug: "quick-start", depth: 2 },
+  { text: "Configuration", slug: "configuration", depth: 2 },
+  { text: "Logging Methods", slug: "logging", depth: 2 },
+  { text: "Scope & Breadcrumbs", slug: "scope", depth: 2 },
+  { text: "Error Capture", slug: "error-capture", depth: 2 },
+  { text: "Tracing", slug: "tracing", depth: 2 },
+  { text: "Rails & Rack", slug: "rails-rack", depth: 2 },
+  { text: "Logger Bridge", slug: "logger-bridge", depth: 2 },
+  { text: "Best Practices", slug: "best-practices", depth: 2 }
+];
+---
+
+<DocsLayout
+  title="Ruby SDK"
+  description="Official Ruby SDK for LogTide with batching, retry logic, circuit breaker, distributed tracing, and Rack/Rails middleware."
+  headings={headings}
+>
+  <div class="flex items-center justify-between mb-4">
+      <h1 class="text-3xl font-bold">Ruby SDK</h1>
+      <div class="flex items-center gap-2">
+          <a
+              href="https://github.com/logtide-dev/logtide-ruby"
+              target="_blank"
+              rel="noopener noreferrer"
+          >
+              <Button variant="ghost" size="sm" class="gap-1.5">
+                  <Icon name="simple-icons:github" class="w-4 h-4" />
+                  GitHub
+              </Button>
+          </a>
+          <a
+              href="https://rubygems.org/gems/logtide"
+              target="_blank"
+              rel="noopener noreferrer"
+          >
+              <Button variant="ghost" size="sm" class="gap-1.5">
+                  <Icon name="simple-icons:rubygems" class="w-4 h-4" />
+                  RubyGems
+              </Button>
+          </a>
+      </div>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+      Official Ruby SDK for LogTide with automatic batching, retry with backoff,
+      a circuit breaker, Hub/Scope context isolation, distributed tracing, and
+      Rack middleware plus a Rails Railtie. It implements the LogTide SDK spec v1.0
+      and uses the standard library only — no runtime dependencies.
+  </p>
+
+  <h2
+      id="installation"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Installation
+  </h2>
+
+  <div class="mb-4">
+      <p class="text-sm text-muted-foreground mb-3">Add the gem to your <code class="bg-muted px-1 rounded">Gemfile</code>:</p>
+      <Code
+          lang="ruby"
+          theme="one-dark-pro"
+          code={`# Gemfile
+gem "logtide"`}
+      />
+  </div>
+
+  <div class="mb-4">
+      <Code
+          lang="bash"
+          theme="one-dark-pro"
+          code={`bundle install`}
+      />
+  </div>
+
+  <p class="text-sm text-muted-foreground mb-8">Requires Ruby 3.1 or later and a LogTide instance with a DSN.</p>
+
+  <h2
+      id="quick-start"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Quick Start
+  </h2>
+
+  <div class="mb-4">
+      <h3 class="text-lg font-semibold mb-3">Initialise with a DSN (recommended)</h3>
+      <Code
+          lang="ruby"
+          theme="one-dark-pro"
+          code={`require "logtide"
+
+Logtide.init(
+  dsn: "https://lp_your_key@logs.example.com",
+  service: "checkout",
+  environment: "production"
+)
+
+Logtide.info("order placed", { order_id: 42 })
+
+begin
+  charge_card!
+rescue => e
+  Logtide.capture_exception(e)
+end
+
+Logtide.flush`}
+      />
+  </div>
+
+  <div class="mb-8">
+      <h3 class="text-lg font-semibold mb-3">Explicit endpoint options</h3>
+      <p class="text-sm text-muted-foreground mb-3">
+          Instead of a DSN you can pass the endpoint and key separately:
+      </p>
+      <Code
+          lang="ruby"
+          theme="one-dark-pro"
+          code={`Logtide.init(
+  api_url: "https://logs.example.com",
+  api_key: "lp_your_key",
+  service: "checkout"
+)`}
+      />
+  </div>
+
+  <h2
+      id="configuration"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Configuration
+  </h2>
+
+  <p class="text-sm text-muted-foreground mb-4">
+      All options can be passed to <code class="bg-muted px-1 rounded">Logtide.init</code>.
+      Defaults follow the LogTide SDK spec exactly (durations are in seconds):
+  </p>
+
+  <div class="overflow-x-auto mb-8">
+      <table class="w-full text-sm border-collapse">
+          <thead>
+              <tr class="border-b border-border text-left">
+                  <th class="py-2 pr-4 font-semibold">Option</th>
+                  <th class="py-2 pr-4 font-semibold">Default</th>
+                  <th class="py-2 font-semibold">Description</th>
+              </tr>
+          </thead>
+          <tbody class="text-muted-foreground">
+              <tr class="border-b border-border/50"><td class="py-2 pr-4"><code class="bg-muted px-1 rounded">environment</code></td><td class="py-2 pr-4"><code>"production"</code></td><td class="py-2">Deployment environment tag</td></tr>
+              <tr class="border-b border-border/50"><td class="py-2 pr-4"><code class="bg-muted px-1 rounded">batch_size</code></td><td class="py-2 pr-4"><code>100</code></td><td class="py-2">Entries per HTTP batch</td></tr>
+              <tr class="border-b border-border/50"><td class="py-2 pr-4"><code class="bg-muted px-1 rounded">flush_interval</code></td><td class="py-2 pr-4"><code>5</code></td><td class="py-2">Seconds between automatic flushes</td></tr>
+              <tr class="border-b border-border/50"><td class="py-2 pr-4"><code class="bg-muted px-1 rounded">max_buffer_size</code></td><td class="py-2 pr-4"><code>10_000</code></td><td class="py-2">Bounded buffer cap before drop policy applies</td></tr>
+              <tr class="border-b border-border/50"><td class="py-2 pr-4"><code class="bg-muted px-1 rounded">max_retries</code></td><td class="py-2 pr-4"><code>3</code></td><td class="py-2">Retry attempts for retryable statuses</td></tr>
+              <tr class="border-b border-border/50"><td class="py-2 pr-4"><code class="bg-muted px-1 rounded">retry_delay</code></td><td class="py-2 pr-4"><code>1</code></td><td class="py-2">Base backoff seconds (exponential, with jitter)</td></tr>
+              <tr class="border-b border-border/50"><td class="py-2 pr-4"><code class="bg-muted px-1 rounded">circuit_breaker_threshold</code></td><td class="py-2 pr-4"><code>5</code></td><td class="py-2">Consecutive failures before the breaker opens</td></tr>
+              <tr class="border-b border-border/50"><td class="py-2 pr-4"><code class="bg-muted px-1 rounded">circuit_breaker_reset</code></td><td class="py-2 pr-4"><code>30</code></td><td class="py-2">Seconds before the breaker half-opens</td></tr>
+              <tr class="border-b border-border/50"><td class="py-2 pr-4"><code class="bg-muted px-1 rounded">flush_timeout</code></td><td class="py-2 pr-4"><code>10</code></td><td class="py-2">Seconds to wait for a flush to complete</td></tr>
+              <tr class="border-b border-border/50"><td class="py-2 pr-4"><code class="bg-muted px-1 rounded">max_breadcrumbs</code></td><td class="py-2 pr-4"><code>100</code></td><td class="py-2">Breadcrumbs retained per scope</td></tr>
+              <tr class="border-b border-border/50"><td class="py-2 pr-4"><code class="bg-muted px-1 rounded">sample_rate</code></td><td class="py-2 pr-4"><code>1.0</code></td><td class="py-2">Fraction of log entries sent</td></tr>
+              <tr class="border-b border-border/50"><td class="py-2 pr-4"><code class="bg-muted px-1 rounded">traces_sample_rate</code></td><td class="py-2 pr-4"><code>1.0</code></td><td class="py-2">Fraction of spans sent</td></tr>
+              <tr class="border-b border-border/50"><td class="py-2 pr-4"><code class="bg-muted px-1 rounded">attach_stacktrace</code></td><td class="py-2 pr-4"><code>true</code></td><td class="py-2">Attach stack frames to captured exceptions</td></tr>
+              <tr class="border-b border-border/50"><td class="py-2 pr-4"><code class="bg-muted px-1 rounded">send_default_pii</code></td><td class="py-2 pr-4"><code>false</code></td><td class="py-2">Include potentially personal data (e.g. request bodies)</td></tr>
+              <tr><td class="py-2 pr-4"><code class="bg-muted px-1 rounded">debug</code></td><td class="py-2 pr-4"><code>false</code></td><td class="py-2">Log SDK internals to stderr</td></tr>
+          </tbody>
+      </table>
+  </div>
+
+  <h2
+      id="logging"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Logging Methods
+  </h2>
+
+  <div class="mb-8">
+      <p class="text-sm text-muted-foreground mb-3">
+          Five leveled methods take a message and an optional metadata hash.
+          <code class="bg-muted px-1 rounded">capture_exception</code> records a structured exception with its cause chain.
+      </p>
+      <Code
+          lang="ruby"
+          theme="one-dark-pro"
+          code={`Logtide.debug("cache miss", { key: "user:42" })
+Logtide.info("request handled", { status: 200, ms: 12 })
+Logtide.warn("rate limit approaching")
+Logtide.error("db query failed", { query: "SELECT ..." })
+Logtide.critical("out of memory")
+
+begin
+  risky!
+rescue => e
+  Logtide.capture_exception(e, { order_id: 42 })
+end`}
+      />
+  </div>
+
+  <h2
+      id="scope"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Scope &amp; Breadcrumbs
+  </h2>
+
+  <p class="text-sm text-muted-foreground mb-4">
+      The Hub/Scope model attaches tags, user info, and breadcrumbs to every entry
+      within a logical unit of work — without threading extra parameters through your code.
+  </p>
+
+  <div class="mb-4">
+      <h3 class="text-lg font-semibold mb-3">Global scope</h3>
+      <Code
+          lang="ruby"
+          theme="one-dark-pro"
+          code={`Logtide.configure_scope do |scope|
+  scope.set_user(id: "u_123", email: "alice@example.com")
+  scope.set_tag("region", "eu")
+end
+
+Logtide.add_breadcrumb(
+  Logtide::Breadcrumb.new(type: "query", message: "SELECT * FROM carts")
+)`}
+      />
+  </div>
+
+  <div class="mb-8">
+      <h3 class="text-lg font-semibold mb-3">Per-request isolation</h3>
+      <p class="text-sm text-muted-foreground mb-3">
+          <code class="bg-muted px-1 rounded">with_scope</code> pushes a temporary scope that is
+          popped automatically when the block returns.
+      </p>
+      <Code
+          lang="ruby"
+          theme="one-dark-pro"
+          code={`Logtide.with_scope do |scope|
+  scope.set_tag("step", "payment")
+  Logtide.error("payment failed") # carries step: payment
+end`}
+      />
+  </div>
+
+  <h2
+      id="error-capture"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Error Capture
+  </h2>
+
+  <div class="mb-8">
+      <p class="text-sm text-muted-foreground mb-3">
+          <code class="bg-muted px-1 rounded">capture_exception</code> serialises the exception, its
+          cause chain, and (when <code class="bg-muted px-1 rounded">attach_stacktrace</code> is enabled)
+          its stack frames, then attaches the current scope's tags, user, and breadcrumbs.
+      </p>
+      <Code
+          lang="ruby"
+          theme="one-dark-pro"
+          code={`begin
+  charge_card!
+rescue StandardError => e
+  Logtide.capture_exception(e, { user_id: current_user.id })
+  raise
+end`}
+      />
+  </div>
+
+  <h2
+      id="tracing"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Tracing
+  </h2>
+
+  <div class="mb-4">
+      <h3 class="text-lg font-semibold mb-3">Spans</h3>
+      <p class="text-sm text-muted-foreground mb-3">
+          Logs emitted inside a span automatically carry its <code class="bg-muted px-1 rounded">trace_id</code>
+          and <code class="bg-muted px-1 rounded">span_id</code> for log/trace correlation. Spans are
+          exported via OTLP.
+      </p>
+      <Code
+          lang="ruby"
+          theme="one-dark-pro"
+          code={`Logtide.start_span("checkout", kind: :server) do |span|
+  span.set_attribute("cart.size", 3)
+  Logtide.info("processing") # carries the span's trace_id / span_id
+end`}
+      />
+  </div>
+
+  <div class="mb-8">
+      <h3 class="text-lg font-semibold mb-3">Distributed propagation</h3>
+      <p class="text-sm text-muted-foreground mb-3">
+          The Rack middleware reads inbound W3C <code class="bg-muted px-1 rounded">traceparent</code> headers
+          automatically. To propagate the active trace to a downstream service, attach the outbound headers:
+      </p>
+      <Code
+          lang="ruby"
+          theme="one-dark-pro"
+          code={`headers = Logtide.trace_propagation_headers
+# => { "traceparent" => "00-..." }
+
+Net::HTTP.post(uri, body, headers)`}
+      />
+  </div>
+
+  <h2
+      id="rails-rack"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Rails &amp; Rack
+  </h2>
+
+  <div class="mb-4">
+      <h3 class="text-lg font-semibold mb-3">Rails</h3>
+      <p class="text-sm text-muted-foreground mb-3">
+          The Railtie installs the Rack middleware automatically — it isolates scope per request,
+          sets HTTP tags, parses <code class="bg-muted px-1 rounded">traceparent</code>, and adds
+          request/response breadcrumbs. Just initialise the SDK in an initializer:
+      </p>
+      <Code
+          lang="ruby"
+          theme="one-dark-pro"
+          code={`# config/initializers/logtide.rb
+Logtide.init(
+  dsn: ENV["LOGTIDE_DSN"],
+  service: "my-app",
+  release: ENV["GIT_SHA"]
+)`}
+      />
+  </div>
+
+  <div class="mb-8">
+      <h3 class="text-lg font-semibold mb-3">Plain Rack</h3>
+      <Code
+          lang="ruby"
+          theme="one-dark-pro"
+          code={`# config.ru
+require "logtide"
+
+Logtide.init(dsn: ENV["LOGTIDE_DSN"], service: "rack-app")
+
+use Logtide::Rack::Middleware
+
+run ->(_env) { [200, { "content-type" => "text/plain" }, ["ok"]] }`}
+      />
+  </div>
+
+  <h2
+      id="logger-bridge"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Logger Bridge
+  </h2>
+
+  <div class="mb-8">
+      <p class="text-sm text-muted-foreground mb-3">
+          <code class="bg-muted px-1 rounded">Logtide::LoggerBridge</code> is a drop-in replacement for the
+          stdlib <code class="bg-muted px-1 rounded">Logger</code>. Calls are delivered as LogTide entries
+          with the current scope context; <code class="bg-muted px-1 rounded">fatal</code> maps to a
+          <code class="bg-muted px-1 rounded">critical</code> entry.
+      </p>
+      <Code
+          lang="ruby"
+          theme="one-dark-pro"
+          code={`logger = Logtide::LoggerBridge.new
+
+logger.info("AuthService") { "user signed in" }
+logger.warn("disk almost full")
+logger.fatal("out of memory") # delivered as a critical entry`}
+      />
+  </div>
+
+  <h2
+      id="best-practices"
+      class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2"
+  >
+      Best Practices
+  </h2>
+
+  <div class="space-y-4">
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base">1. Flush before exit</CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm text-muted-foreground">
+              The SDK installs a best-effort <code class="bg-muted px-1 rounded">at_exit</code> hook, but for
+              short-lived scripts, workers, and rake tasks call <code class="bg-muted px-1 rounded">Logtide.flush</code>
+              (or <code class="bg-muted px-1 rounded">Logtide.close</code>) explicitly so buffered entries are delivered.
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base">2. Use with_scope per unit of work</CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm text-muted-foreground">
+              Wrap requests and background jobs in <code class="bg-muted px-1 rounded">Logtide.with_scope</code>
+              so tags, user, and breadcrumbs stay isolated. The Rails Railtie does this for web requests automatically.
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base">3. Capture exceptions, don't stringify them</CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm text-muted-foreground">
+              Use <code class="bg-muted px-1 rounded">Logtide.capture_exception(e)</code> instead of
+              <code class="bg-muted px-1 rounded">Logtide.error(e.message)</code> to keep the cause chain and
+              stack frames for grouping and debugging.
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardHeader>
+              <CardTitle class="text-base">4. Watch the self-metrics</CardTitle>
+          </CardHeader>
+          <CardContent class="text-sm text-muted-foreground">
+              <code class="bg-muted px-1 rounded">Logtide.get_metrics</code> exposes
+              <code class="bg-muted px-1 rounded">logs_sent</code>, <code class="bg-muted px-1 rounded">logs_dropped</code>,
+              <code class="bg-muted px-1 rounded">errors</code>, <code class="bg-muted px-1 rounded">retries</code>, and
+              <code class="bg-muted px-1 rounded">circuit_breaker_trips</code> — a rising
+              <code class="bg-muted px-1 rounded">logs_dropped</code> means you've hit
+              <code class="bg-muted px-1 rounded">max_buffer_size</code>.
+          </CardContent>
+      </Card>
+  </div>
+</DocsLayout>

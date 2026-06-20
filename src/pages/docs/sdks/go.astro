@@ -298,7 +298,7 @@ func handleRequest(ctx context.Context) {
       />
   </div>
 
-  <div class="mb-8">
+  <div class="mb-4">
       <h3 class="text-lg font-semibold mb-3">Span exporter</h3>
       <Code
           lang="go"
@@ -319,6 +319,70 @@ defer flush()
 tp := sdktrace.NewTracerProvider(
     sdktrace.WithBatcher(integration.Exporter()),
 )`}
+      />
+  </div>
+
+  <div class="mb-8">
+      <h3 class="text-lg font-semibold mb-3">Metric exporter</h3>
+      <p class="text-sm text-muted-foreground mb-3">
+          Export OpenTelemetry metrics (counters, gauges, histograms) to LogTide. Each data point
+          becomes a log entry carrying the same service name, environment, tags, and resource
+          attributes as your logs and traces. It is opt-in — register it only if you need metrics.
+      </p>
+      <Code
+          lang="go"
+          theme="one-dark-pro"
+          code={`import (
+    "go.opentelemetry.io/otel"
+    sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+
+    "github.com/logtide-dev/logtide-sdk-go/integrations/otelmetric"
+)
+
+integration := otelmetric.New()
+
+flush := logtide.Init(logtide.ClientOptions{
+    DSN:     "https://lp_your_api_key@api.logtide.dev",
+    Service: "my-service",
+    Integrations: func(defaults []logtide.Integration) []logtide.Integration {
+        return append(defaults, integration)
+    },
+})
+defer flush()
+
+// A PeriodicReader collects metrics on an interval and hands them to the exporter.
+mp := sdkmetric.NewMeterProvider(
+    sdkmetric.WithReader(sdkmetric.NewPeriodicReader(integration.Exporter())),
+)
+otel.SetMeterProvider(mp)`}
+      />
+      <p class="text-sm text-muted-foreground mt-3">
+          When exemplars are enabled and a sampled span is active during measurement, each linked
+          data point's entry inherits the exemplar's <code class="bg-muted px-1 rounded">trace_id</code>/<code class="bg-muted px-1 rounded">span_id</code>,
+          and the full exemplar list is recorded under <code class="bg-muted px-1 rounded">metadata.metric.exemplars</code> —
+          correlating metrics with the traces that produced them.
+      </p>
+  </div>
+
+  <div class="mb-8">
+      <h3 class="text-lg font-semibold mb-3">Outbound trace propagation</h3>
+      <p class="text-sm text-muted-foreground mb-3">
+          Wrap an <code class="bg-muted px-1 rounded">http.Client</code> transport with
+          <code class="bg-muted px-1 rounded">WrapTransport</code> to inject the W3C
+          <code class="bg-muted px-1 rounded">traceparent</code> header on outbound requests, propagating the
+          current trace context to downstream services. The trace context is sourced from the active
+          OTel span, falling back to the scope carried by the request context. Requests with no active
+          trace, or with a <code class="bg-muted px-1 rounded">traceparent</code> already set, pass through untouched.
+      </p>
+      <Code
+          lang="go"
+          theme="one-dark-pro"
+          code={`// A nil base uses http.DefaultTransport.
+client := &http.Client{Transport: logtide.WrapTransport(nil)}
+
+// Pass the request-scoped context so the trace context propagates.
+req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.upstream.dev/users", nil)
+resp, err := client.Do(req)`}
       />
   </div>
 

@@ -41,7 +41,7 @@ const integrations = defineCollection({
     difficulty: z.enum(difficultyLevels),
 
     // Optional SDK reference (if using LogTide SDK)
-    sdk: z.enum(['javascript', 'python', 'php', 'kotlin', 'go', 'csharp', 'none']).optional(),
+    sdk: z.enum(['javascript', 'python', 'php', 'kotlin', 'go', 'csharp', 'ruby', 'none']).optional(),
 
     // Icon for sidebar/cards (lucide icon name or simple-icons brand name)
     icon: z.string().optional(),

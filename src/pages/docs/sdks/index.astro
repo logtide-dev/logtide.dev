@@ -17,7 +17,7 @@ const headings = [
 
 <DocsLayout
   title="Official SDKs"
-  description="LogTide official SDKs for Node.js, Python, Go, PHP, Kotlin, and C#."
+  description="LogTide official SDKs for Node.js, Python, Go, PHP, Kotlin, Ruby, and C#."
   headings={headings}
 >
   <h1 class="text-3xl font-bold mb-4">Official SDKs</h1>
@@ -384,6 +384,66 @@ const headings = [
                       </ul>
                   </div>
                   <a href="/docs/sdks/kotlin/">
+                      <Button variant="outline" size="sm" class="w-full mt-2">
+                          View Documentation
+                      </Button>
+                  </a>
+              </div>
+          </CardContent>
+      </Card>
+
+      <!-- Ruby SDK -->
+      <Card>
+          <CardHeader>
+              <div class="flex items-center justify-between">
+                  <CardTitle class="flex items-center gap-2">
+                      <Icon name="simple-icons:ruby" class="w-5 h-5 text-primary" />
+                      Ruby SDK
+                  </CardTitle>
+                  <div class="flex items-center gap-1">
+                      <a
+                          href="https://github.com/logtide-dev/logtide-ruby"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="GitHub"
+                      >
+                          <Button variant="ghost" size="sm">
+                              <Icon name="simple-icons:github" class="w-4 h-4" />
+                          </Button>
+                      </a>
+                      <a
+                          href="https://rubygems.org/gems/logtide"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="RubyGems"
+                      >
+                          <Button variant="ghost" size="sm">
+                              <Icon name="simple-icons:rubygems" class="w-4 h-4" />
+                          </Button>
+                      </a>
+                  </div>
+              </div>
+              <CardDescription>
+                  Official SDK for Ruby 3.1+ — Rack middleware, Rails Railtie, stdlib only
+              </CardDescription>
+          </CardHeader>
+          <CardContent>
+              <div class="space-y-3">
+                  <div>
+                      <p class="text-sm font-semibold mb-1">Installation:</p>
+                      <code class="text-xs bg-muted px-2 py-1 rounded">gem install logtide</code>
+                  </div>
+                  <div>
+                      <p class="text-sm font-semibold mb-1">Features:</p>
+                      <ul class="text-sm text-muted-foreground space-y-1 list-none pl-0">
+                          <li>✅ Rack middleware & Rails Railtie</li>
+                          <li>✅ stdlib <code class="bg-muted px-1 rounded text-xs">Logger</code> bridge</li>
+                          <li>✅ Spans, OTLP export & W3C traceparent</li>
+                          <li>✅ Circuit breaker & bounded buffer</li>
+                          <li>✅ Zero runtime dependencies</li>
+                      </ul>
+                  </div>
+                  <a href="/docs/sdks/ruby/">
                       <Button variant="outline" size="sm" class="w-full mt-2">
                           View Documentation
                       </Button>
