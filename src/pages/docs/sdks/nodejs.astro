@@ -326,6 +326,11 @@ scope.setExtra('orderId', '456');
 client.captureLog('info', 'Processing payment', {}, scope);
 client.captureError(new Error('Card declined'), {}, scope);`}
           />
+          <p class="text-muted-foreground mt-3 text-sm">
+              Since <strong>v0.9.0</strong>, when you pass a scope the log attaches that scope's
+              breadcrumbs (request/run-local) instead of the app-wide global buffer — so a single
+              request's metadata no longer accumulates unrelated console history from the whole process.
+          </p>
       </div>
   </div>
 
@@ -406,6 +411,43 @@ try {
       </div>
 
       <div>
+          <h3 id="child-spans" class="text-lg font-semibold mb-3 scroll-mt-24">Child Spans</h3>
+          <p class="text-muted-foreground mb-3">
+              For a <em>complete</em> trace, nest the work your request does under the request span.
+              <code class="bg-muted px-1 rounded">startChildSpan(name, scope, attributes)</code> parents a new
+              span on the scope's <code class="bg-muted px-1 rounded">traceId</code> and
+              <code class="bg-muted px-1 rounded">spanId</code> — so a DB query, an upstream API call, or a
+              fiscal/payment step all show up as children of the HTTP span instead of disconnected events.
+          </p>
+          <Code
+              lang="typescript"
+              theme="one-dark-pro"
+              code={`import { startChildSpan, finishChildSpan } from '@logtide/core';
+
+// In a framework handler, the request scope is on the request object
+// (e.g. request.logtideScope for Fastify/Express).
+const span = startChildSpan('fiskaly.auth.token_request', scope, {
+  'fiscal.op': 'token_request',
+});
+
+try {
+  const token = await fiskaly.auth();
+  finishChildSpan(span.spanId, 'ok');
+} catch (error) {
+  finishChildSpan(span.spanId, 'error');
+  throw error;
+}`}
+          />
+          <p class="text-muted-foreground mt-3 text-sm">
+              Need deeper nesting? Clone the scope and set
+              <code class="bg-muted px-1 rounded text-xs">childScope.spanId = span.spanId</code> before passing it
+              to grandchild spans. For background jobs with no HTTP request, create a fresh scope per run with
+              <code class="bg-muted px-1 rounded text-xs">client.createScope()</code> + a root
+              <code class="bg-muted px-1 rounded text-xs">startSpan()</code> so each run is its own trace.
+          </p>
+      </div>
+
+      <div>
           <h3 id="trace-propagation" class="text-lg font-semibold mb-3 scroll-mt-24">Trace Propagation</h3>
           <p class="text-muted-foreground mb-3">Framework SDKs automatically extract incoming <code class="bg-muted px-1 rounded">traceparent</code> headers and inject them into responses for end-to-end trace correlation.</p>
           <Code
@@ -432,6 +474,17 @@ await fetch('https://api.example.com/data', {
   >
       Integrations
   </h2>
+
+  <p class="text-muted-foreground mb-4">
+      The framework packages (<code class="bg-muted px-1 rounded">@logtide/fastify</code>,
+      <code class="bg-muted px-1 rounded">@logtide/express</code>, …) already install
+      <code class="bg-muted px-1 rounded">ConsoleIntegration</code> and
+      <code class="bg-muted px-1 rounded">GlobalErrorIntegration</code> for you — only add them
+      manually if you call <code class="bg-muted px-1 rounded">hub.init</code> directly. Since
+      <strong>v0.9.0</strong>, re-adding an integration whose name is already installed is a no-op,
+      so a duplicate <code class="bg-muted px-1 rounded">ConsoleIntegration</code> no longer
+      double-captures every <code class="bg-muted px-1 rounded">console.*</code> call.
+  </p>
 
   <div class="mb-8 space-y-6">
       <div>
