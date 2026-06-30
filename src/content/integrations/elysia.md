@@ -24,11 +24,11 @@ faqs:
   - question: "How do I add LogTide logging to an Elysia application?"
     answer: "Install @logtide/elysia with bun add @logtide/elysia, then call app.use(logtide({ dsn, service, environment })) in your Elysia setup. Use .as('global') on the plugin to ensure all routes, including those registered after the plugin, are covered."
   - question: "Does the LogTide Elysia plugin automatically log every request?"
-    answer: "Yes. The plugin hooks into Elysia's onRequest lifecycle to start a span and extract any incoming traceparent header, and into afterResponse to log the completed request with its duration, with no per-route code required."
+    answer: "Yes. The plugin hooks into Elysia's onRequest lifecycle to start a span and extract any incoming traceparent header, and into onAfterHandle to log the completed request with its duration, with no per-route code required."
   - question: "How does LogTide handle Elysia errors and exceptions?"
     answer: "The plugin registers an onError lifecycle hook that captures errors with full request context automatically. You can still add your own onError handler to return a custom response; the error is already recorded by LogTide before your handler runs."
   - question: "Does LogTide flush pending logs when the Elysia server stops?"
-    answer: "Yes. The plugin registers an onStop lifecycle hook that flushes any buffered log events before the process exits, ensuring no logs are lost during graceful shutdown."
+    answer: "Buffered events are flushed automatically on the batching interval. For graceful shutdown, call hub.flush() (or hub.close()) before the process exits to ensure no logs are lost — the plugin does not register a shutdown hook itself."
 ---
 
 LogTide's Elysia SDK provides a Bun-optimized plugin for automatic request logging, scoped context, lifecycle hooks, and W3C trace propagation.
@@ -37,9 +37,8 @@ LogTide's Elysia SDK provides a Bun-optimized plugin for automatic request loggi
 
 - **Bun-optimized**: Takes advantage of Bun's performance
 - **Plugin architecture**: Use `.as('global')` for app-wide coverage
-- **Lifecycle hooks**: onRequest, afterResponse, onError, onStop
+- **Lifecycle hooks**: onRequest, onAfterHandle, onError
 - **Scoped context**: Per-request scope via store decorators
-- **Auto-shutdown**: Flushes pending logs when the server stops
 
 ## Prerequisites
 
@@ -106,9 +105,8 @@ app
 | Hook | Behavior |
 |------|----------|
 | `onRequest` | Creates scope, extracts traceparent, starts span |
-| `afterResponse` | Logs completion with duration |
+| `onAfterHandle` | Logs completion with duration |
 | `onError` | Captures errors with request context |
-| `onStop` | Flushes pending events |
 
 ## Error Handling
 

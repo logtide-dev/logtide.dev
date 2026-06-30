@@ -207,9 +207,11 @@ try {
 ```typescript
 // Add breadcrumbs for debugging context
 hub.addBreadcrumb({
+  type: 'custom',
   category: 'auth',
   message: 'User authenticated',
   level: 'info',
+  timestamp: Date.now(),
 });
 
 // Framework SDKs create per-request scopes automatically.

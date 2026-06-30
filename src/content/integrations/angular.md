@@ -135,8 +135,10 @@ import { hub } from '@logtide/core';
 export class CheckoutComponent {
   purchase() {
     hub.addBreadcrumb({
+      type: 'ui',
       category: 'ui',
       message: 'Purchase button clicked',
+      timestamp: Date.now(),
     });
 
     try {

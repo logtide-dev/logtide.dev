@@ -25,7 +25,7 @@ faqs:
   - question: "How do I integrate LogTide with a Fastify application?"
     answer: "Install @logtide/fastify and register the plugin with await fastify.register(logtide, { dsn, service, environment }). The plugin follows Fastify plugin conventions and hooks into the lifecycle automatically — no extra configuration is required to start capturing request logs."
   - question: "Which Fastify lifecycle hooks does LogTide use?"
-    answer: "The plugin hooks into onRequest to create a scoped context and extract the traceparent header, onResponse to log the completed request with duration and status code, onError to capture exceptions with full request context, and onClose to flush any pending log events on server shutdown."
+    answer: "The plugin hooks into onRequest to create a scoped context and extract the traceparent header, onSend to optionally capture the response body, onResponse to log the completed request with duration and status code, and onError to capture exceptions with full request context."
   - question: "Does LogTide replace Fastify built-in pino logging?"
     answer: "LogTide operates alongside Fastify's built-in pino logger rather than replacing it. You can keep pino for local development output while LogTide ships structured logs to your self-hosted LogTide instance for centralised search and alerting."
   - question: "How does per-request scoping work in the Fastify plugin?"
@@ -37,9 +37,8 @@ LogTide's Fastify SDK provides a native plugin that hooks into Fastify's lifecyc
 ## Why use LogTide with Fastify?
 
 - **Native plugin architecture**: Follows Fastify plugin conventions
-- **Lifecycle hooks**: Automatic instrumentation via onRequest, onResponse, onError
+- **Lifecycle hooks**: Automatic instrumentation via onRequest, onSend, onResponse, onError
 - **Per-request scoping**: Isolated context per request through decorators
-- **Auto-shutdown**: Flushes logs on server close via onClose hook
 - **Zero overhead**: Asynchronous batching keeps Fastify fast
 
 ## Prerequisites
@@ -113,9 +112,9 @@ The plugin hooks into Fastify's lifecycle automatically:
 | Hook | Behavior |
 |------|----------|
 | `onRequest` | Creates scope, extracts traceparent, starts span |
+| `onSend` | Optionally captures the response body |
 | `onResponse` | Logs completion with duration and status |
 | `onError` | Captures errors with request context |
-| `onClose` | Flushes pending events on shutdown |
 
 ## Error Handling
 

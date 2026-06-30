@@ -79,19 +79,18 @@ Wrap your application or specific components with an Error Boundary to capture r
 import React from 'react';
 import { LogtideErrorBoundary } from '@logtide/browser';
 
-function MyErrorPage({ error, reset }: { error: Error; reset: () => void }) {
+function MyErrorPage({ error }: { error: Error }) {
   return (
     <div className="error-container">
       <h2>Something went wrong!</h2>
       <pre>{error.message}</pre>
-      <button onClick={reset}>Try again</button>
     </div>
   );
 }
 
 export default function App() {
   return (
-    <LogtideErrorBoundary fallback={(error, reset) => <MyErrorPage error={error} reset={reset} />}>
+    <LogtideErrorBoundary fallback={(error) => <MyErrorPage error={error} />}>
       <Dashboard />
     </LogtideErrorBoundary>
   );
@@ -108,8 +107,10 @@ import { hub } from '@logtide/core';
 function CheckoutButton() {
   const handleCheckout = async () => {
     hub.addBreadcrumb({
+      type: 'ui',
       category: 'ui',
       message: 'Checkout button clicked',
+      timestamp: Date.now(),
     });
 
     try {

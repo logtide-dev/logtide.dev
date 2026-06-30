@@ -26,7 +26,7 @@ faqs:
   - question: "Does @logtide/nextjs support both server-side and client-side logging?"
     answer: "Yes. You initialize the server side in instrumentation.ts using registerLogtide from @logtide/nextjs/server, and the client side in app/layout.tsx using initLogtide from @logtide/nextjs/client. You can use separate DSNs for each via LOGTIDE_DSN and NEXT_PUBLIC_LOGTIDE_DSN environment variables."
   - question: "How do I capture client-side React errors in Next.js with LogTide?"
-    answer: "Wrap your error UI with the LogtideErrorBoundary component from @logtide/nextjs/client inside your app/error.tsx file. This automatically captures and forwards React rendering errors to LogTide."
+    answer: "Wrap your component tree with the LogtideErrorBoundary component from @logtide/nextjs/client (for example in a client component rendered from app/layout.tsx). It automatically captures and forwards React rendering errors to LogTide, and accepts an optional fallback to render in place of the crashed subtree."
   - question: "Can I track page navigation as breadcrumbs in a Next.js App Router application?"
     answer: "Yes. Import trackNavigation from @logtide/nextjs/client and call it inside a useEffect that watches the pathname from usePathname. Place this LogtideNavigationTracker component in your providers or layout to record every client-side route change."
 ---
@@ -122,26 +122,38 @@ Server-side errors in API routes, Server Components, and Server Actions are capt
 
 Use `LogtideErrorBoundary` for client-side React error capture:
 
+`LogtideErrorBoundary` wraps your component tree and reports any rendering
+error it catches to LogTide. It accepts an optional `fallback` (a node, or a
+`(error) => node` function) to render in place of the crashed subtree:
+
 ```tsx
-// app/error.tsx
+// app/providers.tsx
 'use client';
 
 import { LogtideErrorBoundary } from '@logtide/nextjs/client';
 
-export default function ErrorPage({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
+export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <LogtideErrorBoundary error={error}>
-      <div>
-        <h2>Something went wrong</h2>
-        <button onClick={reset}>Try again</button>
-      </div>
+    <LogtideErrorBoundary fallback={<div>Something went wrong</div>}>
+      {children}
     </LogtideErrorBoundary>
+  );
+}
+```
+
+Then wrap your app with it in `app/layout.tsx`:
+
+```tsx
+// app/layout.tsx
+import { Providers } from './providers';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <Providers>{children}</Providers>
+      </body>
+    </html>
   );
 }
 ```
@@ -203,8 +215,10 @@ export async function updateUser(formData: FormData) {
   const userId = formData.get('userId') as string;
 
   hub.addBreadcrumb({
+    type: 'custom',
     category: 'action',
     message: 'Update user action triggered',
+    timestamp: Date.now(),
   });
 
   try {

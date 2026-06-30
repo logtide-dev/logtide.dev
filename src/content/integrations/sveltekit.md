@@ -137,8 +137,10 @@ export const actions = {
     const data = await request.formData();
 
     hub.addBreadcrumb({
+      type: 'ui',
       category: 'form',
       message: 'Settings form submitted',
+      timestamp: Date.now(),
     });
 
     try {
