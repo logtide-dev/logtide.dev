@@ -113,8 +113,10 @@ import { hub } from '@logtide/core';
 function CheckoutButton() {
   const handleCheckout = async () => {
     hub.addBreadcrumb({
+      type: 'ui',
       category: 'ui',
       message: 'Checkout button clicked',
+      timestamp: Date.now(),
     });
 
     try {

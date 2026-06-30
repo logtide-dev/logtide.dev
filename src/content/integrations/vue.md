@@ -94,8 +94,10 @@ import { hub } from '@logtide/core';
 
 async function handleAction() {
   hub.addBreadcrumb({
+    type: 'ui',
     category: 'ui',
     message: 'User clicked action',
+    timestamp: Date.now(),
   });
 
   try {
