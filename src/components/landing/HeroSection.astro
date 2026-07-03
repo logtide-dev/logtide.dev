@@ -23,11 +23,11 @@ const mockLogs = [
 
 function getLevelColor(level: string): string {
   switch (level) {
-    case 'error': return 'bg-red-500/20 text-red-400';
-    case 'warn': return 'bg-yellow-500/20 text-yellow-400';
-    case 'info': return 'bg-blue-500/20 text-blue-400';
-    case 'debug': return 'bg-zinc-500/20 text-zinc-400';
-    default: return 'bg-zinc-500/20 text-zinc-400';
+    case 'error': return 'bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400';
+    case 'warn': return 'bg-yellow-500/10 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400';
+    case 'info': return 'bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400';
+    case 'debug': return 'bg-zinc-500/10 text-zinc-600 dark:bg-zinc-500/20 dark:text-zinc-400';
+    default: return 'bg-zinc-500/10 text-zinc-600 dark:bg-zinc-500/20 dark:text-zinc-400';
   }
 }
 
@@ -116,7 +116,7 @@ const chartHeights = [40, 55, 45, 60, 50, 70, 65, 80, 75, 90, 85, 95, 88, 92, 78
                 </div>
                 <div class="flex items-baseline gap-2">
                   <span class="text-xl font-bold md:text-2xl">{stat.value}</span>
-                  <span class={`text-xs ${stat.positive ? 'text-green-500' : 'text-red-500'}`}>
+                  <span class={`text-xs ${stat.positive ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
                     {stat.trend}
                   </span>
                 </div>

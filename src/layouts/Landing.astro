@@ -23,7 +23,6 @@ const { title, description, keywords = [] } = Astro.props;
       keywords={keywords}
     />
     <meta name="theme-color" content="#7c3aed" />
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
@@ -70,24 +69,13 @@ const { title, description, keywords = [] } = Astro.props;
     font-family: 'JetBrains Mono', 'Fira Code', monospace;
   }
 
-  /* Header and Footer alignment with sidebar spacing */
+  /* Header and Footer alignment */
   .header-container,
   .footer-container {
-    margin-left: 280px;
-    margin-right: 240px;
-  }
-
-  @media (max-width: 1280px) {
-    .header-container,
-    .footer-container {
-      margin-right: 0;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    .header-container,
-    .footer-container {
-      margin-left: 0;
-    }
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 </style>

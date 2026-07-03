@@ -120,31 +120,26 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Respect reduced motion: stop animations (e.g. the pinging beta badge),
+   theme transitions, and smooth scrolling */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 /* Better focus styles */
 :focus-visible {
   outline: 2px solid hsl(var(--primary));
   outline-offset: 2px;
-}
-
-/* Landing page button styles */
-.btn-primary {
-  @apply inline-flex items-center justify-center rounded-lg px-6 py-3 text-sm font-medium text-white transition-all focus:outline-none focus:ring-2 focus:ring-offset-2;
-  background-color: hsl(262 83% 58%);
-}
-
-.btn-primary:hover {
-  background-color: hsl(262 83% 50%);
-}
-
-.btn-secondary {
-  @apply inline-flex items-center justify-center rounded-lg border px-6 py-3 text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2;
-  border-color: hsl(var(--border));
-  background-color: hsl(var(--card));
-  color: hsl(var(--foreground));
-}
-
-.btn-secondary:hover {
-  background-color: hsl(var(--muted));
 }
 
 ul {
