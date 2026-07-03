@@ -72,6 +72,13 @@ export default defineConfig({
         light: 'github-light',
         dark: 'one-dark-pro',
       },
+      // env/conf have no Shiki grammar; d2 fences are rendered by astro-d2
+      // before Shiki ever sees them, the alias only silences `astro check`
+      langAlias: {
+        env: 'dotenv',
+        conf: 'ini',
+        d2: 'text',
+      },
     },
   },
   vite: {

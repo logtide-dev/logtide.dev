@@ -442,7 +442,7 @@ function getIconName(item: NavItem): string {
 <script>
   // Set modifier key label (Cmd on Mac, Ctrl elsewhere)
   function setModKey() {
-    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const isMac = /Mac/i.test(navigator.userAgent);
     document.querySelectorAll('.search-trigger-mod').forEach((el) => {
       el.textContent = isMac ? '\u2318' : 'Ctrl+';
     });
