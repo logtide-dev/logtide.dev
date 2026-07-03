@@ -18,9 +18,9 @@ relatedUseCases:
   - "cost-optimization"
   - "real-time-alerting"
 relatedComparisons:
+  - "papertrail"
   - "datadog"
   - "new-relic"
-  - "grafana-loki"
 keywords:
   - "Better Stack alternative"
   - "Logtail alternative"

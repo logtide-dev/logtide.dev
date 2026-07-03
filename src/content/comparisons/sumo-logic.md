@@ -18,9 +18,9 @@ relatedUseCases:
   - "cost-optimization"
   - "compliance-audit-trail"
 relatedComparisons:
+  - "papertrail"
   - "datadog"
   - "splunk"
-  - "new-relic"
 keywords:
   - "Sumo Logic alternative"
   - "Sumo Logic vs LogTide"

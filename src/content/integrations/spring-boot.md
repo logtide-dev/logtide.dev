@@ -11,9 +11,9 @@ highlights:
   - "Coroutines support"
   - "Automatic batching"
 relatedIntegrations:
+  - "aws-lambda-java"
   - "docker"
   - "kubernetes"
-  - "postgresql"
 relatedUseCases:
   - "gdpr-compliance"
   - "multi-tenant-saas"
