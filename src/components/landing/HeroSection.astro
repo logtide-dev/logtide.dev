@@ -7,10 +7,10 @@ const iconPaths = {
 };
 
 const mockStats = [
-  { label: 'Total Logs Today', value: '1.2M', trend: '+12%', positive: true, icon: 'activity' },
-  { label: 'Error Rate', value: '0.3%', trend: '-5%', positive: true, icon: 'alertTriangle' },
-  { label: 'Active Services', value: '24', trend: '+2', positive: true, icon: 'server' },
-  { label: 'Throughput', value: '850/s', trend: '+8%', positive: true, icon: 'trendingUp' },
+  { key: 'total', label: 'Total Logs Today', value: '1.2M', trend: '+12%', positive: true, icon: 'activity' },
+  { key: 'errors', label: 'Error Rate', value: '0.3%', trend: '-5%', positive: true, icon: 'alertTriangle' },
+  { key: 'services', label: 'Active Services', value: '24', trend: '+2', positive: true, icon: 'server' },
+  { key: 'throughput', label: 'Throughput', value: '850/s', trend: '+8%', positive: true, icon: 'trendingUp' },
 ];
 
 const mockLogs = [
@@ -42,7 +42,7 @@ const chartHeights = [40, 55, 45, 60, 50, 70, 65, 80, 75, 90, 85, 95, 88, 92, 78
   <div class="relative mx-auto max-w-6xl">
     <div class="mb-12 text-center">
       <!-- Badge -->
-      <div class="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+      <div class="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-primary">
         <span class="relative flex h-2 w-2" aria-hidden="true">
           <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
           <span class="relative inline-flex h-2 w-2 rounded-full bg-primary"></span>
@@ -115,8 +115,8 @@ const chartHeights = [40, 55, 45, 60, 50, 70, 65, 80, 75, 90, 85, 95, 88, 92, 78
                   <span class="truncate text-xs">{stat.label}</span>
                 </div>
                 <div class="flex items-baseline gap-2">
-                  <span class="text-xl font-bold md:text-2xl">{stat.value}</span>
-                  <span class={`text-xs ${stat.positive ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
+                  <span class="font-mono text-xl font-bold md:text-2xl" data-stat={stat.key}>{stat.value}</span>
+                  <span class={`font-mono text-xs ${stat.positive ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
                     {stat.trend}
                   </span>
                 </div>
@@ -132,7 +132,7 @@ const chartHeights = [40, 55, 45, 60, 50, 70, 65, 80, 75, 90, 85, 95, 88, 92, 78
                 <span class="rounded bg-primary/10 px-2 py-0.5 text-xs text-primary">Live</span>
               </div>
             </div>
-            <div class="flex h-24 items-end gap-1" role="img" aria-label="Bar chart showing log volume over 24 hours">
+            <div class="flex h-24 items-end gap-1" id="hero-chart" role="img" aria-label="Bar chart showing log volume over 24 hours">
               {chartHeights.map((height, i) => (
                 <div
                   class={`flex-1 rounded-t transition-all duration-300 ${i >= 22 ? 'bg-primary' : 'bg-primary/30'}`}
@@ -153,15 +153,15 @@ const chartHeights = [40, 55, 45, 60, 50, 70, 65, 80, 75, 90, 85, 95, 88, 92, 78
               <span class="text-sm font-medium">Recent Logs</span>
               <span class="text-xs text-muted-foreground">Last 5 entries</span>
             </div>
-            <div class="divide-y divide-border">
+            <div class="divide-y divide-border" id="hero-log-stream">
               {mockLogs.map((log) => (
-                <div class="flex items-center gap-3 px-4 py-2 text-sm transition-colors hover:bg-muted/30">
+                <div class="flex items-center gap-3 px-4 py-2 transition-colors hover:bg-muted/30">
                   <span class="w-16 shrink-0 font-mono text-xs text-muted-foreground">{log.time}</span>
-                  <span class="max-w-20 truncate rounded bg-secondary px-2 py-0.5 text-xs font-medium">{log.service}</span>
-                  <span class={`w-14 shrink-0 rounded px-2 py-0.5 text-center text-xs font-medium uppercase ${getLevelColor(log.level)}`}>
+                  <span class="max-w-20 truncate rounded bg-secondary px-2 py-0.5 font-mono text-xs font-medium">{log.service}</span>
+                  <span class={`w-14 shrink-0 rounded px-2 py-0.5 text-center font-mono text-xs font-medium uppercase ${getLevelColor(log.level)}`}>
                     {log.level}
                   </span>
-                  <span class="flex-1 truncate text-muted-foreground">{log.message}</span>
+                  <span class="flex-1 truncate font-mono text-xs text-muted-foreground">{log.message}</span>
                 </div>
               ))}
             </div>
@@ -171,3 +171,108 @@ const chartHeights = [40, 55, 45, 60, 50, 70, 65, 80, 75, 90, 85, 95, 88, 92, 78
     </figure>
   </div>
 </section>
+
+<style is:global>
+  @keyframes hero-log-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .hero-log-enter {
+    animation: hero-log-in 350ms ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-log-enter {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  // Streams fake log lines into the hero dashboard so the "real-time" claim
+  // is shown, not told. Skipped entirely under prefers-reduced-motion.
+  // Level classes mirror getLevelColor() in the frontmatter above.
+  const LEVEL_CLASSES: Record<string, string> = {
+    error: 'bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400',
+    warn: 'bg-yellow-500/10 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400',
+    info: 'bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400',
+    debug: 'bg-zinc-500/10 text-zinc-600 dark:bg-zinc-500/20 dark:text-zinc-400',
+  };
+
+  const LOG_POOL = [
+    { service: 'api-gateway', level: 'info', message: 'Request processed successfully' },
+    { service: 'auth-service', level: 'info', message: 'Token refreshed for session' },
+    { service: 'payment-svc', level: 'warn', message: 'Retrying provider webhook (attempt 2)' },
+    { service: 'user-service', level: 'debug', message: 'Cache hit for user profile' },
+    { service: 'api-gateway', level: 'info', message: 'Health check passed' },
+    { service: 'ingest-worker', level: 'info', message: 'Batch of 512 logs flushed' },
+    { service: 'auth-service', level: 'warn', message: 'Rate limit approaching threshold' },
+    { service: 'search-svc', level: 'info', message: 'Query completed in 38ms' },
+    { service: 'payment-svc', level: 'error', message: 'Connection timeout to payment provider' },
+    { service: 'alerting', level: 'info', message: 'Sigma rule evaluated: no match' },
+    { service: 'user-service', level: 'info', message: 'Profile updated' },
+    { service: 'ingest-worker', level: 'debug', message: 'Backpressure normal, buffer at 12%' },
+  ];
+
+  function formatTime(date: Date): string {
+    return date.toTimeString().slice(0, 8);
+  }
+
+  function buildRow(entry: (typeof LOG_POOL)[number]): HTMLDivElement {
+    const row = document.createElement('div');
+    row.className = 'hero-log-enter flex items-center gap-3 px-4 py-2 transition-colors hover:bg-muted/30';
+
+    const time = document.createElement('span');
+    time.className = 'w-16 shrink-0 font-mono text-xs text-muted-foreground';
+    time.textContent = formatTime(new Date());
+
+    const service = document.createElement('span');
+    service.className = 'max-w-20 truncate rounded bg-secondary px-2 py-0.5 font-mono text-xs font-medium';
+    service.textContent = entry.service;
+
+    const level = document.createElement('span');
+    level.className = `w-14 shrink-0 rounded px-2 py-0.5 text-center font-mono text-xs font-medium uppercase ${LEVEL_CLASSES[entry.level]}`;
+    level.textContent = entry.level;
+
+    const message = document.createElement('span');
+    message.className = 'flex-1 truncate font-mono text-xs text-muted-foreground';
+    message.textContent = entry.message;
+
+    row.append(time, service, level, message);
+    return row;
+  }
+
+  function startHeroStream() {
+    const list = document.getElementById('hero-log-stream');
+    if (!list || list.dataset.streaming === 'true') return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    list.dataset.streaming = 'true';
+
+    const chart = document.getElementById('hero-chart');
+    const throughput = document.querySelector<HTMLElement>('[data-stat="throughput"]');
+    let poolIndex = Math.floor(Math.random() * LOG_POOL.length);
+
+    setInterval(() => {
+      if (document.hidden) return;
+
+      list.prepend(buildRow(LOG_POOL[poolIndex]));
+      poolIndex = (poolIndex + 1) % LOG_POOL.length;
+      while (list.children.length > 5) list.lastElementChild?.remove();
+
+      const lastBar = chart?.lastElementChild as HTMLElement | null;
+      if (lastBar) lastBar.style.height = `${70 + Math.round(Math.random() * 28)}%`;
+
+      if (throughput) throughput.textContent = `${830 + Math.round(Math.random() * 45)}/s`;
+    }, 2500);
+  }
+
+  startHeroStream();
+  document.addEventListener('astro:after-swap', startHeroStream);
+</script>

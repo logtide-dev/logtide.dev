@@ -54,7 +54,7 @@ const sdks = [
 <section class="px-6 py-24" aria-labelledby="sdks-heading">
   <div class="mx-auto max-w-6xl">
     <div class="mb-12 text-center">
-      <span class="text-sm font-medium uppercase tracking-wider text-primary">Integrations</span>
+      <span class="font-mono text-xs font-medium uppercase tracking-[0.2em] text-primary">Integrations</span>
       <h2 id="sdks-heading" class="mb-4 mt-2 text-3xl font-bold md:text-4xl">Works with your stack</h2>
       <p class="mx-auto max-w-2xl text-lg text-muted-foreground">
         Native SDKs with retry logic and circuit breakers. Or use OpenTelemetry.
@@ -71,18 +71,18 @@ const sdks = [
             <img
               src={sdk.icon}
               alt={sdk.name}
-              class="mx-auto mb-3 h-12 w-12 transition-transform group-hover:scale-110"
+              class="mx-auto mb-3 h-12 w-12"
               loading="lazy"
             />
           ) : (
-            <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 transition-transform group-hover:scale-110" aria-hidden="true">
+            <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10" aria-hidden="true">
               <svg class="h-7 w-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 3v12M18 3v12M6 9h12M6 15h12M8 21h8" />
               </svg>
             </div>
           )}
           <span class="font-medium">{sdk.name}</span>
-          <div class="mt-1 text-xs text-muted-foreground">{sdk.install}</div>
+          <div class="mt-1 font-mono text-xs text-muted-foreground">{sdk.install}</div>
         </a>
       ))}
     </div>

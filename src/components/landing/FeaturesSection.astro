@@ -31,15 +31,13 @@ const iconPaths: Record<string, string> = {
 ---
 
 <section class="relative overflow-hidden px-6 py-24" aria-labelledby="why-logtide-heading">
-  <!-- Background decorations -->
+  <!-- Background decoration -->
   <div class="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5" aria-hidden="true"></div>
-  <div class="absolute left-1/4 top-0 h-96 w-96 rounded-full bg-primary/10 blur-3xl" aria-hidden="true"></div>
-  <div class="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-primary/5 blur-3xl" aria-hidden="true"></div>
 
   <div class="relative mx-auto max-w-6xl">
     <div class="mb-16 text-center">
-      <span class="text-sm font-medium uppercase tracking-wider text-primary">Why Choose Us</span>
-      <h2 id="why-logtide-heading" class="mb-4 mt-2 text-3xl font-bold md:text-4xl">Built Different</h2>
+      <span class="font-mono text-xs font-medium uppercase tracking-[0.2em] text-primary">Why LogTide</span>
+      <h2 id="why-logtide-heading" class="mb-4 mt-2 text-3xl font-bold md:text-4xl">Log management on your terms</h2>
       <p class="mx-auto max-w-2xl text-lg text-muted-foreground">
         For developers and European SMBs who need data ownership without ElasticSearch complexity.
       </p>
@@ -49,7 +47,7 @@ const iconPaths: Record<string, string> = {
       {features.map((feature) => (
         <article class="group rounded-2xl border border-border bg-card/80 p-8 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5">
           <div class="flex items-start gap-5">
-            <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 transition-transform group-hover:scale-110" aria-hidden="true">
+            <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5" aria-hidden="true">
               <svg class="h-7 w-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d={iconPaths[feature.icon]} />
               </svg>
