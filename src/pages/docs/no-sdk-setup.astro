@@ -578,7 +578,7 @@ restart: unless-stopped`}
                   <li class="flex items-start gap-2">
                       <Icon name="lucide:check-circle" class="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                       <span
-                          >Adds container name, ID, and image as metadata</span
+                          >Sets the container name as the service and adds the container ID as metadata</span
                       >
                   </li>
                   <li class="flex items-start gap-2">
@@ -655,6 +655,13 @@ restart: unless-stopped`}
   Reserve_Data        On
   Preserve_Key        On
 
+# Extract container ID and name using Lua
+[FILTER]
+  Name                lua
+  Match               docker.*
+  script              /fluent-bit/etc/extract_container_id.lua
+  call                extract_container_id
+
 # Add required fields for LogTide API
 [FILTER]
   Name                modify
@@ -663,7 +670,7 @@ restart: unless-stopped`}
   Add                 level info
   # Rename 'log' field to 'message'
   Rename              log message
-  # Set service name from container_name
+  # Set service name from container_name (falls back to container_short_id)
   Copy                container_name service
 
 # Remove unnecessary fields to reduce log size
@@ -726,32 +733,60 @@ restart: unless-stopped`}
 
       <div>
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">
-              extract_container_id.lua (Optional)
+              extract_container_id.lua
           </h3>
           <p class="text-sm text-muted-foreground mb-3">
-              Lua script to extract container ID from file path (used in
-              LogTide's setup for metadata enrichment):
+              Lua script that extracts the container ID from the log file path
+              and resolves the container name (used as the
+              <code class="bg-muted px-1 rounded">service</code> field) from the
+              container's <code class="bg-muted px-1 rounded">config.v2.json</code>:
           </p>
           <Code
               lang="lua"
               theme="one-dark-pro"
-              code={`-- Extract container ID from Docker log file path
--- Path format: /var/lib/docker/containers/<container_id>/<container_id>-json.log
+              code={`-- Extract container ID and name from Docker log filepath
+-- Path format: /var/lib/docker/containers/CONTAINER_ID/CONTAINER_ID-json.log
+-- The container name is not part of the path, so it is read from the
+-- config.v2.json file that Docker keeps next to the log file.
+
+-- Cache of container_id -> container name (or false when not resolvable)
+local name_cache = {}
+
+local function lookup_container_name(container_id)
+  local cached = name_cache[container_id]
+  if cached ~= nil then
+      return cached or nil
+  end
+
+  local name = nil
+  local path = "/var/lib/docker/containers/" .. container_id .. "/config.v2.json"
+  local file = io.open(path, "r")
+  if file then
+      local content = file:read("*a")
+      file:close()
+      if content then
+          -- Container names always start with "/" in config.v2.json
+          name = content:match('"Name"%s*:%s*"/([^"]+)"')
+      end
+  end
+
+  name_cache[container_id] = name or false
+  return name
+end
 
 function extract_container_id(tag, timestamp, record)
   local filepath = record["filepath"]
 
-  if filepath == nil then
-      return 0, timestamp, record
-  end
+  if filepath then
+      local container_id = filepath:match("/var/lib/docker/containers/([^/]+)/", 1)
 
-  -- Extract container ID from path
-  -- Example: /var/lib/docker/containers/abc123.../abc123...-json.log
-  local container_id = filepath:match("/var/lib/docker/containers/([^"]+)/", 1)
-
-  if container_id then
-      record["container_id"] = container_id
-      record["container_short_id"] = container_id:sub(1, 12)
+      if container_id then
+          record["container_id"] = container_id
+          record["container_short_id"] = container_id:sub(1, 12)
+          -- Resolve the container name; fall back to the short ID
+          record["container_name"] = lookup_container_name(container_id)
+              or record["container_short_id"]
+      end
   end
 
   -- Return code: 1 = modified and keep, 0 = no change
