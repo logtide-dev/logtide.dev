@@ -37,7 +37,7 @@ faqs:
 
 AWS Lambda functions generate logs that end up in CloudWatch by default, but searching, alerting, and retaining those logs can be expensive and cumbersome. This guide shows you how to send Lambda logs directly to LogTide using the JavaScript SDK, forward them from CloudWatch, or use Lambda extensions -- giving you structured queries, real-time alerting, and significant cost savings.
 
-> **Running Java on Lambda?** Log4j2 needs extra care inside Lambda (plugin cache shading, the Lambda appender, flush-before-freeze). See the dedicated [AWS Lambda Java logging with Log4j2 guide](/integrations/aws-lambda-java/).
+> **Running Java on Lambda?** This guide covers the Node.js/TypeScript SDK. For `log4j` on AWS Lambda — plugin cache shading, the Log4j2 Lambda appender, and flush-before-freeze — follow the dedicated [AWS Lambda Log4j2 logging guide](/integrations/aws-lambda-java/).
 
 ## Why use LogTide with AWS Lambda?
 
@@ -716,6 +716,7 @@ export const handler = async (event: any, context: any) => {
 
 ## Next Steps
 
+- [AWS Lambda Java logging with Log4j2](/integrations/aws-lambda-java/) - `log4j` on AWS Lambda: shading, the Lambda appender, and flush patterns
 - [Node.js SDK Reference](/integrations/nodejs/) - Full SDK documentation
 - [Docker Integration](/integrations/docker/) - Containerized Lambda alternatives
 - [Cost Optimization](/use-cases/cost-optimization/) - Reduce your logging costs

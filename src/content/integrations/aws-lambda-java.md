@@ -3,7 +3,7 @@ title: "AWS Lambda Java Logging with Log4j2"
 description: "Set up Log4j2 logging in AWS Lambda Java functions and ship structured logs to LogTide. Covers the Lambda appender, JSON layout, and CloudWatch forwarding."
 category: "infrastructure"
 difficulty: "medium"
-sdk: "kotlin"
+sdk: "java"
 brandIcon: "simple-icons:awslambda"
 highlights:
   - "Log4j2 Lambda appender setup"

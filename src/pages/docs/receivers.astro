@@ -1,0 +1,348 @@
+---
+import DocsLayout from '../../layouts/Docs.astro';
+import Card from '../../components/ui/Card.astro';
+import CardContent from '../../components/ui/CardContent.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Overview", slug: "overview", depth: 2 },
+  { text: "Endpoint Contract", slug: "endpoint-contract", depth: 2 },
+  { text: "Tokens", slug: "tokens", depth: 2 },
+  { text: "Adapters", slug: "adapters", depth: 2 },
+  { text: "Pipeline Guarantees", slug: "pipeline-guarantees", depth: 2 },
+  { text: "Management API", slug: "management-api", depth: 2 }
+];
+
+const keywords = [
+  "LogTide webhook receivers",
+  "inbound webhook ingestion",
+  "GitHub webhook logs",
+  "Uptime Robot webhook",
+  "Better Stack webhook",
+  "generic JSON webhook field mapping"
+];
+---
+
+<DocsLayout
+  title="Webhook Receivers"
+  description="Inbound webhook receivers in LogTide: a tokenized ingest URL that normalizes payloads from GitHub, uptime monitors, and arbitrary JSON into standard log entries."
+  keywords={keywords}
+  headings={headings}
+>
+  <div class="flex items-center gap-3 mb-4">
+    <div class="p-2 bg-primary/10 rounded-lg">
+      <Icon name="lucide:inbox" class="w-6 h-6 text-primary" />
+    </div>
+    <h1 class="text-3xl font-bold">Webhook Receivers</h1>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+    Webhook receivers let external systems — CI/CD pipelines, uptime monitors, arbitrary tools —
+    push events <em>into</em> LogTide. Each receiver exposes a unique tokenized URL; incoming
+    payloads are normalized into standard log entries by an adapter and stored through the regular
+    ingestion pipeline, so PII masking, usage quotas, Sigma detection, and parsing rules all apply
+    automatically.
+  </p>
+
+  <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-8">
+    <div class="flex items-start gap-3">
+      <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+      <div>
+        <h4 class="font-medium mb-1">Receivers vs. Webhooks</h4>
+        <p class="text-sm text-muted-foreground">
+          Receivers are <strong>inbound</strong> — external systems POST events to LogTide. If you
+          instead want LogTide to POST events out to <em>your</em> endpoints (alerts, incidents,
+          monitor changes), see <a href="/docs/webhooks/">Webhooks</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="overview" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Overview
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Receivers are project-scoped and managed from
+      <strong>Project Settings → Webhook Receivers</strong>, where you can create receivers, copy
+      their URL, enable or disable them, and inspect the most recent received events alongside their
+      normalized output.
+    </p>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:link" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">One tokenized URL</h4>
+              <p class="text-sm text-muted-foreground">The URL is the credential — no custom headers required, so it works with systems that can't send them.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:shuffle" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">Adapters normalize</h4>
+              <p class="text-sm text-muted-foreground">GitHub, uptime monitors, or arbitrary JSON are mapped into standard log entries with the right level and service.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:shield-check" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">Full ingestion pipeline</h4>
+              <p class="text-sm text-muted-foreground">Received events go through the same path as the ingest API: PII masking, quotas, Sigma detection, parsing, live tail.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:key" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">Limited blast radius</h4>
+              <p class="text-sm text-muted-foreground">A receiver token can only ingest logs into one project — it can't read data or call any other endpoint.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+
+  <h2 id="endpoint-contract" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Endpoint Contract
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <Code
+      lang="http"
+      theme="one-dark-pro"
+      code={`POST /api/v1/receivers/{receiverId}/{token}
+Content-Type: application/json`}
+    />
+
+    <p>
+      The URL itself is the credential: <code>receiverId</code> identifies the receiver and
+      <code>token</code> authenticates the request. No headers are required, which makes the endpoint
+      compatible with systems that cannot send custom headers (GitHub webhooks, Uptime Robot). The
+      body must be a single JSON object of at most <strong>256 KB</strong>.
+    </p>
+
+    <h3 id="responses" class="text-lg font-semibold mb-3 scroll-mt-24">Responses</h3>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Status</th>
+            <th class="py-2 font-semibold">Meaning</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>202 Accepted</code></td><td class="py-2">Event stored and queued for processing. Body: <code>{'{ "eventId": "..." }'}</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>400 Bad Request</code></td><td class="py-2">Body is not a JSON object (arrays, scalars, and null are rejected).</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>401 Unauthorized</code></td><td class="py-2">Token does not match the receiver.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>403 Forbidden</code></td><td class="py-2">Receiver is disabled.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>404 Not Found</code></td><td class="py-2">Unknown receiver id.</td></tr>
+          <tr><td class="py-2 pr-4"><code>413 Payload Too Large</code></td><td class="py-2">Serialized payload exceeds 256 KB.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+        <div>
+          <h4 class="font-medium mb-1">Processing is asynchronous</h4>
+          <p class="text-sm text-muted-foreground">
+            A <code>202</code> means the payload was accepted, not that it produced a log entry. The
+            outcome (<code>processed</code>, <code>skipped</code>, or <code>failed</code>, with the
+            normalized output and any error) is visible in the receiver's recent-events view, which
+            keeps the last 100 events per receiver.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="tokens" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Tokens
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Receiver tokens use the <code>lr_</code> prefix (distinct from <code>lp_</code> project API
+      keys) and are shown exactly once, at creation time, embedded in the full webhook URL. Only a
+      SHA-256 hash is stored.
+    </p>
+    <p>
+      Treat the URL as a secret: anyone who has it can write logs into your project. To rotate a
+      token, delete the receiver and create a new one, then update the external system with the new
+      URL. A receiver token cannot read data or call any other API endpoint — a leaked URL limits
+      the blast radius to log ingestion into one project.
+    </p>
+  </div>
+
+  <h2 id="adapters" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Adapters
+  </h2>
+
+  <div class="mb-8 space-y-6">
+    <p>
+      The adapter chosen at creation time decides how raw payloads become log entries.
+    </p>
+
+    <h3 id="github" class="text-lg font-semibold mb-3 scroll-mt-24 flex items-center gap-2">
+      <Icon name="simple-icons:github" class="w-4 h-4" /> GitHub
+    </h3>
+    <p class="text-sm text-muted-foreground">
+      Point a GitHub repository webhook (JSON content type) at the receiver URL. Supported events:
+    </p>
+    <ul class="list-disc list-inside space-y-2 ml-2 text-sm">
+      <li><strong>workflow_run</strong> (only <code>action: completed</code>): <code>success</code> maps to <code>info</code>, <code>cancelled</code>/<code>skipped</code>/<code>neutral</code> to <code>warn</code>, and <code>failure</code>/<code>timed_out</code>/<code>startup_failure</code>/<code>action_required</code> to <code>error</code>. The message looks like <code>Workflow CI completed: failure</code>.</li>
+      <li><strong>deployment_status</strong>: <code>success</code> maps to <code>info</code>, <code>failure</code>/<code>error</code> to <code>error</code>, anything else to <code>info</code>. The message looks like <code>Deployment to production: failure</code>.</li>
+    </ul>
+    <p class="text-sm text-muted-foreground">
+      The <code>service</code> field is the repository <code>full_name</code> (e.g.
+      <code>acme/app</code>). Metadata includes the event type, workflow name, conclusion, run id and
+      URL, branch, and actor. Ping events and unsupported event types are marked <code>skipped</code>,
+      not failed.
+    </p>
+    <p class="text-sm text-muted-foreground">A failed CI run:</p>
+    <Code
+      lang="json"
+      theme="one-dark-pro"
+      code={`{
+  "action": "completed",
+  "workflow_run": { "name": "CI", "conclusion": "failure", "html_url": "...", "head_branch": "main" },
+  "repository": { "full_name": "acme/app" },
+  "sender": { "login": "octocat" }
+}`}
+    />
+    <p class="text-sm text-muted-foreground">
+      …becomes an <code>error</code> log for service <code>acme/app</code> with message
+      <code>Workflow CI completed: failure</code>.
+    </p>
+
+    <h3 id="uptime" class="text-lg font-semibold mb-3 scroll-mt-24 flex items-center gap-2">
+      <Icon name="lucide:activity" class="w-4 h-4" /> Uptime
+    </h3>
+    <p class="text-sm text-muted-foreground">Detects two payload shapes automatically:</p>
+    <ul class="list-disc list-inside space-y-2 ml-2 text-sm">
+      <li><strong>Uptime Robot</strong> (<code>alertType</code> field): <code>1</code> (down) maps to <code>error</code>, <code>2</code> (up) to <code>info</code>, <code>3</code> (SSL expiry) to <code>warn</code>. The monitor friendly name becomes the service.</li>
+      <li><strong>Better Stack</strong> (<code>data.attributes</code> incident shape): status <code>Started</code> maps to <code>error</code>, <code>Resolved</code> and <code>Acknowledged</code> to <code>info</code>. The monitor name becomes the service and the incident cause is part of the message.</li>
+    </ul>
+    <p class="text-sm text-muted-foreground">Unrecognized shapes are marked <code>skipped</code>.</p>
+
+    <h3 id="generic-json" class="text-lg font-semibold mb-3 scroll-mt-24 flex items-center gap-2">
+      <Icon name="lucide:braces" class="w-4 h-4" /> Generic JSON
+    </h3>
+    <p class="text-sm text-muted-foreground">
+      Accepts any JSON object. Without configuration it produces one <code>info</code> log with
+      message <code>Received event</code>, the receiver name as service, and the full payload
+      preserved under <code>metadata.payload</code>.
+    </p>
+    <p class="text-sm text-muted-foreground">
+      An optional <strong>field mapping</strong> extracts log fields from the payload using dot-paths:
+    </p>
+    <Code
+      lang="json"
+      theme="one-dark-pro"
+      code={`{
+  "message": "error.message",
+  "level": "severity",
+  "service": "source.app",
+  "timestamp": "ts",
+  "levelMap": { "crit": "critical", "sev1": "error" },
+  "defaults": { "level": "warn", "service": "external-system" }
+}`}
+    />
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Key</th>
+            <th class="py-2 font-semibold">Meaning</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>message</code></td><td class="py-2">Dot-path to the log message. Missing or non-string values fall back to <code>Received event</code>.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>level</code></td><td class="py-2">Dot-path to the level value. Values are lowercased and matched against LogTide levels (<code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>, <code>critical</code>); the synonyms <code>warning</code>, <code>fatal</code>, <code>err</code>, and <code>crit</code> are also understood.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>service</code></td><td class="py-2">Dot-path to the service name (truncated to 100 chars). Falls back to <code>defaults.service</code>, then the receiver name.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>timestamp</code></td><td class="py-2">Dot-path to an ISO string or epoch value. Unparseable values fall back to the arrival time.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>levelMap</code></td><td class="py-2">Case-insensitive map applied to the extracted level value before the built-in matching (e.g. map <code>sev1</code> to <code>error</code>).</td></tr>
+          <tr><td class="py-2 pr-4"><code>defaults</code></td><td class="py-2">Fallback <code>level</code> and <code>service</code> used when the mapped values are missing or invalid.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      The create dialog exposes the four path fields; <code>levelMap</code> and <code>defaults</code>
+      can be set through the API (<code>PATCH /api/v1/projects/{'{projectId}'}/receivers/{'{id}'}</code>
+      with a <code>fieldMapping</code> object).
+    </p>
+  </div>
+
+  <h2 id="pipeline-guarantees" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Pipeline Guarantees
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Received events are ingested through the same path as <code>POST /api/v1/ingest</code>:
+    </p>
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li><strong>PII masking is fail-closed</strong> — entries whose masking fails are rejected, and the event is marked <code>failed</code> with the rejection reason.</li>
+      <li><strong>Usage quotas</strong> (<code>ingestion.max_bytes_monthly</code>, <code>ingestion.max_events_monthly</code>, <code>storage.max_bytes</code>) apply; over-quota events fail with the quota error recorded.</li>
+      <li>Sigma detection, exception parsing, log pipelines, metering, and live tail all see receiver events like any other ingested log.</li>
+    </ul>
+    <p class="text-sm text-muted-foreground">
+      The number of receivers per organization can be capped with the <code>receivers.max</code>
+      capability (unlimited by default in OSS).
+    </p>
+  </div>
+
+  <h2 id="management-api" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Management API
+  </h2>
+
+  <div class="space-y-4">
+    <p>All management endpoints require session authentication and project access.</p>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Method and path</th>
+            <th class="py-2 font-semibold">Purpose</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>GET /api/v1/projects/{'{projectId}'}/receivers</code></td><td class="py-2">List receivers (never returns tokens).</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>POST /api/v1/projects/{'{projectId}'}/receivers</code></td><td class="py-2">Create; returns <code>token</code> and <code>ingestPath</code> once.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>PATCH /api/v1/projects/{'{projectId}'}/receivers/{'{id}'}</code></td><td class="py-2">Rename, enable/disable, update <code>fieldMapping</code>.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>DELETE /api/v1/projects/{'{projectId}'}/receivers/{'{id}'}</code></td><td class="py-2">Delete (invalidates the URL immediately).</td></tr>
+          <tr><td class="py-2 pr-4"><code>GET /api/v1/projects/{'{projectId}'}/receivers/{'{id}'}/events?limit=50</code></td><td class="py-2">Recent events with raw payload, normalized output, and status.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      Receiver creation and deletion are recorded in the audit log
+      (<code>receiver.created</code>, <code>receiver.deleted</code>).
+    </p>
+  </div>
+</DocsLayout>
