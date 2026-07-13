@@ -12,6 +12,8 @@ export default defineConfig({
   integrations: [
     icon(),
     sitemap({
+      // Non-HTML endpoints (llms.txt) aren't picked up automatically.
+      customPages: ['https://logtide.dev/llms.txt'],
       filter: (page) =>
         !page.includes('/login') &&
         !page.includes('/register') &&

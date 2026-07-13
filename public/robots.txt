@@ -5,4 +5,8 @@ Disallow: /login/
 Disallow: /register/
 Disallow: /dashboard/
 
+# LLM-friendly content index (llmstxt.org)
+Allow: /llms.txt
+# https://logtide.dev/llms.txt
+
 Sitemap: https://logtide.dev/sitemap-index.xml
