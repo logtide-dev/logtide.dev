@@ -2,6 +2,7 @@
   "name": "@logtide/website",
   "type": "module",
   "version": "0.1.0",
+  "packageManager": "pnpm@10.22.0",
   "description": "LogTide website and documentation",
   "scripts": {
     "dev": "astro dev",
@@ -29,6 +30,6 @@
     "@tailwindcss/typography": "^0.5.15"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.13.0"
   }
 }

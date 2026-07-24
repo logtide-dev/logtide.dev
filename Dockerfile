@@ -1,13 +1,13 @@
 # Build stage
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 
 WORKDIR /app
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
-# Copy package files
+# Copy package files (packageManager field pins the pnpm version used by corepack)
 COPY package.json pnpm-lock.yaml ./
+
+# Enable pnpm via corepack (version from package.json "packageManager")
+RUN corepack enable && corepack prepare --activate
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
