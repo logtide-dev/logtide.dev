@@ -186,7 +186,8 @@ const changelogStatuses = ['released', 'in-progress', 'planned'] as const;
  * Changelog + Roadmap Collection
  *
  * Combined history of released versions and planned features.
- * All entries live on /changelog — no individual slug pages.
+ * The /changelog index shows frontmatter only (title, description, highlights);
+ * entries with a markdown body get their own page at /changelog/<id>/.
  */
 const changelog = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/changelog' }),

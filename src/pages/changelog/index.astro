@@ -1,5 +1,5 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import SEO from '../../components/SEO.astro';
@@ -31,28 +31,24 @@ const sorted = allEntries.sort((a, b) => {
   return dateB - dateA;
 });
 
-// Render all markdown bodies
-const rendered = await Promise.all(
-  sorted.map(async (entry) => {
-    const { Content } = await render(entry);
-    return { entry, Content };
-  })
-);
+// Bodies are NOT rendered here: each release links to its own page instead.
+// Keeping ~50 releases' worth of markdown on this page made it a 20k+ word
+// long-tail impression magnet in search with a near-zero CTR.
 
 // Group entries: Roadmap (planned + in-progress) and years (released)
 type Group = {
   label: string;
   isRoadmap: boolean;
-  entries: typeof rendered;
+  entries: typeof sorted;
 };
 
 const groups: Group[] = [];
 
-const roadmapEntries = rendered.filter(
-  ({ entry }) => entry.data.status === 'planned' || entry.data.status === 'in-progress'
+const roadmapEntries = sorted.filter(
+  (entry) => entry.data.status === 'planned' || entry.data.status === 'in-progress'
 );
-const releasedEntries = rendered.filter(
-  ({ entry }) => entry.data.status === 'released'
+const releasedEntries = sorted.filter(
+  (entry) => entry.data.status === 'released'
 );
 
 if (roadmapEntries.length > 0) {
@@ -60,13 +56,13 @@ if (roadmapEntries.length > 0) {
 }
 
 // Group released by year
-const byYear = new Map<string, typeof rendered>();
-for (const item of releasedEntries) {
-  const year = item.entry.data.date
-    ? String(item.entry.data.date.getFullYear())
+const byYear = new Map<string, typeof sorted>();
+for (const entry of releasedEntries) {
+  const year = entry.data.date
+    ? String(entry.data.date.getFullYear())
     : 'Undated';
   if (!byYear.has(year)) byYear.set(year, []);
-  byYear.get(year)!.push(item);
+  byYear.get(year)!.push(entry);
 }
 
 const sortedYears = [...byYear.keys()].sort((a, b) => Number(b) - Number(a));
@@ -76,9 +72,11 @@ for (const year of sortedYears) {
 
 const totalReleased = releasedEntries.length;
 const totalPlanned = roadmapEntries.length;
-const latestVersion = releasedEntries[0]?.entry.data.version ?? null;
-// Keep the latest released entry expanded by default; collapse the rest.
-const latestReleasedId = releasedEntries[0]?.entry.id ?? null;
+const latestVersion = releasedEntries[0]?.data.version ?? null;
+
+// Entries with a markdown body have their own page under /changelog/<id>/.
+const hasDetailPage = (entry: (typeof sorted)[number]) =>
+  (entry.body ?? '').trim().length > 0;
 
 const title = "LogTide Changelog — What's New & Roadmap";
 const description = "What's new in LogTide, the self-hosted log management platform: latest releases, fixes, features in progress, and the public roadmap.";
@@ -171,16 +169,14 @@ const description = "What's new in LogTide, the self-hosted log management platf
           return (
             <>
               <YearGroup label={group.label} isRoadmap={group.isRoadmap} />
-              {group.entries.map((item, entryIndex) => {
+              {group.entries.map((entry, entryIndex) => {
                 const isLastEntry = isLastGroup && entryIndex === group.entries.length - 1;
                 return (
                   <TimelineNode
-                    entry={item.entry}
+                    entry={entry}
                     isLast={isLastEntry}
-                    defaultOpen={item.entry.id === latestReleasedId}
-                  >
-                    <item.Content />
-                  </TimelineNode>
+                    detailUrl={hasDetailPage(entry) ? `/changelog/${entry.id}/` : undefined}
+                  />
                 );
               })}
             </>
@@ -236,50 +232,5 @@ const description = "What's new in LogTide, the self-hosted log management platf
     margin-right: auto;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
-  }
-
-  /* Changelog prose styles for rendered markdown inside timeline cards */
-  .changelog-prose h2 {
-    @apply text-sm font-semibold mt-4 mb-2 text-foreground;
-  }
-
-  .changelog-prose h3 {
-    @apply text-xs font-semibold mt-3 mb-1 text-foreground;
-  }
-
-  .changelog-prose p {
-    @apply text-sm text-muted-foreground mb-2 leading-relaxed;
-  }
-
-  .changelog-prose p:last-child {
-    @apply mb-0;
-  }
-
-  .changelog-prose ul {
-    @apply list-disc list-inside text-sm text-muted-foreground space-y-1 mb-2;
-  }
-
-  .changelog-prose ol {
-    @apply list-decimal list-inside text-sm text-muted-foreground space-y-1 mb-2;
-  }
-
-  .changelog-prose li > strong {
-    @apply text-foreground;
-  }
-
-  .changelog-prose pre {
-    @apply rounded-lg text-xs overflow-x-auto my-3 p-3 bg-secondary border border-border;
-  }
-
-  .changelog-prose code:not(pre code) {
-    @apply bg-muted text-foreground rounded px-1 py-0.5 text-xs font-mono;
-  }
-
-  .changelog-prose a {
-    @apply text-primary hover:underline;
-  }
-
-  .changelog-prose > *:first-child {
-    @apply mt-0;
   }
 </style>

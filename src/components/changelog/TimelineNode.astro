@@ -7,10 +7,11 @@ import { Icon } from 'astro-icon/components';
 interface Props {
   entry: CollectionEntry<'changelog'>;
   isLast?: boolean;
-  defaultOpen?: boolean;
+  /** Link to the per-release page, when the entry has full release notes. */
+  detailUrl?: string;
 }
 
-const { entry, isLast = false, defaultOpen = false } = Astro.props;
+const { entry, isLast = false, detailUrl } = Astro.props;
 const { version, title, description, date, targetDate, status, type, highlights, githubPr } = entry.data;
 
 const dotConfig = {
@@ -38,8 +39,6 @@ const cardHoverClass = cardHoverConfig[status];
 const formattedDate = date
   ? date.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
   : targetDate ?? null;
-
-const hasBody = Astro.slots.has('default');
 ---
 
 <div class="timeline-node group relative grid grid-cols-[1.75rem_1fr] sm:grid-cols-[2.5rem_1fr] gap-x-4">
@@ -112,18 +111,17 @@ const hasBody = Astro.slots.has('default');
         </div>
       )}
 
-      <!-- Rendered markdown body (collapsible) -->
-      {hasBody && (
-        <details class="changelog-details group/details border-t border-border/50" open={defaultOpen}>
-          <summary class="flex cursor-pointer select-none items-center gap-1.5 px-4 sm:px-5 py-3 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground list-none [&::-webkit-details-marker]:hidden">
-            <Icon name="lucide:chevron-right" class="w-3.5 h-3.5 transition-transform duration-200 group-open/details:rotate-90" />
-            <span class="group-open/details:hidden">Show details</span>
-            <span class="hidden group-open/details:inline">Hide details</span>
-          </summary>
-          <div class="changelog-prose px-4 sm:px-5 pb-4 pt-1">
-            <slot />
-          </div>
-        </details>
+      <!-- Link to full release notes -->
+      {detailUrl && (
+        <div class="border-t border-border/50">
+          <a
+            href={detailUrl}
+            class="flex items-center gap-1.5 px-4 sm:px-5 py-3 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <Icon name="lucide:chevron-right" class="w-3.5 h-3.5" />
+            Read full release notes
+          </a>
+        </div>
       )}
 
       <!-- GitHub PR link -->

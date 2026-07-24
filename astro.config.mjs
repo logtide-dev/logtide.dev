@@ -48,6 +48,10 @@ export default defineConfig({
           // Use cases index page
           item.priority = 0.75;
           item.changefreq = 'weekly';
+        } else if (item.url.includes('/changelog/') && !item.url.endsWith('/changelog/')) {
+          // Per-release pages - archival content, low crawl priority
+          item.priority = 0.4;
+          item.changefreq = 'monthly';
         } else if (item.url.includes('/legal/')) {
           // Legal pages - low priority, rarely change
           item.priority = 0.3;

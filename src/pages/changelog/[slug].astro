@@ -1,0 +1,136 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import ContentPage from '../../layouts/ContentPage.astro';
+import StatusBadge from '../../components/changelog/StatusBadge.astro';
+import TypeBadge from '../../components/changelog/TypeBadge.astro';
+import { Icon } from 'astro-icon/components';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('changelog', ({ data }) => !data.draft);
+  // Only entries with a markdown body get their own page; frontmatter-only
+  // entries (most roadmap items) are fully represented on the index.
+  return entries
+    .filter((entry) => (entry.body ?? '').trim().length > 0)
+    .map((entry) => ({
+      params: { slug: entry.id },
+      props: { entry },
+    }));
+}
+
+interface Props {
+  entry: CollectionEntry<'changelog'>;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const { version, title, description, date, targetDate, status, highlights, githubPr } = entry.data;
+
+const pageTitle = `${title} | LogTide Changelog`;
+
+const rawPathname = Astro.url.pathname;
+const pathname = rawPathname.endsWith('/') ? rawPathname : rawPathname + '/';
+
+const seoBreadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Changelog', url: '/changelog/' },
+  { name: title, url: pathname },
+];
+
+const formattedDate = date
+  ? date.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
+  : targetDate ?? null;
+---
+
+<ContentPage
+  title={pageTitle}
+  description={description}
+  ogImage="https://logtide.dev/images/changelogs.png"
+  breadcrumbs={seoBreadcrumbs}
+  datePublished={date ? date.toISOString() : null}
+>
+  <!-- Navigation breadcrumb -->
+  <nav class="mb-6" aria-label="Breadcrumb">
+    <ol class="flex items-center gap-2 text-sm text-muted-foreground">
+      <li>
+        <a href="/" class="hover:text-foreground transition-colors">Home</a>
+      </li>
+      <li class="text-muted-foreground/50">/</li>
+      <li>
+        <a href="/changelog/" class="hover:text-foreground transition-colors">Changelog</a>
+      </li>
+      <li class="text-muted-foreground/50">/</li>
+      <li class="text-foreground line-clamp-1">{version ?? title}</li>
+    </ol>
+  </nav>
+
+  <!-- Page Header -->
+  <header class="mb-8">
+    <div class="flex flex-wrap items-center gap-3 mb-4">
+      {version && (
+        <span class="font-mono text-sm font-bold text-primary">{version}</span>
+      )}
+      <StatusBadge status={status} />
+      <TypeBadge type={entry.data.type} />
+      {formattedDate && (
+        date
+          ? <time datetime={date.toISOString()} class="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <Icon name="lucide:calendar" class="w-4 h-4" />
+              {formattedDate}
+            </time>
+          : <span class="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <Icon name="lucide:calendar" class="w-4 h-4" />
+              {formattedDate}
+            </span>
+      )}
+    </div>
+
+    <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent leading-tight">
+      {title}
+    </h1>
+
+    <p class="text-lg text-muted-foreground">
+      {description}
+    </p>
+
+    {highlights.length > 0 && (
+      <ul class="grid gap-2 sm:grid-cols-2 mt-6">
+        {highlights.map((h) => (
+          <li class="flex items-start gap-2 text-sm text-muted-foreground">
+            <Icon name="lucide:check" class="w-4 h-4 flex-shrink-0 mt-0.5 text-green-500" />
+            {h}
+          </li>
+        ))}
+      </ul>
+    )}
+  </header>
+
+  <!-- Markdown Content -->
+  <div class="prose-content">
+    <Content />
+  </div>
+
+  <!-- Footer links -->
+  <div class="mt-16 pt-8 border-t border-border">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <a
+        href="/changelog/"
+        class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors no-underline"
+      >
+        <Icon name="lucide:arrow-left" class="w-4 h-4" />
+        All releases
+      </a>
+      {githubPr && (
+        <a
+          href={githubPr}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors no-underline"
+        >
+          <Icon name="simple-icons:github" class="w-4 h-4" />
+          View pull request
+          <Icon name="lucide:external-link" class="w-3.5 h-3.5" />
+        </a>
+      )}
+    </div>
+  </div>
+</ContentPage>
