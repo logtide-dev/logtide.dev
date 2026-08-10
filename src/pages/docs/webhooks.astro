@@ -10,6 +10,7 @@ const headings = [
   { text: "Delivery Semantics", slug: "delivery-semantics", depth: 2 },
   { text: "Event Envelope", slug: "event-envelope", depth: 2 },
   { text: "Event Types", slug: "event-types", depth: 2 },
+  { text: "Discord Destinations", slug: "discord-destinations", depth: 2 },
   { text: "Verifying Signatures", slug: "verifying-signatures", depth: 2 },
   { text: "SSRF Protection", slug: "ssrf-protection", depth: 2 },
   { text: "Replaying Deliveries", slug: "replaying-deliveries", depth: 2 },
@@ -22,13 +23,14 @@ const keywords = [
   "webhook retry dead-letter queue",
   "webhook SSRF protection",
   "alert webhook payload",
-  "webhook event envelope"
+  "webhook event envelope",
+  "Discord webhook notifications"
 ];
 ---
 
 <DocsLayout
   title="Webhooks"
-  description="Outbound webhook delivery in LogTide: a signed event envelope, HMAC verification, retry with backoff, a dead-letter queue, and SSRF protection."
+  description="Outbound webhook delivery in LogTide: a signed event envelope, HMAC verification, retry with backoff, a dead-letter queue, Discord-formatted deliveries, and SSRF protection."
   keywords={keywords}
   headings={headings}
 >
@@ -116,7 +118,8 @@ const keywords = [
     <ul class="list-disc list-inside space-y-2 ml-2">
       <li><strong>Retries</strong> — transient failures (network errors, timeouts, HTTP 5xx, 429) are retried with exponential backoff (<code>1s, 5s, 25s, 2m, 10m</code>), up to <code>WEBHOOK_MAX_ATTEMPTS</code> (default 5). Other 4xx responses and SSRF-blocked targets are terminal and not retried.</li>
       <li><strong>Dead-letter queue</strong> — after the final failed attempt a delivery is marked <code>dead</code>. Dead and failed deliveries can be replayed from <strong>Settings → Webhook Deliveries</strong>.</li>
-      <li><strong>Idempotency</strong> — each delivery carries a stable id, and the same logical event is never enqueued twice. A receiver can safely deduplicate on the envelope <code>id</code>.</li>
+      <li><strong>Idempotency</strong> — each delivery carries a stable id, so a receiver can safely deduplicate on the envelope <code>id</code>.</li>
+      <li><strong>Deduplication is time-bounded</strong> — re-enqueueing the same event (same organization, event type and event id) while a delivery for it is still in flight reuses that delivery instead of creating a second one. The window is <code>WEBHOOK_DEDUP_WINDOW_MS</code> (default 60s): anything older, or already delivered or dead-lettered, starts a new delivery. Sources that reuse an event id across occurrences — a monitor that goes down, recovers and goes down again, for example — therefore deliver every occurrence, while a genuine double-enqueue within the window still collapses into one.</li>
       <li><strong>Timeout</strong> — each attempt times out after <code>WEBHOOK_REQUEST_TIMEOUT_MS</code> (default 10s).</li>
     </ul>
 
@@ -330,6 +333,75 @@ const event = parseWebhookEvent(body);`}
     </div>
   </div>
 
+  <h2 id="discord-destinations" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Discord Destinations
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Discord's webhook endpoint only accepts bodies carrying <code>content</code>,
+      <code>embeds</code> or file parts, and rejects anything else with HTTP 400. A webhook whose
+      URL is a Discord endpoint therefore receives a Discord message instead of the envelope — no
+      channel setting or extra configuration is involved.
+    </p>
+
+    <p>
+      Detection covers host <code>discord.com</code> or <code>discordapp.com</code> (including
+      subdomains such as <code>ptb.</code> and <code>canary.</code>) with a path starting
+      <code>/api/webhooks/</code> or <code>/api/v10/webhooks/</code>. It applies to every source —
+      channel test, monitors, alerts, security incidents, error groups — as well as retries and
+      replays.
+    </p>
+
+    <p>
+      Each event becomes a single embed: <code>title</code> and <code>description</code> come from
+      the event's <code>title</code> / <code>message</code>, the color from its
+      <code>severity</code> (green for a monitor recovery), the footer from the organization name,
+      <code>timestamp</code> from the envelope <code>occurredAt</code>, <code>url</code> from the
+      event <code>link</code>, and the remaining per-type values become inline embed fields.
+      Discord's size limits are enforced by truncating values and dropping trailing fields. The
+      <code>monitor.status_changed</code> payload shown above is delivered like this:
+    </p>
+
+    <Code
+      lang="json"
+      theme="one-dark-pro"
+      code={`{
+  "embeds": [
+    {
+      "title": "Checkout API is down",
+      "description": "HTTP 503 from https://api.example.com/health",
+      "color": 14427686,
+      "url": "https://app.logtide.dev/monitoring/mon_1a2b",
+      "timestamp": "2026-08-11T10:15:00.000Z",
+      "footer": { "text": "LogTide - Acme" },
+      "fields": [
+        { "name": "Status", "value": "down", "inline": true },
+        { "name": "Target", "value": "https://api.example.com/health", "inline": true },
+        { "name": "Error code", "value": "503", "inline": true },
+        { "name": "Consecutive failures", "value": "3", "inline": true }
+      ]
+    }
+  ]
+}`}
+    />
+
+    <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+        <div>
+          <h4 class="font-medium mb-1">Want the raw envelope instead?</h4>
+          <p class="text-sm text-muted-foreground">
+            Append <code>/slack</code> or <code>/github</code> to the Discord webhook URL — those
+            are Discord's own compatibility endpoints, and LogTide leaves the body of such URLs
+            untouched. The delivery log always stores the canonical envelope, so replays and the
+            delivery detail view show the event rather than the Discord payload.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <h2 id="verifying-signatures" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
     Verifying Signatures
   </h2>
@@ -347,7 +419,9 @@ const event = parseWebhookEvent(body);`}
 
     <p>
       The signature is <code>HMAC-SHA256(secret, "&lt;timestamp&gt;.&lt;raw request body&gt;")</code>,
-      hex-encoded, and covers the serialized envelope.
+      hex-encoded, and covers the serialized envelope. For destinations with a vendor-specific body
+      (see <a href="#discord-destinations">Discord destinations</a>) it covers the bytes actually
+      sent, which are the vendor payload rather than the envelope.
     </p>
 
     <Code
@@ -444,6 +518,7 @@ function verify(secret, headers, rawBody) {
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>WEBHOOK_GLOBAL_CONCURRENCY</code></td><td class="py-2 pr-4"><code>50</code></td><td class="py-2">Concurrent deliveries across all organizations.</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>WEBHOOK_DELIVERY_LOG_LIMIT</code></td><td class="py-2 pr-4"><code>1000</code></td><td class="py-2">Attempts retained per delivery in the delivery log.</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>WEBHOOK_REQUEST_TIMEOUT_MS</code></td><td class="py-2 pr-4"><code>10000</code></td><td class="py-2">Per-attempt request timeout in milliseconds.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>WEBHOOK_DEDUP_WINDOW_MS</code></td><td class="py-2 pr-4"><code>60000</code></td><td class="py-2">How long an in-flight delivery suppresses an identical re-enqueue of the same event.</td></tr>
           <tr><td class="py-2 pr-4"><code>MONITOR_ALLOW_PRIVATE_TARGETS</code></td><td class="py-2 pr-4"><code>false</code></td><td class="py-2">Allow delivery to private/internal addresses (self-hosted).</td></tr>
         </tbody>
       </table>
