@@ -1,0 +1,540 @@
+---
+import DocsLayout from '../../layouts/Docs.astro';
+import Card from '../../components/ui/Card.astro';
+import CardContent from '../../components/ui/CardContent.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Overview", slug: "overview", depth: 2 },
+  { text: "Panel Catalog", slug: "panel-catalog", depth: 2 },
+  { text: "Time Ranges", slug: "time-ranges", depth: 2 },
+  { text: "Working With Panels", slug: "working-with-panels", depth: 2 },
+  { text: "Geo Map Setup", slug: "geo-map-setup", depth: 2 },
+  { text: "Sharing Dashboards", slug: "sharing-dashboards", depth: 2 },
+  { text: "API", slug: "api", depth: 2 }
+];
+
+const keywords = [
+  "LogTide custom dashboards",
+  "log dashboard panels",
+  "geo map log panel",
+  "dashboard time range",
+  "dashboard YAML export",
+  "self-hosted observability dashboard"
+];
+---
+
+<DocsLayout
+  title="Custom Dashboards"
+  description="Build custom dashboards in LogTide: fifteen panel types over logs, traces, metrics, detections and monitors, with per-panel time ranges, a board-wide time picker, and YAML export."
+  keywords={keywords}
+  headings={headings}
+>
+  <div class="flex items-center gap-3 mb-4">
+    <div class="p-2 bg-primary/10 rounded-lg">
+      <Icon name="lucide:layout-dashboard" class="w-6 h-6 text-primary" />
+    </div>
+    <h1 class="text-3xl font-bold">Custom Dashboards</h1>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+    Custom dashboards let you assemble your own view of an environment: log volume next to trace
+    latency, uptime next to Sigma detections, a world map of where traffic is coming from. Panels
+    are arranged on a 12-column grid, each one queries LogTide directly, and the whole board can be
+    exported as YAML and version-controlled alongside the rest of your infrastructure.
+  </p>
+
+  <h2 id="overview" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Overview
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      A dashboard belongs to an organization and holds a list of panels. Each panel carries its own
+      layout (position and size on the grid) and its own configuration (what it queries and how it
+      renders). Editing is inline: click <strong>Edit</strong>, drag panels to rearrange them, drag
+      the bottom-right corner to resize, use the gear icon to configure, then <strong>Save</strong>.
+      Nothing is written until you save, so <strong>Cancel</strong> always restores the board.
+    </p>
+
+    <div class="grid gap-4 md:grid-cols-3">
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:users" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">Shared or personal</h4>
+              <p class="text-sm text-muted-foreground">A dashboard is visible to the whole organization by default. Mark it <strong>personal</strong> and only its creator sees it, which keeps scratch boards out of everyone else's switcher.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:star" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">One default board</h4>
+              <p class="text-sm text-muted-foreground">The dashboard marked as default is what opens when someone lands on the Dashboard page. Promoting another one demotes the previous default automatically.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:folder-tree" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">Org-wide or per project</h4>
+              <p class="text-sm text-muted-foreground">Most panels take an optional project. Leave it empty and the panel aggregates every project in the organization; set it and the panel is scoped to that one.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+
+    <p>
+      The number of custom dashboards per organization is governed by the
+      <code>dashboards.max_custom</code> capability, which is unlimited on self-hosted installs
+      unless you configure an entitlement. See <a href="/docs/usage-metering/">Usage &amp; Metering</a>.
+    </p>
+  </div>
+
+  <h2 id="panel-catalog" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Panel Catalog
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Fifteen panel types are available, covering every LogTide vertical. Panels that scope their
+      query to a lookback window are marked <strong>windowed</strong>; those are the ones the time
+      range controls in the next section apply to.
+    </p>
+
+    <h3 id="log-panels" class="text-lg font-semibold mb-3 scroll-mt-24">Logs</h3>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Panel</th>
+            <th class="py-2 pr-4 font-semibold">Shows</th>
+            <th class="py-2 font-semibold">Key options</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>time_series</code><br /><span class="text-xs">windowed</span></td><td class="py-2 pr-4">Log volume over time, one line per level.</td><td class="py-2">Levels to plot, service filter, custom per-level series labels.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>single_stat</code></td><td class="py-2 pr-4">A headline number with a trend arrow.</td><td class="py-2">Metric: total logs, error rate, active services or throughput.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>top_n_table</code><br /><span class="text-xs">windowed</span></td><td class="py-2 pr-4">Ranked list with counts and share of total.</td><td class="py-2">Dimension: service, error message, or any flat metadata key. Row limit 3-50, optional <strong>Last seen</strong> column.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>log_table</code><br /><span class="text-xs">windowed</span></td><td class="py-2 pr-4">Individual log rows, one per line.</td><td class="py-2">Snapshot or live mode, up to 10 metadata columns, toggleable built-in columns, 10-100 rows.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>live_log_stream</code></td><td class="py-2 pr-4">A scrolling feed of the most recent logs.</td><td class="py-2">Level and service filters, up to 100 rows.</td></tr>
+          <tr><td class="py-2 pr-4"><code>geo_map</code><br /><span class="text-xs">windowed</span></td><td class="py-2 pr-4">World map of log volume from GeoIP metadata.</td><td class="py-2">Country bubbles or precise locations, level/service/hostname filters. See <a href="#geo-map-setup">Geo Map Setup</a>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="traces-metrics-panels" class="text-lg font-semibold mb-3 scroll-mt-24 pt-2">Traces and metrics</h3>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Panel</th>
+            <th class="py-2 pr-4 font-semibold">Shows</th>
+            <th class="py-2 font-semibold">Key options</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>trace_latency</code><br /><span class="text-xs">windowed</span></td><td class="py-2 pr-4">Span latency percentiles over time.</td><td class="py-2">Any combination of p50, p95, p99; optional service filter.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>trace_volume</code><br /><span class="text-xs">windowed</span></td><td class="py-2 pr-4">Span count over time, with an optional errors line.</td><td class="py-2">Service filter, show errors on or off.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>metric_chart</code><br /><span class="text-xs">windowed</span></td><td class="py-2 pr-4">An OTLP metric over time.</td><td class="py-2">Metric name, aggregation (avg, sum, min, max, count, last, p50, p95, p99), bucket interval.</td></tr>
+          <tr><td class="py-2 pr-4"><code>metric_stat</code><br /><span class="text-xs">windowed</span></td><td class="py-2 pr-4">A single OTLP metric value.</td><td class="py-2">Same aggregations, plus an optional unit label.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      Percentiles are computed from raw spans on every storage engine, not from approximations, so
+      the numbers match what the Traces view reports. Metric panels read OTLP metrics ingested
+      through the <a href="/docs/opentelemetry/">OpenTelemetry endpoint</a>.
+    </p>
+
+    <h3 id="security-uptime-panels" class="text-lg font-semibold mb-3 scroll-mt-24 pt-2">Security, uptime and overview</h3>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Panel</th>
+            <th class="py-2 pr-4 font-semibold">Shows</th>
+            <th class="py-2 font-semibold">Key options</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>detection_events</code><br /><span class="text-xs">windowed</span></td><td class="py-2 pr-4">Sigma detection events over time, plus a severity breakdown.</td><td class="py-2">Severities to include.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>alert_status</code></td><td class="py-2 pr-4">State of your alert rules and recent triggers.</td><td class="py-2">Specific rules or all of them, show history on or off.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>monitor_status</code></td><td class="py-2 pr-4">Current status and last check of your monitors.</td><td class="py-2">Specific monitors or all, row limit 3-20.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>system_status</code></td><td class="py-2 pr-4">One banner: operational, degraded, or outage.</td><td class="py-2">Show per-state counts or just the banner.</td></tr>
+          <tr><td class="py-2 pr-4"><code>activity_overview</code><br /><span class="text-xs">windowed</span></td><td class="py-2 pr-4">Logs, log errors, spans, span errors, detections and alerts on one timeline.</td><td class="py-2">Which of the six series to plot.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+        <div>
+          <h4 class="font-medium mb-1">Span panels and storage engines</h4>
+          <p class="text-sm text-muted-foreground">
+            The span series of <code>activity_overview</code> are populated on TimescaleDB. On
+            ClickHouse and MongoDB the log series still render and the dedicated
+            <code>trace_latency</code> and <code>trace_volume</code> panels work on all three
+            engines. See <a href="/docs/storage-engines/">Storage Engines</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="time-ranges" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Time Ranges
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Every windowed panel picks its lookback from the same list, so a board never mixes
+      incompatible sets of options:
+    </p>
+
+    <Code
+      lang="text"
+      theme="one-dark-pro"
+      code={`15m   1h   6h   12h   24h   48h   3d   7d   14d   30d`}
+    />
+
+    <p>
+      In the panel editor the control is labelled <strong>Time range</strong> and spells the values
+      out ("Last 48 hours"). The stored configuration keeps the short form, which is what you see in
+      a YAML export.
+    </p>
+
+    <h3 id="board-wide-picker" class="text-lg font-semibold mb-3 scroll-mt-24">Retiming a whole board</h3>
+
+    <p>
+      The clock control in the dashboard toolbar overrides the time range of every windowed panel at
+      once, which is what you usually want during an incident review: same board, different window.
+      It is a <strong>view-level</strong> control:
+    </p>
+
+    <ul class="list-disc pl-6 space-y-1 text-muted-foreground">
+      <li>Panel configurations and the saved dashboard are never modified.</li>
+      <li>Panels without a window (single stat, live stream, alert and monitor status) are left alone, and so are log tables in live mode.</li>
+      <li>Choosing <strong>Panel defaults</strong> hands every panel back its own configured range.</li>
+      <li>The override is not persisted, so a shared dashboard always opens the way its author set it up.</li>
+    </ul>
+
+    <h3 id="bucket-sizes" class="text-lg font-semibold mb-3 scroll-mt-24 pt-2">Bucket sizes</h3>
+
+    <p>
+      Time-based charts choose a bucket size to match the window, so a one-hour view is not drawn
+      with the same granularity as a month:
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Window</th>
+            <th class="py-2 font-semibold">Bucket</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">up to 1 hour</td><td class="py-2">1 minute</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">up to 6 hours</td><td class="py-2">5 minutes</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">up to 12 hours</td><td class="py-2">15 minutes</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">up to 14 days</td><td class="py-2">1 hour</td></tr>
+          <tr><td class="py-2 pr-4">30 days</td><td class="py-2">1 day</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      Empty buckets are filled with zeros rather than skipped, so a quiet period reads as quiet
+      instead of disappearing from the line, and axis labels switch to dates once the window spans
+      more than a couple of days.
+    </p>
+  </div>
+
+  <h2 id="working-with-panels" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Working With Panels
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <div class="grid gap-4 md:grid-cols-2">
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:pause" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">Pause a panel</h4>
+              <p class="text-sm text-muted-foreground">Freeze a single panel while you read it: paused panels are skipped by auto-refresh and left out of the batch fetch entirely. A paused live log table stops applying updates but keeps its connection, so resuming is instant. Pause is ephemeral and resets when you switch dashboards.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:refresh-cw" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">Refresh</h4>
+              <p class="text-sm text-muted-foreground">The toolbar sets a board-wide auto-refresh interval (off, 30s, 1m, 5m); auto-refresh pauses while you are editing so it cannot clobber unsaved layout changes. Each panel header also has a manual refresh that works even when the panel is paused.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:clock" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">Clock and timezone</h4>
+              <p class="text-sm text-muted-foreground">Settings &gt; Display sets a 12-hour or 24-hour clock and an explicit IANA timezone for every dashboard panel timestamp. Defaults are your browser timezone and a 24-hour clock, so nothing changes unless you ask.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:layout" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">Layout</h4>
+              <p class="text-sm text-muted-foreground">Panels sit on a 12-column grid. Each panel type declares a minimum width and height so it stays readable, and the grid collapses to a single column on narrow screens.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+
+    <h3 id="metadata-columns" class="text-lg font-semibold mb-3 scroll-mt-24 pt-2">Metadata columns and dimensions</h3>
+
+    <p>
+      The log table's extra columns and the Top N table's metadata dimension both address a metadata
+      field by path, using the same rules as Log Search: an exact key wins over a dotted path, so a
+      field literally named <code>user.id</code> is matched before the nested
+      <code>user</code> &rarr; <code>id</code> lookup is attempted.
+    </p>
+
+    <Code
+      lang="text"
+      theme="one-dark-pro"
+      code={`status_code          # flat key
+user.id              # exact key "user.id", else nested user -> id
+geo_country          # flat key written by the GeoIP pipeline step`}
+    />
+
+    <p class="text-sm text-muted-foreground">
+      A log table accepts up to ten metadata columns alongside the built-in time, level, service and
+      message columns. In the Top N table, percentages are computed against all logs matching the
+      panel's filters, so on a project where only some logs carry the key, the share reflects
+      reality instead of being inflated.
+    </p>
+  </div>
+
+  <h2 id="geo-map-setup" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Geo Map Setup
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      The geo map plots log volume on a world map. It reads geographic metadata that a
+      <strong>GeoIP pipeline step</strong> writes onto your logs, so the panel needs that step
+      configured before it has anything to draw.
+    </p>
+
+    <p>
+      Add a GeoIP step to a parsing pipeline for the project, pointing it at the metadata field that
+      holds the client IP and choosing an output target (<code>geo</code> by default). The step
+      writes a nested object plus flat keys derived from the target name:
+    </p>
+
+    <Code
+      lang="json"
+      theme="one-dark-pro"
+      code={`{
+  "client_ip": "203.0.113.10",
+  "geo": { "country": "Italy", "countryCode": "IT", "city": "Milan" },
+  "geo_country": "Italy",
+  "geo_country_code": "IT",
+  "geo_city": "Milan",
+  "geo_place": "45.46,9.19|Milan, Italy"
+}`}
+    />
+
+    <p>
+      In the panel configuration, <strong>Geo field prefix</strong> must match the step's target
+      (<code>geo</code> unless you changed it). Two modes are available:
+    </p>
+
+    <ul class="list-disc pl-6 space-y-1 text-muted-foreground">
+      <li><strong>By country</strong> reads <code>{'{prefix}'}_country_code</code> and places one bubble per country, sized by volume.</li>
+      <li><strong>By location</strong> reads <code>{'{prefix}'}_place</code> and places bubbles at rounded coordinates, which is more precise but produces more points; the row limit caps how many are drawn.</li>
+    </ul>
+
+    <p>
+      The map needs no tile server and makes no external requests: the world outline ships with the
+      frontend, so the panel works on air-gapped installs and follows your light or dark theme.
+      Values without usable coordinates are counted and reported under the map rather than silently
+      dropped.
+    </p>
+
+    <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:move" class="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+        <div>
+          <h4 class="font-medium mb-1">Your framing is preserved</h4>
+          <p class="text-sm text-muted-foreground">
+            The map fits itself to the data on first paint and whenever you change what the panel
+            queries. After that it stays where you put it: background refreshes never move the
+            viewport, so a board left open on a wall display does not drift. Use the
+            <strong>Fit data</strong> control to re-frame on demand. The mouse wheel scrolls the page
+            rather than zooming the map; zoom with the +/- controls, a double click, or pinch.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="sharing-dashboards" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Sharing Dashboards
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Any dashboard can be exported to YAML and imported into another organization or another
+      LogTide install, which makes boards reviewable in a pull request and reproducible across
+      environments. The export contains the board's name, description, schema version and panels:
+    </p>
+
+    <Code
+      lang="yaml"
+      theme="one-dark-pro"
+      code={`name: Edge Traffic
+description: Public traffic overview
+schema_version: 1
+panels:
+  - id: panel-1
+    layout: { x: 0, y: 0, w: 8, h: 4 }
+    config:
+      type: geo_map
+      title: Traffic Map
+      source: logs
+      projectId: null
+      interval: 24h
+      mode: country
+      limit: 100
+      fieldPrefix: geo
+      levels: []
+      service: null
+      hostname: null
+  - id: panel-2
+    layout: { x: 8, y: 0, w: 4, h: 4 }
+    config:
+      type: top_n_table
+      title: Top Countries
+      source: logs
+      dimension: metadata
+      metadataField: geo_country
+      limit: 10
+      projectId: null
+      interval: 24h
+      showLastSeen: true`}
+    />
+
+    <p>
+      Import validates every panel against the same rules the editor enforces, so a malformed board
+      is rejected with an explanation instead of being half-created. Project references are checked
+      against the importing organization: a panel pointing at a project id from somewhere else is
+      refused rather than silently returning another tenant's data.
+    </p>
+
+    <div class="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:alert-triangle" class="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
+        <div>
+          <h4 class="font-medium mb-1">Project ids are environment-specific</h4>
+          <p class="text-sm text-muted-foreground">
+            When moving a board between installs, either set <code>projectId: null</code> to make
+            panels organization-wide, or update the ids to match the target environment before
+            importing.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="api" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    API
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Dashboards are managed through the authenticated API under
+      <code>/api/v1/custom-dashboards</code>. All endpoints require a session and take the
+      organization id.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Endpoint</th>
+            <th class="py-2 font-semibold">Purpose</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>GET /</code></td><td class="py-2">List the dashboards visible to the caller.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>GET /default</code></td><td class="py-2">Fetch the default dashboard.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>POST /</code></td><td class="py-2">Create a dashboard, optionally with its panels.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>GET /:id</code> &middot; <code>PUT /:id</code> &middot; <code>DELETE /:id</code></td><td class="py-2">Read, update (name, description, panels) or delete one.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>POST /:id/set-default</code></td><td class="py-2">Promote a dashboard to default.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>GET /:id/export-yaml</code></td><td class="py-2">Export as YAML.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>POST /import-yaml</code></td><td class="py-2">Create a dashboard from YAML.</td></tr>
+          <tr><td class="py-2 pr-4"><code>POST /:id/panels/data</code></td><td class="py-2">Fetch data for the board's panels in one request.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The batch data endpoint is what the UI calls on every refresh. Restrict it to specific panels
+      with <code>panelIds</code>, and apply the board-wide time override with
+      <code>timeRange</code>:
+    </p>
+
+    <Code
+      lang="http"
+      theme="one-dark-pro"
+      code={`POST /api/v1/custom-dashboards/{dashboardId}/panels/data
+Content-Type: application/json
+
+{
+  "organizationId": "…",
+  "panelIds": ["panel-1", "panel-2"],
+  "timeRange": "48h"
+}`}
+    />
+
+    <p class="text-sm text-muted-foreground">
+      Panels are fetched independently, so one failing panel returns an error in its own entry while
+      the rest still return data. Omit <code>panelIds</code> to fetch the whole board, and omit
+      <code>timeRange</code> to use each panel's configured window.
+    </p>
+  </div>
+</DocsLayout>
