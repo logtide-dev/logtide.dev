@@ -17,7 +17,7 @@ const headings = [
 
 <DocsLayout
   title="Express SDK"
-  description="LogTide SDK for Express.js — automatic request logging, scoped context, and W3C trace propagation."
+  description="LogTide SDK for Express.js - automatic request logging, scoped context, and W3C trace propagation."
   headings={headings}
 >
   <div class="flex items-center justify-between mb-4">
@@ -192,7 +192,7 @@ app.get('/orders', (req, res) => {
   res.json(user);
 });
 
-// Your error handler — 5xx errors are already captured by LogTide
+// Your error handler - 5xx errors are already captured by LogTide
 app.use((err, req, res, next) => {
   res.status(err.status || 500).json({
     error: err.message,
@@ -215,7 +215,7 @@ app.use((err, req, res, next) => {
               </tr>
           </thead>
           <tbody class="text-muted-foreground">
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">logtide(options)</code></td><td class="p-3 border-b border-border">Middleware factory — initializes LogTide, creates scopes, extracts traces, captures 5xx errors</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">logtide(options)</code></td><td class="p-3 border-b border-border">Middleware factory - initializes LogTide, creates scopes, extracts traces, captures 5xx errors</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">req.logtideScope</code></td><td class="p-3 border-b border-border">Per-request scope for setting tags, user, extras</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">req.logtideTraceId</code></td><td class="p-3 border-b border-border">Current trace ID for the request</td></tr>
           </tbody>

@@ -220,7 +220,7 @@ try {
       <!-- Mobile sidebar drawer -->
       <aside
         id="mobile-sidebar"
-        class="fixed left-0 top-0 z-50 h-screen w-72 -translate-x-full transform overflow-y-auto border-r border-border bg-background transition-transform duration-300 ease-in-out lg:hidden"
+        class="fixed left-0 top-0 z-50 h-[100dvh] w-72 -translate-x-full transform overflow-y-auto border-r border-border bg-background transition-transform duration-300 ease-in-out lg:hidden"
       >
         <div class="flex items-center justify-between border-b border-border p-4">
           <span class="font-semibold">Documentation</span>
@@ -329,11 +329,6 @@ try {
         const leftSide = document.createElement('div');
         leftSide.className = 'flex items-center gap-3';
         leftSide.innerHTML = `
-            <div class="flex gap-1.5">
-                <div class="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/50"></div>
-                <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/20 border border-yellow-500/50"></div>
-                <div class="w-2.5 h-2.5 rounded-full bg-green-500/20 border border-green-500/50"></div>
-            </div>
             <span class="text-xs font-mono text-muted-foreground uppercase"></span>
         `;
         const langSpan = leftSide.querySelector('span');
@@ -430,7 +425,7 @@ try {
   }
 
   .docs-content h1 {
-    @apply text-4xl font-bold mb-8 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent leading-tight;
+    @apply text-4xl font-bold mb-8 text-foreground leading-tight;
   }
 
   .docs-content h2 {
@@ -462,7 +457,7 @@ try {
   }
 
   .docs-content a:not(:has(button)):not(:has([role="heading"])):not(:has(.rounded-lg)):not(.block) {
-    @apply font-medium text-primary underline underline-offset-4 decoration-primary/20 hover:decoration-primary transition-all cursor-pointer;
+    @apply font-medium text-primary-readable underline underline-offset-4 decoration-primary/20 hover:decoration-primary transition-all cursor-pointer;
   }
 
   .docs-content a.block,
@@ -530,27 +525,6 @@ try {
 
   .edit-page-link a {
     text-decoration: none !important;
-  }
-
-  /* Header and Footer alignment with sidebar spacing */
-  .header-container,
-  .footer-container {
-    margin-left: 280px;
-    margin-right: 240px;
-  }
-
-  @media (max-width: 1280px) {
-    .header-container,
-    .footer-container {
-      margin-right: 0;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    .header-container,
-    .footer-container {
-      margin-left: 0;
-    }
   }
 
   @media (max-width: 1024px) {

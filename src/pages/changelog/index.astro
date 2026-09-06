@@ -78,7 +78,7 @@ const latestVersion = releasedEntries[0]?.data.version ?? null;
 const hasDetailPage = (entry: (typeof sorted)[number]) =>
   (entry.body ?? '').trim().length > 0;
 
-const title = "LogTide Changelog — What's New & Roadmap";
+const title = "LogTide Changelog - What's New & Roadmap";
 const description = "What's new in LogTide, the self-hosted log management platform: latest releases, fixes, features in progress, and the public roadmap.";
 ---
 
@@ -121,7 +121,7 @@ const description = "What's new in LogTide, the self-hosted log management platf
     <main class="mx-auto max-w-3xl px-6 py-16">
       <!-- Hero Section -->
       <div class="text-center mb-12">
-        <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
+        <h1 class="text-4xl font-bold mb-4 text-foreground">
           Changelog & Roadmap
         </h1>
         <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -130,18 +130,18 @@ const description = "What's new in LogTide, the self-hosted log management platf
       </div>
 
       <!-- Stats -->
-      <div class="grid grid-cols-3 gap-4 mb-12">
-        <div class="text-center p-4 rounded-lg bg-card border border-border">
-          <div class="text-2xl font-bold text-primary">{totalReleased}</div>
-          <div class="text-xs text-muted-foreground">Releases</div>
+      <div class="mb-12 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-border bg-border">
+        <div class="bg-card p-5">
+          <div class="font-mono text-2xl font-bold text-foreground">{totalReleased}</div>
+          <div class="mt-1 text-xs text-muted-foreground">Releases</div>
         </div>
-        <div class="text-center p-4 rounded-lg bg-card border border-border">
-          <div class="text-2xl font-bold text-green-500">{latestVersion ?? '\u2014'}</div>
-          <div class="text-xs text-muted-foreground">Latest</div>
+        <div class="bg-card p-5">
+          <div class="font-mono text-2xl font-bold text-foreground">{latestVersion ?? '-'}</div>
+          <div class="mt-1 text-xs text-muted-foreground">Latest</div>
         </div>
-        <div class="text-center p-4 rounded-lg bg-card border border-border">
-          <div class="text-2xl font-bold text-blue-500">{totalPlanned}</div>
-          <div class="text-xs text-muted-foreground">Planned</div>
+        <div class="bg-card p-5">
+          <div class="font-mono text-2xl font-bold text-foreground">{totalPlanned}</div>
+          <div class="mt-1 text-xs text-muted-foreground">Planned</div>
         </div>
       </div>
 
@@ -192,7 +192,7 @@ const description = "What's new in LogTide, the self-hosted log management platf
       </div>
 
       <!-- CTA -->
-      <div class="mt-16 text-center p-8 rounded-2xl bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20">
+      <div class="mt-16 text-center p-8 rounded-2xl bg-card border border-border">
         <h2 class="text-xl font-semibold mb-3">Have a feature request?</h2>
         <p class="text-muted-foreground mb-5 text-sm max-w-sm mx-auto">
           Open a discussion on GitHub or vote on existing proposals to help shape the roadmap.
@@ -201,7 +201,7 @@ const description = "What's new in LogTide, the self-hosted log management platf
           href="https://github.com/logtide-dev/logtide/discussions"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
+          class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors text-sm font-medium"
         >
           <Icon name="lucide:message-circle" class="w-4 h-4" />
           Open a Discussion
@@ -217,20 +217,6 @@ const description = "What's new in LogTide, the self-hosted log management platf
   @import '../../styles/tailwind.css';
   @import '../../styles/custom.css';
 
-  html {
-    scroll-behavior: smooth;
-  }
 
-  body {
-    font-family: 'Inter', system-ui, sans-serif;
-  }
 
-  .header-container,
-  .footer-container {
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
 </style>

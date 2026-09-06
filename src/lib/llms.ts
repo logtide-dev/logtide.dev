@@ -97,7 +97,7 @@ export function titleize(slug: string): string {
  * Derive an ordered list of documentation entries from the `src/pages/docs`
  * `.astro` files discovered via `import.meta.glob`. Docs are hand-authored
  * Astro pages (no Markdown source), so we link to the HTML pages and derive
- * titles from the file paths — this keeps the index self-updating.
+ * titles from the file paths - this keeps the index self-updating.
  */
 export interface DocEntry {
   title: string;

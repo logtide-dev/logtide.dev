@@ -29,7 +29,7 @@ const headings = [
   <h1 class="text-3xl font-bold mb-4">Storage Engines</h1>
   <p class="text-lg text-muted-foreground mb-8">
     LogTide uses <strong>Reservoir</strong>, a pluggable storage abstraction that lets you choose between
-    TimescaleDB, ClickHouse, and MongoDB for log and span storage. All engines share the same API — your application
+    TimescaleDB, ClickHouse, and MongoDB for log and span storage. All engines share the same API - your application
     code, queries, and dashboards work identically regardless of which engine you run.
   </p>
 
@@ -44,7 +44,7 @@ const headings = [
     <Card>
       <CardHeader>
         <div class="flex items-start gap-3">
-          <Icon name="lucide:layers" class="w-5 h-5 text-primary mt-0.5" />
+          <Icon name="lucide:layers" class="w-5 h-5 text-primary-readable mt-0.5" />
           <div>
             <CardTitle class="text-base">One API, Three Engines</CardTitle>
           </div>
@@ -53,8 +53,8 @@ const headings = [
       <CardContent class="text-sm text-muted-foreground">
         <p class="mb-3">
           Reservoir is LogTide's internal storage layer (<code class="bg-muted px-1 rounded">@logtide/reservoir</code>).
-          It provides a single, typed interface for all log and span operations — ingestion, querying, aggregation,
-          deletion — and translates them into optimized native queries for the chosen engine.
+          It provides a single, typed interface for all log and span operations - ingestion, querying, aggregation,
+          deletion - and translates them into optimized native queries for the chosen engine.
         </p>
         <pre class="text-sm bg-muted p-4 rounded-md overflow-x-auto font-mono text-foreground">
 App → Reservoir API → TimescaleDB (PostgreSQL)
@@ -85,7 +85,7 @@ App → Reservoir API → TimescaleDB (PostgreSQL)
             <Icon name="lucide:database" class="w-5 h-5 text-blue-500 mt-0.5" />
             <div>
               <CardTitle class="text-base">TimescaleDB</CardTitle>
-              <p class="text-xs text-muted-foreground mt-1">Default — recommended for most users</p>
+              <p class="text-xs text-muted-foreground mt-1">Default - recommended for most users</p>
             </div>
           </div>
         </CardHeader>
@@ -131,7 +131,7 @@ App → Reservoir API → TimescaleDB (PostgreSQL)
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground">
           <ul class="space-y-1">
-            <li>Dynamic metadata — no fixed schema</li>
+            <li>Dynamic metadata - no fixed schema</li>
             <li>Time-series collections (MongoDB 5.0+)</li>
             <li>Native TTL indexes for retention</li>
             <li>Easy horizontal scaling via sharding</li>
@@ -154,7 +154,7 @@ App → Reservoir API → TimescaleDB (PostgreSQL)
         <p>
           TimescaleDB is the default and requires zero extra configuration. It runs inside the same
           PostgreSQL instance that LogTide already uses for application data. You can always
-          <a href="#switching-engines" class="text-primary hover:underline">switch to ClickHouse later</a>
+          <a href="#switching-engines" class="text-primary-readable hover:underline">switch to ClickHouse later</a>
           if your volume grows.
         </p>
       </CardContent>
@@ -170,7 +170,7 @@ App → Reservoir API → TimescaleDB (PostgreSQL)
 
   <div class="mb-12 space-y-6">
     <p class="text-muted-foreground">
-      <a href="https://www.timescale.com/" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">TimescaleDB</a>
+      <a href="https://www.timescale.com/" class="text-primary-readable hover:underline" target="_blank" rel="noopener noreferrer">TimescaleDB</a>
       is a PostgreSQL extension for time-series data. LogTide stores logs in a <strong>hypertable</strong> that is
       automatically partitioned by time, compressed, and pruned according to your retention policy.
     </p>
@@ -190,7 +190,7 @@ App → Reservoir API → TimescaleDB (PostgreSQL)
     </Card>
 
     <p class="text-muted-foreground text-sm">
-      TimescaleDB is included in the default <code class="bg-muted px-1 rounded">docker-compose.yml</code> — no extra setup needed.
+      TimescaleDB is included in the default <code class="bg-muted px-1 rounded">docker-compose.yml</code> - no extra setup needed.
     </p>
   </div>
 
@@ -203,7 +203,7 @@ App → Reservoir API → TimescaleDB (PostgreSQL)
 
   <div class="mb-12 space-y-6">
     <p class="text-muted-foreground">
-      <a href="https://clickhouse.com/" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">ClickHouse</a>
+      <a href="https://clickhouse.com/" class="text-primary-readable hover:underline" target="_blank" rel="noopener noreferrer">ClickHouse</a>
       is a columnar OLAP database built for analytical queries at scale. When selected as the storage engine,
       LogTide creates the <code class="bg-muted px-1 rounded">logs</code>, <code class="bg-muted px-1 rounded">spans</code>,
       and <code class="bg-muted px-1 rounded">traces</code> tables in ClickHouse automatically on startup.
@@ -236,7 +236,7 @@ App → Reservoir API → TimescaleDB (PostgreSQL)
         <ul class="space-y-1">
           <li><strong>Extra service:</strong> ClickHouse runs as a separate container alongside PostgreSQL (which is still needed for app data like users, orgs, alert rules, etc.).</li>
           <li><strong>No continuous aggregates:</strong> Dashboard queries run against raw data. Still fast for most datasets thanks to columnar storage.</li>
-          <li><strong>Async deletes:</strong> <code class="bg-muted px-1 rounded">DELETE</code> operations in ClickHouse are asynchronous mutations — they execute in the background and may not reflect immediately.</li>
+          <li><strong>Async deletes:</strong> <code class="bg-muted px-1 rounded">DELETE</code> operations in ClickHouse are asynchronous mutations - they execute in the background and may not reflect immediately.</li>
         </ul>
       </CardContent>
     </Card>
@@ -251,7 +251,7 @@ App → Reservoir API → TimescaleDB (PostgreSQL)
 
   <div class="mb-12 space-y-6">
     <p class="text-muted-foreground">
-      <a href="https://www.mongodb.com/" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">MongoDB</a>
+      <a href="https://www.mongodb.com/" class="text-primary-readable hover:underline" target="_blank" rel="noopener noreferrer">MongoDB</a>
       is a document-oriented NoSQL database. LogTide uses MongoDB for flexible log storage, leveraging
       <strong>Time-Series Collections</strong> (available in MongoDB 5.0+) for optimized ingestion and storage.
     </p>
@@ -262,7 +262,7 @@ App → Reservoir API → TimescaleDB (PostgreSQL)
       </CardHeader>
       <CardContent class="text-sm space-y-2 text-muted-foreground">
         <p><strong>Time-Series Collections:</strong> Stores sequences of measurements over a period of time, optimized for high-throughput ingestion and real-time analytics.</p>
-        <p><strong>Dynamic Metadata:</strong> No fixed schema — metadata fields are stored as flexible documents, allowing you to send any nested JSON without prior configuration.</p>
+        <p><strong>Dynamic Metadata:</strong> No fixed schema - metadata fields are stored as flexible documents, allowing you to send any nested JSON without prior configuration.</p>
         <p><strong>TTL Indexes:</strong> Automatic retention cleanup via native Time-To-Live indexes on the timestamp field.</p>
         <p><strong>Atomic Upserts:</strong> Trace records are updated using single <code class="bg-muted px-1 rounded">bulkWrite</code> operations with <code class="bg-muted px-1 rounded">$min/$max/$inc</code> for maximum efficiency.</p>
         <p><strong>Search:</strong> Uses <code class="bg-muted px-1 rounded">$text</code> indexes for word-based search and regex for flexible substring matching.</p>
@@ -424,7 +424,7 @@ docker compose --profile mongodb up -d`}
         <p>
           Changing the <code class="bg-muted px-1 rounded">STORAGE_ENGINE</code> variable only changes where
           <strong>new</strong> logs are written. Existing data stays in the previous engine.
-          The <a href="#data-migration" class="text-primary hover:underline">migration script</a> supports
+          The <a href="#data-migration" class="text-primary-readable hover:underline">migration script</a> supports
           <strong>TimescaleDB</strong>, <strong>ClickHouse</strong>, and <strong>MongoDB</strong>.
         </p>
       </CardContent>
@@ -458,9 +458,9 @@ pnpm migrate:storage -- --from mongodb --to clickhouse`}
       <CardContent class="text-sm text-muted-foreground">
         <p class="mb-2">Only the 3 tables managed by Reservoir are migrated:</p>
         <ul class="space-y-1">
-          <li><code class="bg-muted px-1 rounded">logs</code> — core log data (IDs preserved)</li>
-          <li><code class="bg-muted px-1 rounded">spans</code> — OpenTelemetry spans</li>
-          <li><code class="bg-muted px-1 rounded">traces</code> — aggregated trace records</li>
+          <li><code class="bg-muted px-1 rounded">logs</code> - core log data (IDs preserved)</li>
+          <li><code class="bg-muted px-1 rounded">spans</code> - OpenTelemetry spans</li>
+          <li><code class="bg-muted px-1 rounded">traces</code> - aggregated trace records</li>
         </ul>
         <p class="mt-2">
           Everything else (users, organizations, projects, alert rules, Sigma rules, incidents, etc.)
@@ -483,7 +483,7 @@ pnpm migrate:storage
 # Explicit direction
 pnpm migrate:storage -- --from timescale --to clickhouse
 
-# Dry run — show record counts without migrating
+# Dry run - show record counts without migrating
 pnpm migrate:storage -- --dry-run`}
       />
     </div>
@@ -626,14 +626,14 @@ Errors:   0`}
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground">
           <ul class="space-y-1">
-            <li><code class="bg-muted px-1 rounded">ingest()</code> — Batch insert logs</li>
-            <li><code class="bg-muted px-1 rounded">query()</code> — Search with filters, pagination</li>
-            <li><code class="bg-muted px-1 rounded">aggregate()</code> — Time-bucketed stats</li>
-            <li><code class="bg-muted px-1 rounded">count()</code> — Filtered log counts</li>
-            <li><code class="bg-muted px-1 rounded">distinct()</code> — Unique field values</li>
-            <li><code class="bg-muted px-1 rounded">topValues()</code> — Top N values by count</li>
-            <li><code class="bg-muted px-1 rounded">getById()</code> / <code class="bg-muted px-1 rounded">getByIds()</code> — Direct lookups</li>
-            <li><code class="bg-muted px-1 rounded">deleteByTimeRange()</code> — Retention cleanup</li>
+            <li><code class="bg-muted px-1 rounded">ingest()</code> - Batch insert logs</li>
+            <li><code class="bg-muted px-1 rounded">query()</code> - Search with filters, pagination</li>
+            <li><code class="bg-muted px-1 rounded">aggregate()</code> - Time-bucketed stats</li>
+            <li><code class="bg-muted px-1 rounded">count()</code> - Filtered log counts</li>
+            <li><code class="bg-muted px-1 rounded">distinct()</code> - Unique field values</li>
+            <li><code class="bg-muted px-1 rounded">topValues()</code> - Top N values by count</li>
+            <li><code class="bg-muted px-1 rounded">getById()</code> / <code class="bg-muted px-1 rounded">getByIds()</code> - Direct lookups</li>
+            <li><code class="bg-muted px-1 rounded">deleteByTimeRange()</code> - Retention cleanup</li>
           </ul>
         </CardContent>
       </Card>
@@ -643,14 +643,14 @@ Errors:   0`}
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground">
           <ul class="space-y-1">
-            <li><code class="bg-muted px-1 rounded">ingestSpans()</code> — Batch insert spans</li>
-            <li><code class="bg-muted px-1 rounded">upsertTrace()</code> — Create/update trace records</li>
-            <li><code class="bg-muted px-1 rounded">querySpans()</code> — Search spans</li>
-            <li><code class="bg-muted px-1 rounded">queryTraces()</code> — Search traces</li>
-            <li><code class="bg-muted px-1 rounded">getSpansByTraceId()</code> — Trace detail view</li>
-            <li><code class="bg-muted px-1 rounded">getServiceDependencies()</code> — Service map</li>
-            <li><code class="bg-muted px-1 rounded">healthCheck()</code> — Engine connectivity</li>
-            <li><code class="bg-muted px-1 rounded">getEngineType()</code> — Runtime engine info</li>
+            <li><code class="bg-muted px-1 rounded">ingestSpans()</code> - Batch insert spans</li>
+            <li><code class="bg-muted px-1 rounded">upsertTrace()</code> - Create/update trace records</li>
+            <li><code class="bg-muted px-1 rounded">querySpans()</code> - Search spans</li>
+            <li><code class="bg-muted px-1 rounded">queryTraces()</code> - Search traces</li>
+            <li><code class="bg-muted px-1 rounded">getSpansByTraceId()</code> - Trace detail view</li>
+            <li><code class="bg-muted px-1 rounded">getServiceDependencies()</code> - Service map</li>
+            <li><code class="bg-muted px-1 rounded">healthCheck()</code> - Engine connectivity</li>
+            <li><code class="bg-muted px-1 rounded">getEngineType()</code> - Runtime engine info</li>
           </ul>
         </CardContent>
       </Card>
@@ -662,7 +662,7 @@ Errors:   0`}
       </CardHeader>
       <CardContent class="text-sm text-muted-foreground">
         <p class="mb-3">
-          Reservoir doesn't just wrap SQL — each engine has its own query translator that generates
+          Reservoir doesn't just wrap SQL - each engine has its own query translator that generates
           optimized native queries:
         </p>
         <div class="overflow-x-auto">

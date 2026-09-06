@@ -43,7 +43,7 @@ const urlPrefix = type === 'use-cases' ? '/use-cases' : '/integrations';
       <h2 class="text-xl font-semibold">{sectionTitle}</h2>
       <a
         href={sectionUrl}
-        class="text-sm text-primary hover:underline inline-flex items-center gap-1"
+        class="text-sm text-primary-readable hover:underline inline-flex items-center gap-1"
       >
         View all
         <ArrowRight class="w-4 h-4" />
@@ -62,7 +62,7 @@ const urlPrefix = type === 'use-cases' ? '/use-cases' : '/integrations';
                 />
                 <DifficultyBadge difficulty={entry.data.difficulty} showIcon={false} />
               </div>
-              <CardTitle class="text-base group-hover:text-primary transition-colors flex items-center gap-1">
+              <CardTitle class="text-base group-hover:text-primary-readable transition-colors flex items-center gap-1">
                 {entry.data.title}
                 <ArrowRight class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
               </CardTitle>

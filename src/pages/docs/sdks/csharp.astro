@@ -111,7 +111,7 @@ await using var client = LogTideClient.FromDsn("https://lp_your_key@api.logtide.
 client.Info("api-gateway", "Server started", new() { ["port"] = 3000 });
 client.Error("database", "Connection failed", new Exception("Timeout"));
 
-// Scoped tracing — all logs get the same W3C trace ID
+// Scoped tracing - all logs get the same W3C trace ID
 using (var scope = LogTideScope.Create())
 {
     client.Info("api", "Request received");
@@ -530,7 +530,7 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.LogTide(logtideClient, serviceName: "my-service")
     .CreateLogger();
 
-// Use Serilog as normal — logs are forwarded to LogTide
+// Use Serilog as normal - logs are forwarded to LogTide
 Log.Information("User {UserId} logged in from {IpAddress}", 42, "192.168.1.1");`}
       />
   </div>

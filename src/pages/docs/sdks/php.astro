@@ -197,10 +197,10 @@ init([
               </tr>
           </thead>
           <tbody class="text-muted-foreground">
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">dsn</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border">&mdash;</td><td class="p-3 border-b border-border">Data Source Name (required)</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">dsn</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border">-</td><td class="p-3 border-b border-border">Data Source Name (required)</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">service</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">'unknown'</code></td><td class="p-3 border-b border-border">Service name for log grouping</td></tr>
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">environment</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border">&mdash;</td><td class="p-3 border-b border-border">Deployment environment (production, staging, etc.)</td></tr>
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">release</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border">&mdash;</td><td class="p-3 border-b border-border">App version for release tracking</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">environment</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border">-</td><td class="p-3 border-b border-border">Deployment environment (production, staging, etc.)</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">release</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border">-</td><td class="p-3 border-b border-border">App version for release tracking</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">batch_size</code></td><td class="p-3 border-b border-border">int</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">100</code></td><td class="p-3 border-b border-border">Max events per batch</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">flush_interval</code></td><td class="p-3 border-b border-border">int</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">5000</code></td><td class="p-3 border-b border-border">Flush interval in milliseconds</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">max_buffer_size</code></td><td class="p-3 border-b border-border">int</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">10000</code></td><td class="p-3 border-b border-border">Max events in buffer before dropping</td></tr>
@@ -208,9 +208,9 @@ init([
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">retry_delay_ms</code></td><td class="p-3 border-b border-border">int</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">1000</code></td><td class="p-3 border-b border-border">Initial retry delay in ms (exponential backoff)</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">circuit_breaker_threshold</code></td><td class="p-3 border-b border-border">int</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">5</code></td><td class="p-3 border-b border-border">Consecutive failures before circuit opens</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">circuit_breaker_reset_ms</code></td><td class="p-3 border-b border-border">int</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">30000</code></td><td class="p-3 border-b border-border">Timeout before circuit half-opens (ms)</td></tr>
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">traces_sample_rate</code></td><td class="p-3 border-b border-border">float</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">1.0</code></td><td class="p-3 border-b border-border">Trace sampling rate (0.0&ndash;1.0)</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">traces_sample_rate</code></td><td class="p-3 border-b border-border">float</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">1.0</code></td><td class="p-3 border-b border-border">Trace sampling rate (0.0-1.0)</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">max_breadcrumbs</code></td><td class="p-3 border-b border-border">int</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">100</code></td><td class="p-3 border-b border-border">Max breadcrumbs per scope</td></tr>
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">before_send</code></td><td class="p-3 border-b border-border">Closure</td><td class="p-3 border-b border-border">&mdash;</td><td class="p-3 border-b border-border">Callback to modify or discard events before sending</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">before_send</code></td><td class="p-3 border-b border-border">Closure</td><td class="p-3 border-b border-border">-</td><td class="p-3 border-b border-border">Callback to modify or discard events before sending</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">debug</code></td><td class="p-3 border-b border-border">bool</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">false</code></td><td class="p-3 border-b border-border">Enable internal debug logging</td></tr>
           </tbody>
       </table>
@@ -384,7 +384,7 @@ captureException(new \\RuntimeException('Dashboard failed to load'));
   </h2>
 
   <p class="text-muted-foreground mb-4">
-      LogTide supports the <a href="https://www.w3.org/TR/trace-context/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">W3C Trace Context</a> standard
+      LogTide supports the <a href="https://www.w3.org/TR/trace-context/" target="_blank" rel="noopener noreferrer" class="text-primary-readable hover:underline">W3C Trace Context</a> standard
       for distributed tracing across services. Spans are exported in OTLP format.
   </p>
 
@@ -456,7 +456,7 @@ $response = $httpClient->request('GET', 'https://api.example.com/data', [
   </h2>
 
   <p class="text-muted-foreground mb-4">
-      LogTide includes built-in Monolog handlers. No separate package needed &mdash; just
+      LogTide includes built-in Monolog handlers. No separate package needed  -  just
       <code class="bg-muted px-1 rounded">composer require monolog/monolog</code> alongside the SDK.
   </p>
 
@@ -480,7 +480,7 @@ use LogTide\\Monolog\\LogtideHandler;
 $logger = new Logger('my-app');
 $logger->pushHandler(new LogtideHandler(Level::Debug));
 
-// Use standard Monolog methods — logs are sent to LogTide
+// Use standard Monolog methods - logs are sent to LogTide
 $logger->info('User logged in', ['user_id' => $userId]);
 $logger->error('Payment failed', ['order_id' => $orderId]);`}
           />
@@ -527,7 +527,7 @@ $logger->pushHandler(new LogtideHandler(Level::Warning));`}
           <CardContent class="pt-4">
               <div class="flex items-center gap-2 mb-2">
                   <Icon name="simple-icons:laravel" class="w-5 h-5" />
-                  <a href="/docs/sdks/laravel/" class="font-semibold hover:text-primary">logtide/logtide-laravel</a>
+                  <a href="/docs/sdks/laravel/" class="font-semibold hover:text-primary-readable">logtide/logtide-laravel</a>
               </div>
               <p class="text-sm text-muted-foreground">Auto-discovery, middleware, log channel, Facade, breadcrumb integrations</p>
           </CardContent>
@@ -537,7 +537,7 @@ $logger->pushHandler(new LogtideHandler(Level::Warning));`}
           <CardContent class="pt-4">
               <div class="flex items-center gap-2 mb-2">
                   <Icon name="simple-icons:symfony" class="w-5 h-5" />
-                  <a href="/docs/sdks/symfony/" class="font-semibold hover:text-primary">logtide/logtide-symfony</a>
+                  <a href="/docs/sdks/symfony/" class="font-semibold hover:text-primary-readable">logtide/logtide-symfony</a>
               </div>
               <p class="text-sm text-muted-foreground">Bundle with semantic config, request/console subscribers, Doctrine integration</p>
           </CardContent>
@@ -547,7 +547,7 @@ $logger->pushHandler(new LogtideHandler(Level::Warning));`}
           <CardContent class="pt-4">
               <div class="flex items-center gap-2 mb-2">
                   <Icon name="simple-icons:php" class="w-5 h-5" />
-                  <a href="/docs/sdks/slim/" class="font-semibold hover:text-primary">logtide/logtide-slim</a>
+                  <a href="/docs/sdks/slim/" class="font-semibold hover:text-primary-readable">logtide/logtide-slim</a>
               </div>
               <p class="text-sm text-muted-foreground">PSR-15 middleware, route pattern resolution, error middleware</p>
           </CardContent>
@@ -557,7 +557,7 @@ $logger->pushHandler(new LogtideHandler(Level::Warning));`}
           <CardContent class="pt-4">
               <div class="flex items-center gap-2 mb-2">
                   <Icon name="simple-icons:wordpress" class="w-5 h-5" />
-                  <a href="/docs/sdks/wordpress/" class="font-semibold hover:text-primary">logtide/logtide-wordpress</a>
+                  <a href="/docs/sdks/wordpress/" class="font-semibold hover:text-primary-readable">logtide/logtide-wordpress</a>
               </div>
               <p class="text-sm text-muted-foreground">WordPress hooks, error capture, database query monitoring, HTTP API tracking</p>
           </CardContent>
@@ -589,7 +589,7 @@ $logger->pushHandler(new LogtideHandler(Level::Warning));`}
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
               The SDK automatically registers a shutdown function to flush all pending events.
-              No manual cleanup needed &mdash; just initialize and log.
+              No manual cleanup needed  -  just initialize and log.
           </CardContent>
       </Card>
 

@@ -57,7 +57,7 @@ const headings = [
       Official Ruby SDK for LogTide with automatic batching, retry with backoff,
       a circuit breaker, Hub/Scope context isolation, distributed tracing, and
       Rack middleware plus a Rails Railtie. It implements the LogTide SDK spec v1.0
-      and uses the standard library only — no runtime dependencies.
+      and uses the standard library only - no runtime dependencies.
   </p>
 
   <h2
@@ -214,7 +214,7 @@ end`}
 
   <p class="text-sm text-muted-foreground mb-4">
       The Hub/Scope model attaches tags, user info, and breadcrumbs to every entry
-      within a logical unit of work — without threading extra parameters through your code.
+      within a logical unit of work - without threading extra parameters through your code.
   </p>
 
   <div class="mb-4">
@@ -324,7 +324,7 @@ Net::HTTP.post(uri, body, headers)`}
   <div class="mb-4">
       <h3 class="text-lg font-semibold mb-3">Rails</h3>
       <p class="text-sm text-muted-foreground mb-3">
-          The Railtie installs the Rack middleware automatically — it isolates scope per request,
+          The Railtie installs the Rack middleware automatically - it isolates scope per request,
           sets HTTP tags, parses <code class="bg-muted px-1 rounded">traceparent</code>, and adds
           request/response breadcrumbs. Just initialise the SDK in an initializer:
       </p>
@@ -429,7 +429,7 @@ logger.fatal("out of memory") # delivered as a critical entry`}
               <code class="bg-muted px-1 rounded">Logtide.get_metrics</code> exposes
               <code class="bg-muted px-1 rounded">logs_sent</code>, <code class="bg-muted px-1 rounded">logs_dropped</code>,
               <code class="bg-muted px-1 rounded">errors</code>, <code class="bg-muted px-1 rounded">retries</code>, and
-              <code class="bg-muted px-1 rounded">circuit_breaker_trips</code> — a rising
+              <code class="bg-muted px-1 rounded">circuit_breaker_trips</code> - a rising
               <code class="bg-muted px-1 rounded">logs_dropped</code> means you've hit
               <code class="bg-muted px-1 rounded">max_buffer_size</code>.
           </CardContent>

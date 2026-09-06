@@ -2,43 +2,35 @@
 import GitHubIcon from '../ui/GitHubIcon.astro';
 ---
 
-<section class="relative overflow-hidden px-6 py-24" aria-labelledby="cta-heading">
-  <!-- Background decorations -->
-  <div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent" aria-hidden="true"></div>
-  <div class="absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 opacity-30 blur-3xl" aria-hidden="true"></div>
+<section class="border-t border-border px-6 py-24" aria-labelledby="cta-heading">
+  <div class="mx-auto max-w-6xl">
+    <div class="rounded-xl border border-border bg-card px-8 py-16 text-center md:px-16 md:py-20" data-reveal>
+      <h2 id="cta-heading" class="mx-auto max-w-3xl text-section font-bold">Ready to own your logs?</h2>
+      <p class="mx-auto mt-5 max-w-prose text-lg text-muted-foreground">
+        Start with the free cloud or deploy on your own infrastructure. No vendor lock-in. Export anytime.
+      </p>
 
-  <div class="relative mx-auto max-w-4xl text-center">
-    <!-- Badge -->
-    <div class="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 font-mono text-xs font-medium uppercase tracking-wider text-primary">
-      Now in Beta & Free
-    </div>
-
-    <h2 id="cta-heading" class="mb-6 text-3xl font-bold md:text-5xl">Ready to own your logs?</h2>
-    <p class="mx-auto mb-10 max-w-2xl text-xl text-muted-foreground">
-      Start with the free cloud or deploy on your own infrastructure.
-      No vendor lock-in. Export anytime.
-    </p>
-
-    <div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
-      <a
-        href="https://app.logtide.dev/register"
-        class="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-lg font-medium text-white transition-colors hover:bg-primary-600"
-      >
-        Start for free
-        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-        </svg>
-      </a>
-      <a
-        href="https://github.com/logtide-dev/logtide"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="inline-flex items-center gap-2 rounded-lg border border-border bg-card/50 px-8 py-4 text-lg font-medium text-foreground transition-colors hover:bg-muted"
-        aria-label="Star LogTide on GitHub (opens in new tab)"
-      >
-        <GitHubIcon class="h-5 w-5" />
-        Star on GitHub
-      </a>
+      <div class="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <a
+          href="https://app.logtide.dev/register"
+          class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-primary px-7 py-3.5 text-base font-medium text-primary-foreground transition-all hover:bg-primary-600 active:translate-y-px"
+        >
+          Start for free
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+        <a
+          href="https://github.com/logtide-dev/logtide"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-border bg-background px-7 py-3.5 text-base font-medium text-foreground transition-all hover:bg-muted active:translate-y-px"
+          aria-label="Star LogTide on GitHub (opens in new tab)"
+        >
+          <GitHubIcon class="h-5 w-5" />
+          Star on GitHub
+        </a>
+      </div>
     </div>
   </div>
 </section>

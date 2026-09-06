@@ -64,7 +64,7 @@ const headings = [
 
   <div class="mb-8">
       <p class="mb-3 text-muted-foreground">
-          Requires <a href="https://roots.io/bedrock/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Bedrock</a>
+          Requires <a href="https://roots.io/bedrock/" target="_blank" rel="noopener noreferrer" class="text-primary-readable hover:underline">Bedrock</a>
           or another Composer-based WordPress setup.
       </p>
       <Code lang="bash" theme="one-dark-pro" code={`composer require logtide/logtide-wordpress`} />
@@ -156,25 +156,25 @@ LogtideWordPress::init([
           <CardContent class="pt-4 text-sm">
               <ul class="space-y-2 list-none pl-0">
                   <li>
-                      <strong>Error Capture</strong> &mdash; PHP error handler (<code class="bg-muted px-1 rounded">set_error_handler</code>) captures warnings and notices
+                      <strong>Error Capture</strong>  -  PHP error handler (<code class="bg-muted px-1 rounded">set_error_handler</code>) captures warnings and notices
                   </li>
                   <li>
-                      <strong>wp_die</strong> &mdash; Captures <code class="bg-muted px-1 rounded">WP_Error</code> messages passed to <code class="bg-muted px-1 rounded">wp_die()</code>
+                      <strong>wp_die</strong>  -  Captures <code class="bg-muted px-1 rounded">WP_Error</code> messages passed to <code class="bg-muted px-1 rounded">wp_die()</code>
                   </li>
                   <li>
-                      <strong>Lifecycle</strong> &mdash; Records <code class="bg-muted px-1 rounded">wp_loaded</code> and <code class="bg-muted px-1 rounded">shutdown</code> breadcrumbs
+                      <strong>Lifecycle</strong>  -  Records <code class="bg-muted px-1 rounded">wp_loaded</code> and <code class="bg-muted px-1 rounded">shutdown</code> breadcrumbs
                   </li>
                   <li>
-                      <strong>Redirects</strong> &mdash; Records redirect URLs as navigation breadcrumbs
+                      <strong>Redirects</strong>  -  Records redirect URLs as navigation breadcrumbs
                   </li>
                   <li>
-                      <strong>Mail</strong> &mdash; Records <code class="bg-muted px-1 rounded">wp_mail()</code> calls with recipient and subject
+                      <strong>Mail</strong>  -  Records <code class="bg-muted px-1 rounded">wp_mail()</code> calls with recipient and subject
                   </li>
                   <li>
-                      <strong>Plugins</strong> &mdash; Records plugin activation/deactivation events
+                      <strong>Plugins</strong>  -  Records plugin activation/deactivation events
                   </li>
                   <li>
-                      <strong>Multisite</strong> &mdash; Records <code class="bg-muted px-1 rounded">switch_blog</code> events with blog IDs
+                      <strong>Multisite</strong>  -  Records <code class="bg-muted px-1 rounded">switch_blog</code> events with blog IDs
                   </li>
               </ul>
           </CardContent>
@@ -247,7 +247,7 @@ LogtideWordPress::init([
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
               This package requires Composer. Use
-              <a href="https://roots.io/bedrock/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Bedrock</a>
+              <a href="https://roots.io/bedrock/" target="_blank" rel="noopener noreferrer" class="text-primary-readable hover:underline">Bedrock</a>
               for a modern Composer-based WordPress project structure.
           </CardContent>
       </Card>

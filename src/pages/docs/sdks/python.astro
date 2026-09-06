@@ -28,7 +28,7 @@ const headings = [
 
 <DocsLayout
   title="Python SDK"
-  description="Official Python SDK for LogTide — sync & async clients, stdlib logging integration, batching, retry, circuit breaker, payload limits, and middleware."
+  description="Official Python SDK for LogTide - sync & async clients, stdlib logging integration, batching, retry, circuit breaker, payload limits, and middleware."
   headings={headings}
 >
   <div class="flex items-center justify-between mb-4">
@@ -58,7 +58,7 @@ const headings = [
   </div>
 
   <p class="text-lg text-muted-foreground mb-8">
-      Official Python SDK for LogTide — self-hosted log management with sync &amp; async clients,
+      Official Python SDK for LogTide - self-hosted log management with sync &amp; async clients,
       stdlib <code class="bg-muted px-1 rounded">logging</code> integration, automatic batching,
       retry logic, circuit breaker, payload limits, and Flask/Django/FastAPI/Starlette middleware.
   </p>
@@ -148,7 +148,7 @@ client.close()`}
                   <li>✅ Automatic batching with configurable size and flush interval</li>
                   <li>✅ Retry logic with exponential backoff</li>
                   <li>✅ Circuit breaker pattern (CLOSED / OPEN / HALF_OPEN)</li>
-                  <li>✅ Payload limits — field truncation, base64 removal, field exclusion, max entry size</li>
+                  <li>✅ Payload limits - field truncation, base64 removal, field exclusion, max entry size</li>
                   <li>✅ Max buffer size with silent drop policy to prevent memory leaks</li>
                   <li>✅ Query API for searching and filtering logs</li>
                   <li>✅ Live tail with Server-Sent Events (SSE)</li>
@@ -244,7 +244,7 @@ client.critical('system', 'Out of memory', {'used': '95%'})`}
       <div>
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">Exception Auto-Serialization</h3>
           <p class="text-sm text-muted-foreground mb-3">
-              Pass an <code class="bg-muted px-1 rounded">Exception</code> directly to <code class="bg-muted px-1 rounded">error()</code> or <code class="bg-muted px-1 rounded">critical()</code> — it is serialized automatically with full stack frames.
+              Pass an <code class="bg-muted px-1 rounded">Exception</code> directly to <code class="bg-muted px-1 rounded">error()</code> or <code class="bg-muted px-1 rounded">critical()</code> - it is serialized automatically with full stack frames.
           </p>
           <Code
               lang="python"
@@ -324,7 +324,7 @@ finally:
 
   <div class="mb-8">
       <p class="text-sm text-muted-foreground mb-3">
-          <code class="bg-muted px-1 rounded">LogTideHandler</code> is a standard <code class="bg-muted px-1 rounded">logging.Handler</code> — drop it into any existing logging setup. Exception info is serialized with full structured stack frames when <code class="bg-muted px-1 rounded">exc_info=True</code> is used.
+          <code class="bg-muted px-1 rounded">LogTideHandler</code> is a standard <code class="bg-muted px-1 rounded">logging.Handler</code> - drop it into any existing logging setup. Exception info is serialized with full structured stack frames when <code class="bg-muted px-1 rounded">exc_info=True</code> is used.
       </p>
       <Code
           lang="python"

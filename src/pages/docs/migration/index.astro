@@ -116,7 +116,7 @@ const headings = [
           <Card>
               <CardContent class="pt-4 flex items-start gap-3">
                   <div class="p-2 rounded-lg bg-primary/10">
-                      <Icon name="lucide:shield" class="w-5 h-5 text-primary" />
+                      <Icon name="lucide:shield" class="w-5 h-5 text-primary-readable" />
                   </div>
                   <div>
                       <h3 class="font-semibold mb-1">{benefit.title}</h3>
@@ -141,7 +141,7 @@ const headings = [
                   <Card class="transition-all hover:border-primary/50 hover:shadow-md">
                       <CardHeader class="pb-2">
                           <div class="flex items-center justify-between">
-                              <CardTitle class="text-xl group-hover:text-primary transition-colors flex items-center gap-2">
+                              <CardTitle class="text-xl group-hover:text-primary-readable transition-colors flex items-center gap-2">
                                   {migration.name} <ArrowRight class="inline w-4 h-4 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                               </CardTitle>
                               <div class="flex items-center gap-2">
@@ -169,7 +169,7 @@ const headings = [
               </a>
               <a
                   href={`/vs/${migration.vsSlug}/`}
-                  class="mt-2 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-primary"
+                  class="mt-2 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-primary-readable"
               >
                   <Icon name="lucide:scale" class="w-3.5 h-3.5" />
                   Compare features &amp; pricing: LogTide vs {migration.name}
@@ -218,7 +218,7 @@ const headings = [
                           <h3 id="deploy-logtide" class="font-semibold mb-1 scroll-mt-24">Deploy LogTide</h3>
                           <p class="text-sm text-muted-foreground">
                               Set up LogTide using Docker Compose. Create your organization, project, and generate an API key.
-                              See the <a href="/docs/deployment/" class="text-primary hover:underline">Deployment Guide</a> for details.
+                              See the <a href="/docs/deployment/" class="text-primary-readable hover:underline">Deployment Guide</a> for details.
                           </p>
                       </div>
                   </div>
@@ -295,7 +295,7 @@ const headings = [
                   <li class="flex items-center gap-2">
                       <Icon name="lucide:check" class="w-4 h-4 text-green-500" />
                       <span>
-                          <a href="https://github.com/logtide-dev/logtide/issues" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">
+                          <a href="https://github.com/logtide-dev/logtide/issues" target="_blank" rel="noopener noreferrer" class="text-primary-readable hover:underline">
                               Open a GitHub issue
                           </a> for bugs or feature requests
                       </span>
@@ -303,7 +303,7 @@ const headings = [
                   <li class="flex items-center gap-2">
                       <Icon name="lucide:check" class="w-4 h-4 text-green-500" />
                       <span>
-                          <a href="https://github.com/logtide-dev/logtide/discussions" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">
+                          <a href="https://github.com/logtide-dev/logtide/discussions" target="_blank" rel="noopener noreferrer" class="text-primary-readable hover:underline">
                               Join GitHub Discussions
                           </a> for questions and community support
                       </span>
@@ -311,7 +311,7 @@ const headings = [
                   <li class="flex items-center gap-2">
                       <Icon name="lucide:check" class="w-4 h-4 text-green-500" />
                       <span>
-                          Check the <a href="/docs/" class="text-primary hover:underline">documentation</a> for detailed API and SDK references
+                          Check the <a href="/docs/" class="text-primary-readable hover:underline">documentation</a> for detailed API and SDK references
                       </span>
                   </li>
               </ul>

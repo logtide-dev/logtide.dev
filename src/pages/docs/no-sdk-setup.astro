@@ -67,15 +67,15 @@ const headings = [
               </p>
               <ul class="space-y-2 ml-2">
                   <li class="flex items-start gap-2">
-                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary-readable mt-0.5 flex-shrink-0" />
                       <span>No Fluent Bit container needed</span>
                   </li>
                   <li class="flex items-start gap-2">
-                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary-readable mt-0.5 flex-shrink-0" />
                       <span>Configure once in docker-compose.yml</span>
                   </li>
                   <li class="flex items-start gap-2">
-                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary-readable mt-0.5 flex-shrink-0" />
                       <span>Zero code changes required</span>
                   </li>
               </ul>
@@ -93,15 +93,15 @@ const headings = [
               </p>
               <ul class="space-y-2 ml-2">
                   <li class="flex items-start gap-2">
-                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary-readable mt-0.5 flex-shrink-0" />
                       <span>Optional Fluent Bit configuration</span>
                   </li>
                   <li class="flex items-start gap-2">
-                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary-readable mt-0.5 flex-shrink-0" />
                       <span>Automatic metadata enrichment</span>
                   </li>
                   <li class="flex items-start gap-2">
-                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary-readable mt-0.5 flex-shrink-0" />
                       <span>Full control over log processing</span>
                   </li>
               </ul>
@@ -129,7 +129,7 @@ const headings = [
                       <div
                           class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0"
                       >
-                          <span class="text-primary font-semibold">1</span>
+                          <span class="text-primary-readable font-semibold">1</span>
                       </div>
                       <div>
                           <CardTitle class="text-base"
@@ -150,7 +150,7 @@ const headings = [
                       <div
                           class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0"
                       >
-                          <span class="text-primary font-semibold">2</span>
+                          <span class="text-primary-readable font-semibold">2</span>
                       </div>
                       <div>
                           <CardTitle class="text-base"
@@ -170,7 +170,7 @@ const headings = [
                       <div
                           class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0"
                       >
-                          <span class="text-primary font-semibold">3</span>
+                          <span class="text-primary-readable font-semibold">3</span>
                       </div>
                       <div>
                           <CardTitle class="text-base"
@@ -191,7 +191,7 @@ const headings = [
                       <div
                           class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0"
                       >
-                          <span class="text-primary font-semibold">4</span>
+                          <span class="text-primary-readable font-semibold">4</span>
                       </div>
                       <div>
                           <CardTitle class="text-base"
@@ -260,7 +260,7 @@ my-app:
                       LogTide Cloud is currently in beta. Sign up at
                       <a
                           href="https://app.logtide.dev/register"
-                          class="text-primary underline">app.logtide.dev</a
+                          class="text-primary-readable underline">app.logtide.dev</a
                       >
                       to get early access and we'll notify you when Fluentd logging
                       driver support is available.
@@ -557,38 +557,38 @@ restart: unless-stopped`}
       <Card>
           <CardHeader>
               <CardTitle class="flex items-center gap-2">
-                  <Icon name="lucide:zap" class="w-5 h-5 text-primary" />
+                  <Icon name="lucide:zap" class="w-5 h-5 text-primary-readable" />
                   What Fluent Bit Does
               </CardTitle>
           </CardHeader>
           <CardContent class="text-sm">
               <ul class="space-y-2 ml-2">
                   <li class="flex items-start gap-2">
-                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary-readable mt-0.5 flex-shrink-0" />
                       <span
                           >Tails logs from <code class="bg-muted px-1 rounded">/var/lib/docker/containers/*/*.log</code></span
                       >
                   </li>
                   <li class="flex items-start gap-2">
-                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary-readable mt-0.5 flex-shrink-0" />
                       <span
                           >Parses Docker JSON logs and extracts metadata</span
                       >
                   </li>
                   <li class="flex items-start gap-2">
-                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary-readable mt-0.5 flex-shrink-0" />
                       <span
                           >Sets the container name as the service and adds the container ID as metadata</span
                       >
                   </li>
                   <li class="flex items-start gap-2">
-                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary-readable mt-0.5 flex-shrink-0" />
                       <span
                           >Sends to LogTide API with automatic retries (3x)</span
                       >
                   </li>
                   <li class="flex items-start gap-2">
-                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                      <Icon name="lucide:check-circle" class="w-4 h-4 text-primary-readable mt-0.5 flex-shrink-0" />
                       <span>Flushes logs every 5 seconds</span>
                   </li>
               </ul>

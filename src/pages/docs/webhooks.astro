@@ -36,14 +36,14 @@ const keywords = [
 >
   <div class="flex items-center gap-3 mb-4">
     <div class="p-2 bg-primary/10 rounded-lg">
-      <Icon name="lucide:webhook" class="w-6 h-6 text-primary" />
+      <Icon name="lucide:webhook" class="w-6 h-6 text-primary-readable" />
     </div>
     <h1 class="text-3xl font-bold">Webhooks</h1>
   </div>
 
   <p class="text-lg text-muted-foreground mb-8">
-    LogTide delivers events — alerts, anomalies, errors, monitor status changes, security
-    incidents, and notification-channel webhooks — to your endpoints through a centralized
+    LogTide delivers events - alerts, anomalies, errors, monitor status changes, security
+    incidents, and notification-channel webhooks - to your endpoints through a centralized
     dispatcher with SSRF protection, retry with exponential backoff, a dead-letter queue, and
     delivery logging.
   </p>
@@ -54,8 +54,8 @@ const keywords = [
 
   <div class="mb-8 space-y-4">
     <p>
-      Every outbound delivery — whether it originates from an alert rule, an uptime monitor, an
-      error group, a security incident, or a notification channel — flows through one well-tested
+      Every outbound delivery - whether it originates from an alert rule, an uptime monitor, an
+      error group, a security incident, or a notification channel - flows through one well-tested
       dispatcher. That gives every webhook the same guarantees:
     </p>
 
@@ -63,7 +63,7 @@ const keywords = [
       <Card>
         <CardContent class="pt-4">
           <div class="flex items-start gap-3">
-            <Icon name="lucide:shield-check" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <Icon name="lucide:shield-check" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
             <div>
               <h4 class="font-medium mb-1">Signed payloads</h4>
               <p class="text-sm text-muted-foreground">Optional HMAC-SHA256 signature so you can verify each delivery came from LogTide untampered.</p>
@@ -75,7 +75,7 @@ const keywords = [
       <Card>
         <CardContent class="pt-4">
           <div class="flex items-start gap-3">
-            <Icon name="lucide:repeat" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <Icon name="lucide:repeat" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
             <div>
               <h4 class="font-medium mb-1">Automatic retries</h4>
               <p class="text-sm text-muted-foreground">Transient failures are retried with exponential backoff before being parked.</p>
@@ -87,7 +87,7 @@ const keywords = [
       <Card>
         <CardContent class="pt-4">
           <div class="flex items-start gap-3">
-            <Icon name="lucide:inbox" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <Icon name="lucide:inbox" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
             <div>
               <h4 class="font-medium mb-1">Dead-letter queue</h4>
               <p class="text-sm text-muted-foreground">Exhausted deliveries are kept and can be replayed from the dashboard.</p>
@@ -99,7 +99,7 @@ const keywords = [
       <Card>
         <CardContent class="pt-4">
           <div class="flex items-start gap-3">
-            <Icon name="lucide:lock" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <Icon name="lucide:lock" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
             <div>
               <h4 class="font-medium mb-1">SSRF protection</h4>
               <p class="text-sm text-muted-foreground">Targets are resolved and validated on every request and every redirect hop.</p>
@@ -116,11 +116,11 @@ const keywords = [
 
   <div class="mb-8 space-y-4">
     <ul class="list-disc list-inside space-y-2 ml-2">
-      <li><strong>Retries</strong> — transient failures (network errors, timeouts, HTTP 5xx, 429) are retried with exponential backoff (<code>1s, 5s, 25s, 2m, 10m</code>), up to <code>WEBHOOK_MAX_ATTEMPTS</code> (default 5). Other 4xx responses and SSRF-blocked targets are terminal and not retried.</li>
-      <li><strong>Dead-letter queue</strong> — after the final failed attempt a delivery is marked <code>dead</code>. Dead and failed deliveries can be replayed from <strong>Settings → Webhook Deliveries</strong>.</li>
-      <li><strong>Idempotency</strong> — each delivery carries a stable id, so a receiver can safely deduplicate on the envelope <code>id</code>.</li>
-      <li><strong>Deduplication is time-bounded</strong> — re-enqueueing the same event (same organization, event type and event id) while a delivery for it is still in flight reuses that delivery instead of creating a second one. The window is <code>WEBHOOK_DEDUP_WINDOW_MS</code> (default 60s): anything older, or already delivered or dead-lettered, starts a new delivery. Sources that reuse an event id across occurrences — a monitor that goes down, recovers and goes down again, for example — therefore deliver every occurrence, while a genuine double-enqueue within the window still collapses into one.</li>
-      <li><strong>Timeout</strong> — each attempt times out after <code>WEBHOOK_REQUEST_TIMEOUT_MS</code> (default 10s).</li>
+      <li><strong>Retries</strong> - transient failures (network errors, timeouts, HTTP 5xx, 429) are retried with exponential backoff (<code>1s, 5s, 25s, 2m, 10m</code>), up to <code>WEBHOOK_MAX_ATTEMPTS</code> (default 5). Other 4xx responses and SSRF-blocked targets are terminal and not retried.</li>
+      <li><strong>Dead-letter queue</strong> - after the final failed attempt a delivery is marked <code>dead</code>. Dead and failed deliveries can be replayed from <strong>Settings → Webhook Deliveries</strong>.</li>
+      <li><strong>Idempotency</strong> - each delivery carries a stable id, so a receiver can safely deduplicate on the envelope <code>id</code>.</li>
+      <li><strong>Deduplication is time-bounded</strong> - re-enqueueing the same event (same organization, event type and event id) while a delivery for it is still in flight reuses that delivery instead of creating a second one. The window is <code>WEBHOOK_DEDUP_WINDOW_MS</code> (default 60s): anything older, or already delivered or dead-lettered, starts a new delivery. Sources that reuse an event id across occurrences - a monitor that goes down, recovers and goes down again, for example - therefore deliver every occurrence, while a genuine double-enqueue within the window still collapses into one.</li>
+      <li><strong>Timeout</strong> - each attempt times out after <code>WEBHOOK_REQUEST_TIMEOUT_MS</code> (default 10s).</li>
     </ul>
 
     <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
@@ -341,15 +341,15 @@ const event = parseWebhookEvent(body);`}
     <p>
       Discord's webhook endpoint only accepts bodies carrying <code>content</code>,
       <code>embeds</code> or file parts, and rejects anything else with HTTP 400. A webhook whose
-      URL is a Discord endpoint therefore receives a Discord message instead of the envelope — no
+      URL is a Discord endpoint therefore receives a Discord message instead of the envelope - no
       channel setting or extra configuration is involved.
     </p>
 
     <p>
       Detection covers host <code>discord.com</code> or <code>discordapp.com</code> (including
       subdomains such as <code>ptb.</code> and <code>canary.</code>) with a path starting
-      <code>/api/webhooks/</code> or <code>/api/v10/webhooks/</code>. It applies to every source —
-      channel test, monitors, alerts, security incidents, error groups — as well as retries and
+      <code>/api/webhooks/</code> or <code>/api/v10/webhooks/</code>. It applies to every source - 
+      channel test, monitors, alerts, security incidents, error groups - as well as retries and
       replays.
     </p>
 
@@ -392,7 +392,7 @@ const event = parseWebhookEvent(body);`}
         <div>
           <h4 class="font-medium mb-1">Want the raw envelope instead?</h4>
           <p class="text-sm text-muted-foreground">
-            Append <code>/slack</code> or <code>/github</code> to the Discord webhook URL — those
+            Append <code>/slack</code> or <code>/github</code> to the Discord webhook URL - those
             are Discord's own compatibility endpoints, and LogTide leaves the body of such URLs
             untouched. The delivery log always stores the canonical envelope, so replays and the
             delivery detail view show the event rather than the Discord payload.
@@ -448,7 +448,7 @@ function verify(secret, headers, rawBody) {
         <div>
           <h4 class="font-medium mb-1">Verify against the raw body</h4>
           <p class="text-sm text-muted-foreground">
-            Compute the HMAC over the <strong>raw</strong> request body (before JSON parsing) —
+            Compute the HMAC over the <strong>raw</strong> request body (before JSON parsing) - 
             any reserialization can change the bytes and break the signature. Reject deliveries
             whose timestamp is older than your tolerance (e.g. 5 minutes) to prevent replay.
           </p>
@@ -526,7 +526,7 @@ function verify(secret, headers, rawBody) {
 
     <p class="text-sm text-muted-foreground">
       Want to observe, enrich, or reject deliveries before they leave the backend? See the
-      <a href="/docs/lifecycle-hooks/">Lifecycle Hooks</a> guide — the
+      <a href="/docs/lifecycle-hooks/">Lifecycle Hooks</a> guide - the
       <code>beforeWebhookDispatch</code> and <code>afterWebhookDispatch</code> phases hook directly
       into this dispatcher.
     </p>

@@ -17,7 +17,7 @@ const headings = [
 
 <DocsLayout
   title="Fastify SDK"
-  description="LogTide SDK for Fastify — plugin-based integration with lifecycle hooks, request scoping, and trace propagation."
+  description="LogTide SDK for Fastify - plugin-based integration with lifecycle hooks, request scoping, and trace propagation."
   headings={headings}
 >
   <div class="flex items-center justify-between mb-4">
@@ -109,7 +109,7 @@ await fastify.listen({ port: 3000 });`}
       data to the request span (<code class="bg-muted px-1 rounded">http.request_body</code>,
       <code class="bg-muted px-1 rounded">http.response_body</code>,
       <code class="bg-muted px-1 rounded">http.request_headers</code>). Bodies are captured raw
-      (no redaction) and truncated to 4096 characters — gate them to non-sensitive routes if needed.
+      (no redaction) and truncated to 4096 characters - gate them to non-sensitive routes if needed.
   </p>
 
   <div class="mb-8">
@@ -232,7 +232,7 @@ fastify.setErrorHandler((error, request, reply) => {
               </tr>
           </thead>
           <tbody class="text-muted-foreground">
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">logtide</code></td><td class="p-3 border-b border-border">Fastify plugin — register with <code class="bg-muted px-1 rounded text-xs">fastify.register(logtide, options)</code></td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">logtide</code></td><td class="p-3 border-b border-border">Fastify plugin - register with <code class="bg-muted px-1 rounded text-xs">fastify.register(logtide, options)</code></td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">request.logtideScope</code></td><td class="p-3 border-b border-border">Per-request scope for setting tags, user, extras</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">request.logtideTraceId</code></td><td class="p-3 border-b border-border">Current trace ID for the request</td></tr>
           </tbody>

@@ -6,9 +6,9 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: '2rem',
+      padding: '1.5rem',
       screens: {
-        '2xl': '1400px',
+        '2xl': '1152px',
       },
     },
     extend: {
@@ -21,6 +21,8 @@ export default {
         primary: {
           DEFAULT: 'hsl(var(--primary) / <alpha-value>)',
           foreground: 'hsl(var(--primary-foreground) / <alpha-value>)',
+          // Brand purple for TEXT: darker in light mode, lighter in dark.
+          readable: 'hsl(var(--primary-readable) / <alpha-value>)',
           50: 'hsl(270 100% 98%)',
           100: 'hsl(269 100% 95%)',
           200: 'hsl(269 100% 92%)',
@@ -58,14 +60,31 @@ export default {
           foreground: 'hsl(var(--card-foreground) / <alpha-value>)',
         },
       },
+      // Controls 8px, panels 12px. xl/2xl/3xl collapse onto the panel radius
+      // so a stray `rounded-2xl` cannot add a third corner size.
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
+        md: 'calc(var(--radius) - 2px)',
+        lg: 'var(--radius)',
+        xl: 'calc(var(--radius) + 4px)',
+        '2xl': 'calc(var(--radius) + 4px)',
+        '3xl': 'calc(var(--radius) + 4px)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+      },
+      fontSize: {
+        display: ['clamp(2.25rem, 1.27rem + 1.92vw, 3rem)', { lineHeight: '1.06', letterSpacing: '-0.028em' }],
+        section: ['clamp(1.875rem, 1.4rem + 1.8vw, 2.75rem)', { lineHeight: '1.1', letterSpacing: '-0.022em' }],
+      },
+      maxWidth: {
+        prose: '65ch',
+      },
+      boxShadow: {
+        // Tinted to the neutral hue, not pure black.
+        panel: '0 1px 2px hsl(240 24% 8% / 0.04), 0 12px 32px -12px hsl(240 24% 8% / 0.10)',
+        'panel-lg': '0 1px 2px hsl(240 24% 8% / 0.05), 0 28px 64px -24px hsl(240 24% 8% / 0.18)',
       },
     },
   },

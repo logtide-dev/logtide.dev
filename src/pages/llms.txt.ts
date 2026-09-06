@@ -16,7 +16,7 @@ import {
 const docModulePaths = Object.keys(import.meta.glob('./docs/**/*.astro'));
 
 /**
- * `/llms.txt` — a curated, LLM-friendly index of the site (llmstxt.org format).
+ * `/llms.txt` - a curated, LLM-friendly index of the site (llmstxt.org format).
  * Content-collection pages link to their clean `.md` mirrors; hand-authored
  * docs link to their canonical HTML pages.
  */

@@ -101,7 +101,7 @@ const headings = [
 
 use Illuminate\\Support\\Facades\\Log;
 
-// Standard Laravel logging — sent to LogTide automatically
+// Standard Laravel logging - sent to LogTide automatically
 Log::info('Order placed', ['order_id' => $order->id, 'amount' => $order->total]);
 Log::error('Payment failed', ['exception' => $e]);
 
@@ -311,13 +311,13 @@ return [
           <CardContent class="pt-4 text-sm">
               <ul class="space-y-2 list-none pl-0">
                   <li>
-                      <strong>Database Queries</strong> &mdash; Records <code class="bg-muted px-1 rounded">QueryExecuted</code> events as breadcrumbs with query, bindings, and duration
+                      <strong>Database Queries</strong>  -  Records <code class="bg-muted px-1 rounded">QueryExecuted</code> events as breadcrumbs with query, bindings, and duration
                   </li>
                   <li>
-                      <strong>Cache Events</strong> &mdash; Records cache hits, misses, writes, and deletes
+                      <strong>Cache Events</strong>  -  Records cache hits, misses, writes, and deletes
                   </li>
                   <li>
-                      <strong>Queue Jobs</strong> &mdash; Records job processing events with job class, queue name, and attempt count
+                      <strong>Queue Jobs</strong>  -  Records job processing events with job class, queue name, and attempt count
                   </li>
               </ul>
           </CardContent>

@@ -52,7 +52,7 @@ const headings = [
       <Card>
         <CardContent class="pt-4">
           <div class="flex items-start gap-3">
-            <Icon name="lucide:layers" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <Icon name="lucide:layers" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
             <div>
               <h4 class="font-medium mb-1">Stack Trace Parsing</h4>
               <p class="text-sm text-muted-foreground">Automatic parsing of stack frames with file, function, and line information.</p>
@@ -64,7 +64,7 @@ const headings = [
       <Card>
         <CardContent class="pt-4">
           <div class="flex items-start gap-3">
-            <Icon name="lucide:git-merge" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <Icon name="lucide:git-merge" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
             <div>
               <h4 class="font-medium mb-1">Error Grouping</h4>
               <p class="text-sm text-muted-foreground">Similar errors are grouped by fingerprint for easier triage.</p>
@@ -76,7 +76,7 @@ const headings = [
       <Card>
         <CardContent class="pt-4">
           <div class="flex items-start gap-3">
-            <Icon name="lucide:globe" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <Icon name="lucide:globe" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
             <div>
               <h4 class="font-medium mb-1">Language Agnostic</h4>
               <p class="text-sm text-muted-foreground">Works with Node.js, Python, Go, PHP, Kotlin, C#, Rust, Ruby, and more.</p>
@@ -88,7 +88,7 @@ const headings = [
       <Card>
         <CardContent class="pt-4">
           <div class="flex items-start gap-3">
-            <Icon name="lucide:link" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <Icon name="lucide:link" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
             <div>
               <h4 class="font-medium mb-1">Exception Chaining</h4>
               <p class="text-sm text-muted-foreground">Support for nested/caused-by exceptions in languages that support them.</p>
@@ -379,8 +379,8 @@ if err := fetchData(); err != nil {
     </p>
 
     <ol class="list-decimal list-inside space-y-2 ml-4">
-      <li><strong>Structured metadata.exception</strong> — Preferred. Parsed directly without regex.</li>
-      <li><strong>Text-based parsing</strong> — Falls back to regex parsing of the message field for known stack trace formats.</li>
+      <li><strong>Structured metadata.exception</strong> - Preferred. Parsed directly without regex.</li>
+      <li><strong>Text-based parsing</strong> - Falls back to regex parsing of the message field for known stack trace formats.</li>
     </ol>
 
     <p>

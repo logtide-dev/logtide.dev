@@ -10,14 +10,14 @@ import {
 } from '../lib/llms';
 
 /**
- * `/llms-full.txt` — every content-collection page concatenated into one
+ * `/llms-full.txt` - every content-collection page concatenated into one
  * Markdown document, for tools that prefer a single ingestible file.
  * (Hand-authored `/docs` pages have no Markdown source and are not included;
  * see `/llms.txt` for links to them.)
  */
 export const GET: APIRoute = async () => {
   const parts: string[] = [
-    `# ${SITE_NAME} — Full Content`,
+    `# ${SITE_NAME} - Full Content`,
     '',
     `> ${SITE_DESCRIPTION}`,
     '',

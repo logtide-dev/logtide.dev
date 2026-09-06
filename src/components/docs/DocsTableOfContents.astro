@@ -29,56 +29,51 @@ const { headings = [] } = Astro.props;
 )}
 
 <script>
-  // Active heading tracking
-  function updateActiveHeading() {
-    const headingLinks = document.querySelectorAll('.toc-link');
-    const scrollTop = window.scrollY;
-    const offset = 120;
+  // Active heading tracking. An IntersectionObserver fires only when a heading
+  // crosses the reading line, instead of running on every scroll frame.
+  function initToc() {
+    const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('.toc-link'));
+    if (!links.length) return;
 
-    let currentId = '';
+    const headings = links
+      .map((link) => document.getElementById(link.dataset.headingId ?? ''))
+      .filter((el): el is HTMLElement => el !== null);
 
-    headingLinks.forEach((link) => {
-      const id = link.getAttribute('data-heading-id');
-      if (id) {
-        const element = document.getElementById(id);
-        if (element) {
-          const top = element.getBoundingClientRect().top + scrollTop;
-          if (top <= scrollTop + offset) {
-            currentId = id;
-          }
-        }
+    function setActive(id: string) {
+      links.forEach((link) => link.classList.toggle('active', link.dataset.headingId === id));
+    }
+
+    function pickActive() {
+      let current = headings[0]?.id ?? '';
+      for (const h of headings) {
+        if (h.getBoundingClientRect().top <= 120) current = h.id;
+        else break;
       }
+      setActive(current);
+    }
+
+    const observer = new IntersectionObserver(pickActive, {
+      rootMargin: '-110px 0px -60% 0px',
+      threshold: [0, 1],
     });
+    headings.forEach((h) => observer.observe(h));
+    pickActive();
 
-    headingLinks.forEach((link) => {
-      const id = link.getAttribute('data-heading-id');
-      if (id === currentId) {
-        link.classList.add('active');
-      } else {
-        link.classList.remove('active');
-      }
+    links.forEach((link) => {
+      link.addEventListener('click', (e) => {
+        const id = link.dataset.headingId;
+        const target = id ? document.getElementById(id) : null;
+        if (!target) return;
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.pushState(null, '', `#${id}`);
+        setActive(id!);
+      });
     });
   }
 
-  // Smooth scroll on click
-  document.querySelectorAll('.toc-link').forEach((link) => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const id = link.getAttribute('data-heading-id');
-      if (id) {
-        const element = document.getElementById(id);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          // Update URL hash without jumping
-          history.pushState(null, '', `#${id}`);
-        }
-      }
-    });
-  });
-
-  // Initial call and scroll listener
-  updateActiveHeading();
-  window.addEventListener('scroll', updateActiveHeading, { passive: true });
+  initToc();
+  document.addEventListener('astro:after-swap', initToc);
 </script>
 
 <style>

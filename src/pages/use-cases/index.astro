@@ -85,7 +85,7 @@ const description = 'Real-world logging scenarios and how to solve them with Log
     <main class="mx-auto max-w-6xl px-6 py-16">
       <!-- Hero Section -->
       <div class="text-center mb-16">
-        <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
+        <h1 class="text-4xl font-bold mb-4 text-foreground">
           Use Cases
         </h1>
         <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -94,32 +94,25 @@ const description = 'Real-world logging scenarios and how to solve them with Log
         </p>
       </div>
 
-      <!-- Benefits -->
-      <div class="grid md:grid-cols-3 gap-6 mb-16">
-        <div class="p-6 rounded-xl bg-card border border-border">
-          <div class="p-3 rounded-lg bg-primary/10 w-fit mb-4">
-            <Icon name="lucide:shield-check" class="w-6 h-6 text-primary" />
-          </div>
-          <h3 class="font-semibold mb-2">Privacy-First</h3>
-          <p class="text-sm text-muted-foreground">
+      <div class="mb-16 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-3">
+        <div class="bg-card p-6">
+          <Icon name="lucide:shield-check" class="h-6 w-6 text-primary-readable" aria-hidden="true" />
+          <h3 class="mt-4 font-semibold">Privacy-First</h3>
+          <p class="mt-1.5 text-sm text-muted-foreground">
             Self-hosted, GDPR compliant. Your logs never leave your infrastructure.
           </p>
         </div>
-        <div class="p-6 rounded-xl bg-card border border-border">
-          <div class="p-3 rounded-lg bg-primary/10 w-fit mb-4">
-            <Icon name="lucide:zap" class="w-6 h-6 text-primary" />
-          </div>
-          <h3 class="font-semibold mb-2">Production-Ready</h3>
-          <p class="text-sm text-muted-foreground">
+        <div class="bg-card p-6">
+          <Icon name="lucide:zap" class="h-6 w-6 text-primary-readable" aria-hidden="true" />
+          <h3 class="mt-4 font-semibold">Production-Ready</h3>
+          <p class="mt-1.5 text-sm text-muted-foreground">
             Complete examples with Docker, Kubernetes, and enterprise deployment guides.
           </p>
         </div>
-        <div class="p-6 rounded-xl bg-card border border-border">
-          <div class="p-3 rounded-lg bg-primary/10 w-fit mb-4">
-            <Icon name="lucide:git-branch" class="w-6 h-6 text-primary" />
-          </div>
-          <h3 class="font-semibold mb-2">Open Source</h3>
-          <p class="text-sm text-muted-foreground">
+        <div class="bg-card p-6">
+          <Icon name="lucide:git-branch" class="h-6 w-6 text-primary-readable" aria-hidden="true" />
+          <h3 class="mt-4 font-semibold">Open Source</h3>
+          <p class="mt-1.5 text-sm text-muted-foreground">
             AGPLv3 licensed. No vendor lock-in, full transparency, community-driven.
           </p>
         </div>
@@ -133,7 +126,7 @@ const description = 'Real-world logging scenarios and how to solve them with Log
             class="text-2xl font-semibold mb-6 flex items-center gap-3"
           >
             <div class="p-2 rounded-lg bg-primary/10">
-              <Icon name={category.icon} class="w-6 h-6 text-primary" />
+              <Icon name={category.icon} class="w-6 h-6 text-primary-readable" />
             </div>
             {category.label}
           </h2>
@@ -151,7 +144,7 @@ const description = 'Real-world logging scenarios and how to solve them with Log
                         </span>
                       )}
                     </div>
-                    <CardTitle class="text-lg group-hover:text-primary transition-colors flex items-center gap-2">
+                    <CardTitle class="text-lg group-hover:text-primary-readable transition-colors flex items-center gap-2">
                       {useCase.data.title}
                       <ArrowRight class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </CardTitle>
@@ -188,7 +181,7 @@ const description = 'Real-world logging scenarios and how to solve them with Log
               href="https://github.com/logtide-dev/logtide"
               target="_blank"
               rel="noopener"
-              class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors"
             >
               <Icon name="simple-icons:github" class="w-4 h-4" />
               Contribute on GitHub
@@ -198,7 +191,7 @@ const description = 'Real-world logging scenarios and how to solve them with Log
       )}
 
       <!-- CTA -->
-      <div class="mt-16 text-center p-8 rounded-2xl bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20">
+      <div class="mt-16 text-center p-8 rounded-2xl bg-card border border-border">
         <h2 class="text-2xl font-semibold mb-4">Have a specific scenario?</h2>
         <p class="text-muted-foreground mb-6 max-w-xl mx-auto">
           We're always adding new use case guides. Tell us about your logging challenges and we'll help.
@@ -207,7 +200,7 @@ const description = 'Real-world logging scenarios and how to solve them with Log
           href="https://github.com/logtide-dev/logtide/discussions"
           target="_blank"
           rel="noopener"
-          class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors font-medium"
         >
           Start a Discussion
           <Icon name="lucide:message-circle" class="w-4 h-4" />
@@ -223,20 +216,6 @@ const description = 'Real-world logging scenarios and how to solve them with Log
   @import '../../styles/tailwind.css';
   @import '../../styles/custom.css';
 
-  html {
-    scroll-behavior: smooth;
-  }
 
-  body {
-    font-family: 'Inter', system-ui, sans-serif;
-  }
 
-  .header-container,
-  .footer-container {
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
 </style>

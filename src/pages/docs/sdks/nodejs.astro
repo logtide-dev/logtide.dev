@@ -212,10 +212,10 @@ hub.init({
               </tr>
           </thead>
           <tbody class="text-muted-foreground">
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">dsn</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border">—</td><td class="p-3 border-b border-border">Data Source Name (required)</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">dsn</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border">-</td><td class="p-3 border-b border-border">Data Source Name (required)</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">service</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">'app'</code></td><td class="p-3 border-b border-border">Service name for log grouping</td></tr>
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">environment</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border">—</td><td class="p-3 border-b border-border">Deployment environment (production, staging, etc.)</td></tr>
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">release</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border">—</td><td class="p-3 border-b border-border">App version for release tracking</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">environment</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border">-</td><td class="p-3 border-b border-border">Deployment environment (production, staging, etc.)</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">release</code></td><td class="p-3 border-b border-border">string</td><td class="p-3 border-b border-border">-</td><td class="p-3 border-b border-border">App version for release tracking</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">batchSize</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">100</code></td><td class="p-3 border-b border-border">Max events per batch</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">flushInterval</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">5000</code></td><td class="p-3 border-b border-border">Flush interval in milliseconds</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">maxBufferSize</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">10000</code></td><td class="p-3 border-b border-border">Max events in buffer before dropping</td></tr>
@@ -223,7 +223,7 @@ hub.init({
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">retryDelayMs</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">1000</code></td><td class="p-3 border-b border-border">Initial retry delay in ms (exponential backoff)</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">circuitBreakerThreshold</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">5</code></td><td class="p-3 border-b border-border">Consecutive failures before circuit opens</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">circuitBreakerResetMs</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">30000</code></td><td class="p-3 border-b border-border">Timeout before circuit half-opens (ms)</td></tr>
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">tracesSampleRate</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">1.0</code></td><td class="p-3 border-b border-border">Trace sampling rate (0.0–1.0)</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">tracesSampleRate</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">1.0</code></td><td class="p-3 border-b border-border">Trace sampling rate (0.0-1.0)</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">maxBreadcrumbs</code></td><td class="p-3 border-b border-border">number</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">100</code></td><td class="p-3 border-b border-border">Max breadcrumbs per scope</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">debug</code></td><td class="p-3 border-b border-border">boolean</td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">false</code></td><td class="p-3 border-b border-border">Enable internal debug logging</td></tr>
           </tbody>
@@ -328,7 +328,7 @@ client.captureError(new Error('Card declined'), {}, scope);`}
           />
           <p class="text-muted-foreground mt-3 text-sm">
               Since <strong>v0.9.0</strong>, when you pass a scope the log attaches that scope's
-              breadcrumbs (request/run-local) instead of the app-wide global buffer — so a single
+              breadcrumbs (request/run-local) instead of the app-wide global buffer - so a single
               request's metadata no longer accumulates unrelated console history from the whole process.
           </p>
       </div>
@@ -416,7 +416,7 @@ try {
               For a <em>complete</em> trace, nest the work your request does under the request span.
               <code class="bg-muted px-1 rounded">startChildSpan(name, scope, attributes)</code> parents a new
               span on the scope's <code class="bg-muted px-1 rounded">traceId</code> and
-              <code class="bg-muted px-1 rounded">spanId</code> — so a DB query, an upstream API call, or a
+              <code class="bg-muted px-1 rounded">spanId</code> - so a DB query, an upstream API call, or a
               fiscal/payment step all show up as children of the HTTP span instead of disconnected events.
           </p>
           <Code
@@ -479,7 +479,7 @@ await fetch('https://api.example.com/data', {
       The framework packages (<code class="bg-muted px-1 rounded">@logtide/fastify</code>,
       <code class="bg-muted px-1 rounded">@logtide/express</code>, …) already install
       <code class="bg-muted px-1 rounded">ConsoleIntegration</code> and
-      <code class="bg-muted px-1 rounded">GlobalErrorIntegration</code> for you — only add them
+      <code class="bg-muted px-1 rounded">GlobalErrorIntegration</code> for you - only add them
       manually if you call <code class="bg-muted px-1 rounded">hub.init</code> directly. Since
       <strong>v0.9.0</strong>, re-adding an integration whose name is already installed is a no-op,
       so a duplicate <code class="bg-muted px-1 rounded">ConsoleIntegration</code> no longer
@@ -583,8 +583,8 @@ initLogtide({
       <Card>
           <CardContent class="pt-4">
               <div class="flex items-center gap-2 mb-2">
-                  <Icon name="simple-icons:javascript" class="w-5 h-5 text-primary" />
-                  <a href="/docs/sdks/browser/" class="font-semibold hover:text-primary">@logtide/browser</a>
+                  <Icon name="simple-icons:javascript" class="w-5 h-5 text-primary-readable" />
+                  <a href="/docs/sdks/browser/" class="font-semibold hover:text-primary-readable">@logtide/browser</a>
               </div>
               <p class="text-sm text-muted-foreground">Session tracking, Web Vitals, breadcrumbs, offline support</p>
           </CardContent>
@@ -594,7 +594,7 @@ initLogtide({
           <CardContent class="pt-4">
               <div class="flex items-center gap-2 mb-2">
                   <Icon name="simple-icons:express" class="w-5 h-5" />
-                  <a href="/docs/sdks/express/" class="font-semibold hover:text-primary">@logtide/express</a>
+                  <a href="/docs/sdks/express/" class="font-semibold hover:text-primary-readable">@logtide/express</a>
               </div>
               <p class="text-sm text-muted-foreground">Middleware, request scoping, traceparent propagation</p>
           </CardContent>
@@ -604,7 +604,7 @@ initLogtide({
           <CardContent class="pt-4">
               <div class="flex items-center gap-2 mb-2">
                   <Icon name="simple-icons:fastify" class="w-5 h-5" />
-                  <a href="/docs/sdks/fastify/" class="font-semibold hover:text-primary">@logtide/fastify</a>
+                  <a href="/docs/sdks/fastify/" class="font-semibold hover:text-primary-readable">@logtide/fastify</a>
               </div>
               <p class="text-sm text-muted-foreground">Plugin registration, lifecycle hooks, request scoping</p>
           </CardContent>
@@ -614,7 +614,7 @@ initLogtide({
           <CardContent class="pt-4">
               <div class="flex items-center gap-2 mb-2">
                   <Icon name="simple-icons:nextdotjs" class="w-5 h-5" />
-                  <a href="/docs/sdks/nextjs-sdk/" class="font-semibold hover:text-primary">@logtide/nextjs</a>
+                  <a href="/docs/sdks/nextjs-sdk/" class="font-semibold hover:text-primary-readable">@logtide/nextjs</a>
               </div>
               <p class="text-sm text-muted-foreground">Instrumentation hook, error boundary, client-side init</p>
           </CardContent>
@@ -624,7 +624,7 @@ initLogtide({
           <CardContent class="pt-4">
               <div class="flex items-center gap-2 mb-2">
                   <Icon name="simple-icons:nuxtdotjs" class="w-5 h-5" />
-                  <a href="/docs/sdks/nuxt-sdk/" class="font-semibold hover:text-primary">@logtide/nuxt</a>
+                  <a href="/docs/sdks/nuxt-sdk/" class="font-semibold hover:text-primary-readable">@logtide/nuxt</a>
               </div>
               <p class="text-sm text-muted-foreground">Zero-config Nuxt module, runtime config injection</p>
           </CardContent>
@@ -634,7 +634,7 @@ initLogtide({
           <CardContent class="pt-4">
               <div class="flex items-center gap-2 mb-2">
                   <Icon name="simple-icons:svelte" class="w-5 h-5" />
-                  <a href="/docs/sdks/sveltekit/" class="font-semibold hover:text-primary">@logtide/sveltekit</a>
+                  <a href="/docs/sdks/sveltekit/" class="font-semibold hover:text-primary-readable">@logtide/sveltekit</a>
               </div>
               <p class="text-sm text-muted-foreground">Handle, handleError, handleFetch hooks, client init</p>
           </CardContent>
@@ -644,7 +644,7 @@ initLogtide({
           <CardContent class="pt-4">
               <div class="flex items-center gap-2 mb-2">
                   <Icon name="simple-icons:hono" class="w-5 h-5" />
-                  <a href="/docs/sdks/hono/" class="font-semibold hover:text-primary">@logtide/hono</a>
+                  <a href="/docs/sdks/hono/" class="font-semibold hover:text-primary-readable">@logtide/hono</a>
               </div>
               <p class="text-sm text-muted-foreground">Middleware, multi-runtime (Node/Bun/Deno/Workers)</p>
           </CardContent>
@@ -654,7 +654,7 @@ initLogtide({
           <CardContent class="pt-4">
               <div class="flex items-center gap-2 mb-2">
                   <Icon name="simple-icons:angular" class="w-5 h-5" />
-                  <a href="/docs/sdks/angular/" class="font-semibold hover:text-primary">@logtide/angular</a>
+                  <a href="/docs/sdks/angular/" class="font-semibold hover:text-primary-readable">@logtide/angular</a>
               </div>
               <p class="text-sm text-muted-foreground">ErrorHandler, HttpInterceptor, standalone & NgModule</p>
           </CardContent>
@@ -664,7 +664,7 @@ initLogtide({
           <CardContent class="pt-4">
               <div class="flex items-center gap-2 mb-2">
                   <Icon name="simple-icons:bun" class="w-5 h-5" />
-                  <a href="/docs/sdks/elysia/" class="font-semibold hover:text-primary">@logtide/elysia</a>
+                  <a href="/docs/sdks/elysia/" class="font-semibold hover:text-primary-readable">@logtide/elysia</a>
               </div>
               <p class="text-sm text-muted-foreground">Elysia plugin, lifecycle hooks, Bun-optimized</p>
           </CardContent>

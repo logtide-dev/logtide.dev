@@ -146,7 +146,7 @@ function getIconName(item: NavItem): string {
 <nav class:list={['docs-sidebar', { mobile }]}>
   <div class="sidebar-content">
     <a href="/docs/" class="sidebar-header">
-      <Icon name="lucide:file-text" class="h-5 w-5 text-primary" />
+      <Icon name="lucide:file-text" class="h-5 w-5 text-primary-readable" />
       <span class="text-lg font-semibold">Documentation</span>
     </a>
 
@@ -492,41 +492,31 @@ function getIconName(item: NavItem): string {
   // Update when hash changes
   window.addEventListener('hashchange', updateHashHighlight);
 
-  // Update on scroll to detect which section is visible
-  let ticking = false;
-  window.addEventListener('scroll', () => {
-    if (!ticking) {
-      window.requestAnimationFrame(() => {
-        const sections = document.querySelectorAll('h2[id], h3[id]');
-        let currentSection = '';
+  // Section tracking. The observer fires only when a heading crosses the
+  // reading line, instead of running on every scroll frame.
+  const sections = Array.from(document.querySelectorAll<HTMLElement>('h2[id], h3[id]'));
 
-        sections.forEach(section => {
-          const rect = section.getBoundingClientRect();
-          if (rect.top <= 100) {
-            currentSection = section.id;
-          }
-        });
+  if (sections.length) {
+    const markActive = () => {
+      let current = '';
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top <= 100) current = section.id;
+        else break;
+      }
+      if (!current) return;
 
-        if (currentSection && window.location.hash !== '#' + currentSection) {
-          // Update active state without changing URL
-          document.querySelectorAll('.docs-sidebar .nav-link').forEach(link => {
-            const href = link.getAttribute('href');
-            if (!href) return;
-
-            if (href.includes('#')) {
-              const linkHash = href.split('#')[1];
-              if (linkHash === currentSection) {
-                link.classList.add('active');
-              } else {
-                link.classList.remove('active');
-              }
-            }
-          });
-        }
-
-        ticking = false;
+      document.querySelectorAll<HTMLAnchorElement>('.docs-sidebar .nav-link').forEach((link) => {
+        const href = link.getAttribute('href');
+        if (!href || !href.includes('#')) return;
+        link.classList.toggle('active', href.split('#')[1] === current);
       });
-      ticking = true;
-    }
-  });
+    };
+
+    const observer = new IntersectionObserver(markActive, {
+      rootMargin: '-90px 0px -60% 0px',
+      threshold: [0, 1],
+    });
+    sections.forEach((section) => observer.observe(section));
+    markActive();
+  }
 </script>

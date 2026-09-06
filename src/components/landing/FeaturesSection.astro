@@ -1,62 +1,51 @@
 ---
+import { Icon } from 'astro-icon/components';
+
 const features = [
   {
-    icon: 'lock',
+    icon: 'lucide:lock',
     title: 'GDPR Compliant',
     description: 'Keep logs on your servers or use our EU-based cloud. Full data ownership and privacy control.',
   },
   {
-    icon: 'gauge',
+    icon: 'lucide:gauge',
     title: 'Lightweight',
     description: 'Built on Fastify with TimescaleDB or ClickHouse. Lower memory footprint compared to Java-based stacks like ELK.',
   },
   {
-    icon: 'shield',
+    icon: 'lucide:shield-check',
     title: 'Security Built-in',
     description: 'Sigma rules engine for threat detection. Turn your logs into a SIEM without extra tools.',
   },
   {
-    icon: 'git-branch',
+    icon: 'lucide:git-branch',
     title: 'OpenTelemetry Native',
     description: 'OTLP ingestion for logs, traces, and metrics. Distributed tracing with service dependency graphs.',
   },
 ];
-
-const iconPaths: Record<string, string> = {
-  lock: 'M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z',
-  gauge: 'M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z',
-  shield: 'M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z',
-  'git-branch': 'M6 3a3 3 0 100 6 3 3 0 000-6zM6 15a3 3 0 100 6 3 3 0 000-6zM18 3a3 3 0 100 6 3 3 0 000-6zM6 9v6M15 6H9',
-};
 ---
 
-<section class="relative overflow-hidden px-6 py-24" aria-labelledby="why-logtide-heading">
-  <!-- Background decoration -->
-  <div class="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5" aria-hidden="true"></div>
-
-  <div class="relative mx-auto max-w-6xl">
-    <div class="mb-16 text-center">
-      <span class="font-mono text-xs font-medium uppercase tracking-[0.2em] text-primary">Why LogTide</span>
-      <h2 id="why-logtide-heading" class="mb-4 mt-2 text-3xl font-bold md:text-4xl">Log management on your terms</h2>
-      <p class="mx-auto max-w-2xl text-lg text-muted-foreground">
+<section class="border-t border-border px-6 py-24" aria-labelledby="why-logtide-heading">
+  <div class="mx-auto max-w-6xl">
+    <div class="max-w-2xl" data-reveal>
+      <h2 id="why-logtide-heading" class="text-section font-bold">Log management on your terms</h2>
+      <p class="mt-4 text-lg text-muted-foreground">
         For developers and European SMBs who need data ownership without ElasticSearch complexity.
       </p>
     </div>
 
-    <div class="grid gap-6 md:grid-cols-2">
-      {features.map((feature) => (
-        <article class="group rounded-2xl border border-border bg-card/80 p-8 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5">
-          <div class="flex items-start gap-5">
-            <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5" aria-hidden="true">
-              <svg class="h-7 w-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d={iconPaths[feature.icon]} />
-              </svg>
-            </div>
-            <div>
-              <h3 class="mb-2 text-xl font-semibold">{feature.title}</h3>
-              <p class="text-muted-foreground">{feature.description}</p>
-            </div>
-          </div>
+    <!-- Hairlines instead of card boxes: these four are peers, so nothing here
+         needs elevating above the rest. -->
+    <div class="mt-16 grid gap-x-16 sm:grid-cols-2">
+      {features.map((feature, i) => (
+        <article
+          class="border-t border-border py-8 sm:py-10"
+          data-reveal
+          style={`--reveal-delay: ${i * 70}ms`}
+        >
+          <Icon name={feature.icon} class="h-6 w-6 text-primary-readable" aria-hidden="true" />
+          <h3 class="mt-5 text-xl font-semibold">{feature.title}</h3>
+          <p class="mt-2 max-w-prose text-muted-foreground">{feature.description}</p>
         </article>
       ))}
     </div>

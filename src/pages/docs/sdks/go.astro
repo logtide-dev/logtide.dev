@@ -199,7 +199,7 @@ client.Critical(ctx, "out of memory", nil)`}
 
   <p class="text-sm text-muted-foreground mb-4">
       The Hub/Scope model lets you attach tags, breadcrumbs, and user info to all log entries
-      within a logical unit of work — without passing extra parameters everywhere.
+      within a logical unit of work - without passing extra parameters everywhere.
   </p>
 
   <div class="mb-4">
@@ -285,7 +285,7 @@ if err != nil {
   <p class="text-sm text-muted-foreground mb-4">
       The <code class="bg-muted px-1 rounded">logtideslog</code> integration provides a
       <code class="bg-muted px-1 rounded">log/slog</code> handler, so existing slog-based logging
-      flows to LogTide without code changes. Records honour the client's full pipeline — scope merge,
+      flows to LogTide without code changes. Records honour the client's full pipeline - scope merge,
       processors, <code class="bg-muted px-1 rounded">BeforeSend</code>, sampling, and batching.
   </p>
 
@@ -377,7 +377,7 @@ tp := sdktrace.NewTracerProvider(
       <p class="text-sm text-muted-foreground mb-3">
           Export OpenTelemetry metrics (counters, gauges, histograms) to LogTide. Each data point
           becomes a log entry carrying the same service name, environment, tags, and resource
-          attributes as your logs and traces. It is opt-in — register it only if you need metrics.
+          attributes as your logs and traces. It is opt-in - register it only if you need metrics.
       </p>
       <Code
           lang="go"
@@ -409,7 +409,7 @@ otel.SetMeterProvider(mp)`}
       <p class="text-sm text-muted-foreground mt-3">
           When exemplars are enabled and a sampled span is active during measurement, each linked
           data point's entry inherits the exemplar's <code class="bg-muted px-1 rounded">trace_id</code>/<code class="bg-muted px-1 rounded">span_id</code>,
-          and the full exemplar list is recorded under <code class="bg-muted px-1 rounded">metadata.metric.exemplars</code> —
+          and the full exemplar list is recorded under <code class="bg-muted px-1 rounded">metadata.metric.exemplars</code> - 
           correlating metrics with the traces that produced them.
       </p>
   </div>
@@ -508,7 +508,7 @@ http.ListenAndServe(":8080", lnethttp.Middleware(mux))`}
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
               <code class="bg-muted px-1 rounded">nethttp.Middleware</code> handles scope isolation,
-              HTTP tagging, and breadcrumbs automatically — no boilerplate needed.
+              HTTP tagging, and breadcrumbs automatically - no boilerplate needed.
           </CardContent>
       </Card>
   </div>

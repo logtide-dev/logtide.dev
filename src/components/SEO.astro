@@ -27,7 +27,7 @@ const {
   faqs = []
 } = Astro.props;
 
-// Site-wide default OG image — guarantees every page renders a large image card,
+// Site-wide default OG image - guarantees every page renders a large image card,
 // even if a page forgets to pass one explicitly.
 const DEFAULT_OG_IMAGE = `${SITE_URL}/images/default.png`;
 const resolvedOgImage = ogImage || DEFAULT_OG_IMAGE;
@@ -130,7 +130,7 @@ if (type === 'article' && (datePublished || dateModified)) {
   schemas.push(articleSchema);
 }
 
-// FAQPage schema (if FAQs provided) — eligible for FAQ rich results.
+// FAQPage schema (if FAQs provided) - eligible for FAQ rich results.
 // The same FAQs must be rendered visibly on the page (handled by FAQSection.astro).
 if (faqs.length > 0) {
   schemas.push({
@@ -191,3 +191,42 @@ if (faqs.length > 0) {
 {schemas.map(schema => (
   <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
 ))}
+
+<script is:inline>
+  document.documentElement.classList.add('js');
+  // Fallback: if the reveal module never runs, content becomes visible again.
+  setTimeout(function () {
+    if (!document.documentElement.hasAttribute('data-reveal-ready')) {
+      document.documentElement.classList.remove('js');
+    }
+  }, 2500);
+</script>
+
+<script>
+  // Reveals [data-reveal] elements on entry. Runs once per element; disabled
+  // under prefers-reduced-motion, where the CSS baseline is already the final
+  // state.
+  function initReveal() {
+    document.documentElement.setAttribute('data-reveal-ready', '');
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const targets = document.querySelectorAll<HTMLElement>('[data-reveal]:not(.is-revealed)');
+    if (!targets.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add('is-revealed');
+          observer.unobserve(entry.target);
+        }
+      },
+      { rootMargin: '0px 0px -12% 0px', threshold: 0.1 }
+    );
+
+    targets.forEach((el) => observer.observe(el));
+  }
+
+  initReveal();
+  document.addEventListener('astro:after-swap', initReveal);
+</script>

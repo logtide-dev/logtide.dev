@@ -67,7 +67,7 @@ const formattedDate = date
   <header class="mb-8">
     <div class="flex flex-wrap items-center gap-3 mb-4">
       {version && (
-        <span class="font-mono text-sm font-bold text-primary">{version}</span>
+        <span class="font-mono text-sm font-bold text-primary-readable">{version}</span>
       )}
       <StatusBadge status={status} />
       <TypeBadge type={entry.data.type} />
@@ -84,7 +84,7 @@ const formattedDate = date
       )}
     </div>
 
-    <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent leading-tight">
+    <h1 class="text-4xl font-bold mb-4 text-foreground leading-tight">
       {title}
     </h1>
 

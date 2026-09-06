@@ -86,7 +86,7 @@ const description = 'Step-by-step guides to integrate LogTide with your infrastr
     <main class="mx-auto max-w-6xl px-6 py-16">
       <!-- Hero Section -->
       <div class="text-center mb-16">
-        <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
+        <h1 class="text-4xl font-bold mb-4 text-foreground">
           Integration Guides
         </h1>
         <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -96,35 +96,30 @@ const description = 'Step-by-step guides to integrate LogTide with your infrastr
       </div>
 
       <!-- Stats -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
-        <div class="text-center p-6 rounded-lg bg-card border border-border">
-          <div class="text-3xl font-bold text-primary">{allIntegrations.length}</div>
-          <div class="text-sm text-muted-foreground">Integrations</div>
+      <div class="mb-16 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border md:grid-cols-4">
+        <div class="bg-card p-6">
+          <div class="font-mono text-3xl font-bold text-foreground">{allIntegrations.length}</div>
+          <div class="mt-1 text-sm text-muted-foreground">Integrations</div>
         </div>
-        <div class="text-center p-6 rounded-lg bg-card border border-border">
-          <div class="text-3xl font-bold text-primary">{populatedCategories.length}</div>
-          <div class="text-sm text-muted-foreground">Categories</div>
+        <div class="bg-card p-6">
+          <div class="font-mono text-3xl font-bold text-foreground">{populatedCategories.length}</div>
+          <div class="mt-1 text-sm text-muted-foreground">Categories</div>
         </div>
-        <div class="text-center p-6 rounded-lg bg-card border border-border">
-          <div class="text-3xl font-bold text-green-500">Free</div>
-          <div class="text-sm text-muted-foreground">Open Source</div>
+        <div class="bg-card p-6">
+          <div class="font-mono text-3xl font-bold text-foreground">Free</div>
+          <div class="mt-1 text-sm text-muted-foreground">Open Source</div>
         </div>
-        <div class="text-center p-6 rounded-lg bg-card border border-border">
-          <div class="text-3xl font-bold text-primary">EU</div>
-          <div class="text-sm text-muted-foreground">Data Residency</div>
+        <div class="bg-card p-6">
+          <div class="font-mono text-3xl font-bold text-foreground">EU</div>
+          <div class="mt-1 text-sm text-muted-foreground">Data Residency</div>
         </div>
       </div>
 
       <!-- Categories -->
       {populatedCategories.map(([key, category]) => (
         <section class="mb-12">
-          <h2
-            id={key}
-            class="text-2xl font-semibold mb-6 flex items-center gap-3"
-          >
-            <div class="p-2 rounded-lg bg-primary/10">
-              <Icon name={category.icon} class="w-6 h-6 text-primary" />
-            </div>
+          <h2 id={key} class="mb-6 flex items-center gap-3 text-2xl font-semibold">
+            <Icon name={category.icon} class="h-6 w-6 text-primary-readable" aria-hidden="true" />
             {category.label}
           </h2>
 
@@ -135,11 +130,11 @@ const description = 'Step-by-step guides to integrate LogTide with your infrastr
                   <CardHeader class="pb-2">
                     <div class="flex items-center justify-between mb-2">
                       {integration.data.brandIcon && (
-                        <Icon name={integration.data.brandIcon} class="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
+                        <Icon name={integration.data.brandIcon} class="w-8 h-8 text-muted-foreground group-hover:text-primary-readable transition-colors" />
                       )}
                       <DifficultyBadge difficulty={integration.data.difficulty} showIcon={false} />
                     </div>
-                    <CardTitle class="text-lg group-hover:text-primary transition-colors flex items-center gap-2">
+                    <CardTitle class="text-lg group-hover:text-primary-readable transition-colors flex items-center gap-2">
                       {integration.data.title.replace(' Integration', '')}
                       <ArrowRight class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </CardTitle>
@@ -176,7 +171,7 @@ const description = 'Step-by-step guides to integrate LogTide with your infrastr
               href="https://github.com/logtide-dev/logtide"
               target="_blank"
               rel="noopener"
-              class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors"
             >
               <Icon name="simple-icons:github" class="w-4 h-4" />
               Contribute on GitHub
@@ -186,7 +181,7 @@ const description = 'Step-by-step guides to integrate LogTide with your infrastr
       )}
 
       <!-- CTA -->
-      <div class="mt-16 text-center p-8 rounded-2xl bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20">
+      <div class="mt-16 text-center p-8 rounded-2xl bg-card border border-border">
         <h2 class="text-2xl font-semibold mb-4">Can't find what you need?</h2>
         <p class="text-muted-foreground mb-6 max-w-xl mx-auto">
           We're always adding new integrations. Let us know what you need and we'll prioritize it.
@@ -195,7 +190,7 @@ const description = 'Step-by-step guides to integrate LogTide with your infrastr
           href="https://github.com/logtide-dev/logtide/issues"
           target="_blank"
           rel="noopener"
-          class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors font-medium"
         >
           Request an Integration
           <Icon name="lucide:arrow-right" class="w-4 h-4" />
@@ -211,20 +206,6 @@ const description = 'Step-by-step guides to integrate LogTide with your infrastr
   @import '../../styles/tailwind.css';
   @import '../../styles/custom.css';
 
-  html {
-    scroll-behavior: smooth;
-  }
 
-  body {
-    font-family: 'Inter', system-ui, sans-serif;
-  }
 
-  .header-container,
-  .footer-container {
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
 </style>

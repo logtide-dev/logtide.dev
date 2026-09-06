@@ -21,7 +21,7 @@ const headings = [
 
 <DocsLayout
   title="Deployment Guide"
-  description="Deploy self-hosted LogTide with pre-built Docker images, Docker Compose, or from source — a production log management setup on your own infrastructure."
+  description="Deploy self-hosted LogTide with pre-built Docker images, Docker Compose, or from source - a production log management setup on your own infrastructure."
   headings={headings}
 >
   <h1 class="text-3xl font-bold mb-4">Deployment Guide</h1>
@@ -40,7 +40,7 @@ const headings = [
       <Card>
           <CardHeader>
               <div class="flex items-start gap-3">
-                  <Icon name="lucide:package" class="w-5 h-5 text-primary mt-0.5" />
+                  <Icon name="lucide:package" class="w-5 h-5 text-primary-readable mt-0.5" />
                   <div>
                       <CardTitle class="text-base">No Build Required</CardTitle>
                   </div>
@@ -176,7 +176,7 @@ docker compose --profile logging --profile metrics up -d`}
           />
           <p class="text-sm text-muted-foreground mt-3">
               Metrics appear in the <strong>Metrics Explorer</strong> under service <code class="bg-muted px-1 rounded">host-system</code>.
-              Fluent Bit is included for convenience, but any OTLP-compatible collector works. See the <a href="/integrations/host-monitoring/" class="text-primary hover:underline">Host Monitoring guide</a> for details.
+              Fluent Bit is included for convenience, but any OTLP-compatible collector works. See the <a href="/integrations/host-monitoring/" class="text-primary-readable hover:underline">Host Monitoring guide</a> for details.
           </p>
       </div>
 
@@ -231,25 +231,25 @@ FLUENT_BIT_IMAGE=myregistry/fluent-bit-arm64:latest`}
                       <tr>
                           <td class="p-3 border-b border-border font-mono text-xs">logtide/backend</td>
                           <td class="p-3 border-b border-border">
-                              <a href="https://hub.docker.com/r/logtide/backend" class="text-primary hover:underline" target="_blank">Docker Hub</a>
+                              <a href="https://hub.docker.com/r/logtide/backend" class="text-primary-readable hover:underline" target="_blank">Docker Hub</a>
                           </td>
                       </tr>
                       <tr>
                           <td class="p-3 border-b border-border font-mono text-xs">logtide/frontend</td>
                           <td class="p-3 border-b border-border">
-                              <a href="https://hub.docker.com/r/logtide/frontend" class="text-primary hover:underline" target="_blank">Docker Hub</a>
+                              <a href="https://hub.docker.com/r/logtide/frontend" class="text-primary-readable hover:underline" target="_blank">Docker Hub</a>
                           </td>
                       </tr>
                       <tr>
                           <td class="p-3 border-b border-border font-mono text-xs">ghcr.io/logtide-dev/logtide-backend</td>
                           <td class="p-3 border-b border-border">
-                              <a href="https://github.com/logtide-dev/logtide/pkgs/container/logtide-backend" class="text-primary hover:underline" target="_blank">GitHub Container Registry</a>
+                              <a href="https://github.com/logtide-dev/logtide/pkgs/container/logtide-backend" class="text-primary-readable hover:underline" target="_blank">GitHub Container Registry</a>
                           </td>
                       </tr>
                       <tr>
                           <td class="p-3 border-b border-border font-mono text-xs">ghcr.io/logtide-dev/logtide-frontend</td>
                           <td class="p-3">
-                              <a href="https://github.com/logtide-dev/logtide/pkgs/container/logtide-frontend" class="text-primary hover:underline" target="_blank">GitHub Container Registry</a>
+                              <a href="https://github.com/logtide-dev/logtide/pkgs/container/logtide-frontend" class="text-primary-readable hover:underline" target="_blank">GitHub Container Registry</a>
                           </td>
                       </tr>
                   </tbody>
@@ -611,7 +611,7 @@ PUBLIC_API_URL=https://api.logtide.example.com
       <Card>
           <CardHeader>
               <div class="flex items-start gap-3">
-                  <Icon name="lucide:layers" class="w-5 h-5 text-primary mt-0.5" />
+                  <Icon name="lucide:layers" class="w-5 h-5 text-primary-readable mt-0.5" />
                   <div>
                       <CardTitle class="text-base">Scale Without Code Changes</CardTitle>
                   </div>
@@ -636,7 +636,7 @@ PUBLIC_API_URL=https://api.logtide.example.com
           <CardContent class="text-sm text-muted-foreground">
               <p>
                   Horizontal scaling requires Redis for shared state across instances (rate limiting, sessions, job distribution).
-                  The <a href="#simplified-deployment" class="text-primary hover:underline">simplified deployment</a> (no Redis) only supports single-instance deployments.
+                  The <a href="#simplified-deployment" class="text-primary-readable hover:underline">simplified deployment</a> (no Redis) only supports single-instance deployments.
               </p>
           </CardContent>
       </Card>
@@ -775,7 +775,7 @@ docker compose ps`}
       <Card>
           <CardHeader>
               <div class="flex items-start gap-3">
-                  <Icon name="lucide:anchor" class="w-5 h-5 text-primary mt-0.5" />
+                  <Icon name="lucide:anchor" class="w-5 h-5 text-primary-readable mt-0.5" />
                   <div>
                       <CardTitle class="text-base">Production-Ready Kubernetes Deployment</CardTitle>
                   </div>
@@ -944,13 +944,13 @@ className: gce`}
           <CardContent class="text-sm text-muted-foreground">
               <ul class="space-y-2">
                   <li>
-                      <a href="https://artifacthub.io/packages/helm/logtide/logtide" class="text-primary hover:underline" target="_blank">
+                      <a href="https://artifacthub.io/packages/helm/logtide/logtide" class="text-primary-readable hover:underline" target="_blank">
                           Artifact Hub →
                       </a>
                       <span class="text-muted-foreground ml-1">Browse chart versions and values</span>
                   </li>
                   <li>
-                      <a href="https://github.com/logtide-dev/logtide-helm-chart" class="text-primary hover:underline" target="_blank">
+                      <a href="https://github.com/logtide-dev/logtide-helm-chart" class="text-primary-readable hover:underline" target="_blank">
                           GitHub Repository →
                       </a>
                       <span class="text-muted-foreground ml-1">Source code and issues</span>

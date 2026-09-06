@@ -41,7 +41,7 @@ const headings = [
               </p>
               <p class="text-sm text-muted-foreground">
                   This guide covers Windows log collection for security monitoring and SIEM use cases.
-                  All methods use LogTide's native <a href="/docs/opentelemetry/" class="text-primary underline">OpenTelemetry (OTLP) endpoint</a>
+                  All methods use LogTide's native <a href="/docs/opentelemetry/" class="text-primary-readable underline">OpenTelemetry (OTLP) endpoint</a>
                   for log ingestion.
               </p>
           </div>
@@ -65,7 +65,7 @@ const headings = [
           <Card>
               <CardHeader>
                   <CardTitle class="flex items-center gap-2 text-base">
-                      <Icon name="lucide:radio" class="w-4 h-4 text-primary" />
+                      <Icon name="lucide:radio" class="w-4 h-4 text-primary-readable" />
                       OpenTelemetry Collector
                   </CardTitle>
               </CardHeader>
@@ -78,7 +78,7 @@ const headings = [
           <Card>
               <CardHeader>
                   <CardTitle class="flex items-center gap-2 text-base">
-                      <Icon name="lucide:wind" class="w-4 h-4 text-primary" />
+                      <Icon name="lucide:wind" class="w-4 h-4 text-primary-readable" />
                       Fluent Bit
                   </CardTitle>
               </CardHeader>
@@ -91,7 +91,7 @@ const headings = [
           <Card>
               <CardHeader>
                   <CardTitle class="flex items-center gap-2 text-base">
-                      <Icon name="lucide:file-text" class="w-4 h-4 text-primary" />
+                      <Icon name="lucide:file-text" class="w-4 h-4 text-primary-readable" />
                       NXLog
                   </CardTitle>
               </CardHeader>
@@ -121,7 +121,7 @@ const headings = [
           <p class="text-sm text-muted-foreground mb-3">
               Download the latest Windows release from the
               <a href="https://github.com/open-telemetry/opentelemetry-collector-releases/releases"
-                 target="_blank" rel="noopener noreferrer" class="text-primary underline">
+                 target="_blank" rel="noopener noreferrer" class="text-primary-readable underline">
                   OpenTelemetry Collector releases page
               </a>. Choose the <code class="bg-muted px-1 rounded">otelcol-contrib</code> distribution
               which includes the Windows Event Log receiver.
@@ -262,7 +262,7 @@ sc.exe query "OpenTelemetry Collector"`}
           <p class="text-sm text-muted-foreground mb-3">
               Download the Windows installer from
               <a href="https://docs.fluentbit.io/manual/installation/windows"
-                 target="_blank" rel="noopener noreferrer" class="text-primary underline">
+                 target="_blank" rel="noopener noreferrer" class="text-primary-readable underline">
                   Fluent Bit's official download page
               </a>.
           </p>
@@ -410,7 +410,7 @@ sc.exe query fluent-bit`}
           <p class="text-sm text-muted-foreground mb-3">
               Download NXLog Community Edition from
               <a href="https://nxlog.co/downloads/nxlog-ce"
-                 target="_blank" rel="noopener noreferrer" class="text-primary underline">
+                 target="_blank" rel="noopener noreferrer" class="text-primary-readable underline">
                   nxlog.co
               </a> and run the installer.
           </p>
@@ -535,12 +535,12 @@ sc.exe query nxlog`}
                   <tr>
                       <td class="px-4 py-2 border-b border-border font-mono text-xs">Security</td>
                       <td class="px-4 py-2 border-b border-border text-muted-foreground">Logon events, privilege use, audit policy changes</td>
-                      <td class="px-4 py-2 border-b border-border"><Badge class="bg-red-500 border-red-500 text-white">Critical</Badge></td>
+                      <td class="px-4 py-2 border-b border-border"><Badge class="bg-red-600 border-red-600 text-white">Critical</Badge></td>
                   </tr>
                   <tr>
                       <td class="px-4 py-2 border-b border-border font-mono text-xs">System</td>
                       <td class="px-4 py-2 border-b border-border text-muted-foreground">Service starts/stops, driver issues, hardware events</td>
-                      <td class="px-4 py-2 border-b border-border"><Badge class="bg-yellow-500 border-yellow-500 text-white">High</Badge></td>
+                      <td class="px-4 py-2 border-b border-border"><Badge class="bg-yellow-500 border-yellow-500 text-yellow-950">High</Badge></td>
                   </tr>
                   <tr>
                       <td class="px-4 py-2 border-b border-border font-mono text-xs">Application</td>
@@ -550,17 +550,17 @@ sc.exe query nxlog`}
                   <tr>
                       <td class="px-4 py-2 border-b border-border font-mono text-xs">Microsoft-Windows-Sysmon/Operational</td>
                       <td class="px-4 py-2 border-b border-border text-muted-foreground">Process creation, network connections, file changes (requires Sysmon)</td>
-                      <td class="px-4 py-2 border-b border-border"><Badge class="bg-red-500 border-red-500 text-white">Critical</Badge></td>
+                      <td class="px-4 py-2 border-b border-border"><Badge class="bg-red-600 border-red-600 text-white">Critical</Badge></td>
                   </tr>
                   <tr>
                       <td class="px-4 py-2 border-b border-border font-mono text-xs">Microsoft-Windows-PowerShell/Operational</td>
                       <td class="px-4 py-2 border-b border-border text-muted-foreground">PowerShell script execution, module loading</td>
-                      <td class="px-4 py-2 border-b border-border"><Badge class="bg-red-500 border-red-500 text-white">Critical</Badge></td>
+                      <td class="px-4 py-2 border-b border-border"><Badge class="bg-red-600 border-red-600 text-white">Critical</Badge></td>
                   </tr>
                   <tr>
                       <td class="px-4 py-2 font-mono text-xs">Microsoft-Windows-Windows Defender/Operational</td>
                       <td class="px-4 py-2 text-muted-foreground">Antivirus detections, scan results</td>
-                      <td class="px-4 py-2"><Badge class="bg-yellow-500 border-yellow-500 text-white">High</Badge></td>
+                      <td class="px-4 py-2"><Badge class="bg-yellow-500 border-yellow-500 text-yellow-950">High</Badge></td>
                   </tr>
               </tbody>
           </table>
@@ -576,11 +576,11 @@ sc.exe query nxlog`}
                   <p class="text-sm text-muted-foreground">
                       For security monitoring, install
                       <a href="https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon"
-                         target="_blank" rel="noopener noreferrer" class="text-primary underline">
+                         target="_blank" rel="noopener noreferrer" class="text-primary-readable underline">
                           Microsoft Sysmon
                       </a> to capture process creation, network connections, and file modifications.
                       Use the <a href="https://github.com/SwiftOnSecurity/sysmon-config"
-                         target="_blank" rel="noopener noreferrer" class="text-primary underline">
+                         target="_blank" rel="noopener noreferrer" class="text-primary-readable underline">
                           SwiftOnSecurity config
                       </a> as a starting point.
                   </p>
@@ -949,9 +949,9 @@ Write-EventLog -LogName Application -Source "Application" -EventId 1000 -EntryTy
   <div class="border-t border-border pt-6 mt-8">
       <p class="text-sm text-muted-foreground">
           <strong>Related documentation:</strong>
-          <a href="/docs/opentelemetry/" class="text-primary hover:underline ml-2">OpenTelemetry Integration</a> •
-          <a href="/docs/syslog/" class="text-primary hover:underline ml-2">Syslog Integration</a> •
-          <a href="/docs/api/" class="text-primary hover:underline ml-2">API Reference</a>
+          <a href="/docs/opentelemetry/" class="text-primary-readable hover:underline ml-2">OpenTelemetry Integration</a> •
+          <a href="/docs/syslog/" class="text-primary-readable hover:underline ml-2">Syslog Integration</a> •
+          <a href="/docs/api/" class="text-primary-readable hover:underline ml-2">API Reference</a>
       </p>
   </div>
 </DocsLayout>

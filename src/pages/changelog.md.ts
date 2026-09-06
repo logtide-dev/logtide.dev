@@ -29,7 +29,7 @@ export const GET: APIRoute = async () => {
 
   for (const entry of entries) {
     const { version, title, date, status, type, targetDate } = entry.data;
-    const heading = version ? `${version} — ${title}` : title;
+    const heading = version ? `${version} - ${title}` : title;
     parts.push(`## ${heading}`, '');
 
     const meta: string[] = [`**Status:** ${status}`, `**Type:** ${type}`];

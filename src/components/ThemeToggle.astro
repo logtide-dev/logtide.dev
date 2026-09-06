@@ -41,12 +41,15 @@
   function initThemeToggle() {
     const toggle = document.getElementById('theme-toggle');
 
+    let unarm: number | undefined;
+
     function setTheme(theme: 'dark' | 'light') {
-      if (theme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
+      const root = document.documentElement;
+      root.classList.add('theme-switching');
+      window.clearTimeout(unarm);
+      unarm = window.setTimeout(() => root.classList.remove('theme-switching'), 260);
+
+      root.classList.toggle('dark', theme === 'dark');
       localStorage.setItem('theme', theme);
     }
 

@@ -10,10 +10,10 @@ import Button from '../components/ui/Button.astro';
   description="The page you're looking for doesn't exist or has been moved."
 >
   <Header />
-  <main aria-label="Error page" class="flex min-h-[70vh] flex-col items-center justify-center px-4 py-24">
+  <main aria-label="Error page" class="flex min-h-[70dvh] flex-col items-center justify-center px-4 py-24">
     <div class="mx-auto max-w-md text-center">
-      <p class="text-sm font-medium uppercase tracking-wide text-primary">404 Error</p>
-      <h1 class="mt-2 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+      <p class="font-mono text-6xl font-bold text-primary-readable" aria-hidden="true">404</p>
+      <h1 class="mt-4 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
         Page not found
       </h1>
       <p class="mt-4 text-lg text-muted-foreground">
@@ -34,16 +34,16 @@ import Button from '../components/ui/Button.astro';
           Looking for something specific? Try these:
         </p>
         <nav aria-label="Quick links" class="mt-6 flex flex-wrap justify-center gap-x-8 gap-y-3">
-          <a href="/docs/getting-started/" class="text-sm text-primary hover:underline">
+          <a href="/docs/getting-started/" class="text-sm text-primary-readable hover:underline">
             Getting Started
           </a>
-          <a href="/integrations/" class="text-sm text-primary hover:underline">
+          <a href="/integrations/" class="text-sm text-primary-readable hover:underline">
             Integrations
           </a>
-          <a href="/use-cases/" class="text-sm text-primary hover:underline">
+          <a href="/use-cases/" class="text-sm text-primary-readable hover:underline">
             Use Cases
           </a>
-          <a href="/docs/api/" class="text-sm text-primary hover:underline">
+          <a href="/docs/api/" class="text-sm text-primary-readable hover:underline">
             API Reference
           </a>
         </nav>

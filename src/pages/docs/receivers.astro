@@ -32,13 +32,13 @@ const keywords = [
 >
   <div class="flex items-center gap-3 mb-4">
     <div class="p-2 bg-primary/10 rounded-lg">
-      <Icon name="lucide:inbox" class="w-6 h-6 text-primary" />
+      <Icon name="lucide:inbox" class="w-6 h-6 text-primary-readable" />
     </div>
     <h1 class="text-3xl font-bold">Webhook Receivers</h1>
   </div>
 
   <p class="text-lg text-muted-foreground mb-8">
-    Webhook receivers let external systems — CI/CD pipelines, uptime monitors, arbitrary tools —
+    Webhook receivers let external systems - CI/CD pipelines, uptime monitors, arbitrary tools - 
     push events <em>into</em> LogTide. Each receiver exposes a unique tokenized URL; incoming
     payloads are normalized into standard log entries by an adapter and stored through the regular
     ingestion pipeline, so PII masking, usage quotas, Sigma detection, and parsing rules all apply
@@ -51,7 +51,7 @@ const keywords = [
       <div>
         <h4 class="font-medium mb-1">Receivers vs. Webhooks</h4>
         <p class="text-sm text-muted-foreground">
-          Receivers are <strong>inbound</strong> — external systems POST events to LogTide. If you
+          Receivers are <strong>inbound</strong> - external systems POST events to LogTide. If you
           instead want LogTide to POST events out to <em>your</em> endpoints (alerts, incidents,
           monitor changes), see <a href="/docs/webhooks/">Webhooks</a>.
         </p>
@@ -75,10 +75,10 @@ const keywords = [
       <Card>
         <CardContent class="pt-4">
           <div class="flex items-start gap-3">
-            <Icon name="lucide:link" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <Icon name="lucide:link" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
             <div>
               <h4 class="font-medium mb-1">One tokenized URL</h4>
-              <p class="text-sm text-muted-foreground">The URL is the credential — no custom headers required, so it works with systems that can't send them.</p>
+              <p class="text-sm text-muted-foreground">The URL is the credential - no custom headers required, so it works with systems that can't send them.</p>
             </div>
           </div>
         </CardContent>
@@ -87,7 +87,7 @@ const keywords = [
       <Card>
         <CardContent class="pt-4">
           <div class="flex items-start gap-3">
-            <Icon name="lucide:shuffle" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <Icon name="lucide:shuffle" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
             <div>
               <h4 class="font-medium mb-1">Adapters normalize</h4>
               <p class="text-sm text-muted-foreground">GitHub, uptime monitors, or arbitrary JSON are mapped into standard log entries with the right level and service.</p>
@@ -99,7 +99,7 @@ const keywords = [
       <Card>
         <CardContent class="pt-4">
           <div class="flex items-start gap-3">
-            <Icon name="lucide:shield-check" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <Icon name="lucide:shield-check" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
             <div>
               <h4 class="font-medium mb-1">Full ingestion pipeline</h4>
               <p class="text-sm text-muted-foreground">Received events go through the same path as the ingest API: PII masking, quotas, Sigma detection, parsing, live tail.</p>
@@ -111,10 +111,10 @@ const keywords = [
       <Card>
         <CardContent class="pt-4">
           <div class="flex items-start gap-3">
-            <Icon name="lucide:key" class="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <Icon name="lucide:key" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
             <div>
               <h4 class="font-medium mb-1">Limited blast radius</h4>
-              <p class="text-sm text-muted-foreground">A receiver token can only ingest logs into one project — it can't read data or call any other endpoint.</p>
+              <p class="text-sm text-muted-foreground">A receiver token can only ingest logs into one project - it can't read data or call any other endpoint.</p>
             </div>
           </div>
         </CardContent>
@@ -191,7 +191,7 @@ Content-Type: application/json`}
     <p>
       Treat the URL as a secret: anyone who has it can write logs into your project. To rotate a
       token, delete the receiver and create a new one, then update the external system with the new
-      URL. A receiver token cannot read data or call any other API endpoint — a leaked URL limits
+      URL. A receiver token cannot read data or call any other API endpoint - a leaked URL limits
       the blast radius to log ingestion into one project.
     </p>
   </div>
@@ -306,7 +306,7 @@ Content-Type: application/json`}
       Received events are ingested through the same path as <code>POST /api/v1/ingest</code>:
     </p>
     <ul class="list-disc list-inside space-y-2 ml-2">
-      <li><strong>PII masking is fail-closed</strong> — entries whose masking fails are rejected, and the event is marked <code>failed</code> with the rejection reason.</li>
+      <li><strong>PII masking is fail-closed</strong> - entries whose masking fails are rejected, and the event is marked <code>failed</code> with the rejection reason.</li>
       <li><strong>Usage quotas</strong> (<code>ingestion.max_bytes_monthly</code>, <code>ingestion.max_events_monthly</code>, <code>storage.max_bytes</code>) apply; over-quota events fail with the quota error recorded.</li>
       <li>Sigma detection, exception parsing, log pipelines, metering, and live tail all see receiver events like any other ingested log.</li>
     </ul>

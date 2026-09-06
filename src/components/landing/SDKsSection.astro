@@ -1,88 +1,45 @@
 ---
+import { Icon } from 'astro-icon/components';
+
 const sdks = [
-  {
-    name: 'Node.js',
-    href: '/docs/sdks/nodejs/',
-    icon: '/icons/sdks/nodejs-original.svg',
-    install: '@logtide/core',
-  },
-  {
-    name: 'Browser',
-    href: '/docs/sdks/browser/',
-    icon: '/icons/sdks/javascript-original.svg',
-    install: '@logtide/browser',
-  },
-  {
-    name: 'Python',
-    href: '/docs/sdks/python/',
-    icon: '/icons/sdks/python-original.svg',
-    install: 'pip install',
-  },
-  {
-    name: 'Go',
-    href: '/docs/sdks/go/',
-    icon: '/icons/sdks/go-original-wordmark.svg',
-    install: 'go get',
-  },
-  {
-    name: 'PHP',
-    href: '/docs/sdks/php/',
-    icon: '/icons/sdks/php-original.svg',
-    install: 'composer',
-  },
-  {
-    name: 'Kotlin',
-    href: '/docs/sdks/kotlin/',
-    icon: '/icons/sdks/kotlin-original.svg',
-    install: 'gradle',
-  },
-  {
-    name: 'Ruby',
-    href: '/docs/sdks/ruby/',
-    icon: '/icons/sdks/ruby-original.svg',
-    install: 'gem install',
-  },
-  {
-    name: 'OpenTelemetry',
-    href: '/docs/opentelemetry/',
-    icon: null,
-    install: 'OTLP native',
-  },
+  { name: 'Node.js', href: '/docs/sdks/nodejs/', icon: '/icons/sdks/nodejs-original.svg', install: '@logtide/core' },
+  { name: 'Browser', href: '/docs/sdks/browser/', icon: '/icons/sdks/javascript-original.svg', install: '@logtide/browser' },
+  { name: 'Python', href: '/docs/sdks/python/', icon: '/icons/sdks/python-original.svg', install: 'pip install' },
+  { name: 'Go', href: '/docs/sdks/go/', icon: '/icons/sdks/go-original-wordmark.svg', install: 'go get' },
+  { name: 'PHP', href: '/docs/sdks/php/', icon: '/icons/sdks/php-original.svg', install: 'composer' },
+  { name: 'Kotlin', href: '/docs/sdks/kotlin/', icon: '/icons/sdks/kotlin-original.svg', install: 'gradle' },
+  { name: 'Ruby', href: '/docs/sdks/ruby/', icon: '/icons/sdks/ruby-original.svg', install: 'gem install' },
+  { name: 'OpenTelemetry', href: '/docs/opentelemetry/', icon: null, install: 'OTLP native' },
 ];
 ---
 
-<section class="px-6 py-24" aria-labelledby="sdks-heading">
+<section class="border-t border-border px-6 py-24" aria-labelledby="sdks-heading">
   <div class="mx-auto max-w-6xl">
-    <div class="mb-12 text-center">
-      <span class="font-mono text-xs font-medium uppercase tracking-[0.2em] text-primary">Integrations</span>
-      <h2 id="sdks-heading" class="mb-4 mt-2 text-3xl font-bold md:text-4xl">Works with your stack</h2>
-      <p class="mx-auto max-w-2xl text-lg text-muted-foreground">
+    <div class="max-w-2xl" data-reveal>
+      <h2 id="sdks-heading" class="text-section font-bold">Works with your stack</h2>
+      <p class="mt-4 text-lg text-muted-foreground">
         Native SDKs with retry logic and circuit breakers. Or use OpenTelemetry.
       </p>
     </div>
 
-    <div class="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-7">
+    <!-- Eight items, eight cells: a 4-column grid with no orphan tile. Hairlines
+         come from the container border so adjacent cells share one line. -->
+    <div
+      class="mt-14 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-4"
+      data-reveal
+    >
       {sdks.map((sdk) => (
         <a
           href={sdk.href}
-          class="group rounded-xl border border-border bg-card p-6 text-center transition-all hover:border-primary/50 hover:bg-card/80"
+          class="group flex flex-col items-start gap-3 bg-card p-6 transition-colors hover:bg-muted"
         >
           {sdk.icon ? (
-            <img
-              src={sdk.icon}
-              alt={sdk.name}
-              class="mx-auto mb-3 h-12 w-12"
-              loading="lazy"
-            />
+            <img src={sdk.icon} alt="" class="h-9 w-9" loading="lazy" width="36" height="36" />
           ) : (
-            <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10" aria-hidden="true">
-              <svg class="h-7 w-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 3v12M18 3v12M6 9h12M6 15h12M8 21h8" />
-              </svg>
-            </div>
+            <Icon name="lucide:radio-tower" class="h-9 w-9 text-primary-readable" aria-hidden="true" />
           )}
-          <span class="font-medium">{sdk.name}</span>
-          <div class="mt-1 font-mono text-xs text-muted-foreground">{sdk.install}</div>
+          <span class="font-medium transition-colors group-hover:text-primary-readable">{sdk.name}</span>
+          <span class="font-mono text-xs text-muted-foreground">{sdk.install}</span>
         </a>
       ))}
     </div>

@@ -27,8 +27,8 @@ const headings = [
 >
   <h1 class="text-3xl font-bold mb-4">Vector Integration</h1>
   <p class="text-lg text-muted-foreground mb-8">
-    Forward logs from <a href="https://vector.dev" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Datadog Vector</a> to LogTide.
-    Works with any Vector source — syslog, Docker, files, Kafka, and more.
+    Forward logs from <a href="https://vector.dev" target="_blank" rel="noopener noreferrer" class="text-primary-readable hover:underline">Datadog Vector</a> to LogTide.
+    Works with any Vector source - syslog, Docker, files, Kafka, and more.
   </p>
 
   <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-8">
@@ -66,19 +66,19 @@ const headings = [
       <Card>
         <CardHeader>
           <CardTitle class="flex items-center gap-2 text-base">
-            <Icon name="lucide:zap" class="w-4 h-4 text-primary" />
+            <Icon name="lucide:zap" class="w-4 h-4 text-primary-readable" />
             High Performance
           </CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground">
-          Written in Rust. Low memory footprint and high throughput — handles thousands of events per second.
+          Written in Rust. Low memory footprint and high throughput - handles thousands of events per second.
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
           <CardTitle class="flex items-center gap-2 text-base">
-            <Icon name="lucide:shuffle" class="w-4 h-4 text-primary" />
+            <Icon name="lucide:shuffle" class="w-4 h-4 text-primary-readable" />
             VRL Transforms
           </CardTitle>
         </CardHeader>
@@ -90,12 +90,12 @@ const headings = [
       <Card>
         <CardHeader>
           <CardTitle class="flex items-center gap-2 text-base">
-            <Icon name="lucide:plug" class="w-4 h-4 text-primary" />
+            <Icon name="lucide:plug" class="w-4 h-4 text-primary-readable" />
             100+ Sources
           </CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground">
-          Syslog, Docker, Kubernetes, Kafka, files, journald, and many more — all forwarded to LogTide.
+          Syslog, Docker, Kubernetes, Kafka, files, journald, and many more - all forwarded to LogTide.
         </CardContent>
       </Card>
     </div>
@@ -123,7 +123,7 @@ const headings = [
         <Icon name="lucide:arrow-right" class="w-5 h-5 text-muted-foreground hidden md:block" />
         <Icon name="lucide:arrow-down" class="w-5 h-5 text-muted-foreground md:hidden" />
         <div class="bg-primary/10 border border-primary/30 rounded px-4 py-2 text-center">
-          <div class="text-primary text-xs mb-1">Vector</div>
+          <div class="text-primary-readable text-xs mb-1">Vector</div>
           <div>Transform (VRL)</div>
         </div>
         <Icon name="lucide:arrow-right" class="w-5 h-5 text-muted-foreground hidden md:block" />
@@ -153,12 +153,12 @@ const headings = [
           <tr class="border-b border-border">
             <td class="p-3"><code class="bg-muted px-1 rounded">/api/v1/ingest/single</code></td>
             <td class="p-3">Vector, Fluent Bit, collectors</td>
-            <td class="p-3"><span class="text-green-500">Yes</span> — auto-generates <code class="bg-muted px-1 rounded">time</code>, normalizes <code class="bg-muted px-1 rounded">level</code></td>
+            <td class="p-3"><span class="text-green-500">Yes</span> - auto-generates <code class="bg-muted px-1 rounded">time</code>, normalizes <code class="bg-muted px-1 rounded">level</code></td>
           </tr>
           <tr class="border-b border-border">
             <td class="p-3"><code class="bg-muted px-1 rounded">/api/v1/ingest</code></td>
             <td class="p-3">SDKs, custom integrations</td>
-            <td class="p-3"><span class="text-yellow-500">Partial</span> — accepts arrays, but strict on standard format</td>
+            <td class="p-3"><span class="text-yellow-500">Partial</span> - accepts arrays, but strict on standard format</td>
           </tr>
         </tbody>
       </table>
@@ -233,7 +233,7 @@ sinks:
         <div>
           <p class="font-semibold text-green-600 dark:text-green-400 mb-1">Test it</p>
           <p class="text-sm text-muted-foreground">
-            Run <code class="bg-muted px-1 rounded">vector -c vector.yaml</code> — you should see
+            Run <code class="bg-muted px-1 rounded">vector -c vector.yaml</code> - you should see
             "Healthcheck passed" and no errors. The demo source will send 5 test logs and exit.
           </p>
         </div>
@@ -294,7 +294,7 @@ sinks:
     </p>
 
     <div>
-      <h3 class="text-lg font-semibold mb-3 scroll-mt-24">vector.yaml — Syslog to LogTide</h3>
+      <h3 class="text-lg font-semibold mb-3 scroll-mt-24">vector.yaml - Syslog to LogTide</h3>
       <Code
         lang="yaml"
         theme="one-dark-pro"
@@ -360,7 +360,7 @@ sinks:
           <p class="text-sm text-muted-foreground">
             The <code class="bg-muted px-1 rounded">inputs</code> field in transforms and sinks must match
             the <strong>exact name</strong> of your source. If your source is named <code class="bg-muted px-1 rounded">rsyslog</code>,
-            use <code class="bg-muted px-1 rounded">inputs: [rsyslog]</code> — not <code class="bg-muted px-1 rounded">inputs: [syslog]</code>.
+            use <code class="bg-muted px-1 rounded">inputs: [rsyslog]</code> - not <code class="bg-muted px-1 rounded">inputs: [syslog]</code>.
             A mismatch causes Vector to immediately exit with "All sources have finished".
           </p>
         </div>
@@ -675,7 +675,7 @@ sinks:
       <CardHeader>
         <CardTitle class="flex items-center gap-2 text-base">
           <Icon name="lucide:x-circle" class="w-4 h-4 text-red-500" />
-          "All sources have finished" — Vector exits immediately
+          "All sources have finished" - Vector exits immediately
         </CardTitle>
       </CardHeader>
       <CardContent class="text-sm text-muted-foreground space-y-2">
@@ -707,10 +707,10 @@ transforms:
       <CardContent class="text-sm text-muted-foreground space-y-2">
         <p>The payload format doesn't match what the endpoint expects. Most common causes:</p>
         <ul class="space-y-1 list-none pl-0">
-          <li>• <strong>Using <code class="bg-muted px-1 rounded">/api/v1/ingest</code> with raw events</strong> — this endpoint expects
+          <li>• <strong>Using <code class="bg-muted px-1 rounded">/api/v1/ingest</code> with raw events</strong> - this endpoint expects
               <code class="bg-muted px-1 rounded">{`{"logs": [...]}`}</code>. Use <code class="bg-muted px-1 rounded">/api/v1/ingest/single</code> instead.</li>
-          <li>• <strong>Missing <code class="bg-muted px-1 rounded">message</code> field</strong> — every log must have a message.</li>
-          <li>• <strong>Wrapping with <code class="bg-muted px-1 rounded">{`. = { "logs": [ . ] }`}</code> in VRL</strong> — Vector's HTTP sink
+          <li>• <strong>Missing <code class="bg-muted px-1 rounded">message</code> field</strong> - every log must have a message.</li>
+          <li>• <strong>Wrapping with <code class="bg-muted px-1 rounded">{`. = { "logs": [ . ] }`}</code> in VRL</strong> - Vector's HTTP sink
               batches events into a JSON array, turning your payload into
               <code class="bg-muted px-1 rounded">{`[{"logs":[...]}, {"logs":[...]}]`}</code> which doesn't match the expected format.
               Use <code class="bg-muted px-1 rounded">/api/v1/ingest/single</code> without wrapping.</li>
