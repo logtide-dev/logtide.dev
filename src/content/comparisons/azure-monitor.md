@@ -1,6 +1,6 @@
 ---
 title: "LogTide vs Azure Monitor Logs"
-description: "LogTide vs Azure Monitor: self-hosted, open-source log management with built-in SIEM. Azure Log Analytics charges $2.76/GB — LogTide saves 85-95% at scale."
+description: "LogTide vs Azure Monitor: self-hosted, open-source log management with built-in SIEM. Azure Log Analytics charges $2.76/GB - LogTide saves 85-95% at scale."
 competitor: "Azure Monitor"
 competitorUrl: "https://azure.microsoft.com/en-us/products/monitor"
 brandIcon: "simple-icons:microsoftazure"
@@ -37,7 +37,7 @@ faqs:
   - question: "Can I run LogTide inside Azure?"
     answer: "Yes. LogTide is infrastructure-agnostic and runs on any Azure VM or AKS cluster, as well as AWS, GCP, or on-premises. You keep full data sovereignty without Azure lock-in."
   - question: "When does Azure Monitor make more sense?"
-    answer: "If your workloads are entirely on Azure and you want automatic, zero-config log collection from Azure services — and your volume is low enough that per-GB pricing stays cheap — Azure Monitor's native integration is hard to beat."
+    answer: "If your workloads are entirely on Azure and you want automatic, zero-config log collection from Azure services - and your volume is low enough that per-GB pricing stays cheap - Azure Monitor's native integration is hard to beat."
 ---
 
 Azure Monitor with Log Analytics is Microsoft's observability platform for Azure workloads. LogTide is a self-hosted, open-source alternative with built-in SIEM. Here's how they compare.
@@ -104,13 +104,13 @@ With SIEM comparison: **Savings: ~$78,360/year (94%)**
 
 ## Where Azure Monitor Wins
 
-**Native Azure integration.** Azure Monitor collects data from every Azure service automatically — VMs, App Service, AKS, SQL Database, Functions. No agent configuration for most services.
+**Native Azure integration.** Azure Monitor collects data from every Azure service automatically - VMs, App Service, AKS, SQL Database, Functions. No agent configuration for most services.
 
 **KQL query language.** Kusto Query Language is powerful for log analytics, with joins, aggregations, time-series analysis, and visualization. It's one of the most capable query languages for log data.
 
 **Azure Workbooks.** Rich, interactive dashboards with parameterized queries, conditional visibility, and embedded Azure resource context.
 
-**Sentinel integration.** Microsoft Sentinel provides enterprise SIEM with hundreds of pre-built detection rules, Microsoft threat intelligence, and automated response playbooks — if you can afford it.
+**Sentinel integration.** Microsoft Sentinel provides enterprise SIEM with hundreds of pre-built detection rules, Microsoft threat intelligence, and automated response playbooks - if you can afford it.
 
 **Compliance certifications.** Azure Monitor carries SOC2, ISO 27001, HIPAA, and FedRAMP certifications for regulated industries.
 
@@ -120,7 +120,7 @@ With SIEM comparison: **Savings: ~$78,360/year (94%)**
 
 **SIEM included.** Sentinel adds $2.46/GB on top of Log Analytics costs. LogTide includes Sigma detection rules, MITRE ATT&CK mapping, and incident management at zero additional cost.
 
-**No vendor lock-in.** Azure Monitor uses KQL and proprietary data formats. LogTide stores data in PostgreSQL — standard SQL, exportable, portable.
+**No vendor lock-in.** Azure Monitor uses KQL and proprietary data formats. LogTide stores data in PostgreSQL - standard SQL, exportable, portable.
 
 **Multi-cloud.** LogTide runs on any cloud or on-premises. If you use Azure alongside AWS or GCP, LogTide provides unified log management.
 

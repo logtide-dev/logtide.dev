@@ -23,13 +23,13 @@ keywords:
   - "node express logs"
 faqs:
   - question: "How do I add LogTide logging to an Express.js application?"
-    answer: "Install the @logtide/express package with npm and add the logtide() middleware to your Express app using app.use(). Pass your DSN, service name, and environment in the options object — LogTide initialises automatically and every HTTP request is logged without any further code changes."
+    answer: "Install the @logtide/express package with npm and add the logtide() middleware to your Express app using app.use(). Pass your DSN, service name, and environment in the options object - LogTide initialises automatically and every HTTP request is logged without any further code changes."
   - question: "Does the Express integration log every request automatically?"
-    answer: "Yes. Once the logtide() middleware is registered, every HTTP request and response is logged as a structured JSON event including method, path, status code, duration, IP, and user agent — with no manual instrumentation required."
+    answer: "Yes. Once the logtide() middleware is registered, every HTTP request and response is logged as a structured JSON event including method, path, status code, duration, IP, and user agent - with no manual instrumentation required."
   - question: "Can I attach per-request context like user ID or tenant to Express logs?"
     answer: "Yes. Inside any route or middleware you can call req.logtideScope.setTag() or req.logtideScope.setExtra() to attach custom fields. Those fields are then included on every log entry produced during that specific request."
   - question: "Will adding LogTide middleware slow down my Express server?"
-    answer: "No. Logging is non-blocking — log events are buffered and shipped asynchronously so request handling is never delayed. The middleware also propagates W3C traceparent headers at no extra cost."
+    answer: "No. Logging is non-blocking - log events are buffered and shipped asynchronously so request handling is never delayed. The middleware also propagates W3C traceparent headers at no extra cost."
 ---
 
 LogTide's Express SDK provides drop-in middleware for automatic request logging, per-request context scoping, and distributed tracing with W3C Trace Context.

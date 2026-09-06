@@ -234,14 +234,14 @@ sudo tee /etc/fluent-bit/priority_to_level.lua << 'LUAEOF'
 ```lua
 -- Map syslog priority to log level
 local priority_map = {
-    ["0"] = "critical",  -- EMERG
-    ["1"] = "critical",  -- ALERT
-    ["2"] = "critical",  -- CRIT
-    ["3"] = "error",     -- ERR
-    ["4"] = "warning",   -- WARNING
-    ["5"] = "info",      -- NOTICE
-    ["6"] = "info",      -- INFO
-    ["7"] = "debug"      -- DEBUG
+    ["0"] = "critical",  - EMERG
+    ["1"] = "critical",  - ALERT
+    ["2"] = "critical",  - CRIT
+    ["3"] = "error",     - ERR
+    ["4"] = "warning",   - WARNING
+    ["5"] = "info",      - NOTICE
+    ["6"] = "info",      - INFO
+    ["7"] = "debug"      - DEBUG
 }
 
 function priority_to_level(tag, timestamp, record)
@@ -584,20 +584,20 @@ Remove or hash sensitive information:
 ```lua
 -- /etc/fluent-bit/sanitize.lua
 function sanitize_logs(tag, timestamp, record)
-    -- Hash user IDs
+    - Hash user IDs
     if record["uid"] then
         record["uid_hash"] = hash(record["uid"])
         record["uid"] = nil
     end
 
-    -- Remove command line (may contain secrets)
+    - Remove command line (may contain secrets)
     record["cmdline"] = nil
 
     return 1, timestamp, record
 end
 
 function hash(value)
-    -- Simple hash for demonstration
+    - Simple hash for demonstration
     local h = 0
     for i = 1, #value do
         h = (h * 31 + string.byte(value, i)) % 2147483647

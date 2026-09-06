@@ -30,16 +30,16 @@ keywords:
   - "Logtail replacement"
 faqs:
   - question: "Is LogTide cheaper than Better Stack (Logtail)?"
-    answer: "For most teams, yes. A startup ingesting 50 GB/day with 8 users pays around $675/month on Better Stack ($375 data + $200 seats + $100 extended retention), versus roughly $250/month on LogTide infrastructure — saving about $5,100/year (63%). At 200 GB/day with 15 users the saving grows to around $21,300/year (82%), because LogTide has no per-user fees and no per-GB charges."
+    answer: "For most teams, yes. A startup ingesting 50 GB/day with 8 users pays around $675/month on Better Stack ($375 data + $200 seats + $100 extended retention), versus roughly $250/month on LogTide infrastructure - saving about $5,100/year (63%). At 200 GB/day with 15 users the saving grows to around $21,300/year (82%), because LogTide has no per-user fees and no per-GB charges."
   - question: "Does LogTide support self-hosting, unlike Better Stack?"
-    answer: "Yes. Better Stack is a SaaS-only platform with no self-hosted option. LogTide is open-source (AGPLv3) and runs on your own infrastructure — on-premises, in your cloud VPC, or in an air-gapped environment — giving you full data sovereignty and GDPR compliance without relying on a third-party data processor."
+    answer: "Yes. Better Stack is a SaaS-only platform with no self-hosted option. LogTide is open-source (AGPLv3) and runs on your own infrastructure - on-premises, in your cloud VPC, or in an air-gapped environment - giving you full data sovereignty and GDPR compliance without relying on a third-party data processor."
   - question: "When is Better Stack the better choice over LogTide?"
     answer: "Better Stack excels when you want zero infrastructure management, polished developer experience, and built-in uptime monitoring or status pages bundled with log management. It is particularly well-suited for small teams (under 5 users) with low log volume (under 5 GB/day) who value fast onboarding over cost savings."
   - question: "How do I migrate from Better Stack to LogTide?"
-    answer: "Run both platforms in parallel: add the LogTide SDK alongside your existing Better Stack (Logtail) SDK, or use Fluent Bit with two HTTP output blocks to fan logs to both destinations. After 1-2 weeks of validation — comparing search results, alert behavior, and SSE streaming — remove the Better Stack SDK and Fluent Bit output block, then cancel your subscription."
+    answer: "Run both platforms in parallel: add the LogTide SDK alongside your existing Better Stack (Logtail) SDK, or use Fluent Bit with two HTTP output blocks to fan logs to both destinations. After 1-2 weeks of validation - comparing search results, alert behavior, and SSE streaming - remove the Better Stack SDK and Fluent Bit output block, then cancel your subscription."
 ---
 
-Better Stack (formerly Logtail) is a modern SaaS log management platform with uptime monitoring and incident management. LogTide is a self-hosted, open-source log management platform with built-in SIEM. Both target developers who want clean, modern tooling -- here's how they compare.
+Better Stack (formerly Logtail) is a modern SaaS log management platform with uptime monitoring and incident management. LogTide is a self-hosted, open-source log management platform with built-in SIEM. Both target developers who want clean, modern tooling - here's how they compare.
 
 ## Cost Comparison
 
@@ -133,7 +133,7 @@ The cost gap widens further as team size grows, since LogTide has zero per-user 
 
 **Zero infrastructure management.** As a fully managed SaaS, there's nothing to deploy, patch, back up, or maintain. Your team focuses on using the platform rather than running it. This is especially valuable for small teams without dedicated DevOps resources.
 
-**SQL-based querying.** Better Stack uses SQL for log queries, which is familiar to virtually every developer. No proprietary query language to learn -- just write standard SQL against your log data.
+**SQL-based querying.** Better Stack uses SQL for log queries, which is familiar to virtually every developer. No proprietary query language to learn - just write standard SQL against your log data.
 
 **Fast onboarding.** Better Stack offers a guided setup experience with copy-paste code snippets for dozens of languages and frameworks. You can go from signup to seeing your first logs in under 5 minutes, with pre-built parsing for common log formats.
 
@@ -147,15 +147,15 @@ The cost gap widens further as team size grows, since LogTide has zero per-user 
 
 **No per-seat pricing.** Better Stack charges $25/user/month on the Team plan. For a team of 20, that's $500/month ($6,000/year) in user fees alone, before any data costs. LogTide has unlimited users at no extra cost, encouraging broad access across engineering, security, DevOps, and support teams.
 
-**Unlimited retention.** Better Stack's retention is plan-dependent: 3 days on the free tier, 30 days on Team, and extended retention costs extra. LogTide retains logs for as long as your storage allows -- months or years with no additional fees. This is critical for compliance audits, forensic investigations, and long-term trend analysis.
+**Unlimited retention.** Better Stack's retention is plan-dependent: 3 days on the free tier, 30 days on Team, and extended retention costs extra. LogTide retains logs for as long as your storage allows - months or years with no additional fees. This is critical for compliance audits, forensic investigations, and long-term trend analysis.
 
-**Data sovereignty.** Your logs never leave your infrastructure. No third-party data processing agreements needed. Full GDPR compliance with your choice of data residency. No concerns about sensitive data -- PII, credentials, financial records -- being processed outside your perimeter.
+**Data sovereignty.** Your logs never leave your infrastructure. No third-party data processing agreements needed. Full GDPR compliance with your choice of data residency. No concerns about sensitive data - PII, credentials, financial records - being processed outside your perimeter.
 
 **No vendor lock-in.** LogTide is AGPLv3 open-source. Your data lives in TimescaleDB or ClickHouse that you own and control. Your detection rules use the portable Sigma standard. You can inspect, fork, and modify every line of source code.
 
 **Cost advantage at scale.** Better Stack's per-GB pricing means costs grow linearly with data volume, and per-user fees add a second scaling dimension. At 200+ GB/day with a growing team, LogTide's infrastructure-only cost model saves 80%+ compared to Better Stack.
 
-**Real-time SSE streaming.** LogTide's Server-Sent Events streaming provides real-time log tailing with efficient, standards-based technology. No proprietary protocols, no WebSocket complexity -- just HTTP streaming that works through any proxy or CDN.
+**Real-time SSE streaming.** LogTide's Server-Sent Events streaming provides real-time log tailing with efficient, standards-based technology. No proprietary protocols, no WebSocket complexity - just HTTP streaming that works through any proxy or CDN.
 
 ## When to Choose Better Stack
 

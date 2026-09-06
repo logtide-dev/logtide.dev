@@ -368,7 +368,7 @@ Alert: "MongoDB experiencing sustained slow operations"
 service:mongodb AND warning:collection_scan AND docs_examined > 10000
 ```
 
-Alert: "Collection scan on large collection — missing index?"
+Alert: "Collection scan on large collection - missing index?"
 
 ### Replica Set Election
 
@@ -397,8 +397,8 @@ Alert: "MongoDB connection spike detected"
 | Disk I/O | Baseline | +2-5 MB/day | Minimal |
 
 **Notes:**
-- `slowOp` profiling only logs slow operations — minimal overhead
-- Level 2 profiling (all operations) has significant overhead — avoid in production
+- `slowOp` profiling only logs slow operations - minimal overhead
+- Level 2 profiling (all operations) has significant overhead - avoid in production
 - Structured JSON logs have negligible overhead vs legacy format
 
 ## Security

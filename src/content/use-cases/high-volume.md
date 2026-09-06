@@ -95,10 +95,10 @@ ingesters -> pg { class: flow }
 ```
 
 **Key principles:**
-1. **Buffer with Kafka** between your apps and LogTide — handle bursts without backpressure
-2. **Horizontal scaling** of ingestion workers — add more consumers for more throughput
-3. **Tiered storage** — hot data in PostgreSQL/TimescaleDB, cold data in S3
-4. **Sampling and filtering** at the edge — not every debug log needs to be stored
+1. **Buffer with Kafka** between your apps and LogTide - handle bursts without backpressure
+2. **Horizontal scaling** of ingestion workers - add more consumers for more throughput
+3. **Tiered storage** - hot data in PostgreSQL/TimescaleDB, cold data in S3
+4. **Sampling and filtering** at the edge - not every debug log needs to be stored
 
 ## Implementation
 
@@ -421,13 +421,13 @@ At 100,000 events/sec, "everything" means 4.3 TB/day. Storage costs dominate.
 
 ### 2. "Our SDK handles backpressure"
 
-SDKs buffer in memory. If LogTide or Kafka is down for 5 minutes at 100k events/sec, that's 30 million events in memory — potentially GBs of RAM.
+SDKs buffer in memory. If LogTide or Kafka is down for 5 minutes at 100k events/sec, that's 30 million events in memory - potentially GBs of RAM.
 
 **Solution:** Set `maxBufferSize` limits. Accept that during extended outages, some logs may be dropped. Log the drop count itself.
 
 ### 3. "We'll tune performance later"
 
-At high volume, defaults fail fast. A 5-second flush interval with batch size 100 means only 20 batches/sec — that's 2,000 events/sec max throughput per client.
+At high volume, defaults fail fast. A 5-second flush interval with batch size 100 means only 20 batches/sec - that's 2,000 events/sec max throughput per client.
 
 **Solution:** Tune batch size and flush interval before going to production at scale.
 

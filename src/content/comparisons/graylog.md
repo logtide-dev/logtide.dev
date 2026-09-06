@@ -31,7 +31,7 @@ keywords:
   - "self-hosted log management"
 faqs:
   - question: "Is LogTide cheaper to run than Graylog?"
-    answer: "Both tools are free open-source software, but infrastructure costs differ dramatically. Graylog requires Elasticsearch (3 nodes), MongoDB, and a JVM-based server, totalling 30-60 GB of RAM. LogTide runs on 6-12 GB total, saving roughly 60-80% on infrastructure. For a 50 GB/day workload, LogTide infrastructure costs around $250/month versus ~$700/month for Graylog Open — and if you need SIEM, Graylog Security adds $1,550+/month more."
+    answer: "Both tools are free open-source software, but infrastructure costs differ dramatically. Graylog requires Elasticsearch (3 nodes), MongoDB, and a JVM-based server, totalling 30-60 GB of RAM. LogTide runs on 6-12 GB total, saving roughly 60-80% on infrastructure. For a 50 GB/day workload, LogTide infrastructure costs around $250/month versus ~$700/month for Graylog Open - and if you need SIEM, Graylog Security adds $1,550+/month more."
   - question: "Does LogTide include SIEM features that Graylog locks behind a paid tier?"
     answer: "Yes. Sigma detection rules, MITRE ATT&CK mapping, and incident management are locked behind the paid Graylog Security tier (from $1,550/month). LogTide includes all of these capabilities in its free, open-source AGPLv3 release with no feature gating."
   - question: "How do I migrate from Graylog to LogTide?"

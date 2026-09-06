@@ -350,7 +350,7 @@ LOGTIDE_DSN=https://lp_your_key@api.logtide.dev php test-logging.php
 curl -I https://api.logtide.dev/health
 ```
 
-3. **Flush is automatic** &mdash; the SDK registers a shutdown function. For long-running processes, call `\LogTide\flush()` manually.
+3. **Flush is automatic**  -  the SDK registers a shutdown function. For long-running processes, call `\LogTide\flush()` manually.
 
 ### Memory issues with high volume
 

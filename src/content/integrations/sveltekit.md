@@ -31,7 +31,7 @@ faqs:
     answer: "Yes. Export logtideHandleFetch from src/hooks.server.ts to automatically add traceparent headers to outgoing fetch requests made inside server load functions, enabling distributed trace propagation to downstream services."
 ---
 
-LogTide's SvelteKit SDK integrates through SvelteKit's hooks system — `handle`, `handleError`, and `handleFetch` — with support for both server-side and client-side error capture.
+LogTide's SvelteKit SDK integrates through SvelteKit's hooks system - `handle`, `handleError`, and `handleFetch` - with support for both server-side and client-side error capture.
 
 ## Why use LogTide with SvelteKit?
 

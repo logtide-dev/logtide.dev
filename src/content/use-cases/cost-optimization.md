@@ -29,7 +29,7 @@ keywords:
   - "open source SIEM"
 faqs:
   - question: "How does LogTide reduce log management costs?"
-    answer: "LogTide is self-hosted, so you pay only for compute and storage instead of per-GB ingestion fees. At 100 GB/day, typical infrastructure costs run $220-$340 per month compared to $1,130+ per month on Datadog or $1,250-$4,166 per month on Splunk Cloud — a saving of 70-95%."
+    answer: "LogTide is self-hosted, so you pay only for compute and storage instead of per-GB ingestion fees. At 100 GB/day, typical infrastructure costs run $220-$340 per month compared to $1,130+ per month on Datadog or $1,250-$4,166 per month on Splunk Cloud - a saving of 70-95%."
   - question: "What does it cost to run LogTide at 500 GB per day?"
     answer: "At 500 GB/day, LogTide infrastructure typically runs $500-$800 per month, versus $10,000-$20,000 per month on Datadog or $8,300-$14,500 per month on Splunk Cloud. That translates to an annual saving of roughly $110,000-$230,000."
   - question: "Does switching to LogTide mean losing SIEM or alerting features?"

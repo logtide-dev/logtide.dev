@@ -35,7 +35,7 @@ faqs:
     answer: "The guide provides a PrivacyLogger wrapper that automatically sanitizes known PII fields before they reach LogTide: emails are replaced with HMAC hashes, IP addresses are truncated to remove the last octet, user IDs are pseudonymized, and sensitive fields like passwords and tokens are dropped entirely."
 ---
 
-GDPR compliance isn't just about consent forms—it extends to how you collect, store, and process log data. This guide shows you how to implement privacy-first logging with LogTide.
+GDPR compliance isn't just about consent forms - it extends to how you collect, store, and process log data. This guide shows you how to implement privacy-first logging with LogTide.
 
 ## The Problem with Traditional Logging
 

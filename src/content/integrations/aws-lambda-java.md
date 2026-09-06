@@ -36,11 +36,11 @@ faqs:
     answer: "Log4j2 adds roughly 100-200 ms to a Java cold start during plugin initialization, which is small relative to typical JVM cold starts. The LogTide SDK batches logs in memory and flushes asynchronously; calling flush() once before the handler returns adds a single HTTP round-trip, typically 10-50 ms inside the same region."
 ---
 
-Java is one of the most popular Lambda runtimes for enterprise workloads, and Log4j2 is the de-facto logging framework for it. But getting Log4j2 to behave inside Lambda — and getting those logs somewhere you can actually search them — trips up a lot of teams: plugins disappear during JAR shading, multiline stack traces get split into separate CloudWatch events, and CloudWatch Logs Insights bills you for every query.
+Java is one of the most popular Lambda runtimes for enterprise workloads, and Log4j2 is the de-facto logging framework for it. But getting Log4j2 to behave inside Lambda - and getting those logs somewhere you can actually search them - trips up a lot of teams: plugins disappear during JAR shading, multiline stack traces get split into separate CloudWatch events, and CloudWatch Logs Insights bills you for every query.
 
 This guide covers the correct Log4j2 setup for AWS Lambda Java functions, structured JSON logging, and two ways to ship those logs to LogTide for real search, alerting, and retention without per-query costs.
 
-> **Security note:** use Log4j **2.17.1 or later**. Versions before 2.15.0 are vulnerable to [CVE-2021-44228 (Log4Shell)](https://nvd.nist.gov/vuln/detail/CVE-2021-44228). Pin the version explicitly — don't rely on transitive resolution.
+> **Security note:** use Log4j **2.17.1 or later**. Versions before 2.15.0 are vulnerable to [CVE-2021-44228 (Log4Shell)](https://nvd.nist.gov/vuln/detail/CVE-2021-44228). Pin the version explicitly - don't rely on transitive resolution.
 
 ## Why Java Lambda logging is harder than it should be
 
@@ -87,7 +87,7 @@ dependencies {
 
 ### log4j2.xml with the Lambda appender
 
-Place this in `src/main/resources/log4j2.xml`. The `Lambda` appender writes to the Lambda runtime's stdout pipe so each log entry — including multiline stack traces — arrives in CloudWatch as a single event:
+Place this in `src/main/resources/log4j2.xml`. The `Lambda` appender writes to the Lambda runtime's stdout pipe so each log entry - including multiline stack traces - arrives in CloudWatch as a single event:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -176,7 +176,7 @@ At this point you have clean, structured Log4j2 logs in CloudWatch. Now let's ma
 
 ## Step 2, Option A: Forward CloudWatch logs to LogTide
 
-Zero code changes — keep Log4j2 exactly as configured above and forward the function's log group to LogTide with a CloudWatch subscription filter and a small forwarder function.
+Zero code changes - keep Log4j2 exactly as configured above and forward the function's log group to LogTide with a CloudWatch subscription filter and a small forwarder function.
 
 This is the same pattern used for Node.js functions, so follow the forwarder setup in the [AWS Lambda integration guide](/integrations/aws-lambda/#approach-2-cloudwatch-to-logtide-forwarding). The JSON layout from Step 1 pays off here: the forwarder can parse each event and map `level`, `message`, and your `ThreadContext` fields directly into LogTide's structured metadata instead of shipping opaque text lines.
 
@@ -229,7 +229,7 @@ class OrderHandler : RequestHandler<OrderEvent, String> {
             logtide.error("orders", "Order processing failed", e)
             throw e
         } finally {
-            // Flush before the environment freezes — one HTTP round-trip
+            // Flush before the environment freezes - one HTTP round-trip
             runBlocking { logtide.flush() }
         }
     }
@@ -239,9 +239,9 @@ private var cold = true
 private fun isColdStart(): Boolean = cold.also { cold = false }
 ```
 
-The SDK batches in memory with retry, exponential backoff, and a circuit breaker, so the only synchronous cost is the final `flush()` — typically 10-50 ms in-region.
+The SDK batches in memory with retry, exponential backoff, and a circuit breaker, so the only synchronous cost is the final `flush()` - typically 10-50 ms in-region.
 
-**Choose this approach when** you want field-based queries on your own metadata, real-time alerting on errors, and cold start tracking — without paying CloudWatch per query.
+**Choose this approach when** you want field-based queries on your own metadata, real-time alerting on errors, and cold start tracking - without paying CloudWatch per query.
 
 ## Which approach should you pick?
 
@@ -257,16 +257,16 @@ Many teams run both: SDK for new services, forwarding for the legacy fleet.
 
 ## Troubleshooting
 
-- **`ERROR StatusLogger Unrecognized format specifier`** — your shaded JAR lost the plugin cache. Add the transformer from Step 1.
-- **Logs appear in stderr without formatting** — `log4j2.xml` isn't on the classpath; confirm it's in `src/main/resources`.
-- **Stack traces split across CloudWatch events** — you're using a pattern layout over stdout instead of the Lambda appender; switch to the `<Lambda>` appender or JSON layout.
-- **Nothing in LogTide after `flush()`** — check the function's VPC/egress configuration can reach your LogTide instance, and that the API key has ingest permission for the project.
+- **`ERROR StatusLogger Unrecognized format specifier`** - your shaded JAR lost the plugin cache. Add the transformer from Step 1.
+- **Logs appear in stderr without formatting** - `log4j2.xml` isn't on the classpath; confirm it's in `src/main/resources`.
+- **Stack traces split across CloudWatch events** - you're using a pattern layout over stdout instead of the Lambda appender; switch to the `<Lambda>` appender or JSON layout.
+- **Nothing in LogTide after `flush()`** - check the function's VPC/egress configuration can reach your LogTide instance, and that the API key has ingest permission for the project.
 
 ---
 
 **Next steps:**
 
-- [AWS Lambda integration overview](/integrations/aws-lambda/) — Node.js SDK, extensions, and forwarder setup
-- [Kotlin/Java SDK reference](/docs/sdks/kotlin/) — full configuration options
-- [Spring Boot integration](/integrations/spring-boot/) — for containerized Java services
-- [Cost optimization guide](/use-cases/cost-optimization/) — what you save by moving search off CloudWatch
+- [AWS Lambda integration overview](/integrations/aws-lambda/) - Node.js SDK, extensions, and forwarder setup
+- [Kotlin/Java SDK reference](/docs/sdks/kotlin/) - full configuration options
+- [Spring Boot integration](/integrations/spring-boot/) - for containerized Java services
+- [Cost optimization guide](/use-cases/cost-optimization/) - what you save by moving search off CloudWatch

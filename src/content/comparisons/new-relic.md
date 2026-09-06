@@ -33,9 +33,9 @@ faqs:
   - question: "Is LogTide cheaper than New Relic for logs?"
     answer: "New Relic includes 100 GB/month free, then charges about $0.35/GB ingested. Beyond the free tier, self-hosting LogTide saves 90%+ at scale because you pay for infrastructure rather than per-GB ingestion and per-user seats."
   - question: "Does LogTide have per-user pricing like New Relic?"
-    answer: "No. LogTide is self-hosted and free with unlimited users. There are no full-platform or core-user seat charges — a frequent source of surprise costs on New Relic."
+    answer: "No. LogTide is self-hosted and free with unlimited users. There are no full-platform or core-user seat charges - a frequent source of surprise costs on New Relic."
   - question: "Can LogTide replace New Relic's log security features?"
-    answer: "Yes for logs — LogTide ships built-in SIEM with Sigma detection rules and MITRE ATT&CK mapping at no extra cost. New Relic remains broader for APM and full-stack observability beyond log management."
+    answer: "Yes for logs - LogTide ships built-in SIEM with Sigma detection rules and MITRE ATT&CK mapping at no extra cost. New Relic remains broader for APM and full-stack observability beyond log management."
   - question: "How hard is it to switch from New Relic to LogTide?"
     answer: "Re-point your log forwarders (Fluent Bit, Vector, OpenTelemetry) to LogTide's HTTP endpoint, validate in parallel, then disable New Relic log ingestion. Application code generally needs no changes."
 ---
@@ -143,7 +143,7 @@ At 200 GB/day:
 
 **No per-user fees.** New Relic's per-user pricing ($49-99/user/month) discourages broad access. Organizations often limit who can access the platform, creating knowledge silos. LogTide has unlimited users, so your entire engineering, security, DevOps, and support teams can access logs without cost concerns.
 
-**Data sovereignty.** Your logs never leave your infrastructure. No third-party data processing agreements needed. Full GDPR compliance with EU data residency. No concerns about sensitive data -- PII, credentials, healthcare records -- being processed by a third party.
+**Data sovereignty.** Your logs never leave your infrastructure. No third-party data processing agreements needed. Full GDPR compliance with EU data residency. No concerns about sensitive data - PII, credentials, healthcare records - being processed by a third party.
 
 **Built-in SIEM.** LogTide includes Sigma detection rules, MITRE ATT&CK mapping, and incident management at no extra cost. New Relic offers vulnerability management and some security features, but not a full SIEM with standardized, community-backed detection rules.
 

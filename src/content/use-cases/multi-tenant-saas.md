@@ -402,7 +402,7 @@ async function getPlatformMetrics() {
 }
 ```
 
-For heavier analytics (billing-grade counts over a month, percentiles across millions of rows), query the storage engine directly — LogTide's data lives in TimescaleDB or ClickHouse you own, so plain SQL with `GROUP BY` on the tenant metadata is always available without API pagination.
+For heavier analytics (billing-grade counts over a month, percentiles across millions of rows), query the storage engine directly - LogTide's data lives in TimescaleDB or ClickHouse you own, so plain SQL with `GROUP BY` on the tenant metadata is always available without API pagination.
 
 ### Per-Tenant Dashboards
 
@@ -440,7 +440,7 @@ async function getTenantDashboard(tenantId: string) {
 
 ### Track Log Volume Per Tenant
 
-A month of per-tenant volume is an aggregation job, not an API loop — run it as SQL directly on the storage engine you already own (TimescaleDB here; the ClickHouse equivalent is nearly identical):
+A month of per-tenant volume is an aggregation job, not an API loop - run it as SQL directly on the storage engine you already own (TimescaleDB here; the ClickHouse equivalent is nearly identical):
 
 ```sql
 -- Monthly log volume per tenant, straight from TimescaleDB

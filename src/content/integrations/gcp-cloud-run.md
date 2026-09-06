@@ -1,6 +1,6 @@
 ---
 title: "Google Cloud Run Logging Integration"
-description: "Send Google Cloud Run logs to LogTide with the JavaScript SDK or a Fluent Bit sidecar — structured queries and alerting beyond Cloud Logging's free tier."
+description: "Send Google Cloud Run logs to LogTide with the JavaScript SDK or a Fluent Bit sidecar - structured queries and alerting beyond Cloud Logging's free tier."
 category: "infrastructure"
 difficulty: "medium"
 sdk: "javascript"
@@ -31,12 +31,12 @@ faqs:
   - question: "How do I avoid losing logs when Cloud Run scales my container to zero?"
     answer: "Handle SIGTERM: Cloud Run sends it before stopping an instance and allows up to 10 seconds. Flush the LogTide SDK buffer in your SIGTERM handler (and after each request for critical paths), so batched logs ship before the container is terminated."
   - question: "Can I keep Cloud Logging and use LogTide together?"
-    answer: "Yes. Cloud Run always writes stdout/stderr to Cloud Logging — you can't fully disable it, but you can set short retention there and treat LogTide as the searchable system of record. That keeps GCP-native debugging available while moving retention and query workloads off the meter."
+    answer: "Yes. Cloud Run always writes stdout/stderr to Cloud Logging - you can't fully disable it, but you can set short retention there and treat LogTide as the searchable system of record. That keeps GCP-native debugging available while moving retention and query workloads off the meter."
 ---
 
-Cloud Run is the easiest way to run containers on GCP, and its logging starts equally easy: anything on stdout lands in Cloud Logging automatically. The catch arrives with scale — after the free 50 GiB/month, you pay $0.50/GiB ingested, retention past 30 days is metered, and structured queries mean BigQuery-backed Log Analytics with its own costs.
+Cloud Run is the easiest way to run containers on GCP, and its logging starts equally easy: anything on stdout lands in Cloud Logging automatically. The catch arrives with scale - after the free 50 GiB/month, you pay $0.50/GiB ingested, retention past 30 days is metered, and structured queries mean BigQuery-backed Log Analytics with its own costs.
 
-This guide ships Cloud Run logs to LogTide for field-based search, real-time alerting, and retention measured in months — with the JavaScript SDK or a zero-code-change Fluent Bit sidecar.
+This guide ships Cloud Run logs to LogTide for field-based search, real-time alerting, and retention measured in months - with the JavaScript SDK or a zero-code-change Fluent Bit sidecar.
 
 ## Why use LogTide with Cloud Run?
 
@@ -114,7 +114,7 @@ process.on('SIGTERM', async () => {
 });
 ```
 
-The `K_SERVICE` and `K_REVISION` environment variables are injected by Cloud Run automatically — using them as `service` and `release` gives you per-revision filtering in LogTide for free, which makes *"did the new revision introduce these errors?"* a one-click query.
+The `K_SERVICE` and `K_REVISION` environment variables are injected by Cloud Run automatically - using them as `service` and `release` gives you per-revision filtering in LogTide for free, which makes *"did the new revision introduce these errors?"* a one-click query.
 
 ### Deploy with the DSN
 
@@ -181,7 +181,7 @@ Fluent Bit configuration:
     Header Content-Type application/json
 ```
 
-Your app writes JSON lines to `/var/log/app/app.log` (or you keep stdout for Cloud Logging *and* a file for LogTide). No SDK, works for Go, Python, Java, Rust — anything.
+Your app writes JSON lines to `/var/log/app/app.log` (or you keep stdout for Cloud Logging *and* a file for LogTide). No SDK, works for Go, Python, Java, Rust - anything.
 
 ## Which approach should you pick?
 
@@ -195,7 +195,7 @@ Your app writes JSON lines to `/var/log/app/app.log` (or you keep stdout for Clo
 
 ## Keeping Cloud Logging in the loop
 
-Cloud Run always writes stdout/stderr to Cloud Logging — that's not disableable, and the first 50 GiB/month is free anyway. The cost-effective split:
+Cloud Run always writes stdout/stderr to Cloud Logging - that's not disableable, and the first 50 GiB/month is free anyway. The cost-effective split:
 
 1. Log **concise** lines to stdout (request summary, errors) → Cloud Logging, within the free tier, short retention
 2. Send **verbose** structured logs to LogTide (full context, business events) → searchable for months
@@ -205,15 +205,15 @@ You keep GCP-native quick debugging, and the volume that would blow past the fre
 
 ## Troubleshooting
 
-- **Logs lost on scale-down** — flush in the `SIGTERM` handler; Cloud Run gives you up to 10 seconds.
-- **Sidecar can't reach LogTide** — if LogTide is internal, attach a Serverless VPC Access connector to the service and use the internal hostname.
-- **Duplicate entries in both platforms** — expected if you log the same lines to stdout and the SDK; split concise vs verbose as above.
+- **Logs lost on scale-down** - flush in the `SIGTERM` handler; Cloud Run gives you up to 10 seconds.
+- **Sidecar can't reach LogTide** - if LogTide is internal, attach a Serverless VPC Access connector to the service and use the internal hostname.
+- **Duplicate entries in both platforms** - expected if you log the same lines to stdout and the SDK; split concise vs verbose as above.
 
 ---
 
 **Next steps:**
 
-- [LogTide vs GCP Cloud Logging](/vs/gcp-cloud-logging/) — full cost and feature comparison
-- [Docker integration](/integrations/docker/) — the same sidecar pattern outside Cloud Run
-- [Cloud logging pricing breakdown](/cloud-logging-pricing/) — CloudWatch, GCP and Azure compared
-- [Microservices observability](/use-cases/microservices-observability/) — correlating services in one timeline
+- [LogTide vs GCP Cloud Logging](/vs/gcp-cloud-logging/) - full cost and feature comparison
+- [Docker integration](/integrations/docker/) - the same sidecar pattern outside Cloud Run
+- [Cloud logging pricing breakdown](/cloud-logging-pricing/) - CloudWatch, GCP and Azure compared
+- [Microservices observability](/use-cases/microservices-observability/) - correlating services in one timeline

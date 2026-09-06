@@ -450,7 +450,7 @@ Alert: "MySQL connection limit reached"
 
 **Notes:**
 - Slow query log has negligible impact (only logs slow queries)
-- General query log has significant overhead — use only for debugging
+- General query log has significant overhead - use only for debugging
 - Fluent Bit runs out-of-band, no MySQL impact
 
 ## Security Considerations

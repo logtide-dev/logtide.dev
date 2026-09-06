@@ -1,6 +1,6 @@
 ---
 title: "FastAPI Application Logging Integration"
-description: "Add structured logging to FastAPI apps with the LogTide Python SDK — async middleware, dependency injection, WebSocket support, and Uvicorn deployment."
+description: "Add structured logging to FastAPI apps with the LogTide Python SDK - async middleware, dependency injection, WebSocket support, and Uvicorn deployment."
 category: "framework"
 difficulty: "easy"
 sdk: "python"
@@ -265,7 +265,7 @@ async def create_order(
     order = await order_repository.create(data)
     client.info("api", "Order created, queuing processing", {"order_id": order.id, "trace_id": trace_id})
 
-    # Pass trace_id explicitly — background tasks run outside the request scope
+    # Pass trace_id explicitly - background tasks run outside the request scope
     background_tasks.add_task(process_order_background, order.id, trace_id, client)
 
     return {"id": order.id, "status": "processing"}

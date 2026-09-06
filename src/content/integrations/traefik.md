@@ -539,7 +539,7 @@ Catch certificate issues and TLS handshake failures.
 service:traefik AND DownstreamStatus:502
 ```
 
-Backend service unreachable -- often indicates a crashed container or misconfigured service discovery.
+Backend service unreachable - often indicates a crashed container or misconfigured service discovery.
 
 ## Fluent Bit Alternative
 

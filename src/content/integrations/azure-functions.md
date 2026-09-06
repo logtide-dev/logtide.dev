@@ -31,18 +31,18 @@ faqs:
   - question: "Can I keep Application Insights and use LogTide at the same time?"
     answer: "Yes, and it's the recommended migration path: leave App Insights sampling on for platform metrics and distributed tracing, route verbose application logs to LogTide, and turn down App Insights log retention. You keep the Azure-native APM features while moving the expensive log volume off the meter."
   - question: "Does calling flush() on every invocation slow my function down?"
-    answer: "It adds one HTTP round-trip — typically 10-50 ms to an instance in the same region. The SDK batches everything else asynchronously. For latency-critical HTTP functions you can skip the per-invocation flush and rely on the interval flush, accepting a small risk of losing the final batch when an instance is recycled."
+    answer: "It adds one HTTP round-trip - typically 10-50 ms to an instance in the same region. The SDK batches everything else asynchronously. For latency-critical HTTP functions you can skip the per-invocation flush and rely on the interval flush, accepting a small risk of losing the final batch when an instance is recycled."
 ---
 
-Azure Functions ship their logs to Application Insights by default — which works, until the Log Analytics bill arrives. At ~$2.76/GB ingested, a chatty function app becomes one of the most expensive log sources in your subscription, and querying it means KQL plus per-GB retention fees.
+Azure Functions ship their logs to Application Insights by default - which works, until the Log Analytics bill arrives. At ~$2.76/GB ingested, a chatty function app becomes one of the most expensive log sources in your subscription, and querying it means KQL plus per-GB retention fees.
 
-This guide wires Azure Functions (Node.js v4 programming model) to LogTide for structured, searchable logs with real-time alerting — either replacing verbose App Insights logging or running alongside it.
+This guide wires Azure Functions (Node.js v4 programming model) to LogTide for structured, searchable logs with real-time alerting - either replacing verbose App Insights logging or running alongside it.
 
 ## Why use LogTide with Azure Functions?
 
 - **Cost control**: Log Analytics charges ~$2.76/GB; LogTide is self-hosted with flat infrastructure costs ([full breakdown](/vs/azure-monitor/))
 - **Structured queries**: filter by your own metadata fields instead of writing KQL against `traces`
-- **Real-time alerting**: error spikes, timeout patterns, cold start bursts — without Azure Monitor alert rule pricing
+- **Real-time alerting**: error spikes, timeout patterns, cold start bursts - without Azure Monitor alert rule pricing
 - **Cross-cloud correlation**: Functions, on-prem services, and [AWS Lambda](/integrations/aws-lambda/) logs in one place
 - **Retention without fees**: keep logs searchable for months instead of paying $0.10/GB/month past the included window
 
@@ -62,7 +62,7 @@ npm install @logtide/core
 
 ### HTTP-triggered function
 
-Initialize the hub **outside** the handler — Azure reuses the worker process across invocations, so the client and its batch buffer survive warm starts:
+Initialize the hub **outside** the handler - Azure reuses the worker process across invocations, so the client and its batch buffer survive warm starts:
 
 ```typescript
 // src/functions/processOrder.ts
@@ -74,7 +74,7 @@ hub.init({
   service: 'order-processor',
   environment: process.env.AZURE_FUNCTIONS_ENVIRONMENT || 'production',
   batchSize: 50,
-  flushInterval: 1000, // flush quickly — instances can be recycled anytime
+  flushInterval: 1000, // flush quickly - instances can be recycled anytime
 });
 
 let isColdStart = true;
@@ -124,7 +124,7 @@ app.http('processOrder', {
 
 ### Timer and queue triggers
 
-The same pattern applies — initialize once, log with metadata, flush at the end:
+The same pattern applies - initialize once, log with metadata, flush at the end:
 
 ```typescript
 import { app, InvocationContext, Timer } from '@azure/functions';
@@ -164,8 +164,8 @@ If your LogTide instance is private, use VNet integration on the Function App (P
 
 You don't have to choose. A pragmatic split that most teams land on:
 
-- **App Insights keeps**: platform metrics, distributed traces, dependency maps, live metrics — the APM features Azure does natively well, with **sampling enabled** to cap cost
-- **LogTide gets**: all verbose application logging — request details, business events, debug context — the volume that makes Log Analytics expensive
+- **App Insights keeps**: platform metrics, distributed traces, dependency maps, live metrics - the APM features Azure does natively well, with **sampling enabled** to cap cost
+- **LogTide gets**: all verbose application logging - request details, business events, debug context - the volume that makes Log Analytics expensive
 
 In `host.json`, keep App Insights log capture at `Warning` and above so duplicated volume stays minimal:
 
@@ -185,7 +185,7 @@ In `host.json`, keep App Insights log capture at `Warning` and above so duplicat
 }
 ```
 
-Your application code logs everything to LogTide via the SDK; App Insights only records warnings, errors and sampled traces. Typical outcome: 80-95% less Log Analytics ingestion with no loss of searchable detail — it's all in LogTide instead.
+Your application code logs everything to LogTide via the SDK; App Insights only records warnings, errors and sampled traces. Typical outcome: 80-95% less Log Analytics ingestion with no loss of searchable detail - it's all in LogTide instead.
 
 ## Which approach should you pick?
 
@@ -198,15 +198,15 @@ Your application code logs everything to LogTide via the SDK; App Insights only 
 
 ## Troubleshooting
 
-- **Logs missing from the end of invocations** — the instance was recycled before an interval flush; call `await hub.flush()` before returning.
-- **Nothing arrives at LogTide** — check outbound networking: Consumption plan functions need a public LogTide endpoint; VNet-only instances require Premium/Dedicated plans with VNet integration.
-- **Duplicate logs in both platforms** — lower the `host.json` default log level so App Insights stops capturing what the SDK already ships.
+- **Logs missing from the end of invocations** - the instance was recycled before an interval flush; call `await hub.flush()` before returning.
+- **Nothing arrives at LogTide** - check outbound networking: Consumption plan functions need a public LogTide endpoint; VNet-only instances require Premium/Dedicated plans with VNet integration.
+- **Duplicate logs in both platforms** - lower the `host.json` default log level so App Insights stops capturing what the SDK already ships.
 
 ---
 
 **Next steps:**
 
-- [AWS Lambda integration](/integrations/aws-lambda/) — same pattern on AWS
-- [LogTide vs Azure Monitor](/vs/azure-monitor/) — full cost and feature comparison
-- [Cloud logging pricing breakdown](/cloud-logging-pricing/) — CloudWatch, GCP and Azure compared
-- [Real-time alerting use case](/use-cases/real-time-alerting/) — alert rules on function errors
+- [AWS Lambda integration](/integrations/aws-lambda/) - same pattern on AWS
+- [LogTide vs Azure Monitor](/vs/azure-monitor/) - full cost and feature comparison
+- [Cloud logging pricing breakdown](/cloud-logging-pricing/) - CloudWatch, GCP and Azure compared
+- [Real-time alerting use case](/use-cases/real-time-alerting/) - alert rules on function errors

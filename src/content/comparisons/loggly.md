@@ -30,22 +30,22 @@ keywords:
   - "Loggly replacement"
 faqs:
   - question: "What is the best self-hosted alternative to Loggly?"
-    answer: "LogTide covers Loggly's core feature set — JSON ingestion, full-text and field search, dashboards, alerting — as self-hosted open source, and adds a built-in SIEM with Sigma rules. Loggly is SaaS-only, so teams with data-residency requirements or growing volume caps typically migrate to a self-hosted platform."
+    answer: "LogTide covers Loggly's core feature set - JSON ingestion, full-text and field search, dashboards, alerting - as self-hosted open source, and adds a built-in SIEM with Sigma rules. Loggly is SaaS-only, so teams with data-residency requirements or growing volume caps typically migrate to a self-hosted platform."
   - question: "Is LogTide cheaper than Loggly?"
     answer: "Beyond the free tier, usually yes. Loggly's paid plans start around $79/month for roughly 1 GB/day with about two weeks of retention, and scale steeply with volume. A LogTide instance handling several GB/day runs on infrastructure costing $100-200/month with months of searchable retention and unlimited users."
   - question: "What does Loggly do better than LogTide?"
-    answer: "Loggly is fully managed — no servers to run — with mature agentless ingestion (syslog and HTTP from anywhere), automated parsing for dozens of common formats, and polished derived-field tooling. Small teams under a few hundred MB/day who don't want to operate anything get real value from its free and entry tiers."
+    answer: "Loggly is fully managed - no servers to run - with mature agentless ingestion (syslog and HTTP from anywhere), automated parsing for dozens of common formats, and polished derived-field tooling. Small teams under a few hundred MB/day who don't want to operate anything get real value from its free and entry tiers."
   - question: "How do I migrate from Loggly to LogTide?"
     answer: "Loggly receives logs via syslog and HTTP, so the migration is shipper-level: add a second output to your rsyslog/Fluentd/Fluent Bit pipeline pointing at LogTide's HTTP ingest API, run both for one or two weeks while validating searches and alerts, then remove the Loggly output and downgrade the subscription."
 ---
 
-Loggly (a SolarWinds product, like [Papertrail](/vs/papertrail/)) is a veteran SaaS log aggregator focused on JSON-aware ingestion and search. LogTide is a self-hosted, open-source log management platform with a built-in SIEM. The trade is the classic one — managed convenience against volume-capped pricing — but the details decide which side you should be on.
+Loggly (a SolarWinds product, like [Papertrail](/vs/papertrail/)) is a veteran SaaS log aggregator focused on JSON-aware ingestion and search. LogTide is a self-hosted, open-source log management platform with a built-in SIEM. The trade is the classic one - managed convenience against volume-capped pricing - but the details decide which side you should be on.
 
 ## Cost Comparison
 
 ### Loggly Pricing
 
-Loggly bills by **daily ingestion volume** with retention tied to the plan tier (figures indicative — SolarWinds adjusts plans periodically):
+Loggly bills by **daily ingestion volume** with retention tied to the plan tier (figures indicative - SolarWinds adjusts plans periodically):
 
 | Plan | Daily volume | Retention | Approx. price |
 |------|-------------|-----------|---------------|
@@ -56,11 +56,11 @@ Loggly bills by **daily ingestion volume** with retention tied to the plan tier 
 
 The structural issues mirror its sibling Papertrail:
 
-1. **Daily caps, not monthly averages.** One verbose deploy or incident burst can hit the daily cap and get your overage throttled or dropped — exactly when you need logs most.
+1. **Daily caps, not monthly averages.** One verbose deploy or incident burst can hit the daily cap and get your overage throttled or dropped - exactly when you need logs most.
 2. **Retention measured in weeks.** Investigating anything older means hoping you exported in time.
 3. **Volume tiers compound with growth.** Every new service pushes you toward the next tier.
 
-**Real-world example:** A team ingesting 5 GB/day needs Pro/Enterprise territory — realistically **$300-600+/month** with retention still capped around a month.
+**Real-world example:** A team ingesting 5 GB/day needs Pro/Enterprise territory - realistically **$300-600+/month** with retention still capped around a month.
 
 ### LogTide Pricing
 
@@ -107,7 +107,7 @@ LogTide is free, open-source software. You pay only for infrastructure:
 
 **Agentless ingestion breadth.** Loggly's standard-syslog and HTTP endpoints plus scripted setup for common platforms make onboarding heterogeneous legacy systems genuinely easy.
 
-**Automated parsing.** Out-of-the-box field extraction for dozens of formats (apache, nginx, Java stack traces, JSON) with derived fields for custom patterns — solid for teams who can't normalize logs at the source.
+**Automated parsing.** Out-of-the-box field extraction for dozens of formats (apache, nginx, Java stack traces, JSON) with derived fields for custom patterns - solid for teams who can't normalize logs at the source.
 
 **Free tier for small workloads.** 200 MB/day free with 7-day retention covers side projects and small staging environments at literally zero cost.
 
@@ -117,13 +117,13 @@ LogTide is free, open-source software. You pay only for infrastructure:
 
 **Retention.** Weeks vs months-to-years. Compliance lookbacks, post-mortems on month-old deploys, and security forensics all need history that Loggly's tiers simply don't keep.
 
-**Built-in SIEM.** Sigma rules, MITRE ATT&CK mapping, and incident management included — Loggly offers log search and basic anomaly alerts, not security detection.
+**Built-in SIEM.** Sigma rules, MITRE ATT&CK mapping, and incident management included - Loggly offers log search and basic anomaly alerts, not security detection.
 
-**Self-hosting and data sovereignty.** Loggly is US-hosted SaaS only. LogTide keeps logs — and the PII that inevitably leaks into them — on infrastructure you control, making GDPR a configuration detail.
+**Self-hosting and data sovereignty.** Loggly is US-hosted SaaS only. LogTide keeps logs - and the PII that inevitably leaks into them - on infrastructure you control, making GDPR a configuration detail.
 
 **Cost trajectory.** Tiered SaaS pricing rises in steps with every growth phase; self-hosted infrastructure cost rises slowly and predictably with storage.
 
-**Open source.** AGPLv3, standard SQL storage (TimescaleDB/ClickHouse), portable Sigma rules — no lock-in at any layer.
+**Open source.** AGPLv3, standard SQL storage (TimescaleDB/ClickHouse), portable Sigma rules - no lock-in at any layer.
 
 ## When to Choose Loggly
 

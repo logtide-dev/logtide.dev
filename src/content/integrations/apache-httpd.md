@@ -530,7 +530,7 @@ Threshold: >20 failures in 1 minute from the same `remote_addr`.
 service:apache AND request_uri:*../*
 ```
 
-Any occurrence -- this is always suspicious.
+Any occurrence - this is always suspicious.
 
 ### Large Request Bodies
 

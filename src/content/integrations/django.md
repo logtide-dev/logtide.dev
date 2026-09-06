@@ -1,6 +1,6 @@
 ---
 title: "Django Application Logging Integration"
-description: "Add structured logging to Django applications with the LogTide Python SDK — built-in middleware, Celery support, admin audit trail, and stdlib logging bridge."
+description: "Add structured logging to Django applications with the LogTide Python SDK - built-in middleware, Celery support, admin audit trail, and stdlib logging bridge."
 category: "framework"
 difficulty: "easy"
 sdk: "python"
@@ -431,7 +431,7 @@ services:
 ### Logs not appearing
 
 1. Enable debug mode: `ClientOptions(..., debug=True)`
-2. Check middleware order — `LogTideDjangoMiddleware` should be near the top of `MIDDLEWARE`
+2. Check middleware order - `LogTideDjangoMiddleware` should be near the top of `MIDDLEWARE`
 3. Ensure `LOGTIDE_CLIENT.close()` is called on exit (see Graceful Shutdown section)
 4. Check circuit breaker state: `print(settings.LOGTIDE_CLIENT.get_circuit_breaker_state())`
 

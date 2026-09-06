@@ -58,7 +58,7 @@ This means you are **not limited to Fluent Bit**. Any tool that speaks OTLP can 
 | **Grafana Alloy / Agent** | Grafana's collector, supports OTLP export |
 | **Vector** | Datadog's collector, supports OTLP export |
 | **Prometheus + OTLP remote write** | Export Prometheus metrics to LogTide |
-| **Application OTel SDKs** | Node.js, Python, Go, Java — send custom metrics directly |
+| **Application OTel SDKs** | Node.js, Python, Go, Java - send custom metrics directly |
 
 ## Option A: Fluent Bit (included, zero config)
 
@@ -226,7 +226,7 @@ docker compose logs fluent-bit-metrics
 grep FLUENT_BIT_API_KEY .env
 ```
 
-4. Look for HTTP status codes in the logs — `200` means metrics are being accepted.
+4. Look for HTTP status codes in the logs - `200` means metrics are being accepted.
 
 ### Platform limitations
 

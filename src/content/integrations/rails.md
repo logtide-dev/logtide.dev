@@ -1,6 +1,6 @@
 ---
 title: "Ruby on Rails Logging Integration"
-description: "Send structured logs, exceptions, and traces from Ruby on Rails to LogTide with the logtide gem — a Railtie installs per-request middleware automatically."
+description: "Send structured logs, exceptions, and traces from Ruby on Rails to LogTide with the logtide gem - a Railtie installs per-request middleware automatically."
 category: "framework"
 difficulty: "easy"
 sdk: "ruby"
@@ -34,7 +34,7 @@ faqs:
     answer: "No. The logtide gem uses the Ruby standard library only (net/http, json, securerandom, zlib, logger), so it adds nothing to your dependency tree beyond the gem itself. It requires Ruby 3.1 or later."
 ---
 
-The LogTide Ruby SDK (the `logtide` gem) provides a drop-in integration for Ruby on Rails. A Railtie installs the Rack middleware automatically, so each request gets an isolated scope, HTTP tags, `traceparent` parsing, and request/response breadcrumbs with no manual wiring. The SDK uses the standard library only — no runtime dependencies.
+The LogTide Ruby SDK (the `logtide` gem) provides a drop-in integration for Ruby on Rails. A Railtie installs the Rack middleware automatically, so each request gets an isolated scope, HTTP tags, `traceparent` parsing, and request/response breadcrumbs with no manual wiring. The SDK uses the standard library only - no runtime dependencies.
 
 ## Why use LogTide with Rails?
 
@@ -87,7 +87,7 @@ Set the DSN in your environment:
 LOGTIDE_DSN=https://lp_your_key@logs.example.com
 ```
 
-That's it — the middleware is active with sensible defaults. See the
+That's it - the middleware is active with sensible defaults. See the
 [Ruby SDK reference](/docs/sdks/ruby/) for the full list of configuration options
 (batching, retry, circuit breaker, sampling, breadcrumbs, and PII handling).
 
@@ -226,17 +226,17 @@ services:
    Logtide.init(dsn: ENV["LOGTIDE_DSN"], service: "my-app", debug: true)
    ```
 
-3. Check `Logtide.get_metrics` — a rising `logs_dropped` means the buffer hit
+3. Check `Logtide.get_metrics` - a rising `logs_dropped` means the buffer hit
    `max_buffer_size`; a non-zero `circuit_breaker_trips` means delivery is failing.
 
 ### Worker logs missing
 
 Background workers need the same `LOGTIDE_DSN` in their environment, and long-lived
-workers should not rely solely on `at_exit` — flush on shutdown where possible.
+workers should not rely solely on `at_exit` - flush on shutdown where possible.
 
 ## Next Steps
 
-- [Ruby SDK Reference](/docs/sdks/ruby/) — full SDK documentation
-- [PostgreSQL Integration](/integrations/postgresql/) — database logs
-- [Docker Integration](/integrations/docker/) — container deployment
-- [Incident Response](/use-cases/incident-response/) — from log to root cause
+- [Ruby SDK Reference](/docs/sdks/ruby/) - full SDK documentation
+- [PostgreSQL Integration](/integrations/postgresql/) - database logs
+- [Docker Integration](/integrations/docker/) - container deployment
+- [Incident Response](/use-cases/incident-response/) - from log to root cause

@@ -15,8 +15,8 @@ highlights:
 
 ## Planned
 
-- **Performance Hardening** — Production-scale optimization and stress testing
-- **Enterprise SSO/SAML** — SAML 2.0 integration for enterprise identity providers
-- **Advanced RBAC** — Fine-grained role-based access control
-- **Managed Cloud GA** — General availability of the hosted LogTide cloud service
-- **Tiered Storage** — Hot/warm/cold data lifecycle management for cost optimization
+- **Performance Hardening** - Production-scale optimization and stress testing
+- **Enterprise SSO/SAML** - SAML 2.0 integration for enterprise identity providers
+- **Advanced RBAC** - Fine-grained role-based access control
+- **Managed Cloud GA** - General availability of the hosted LogTide cloud service
+- **Tiered Storage** - Hot/warm/cold data lifecycle management for cost optimization

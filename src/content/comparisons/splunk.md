@@ -30,7 +30,7 @@ keywords:
   - "Splunk Enterprise alternative"
 faqs:
   - question: "How much can I save by switching from Splunk to LogTide?"
-    answer: "For a 50 GB/day workload, Splunk Enterprise licensing plus Enterprise Security and infrastructure typically runs $150,000-350,000 per year. LogTide infrastructure for the same volume costs roughly $4,800/year — a saving of $145,000-345,000/year (97%+). The savings grow as ingest volume increases because LogTide has no per-GB license fee."
+    answer: "For a 50 GB/day workload, Splunk Enterprise licensing plus Enterprise Security and infrastructure typically runs $150,000-350,000 per year. LogTide infrastructure for the same volume costs roughly $4,800/year - a saving of $145,000-345,000/year (97%+). The savings grow as ingest volume increases because LogTide has no per-GB license fee."
   - question: "Can I use my existing Sigma detection rules in LogTide instead of rewriting SPL?"
     answer: "Yes. LogTide uses Sigma as its native detection rule format, giving you access to 2,000+ community rules from SigmaHQ out of the box. This contrasts with Splunk, which requires proprietary SPL queries and a separate Splunk Enterprise Security license. Any Sigma rules your team already owns are fully portable to LogTide."
   - question: "How do I migrate log collection from Splunk Universal Forwarders to LogTide?"

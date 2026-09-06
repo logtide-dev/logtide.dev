@@ -33,7 +33,7 @@ faqs:
     answer: "Yes. The guide shows middleware implementations for both Hono and Elysia. For Hono you add a wildcard app.use middleware, and for Elysia you use the onRequest and onAfterResponse lifecycle hooks to log every request with duration and trace ID."
 ---
 
-Bun is a fast JavaScript runtime that is Node.js API compatible. The LogTide JavaScript SDK works with Bun out of the box — no extra configuration needed. This guide covers setup, framework integration (Hono, Elysia), and Bun-specific patterns.
+Bun is a fast JavaScript runtime that is Node.js API compatible. The LogTide JavaScript SDK works with Bun out of the box - no extra configuration needed. This guide covers setup, framework integration (Hono, Elysia), and Bun-specific patterns.
 
 ## Why use LogTide with Bun?
 
@@ -81,7 +81,7 @@ const server = Bun.serve({
 client.info('bun-app', 'Server listening', { port: server.port });
 ```
 
-Run directly — no build step:
+Run directly - no build step:
 
 ```bash
 bun run index.ts
@@ -353,7 +353,7 @@ peer = false
 
 If migrating from Express, note that `Bun.serve` uses Web Standard `Request`/`Response`. The LogTide SDK works with both APIs.
 
-### Hot reload with --watch
+### Hot reload with `--watch`
 
 ```bash
 bun --watch run index.ts

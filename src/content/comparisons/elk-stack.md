@@ -30,7 +30,7 @@ keywords:
   - "simpler ELK alternative"
 faqs:
   - question: "Does LogTide use fewer resources than the ELK Stack?"
-    answer: "Yes, substantially. A production ELK deployment requires 22-44 GB of RAM across Elasticsearch, Logstash, and Kibana, while LogTide runs on 6-12 GB total — a reduction of 60-75%. This directly translates to lower infrastructure costs and makes LogTide viable on smaller servers."
+    answer: "Yes, substantially. A production ELK deployment requires 22-44 GB of RAM across Elasticsearch, Logstash, and Kibana, while LogTide runs on 6-12 GB total - a reduction of 60-75%. This directly translates to lower infrastructure costs and makes LogTide viable on smaller servers."
   - question: "Does LogTide include SIEM without extra licensing, unlike ELK?"
     answer: "Yes. Elastic's SIEM and endpoint-security features require paid licenses. LogTide includes Sigma detection rules, MITRE ATT&CK mapping, and incident management as part of the free, open-source release with no additional licensing fees."
   - question: "When is the ELK Stack the better choice over LogTide?"

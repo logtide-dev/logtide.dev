@@ -24,7 +24,7 @@ faqs:
   - question: "How do I add LogTide logging to my Nuxt application?"
     answer: "Install @logtide/nuxt, add it to the modules array in nuxt.config.ts, and set the dsn option pointing to your LogTide DSN. The module handles initialization on both the server and client automatically with no additional setup required."
   - question: "Does @logtide/nuxt support separate logging for server-side and client-side code?"
-    answer: "Yes. The module auto-initializes on both the Nitro server and the Vue client. Your dsn is injected through Nuxt runtime config — server code reads the private runtimeConfig.logtide and the browser reads runtimeConfig.public.logtide, both populated from the same dsn (or apiUrl/apiKey) set in nuxt.config.ts."
+    answer: "Yes. The module auto-initializes on both the Nitro server and the Vue client. Your dsn is injected through Nuxt runtime config - server code reads the private runtimeConfig.logtide and the browser reads runtimeConfig.public.logtide, both populated from the same dsn (or apiUrl/apiKey) set in nuxt.config.ts."
   - question: "How do I log events from Vue components in a Nuxt application?"
     answer: "Import useLogtide from #imports inside your Vue component, then call methods like captureLog, captureError, and addBreadcrumb on the returned composable. This works in both client-side and universal rendering contexts."
   - question: "Can I override the LogTide DSN at deploy time without rebuilding my Nuxt app?"
@@ -93,7 +93,7 @@ export default defineNuxtConfig({
 });
 ```
 
-The same configuration is applied to both the server (Nitro) and the client (Vue) — there is no separate client/server toggle.
+The same configuration is applied to both the server (Nitro) and the client (Vue) - there is no separate client/server toggle.
 
 ## Server-Side Usage
 

@@ -24,7 +24,7 @@ keywords:
   - "php structured logs"
 faqs:
   - question: "How do I integrate LogTide with a Laravel application?"
-    answer: "Run composer require logtide/logtide-laravel, then publish the config file with php artisan vendor:publish --tag=logtide-config and add LOGTIDE_DSN to your .env file. Laravel package auto-discovery registers the service provider and facade automatically — no manual setup is required beyond that."
+    answer: "Run composer require logtide/logtide-laravel, then publish the config file with php artisan vendor:publish --tag=logtide-config and add LOGTIDE_DSN to your .env file. Laravel package auto-discovery registers the service provider and facade automatically - no manual setup is required beyond that."
   - question: "Do I need to change my existing Log::info() calls to use LogTide?"
     answer: "No. Adding logtide to your logging stack in config/logging.php is all that is needed. Your existing Log::info(), Log::warning(), and Log::error() calls continue to work and their output is forwarded to LogTide alongside any other channels in your stack."
   - question: "Does the Laravel integration support structured context on log entries?"
@@ -228,9 +228,9 @@ Paths listed in `config('logtide.skip_paths')` are skipped (default: `/health`, 
 
 The service provider automatically registers breadcrumb integrations:
 
-- **Database Queries** — Records `QueryExecuted` events with query, bindings, and duration
-- **Cache Events** — Records cache hits, misses, writes, and deletes
-- **Queue Jobs** — Records job processing events with job class, queue name, and attempt
+- **Database Queries** - Records `QueryExecuted` events with query, bindings, and duration
+- **Cache Events** - Records cache hits, misses, writes, and deletes
+- **Queue Jobs** - Records job processing events with job class, queue name, and attempt
 
 Toggle them in `config/logtide.php` under the `breadcrumbs` key.
 

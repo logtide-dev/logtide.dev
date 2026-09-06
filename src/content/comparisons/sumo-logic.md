@@ -30,9 +30,9 @@ keywords:
   - "Sumo Logic pricing alternative"
 faqs:
   - question: "How much cheaper is LogTide compared to Sumo Logic?"
-    answer: "At 50 GB/day, Sumo Logic Essentials costs roughly $5,000-7,000/month including extended retention and the Cloud SIEM add-on. LogTide infrastructure for the same volume runs around $250/month — a saving of $57,000-81,000/year (95%+). At 200 GB/day the savings can exceed $200,000 per year, since LogTide has no per-GB license fee."
+    answer: "At 50 GB/day, Sumo Logic Essentials costs roughly $5,000-7,000/month including extended retention and the Cloud SIEM add-on. LogTide infrastructure for the same volume runs around $250/month - a saving of $57,000-81,000/year (95%+). At 200 GB/day the savings can exceed $200,000 per year, since LogTide has no per-GB license fee."
   - question: "Does LogTide enforce daily data caps like Sumo Logic does?"
-    answer: "No. Sumo Logic enforces daily ingestion limits tied to your plan, and exceeding them triggers overage charges or throttling — which can cause you to lose logs during incidents, exactly when you need them most. LogTide has no artificial ingestion caps; it processes as much data as your underlying infrastructure can handle."
+    answer: "No. Sumo Logic enforces daily ingestion limits tied to your plan, and exceeding them triggers overage charges or throttling - which can cause you to lose logs during incidents, exactly when you need them most. LogTide has no artificial ingestion caps; it processes as much data as your underlying infrastructure can handle."
   - question: "How do I migrate from Sumo Logic to LogTide?"
     answer: "Run both systems in parallel for 1-2 weeks by adding the LogTide SDK alongside existing Sumo Logic Installed Collectors, or by using Fluent Bit to fan out logs to both platforms simultaneously. Once you have verified that search results, alerts, and SIEM detection rules match expectations in LogTide, remove the Sumo Logic collectors and cancel your subscription."
   - question: "When is Sumo Logic still the better option over LogTide?"
@@ -145,15 +145,15 @@ At 200 GB/day:
 
 **Massive cost savings.** Sumo Logic's per-GB pricing is among the highest in the industry. At 50 GB/day, LogTide saves $57,000-81,000 per year. At 200 GB/day, savings can exceed $200,000 per year. The more data you ingest, the more dramatic the cost advantage.
 
-**No data caps or throttling.** Sumo Logic enforces daily ingestion limits tied to your plan. Exceeding your committed tier triggers overage charges or log throttling, which can cause you to lose critical data during peak traffic or incidents -- exactly when you need logs most. LogTide ingests as much as your infrastructure can handle with no artificial caps.
+**No data caps or throttling.** Sumo Logic enforces daily ingestion limits tied to your plan. Exceeding your committed tier triggers overage charges or log throttling, which can cause you to lose critical data during peak traffic or incidents - exactly when you need logs most. LogTide ingests as much as your infrastructure can handle with no artificial caps.
 
 **Data sovereignty.** Sumo Logic stores your data in their cloud infrastructure. With LogTide, logs never leave your infrastructure. Run on-premises, in your own VPC, or in any cloud region for full control over data residency. This is essential for organizations subject to GDPR, CCPA, HIPAA, or industry-specific data regulations.
 
 **Built-in SIEM at no extra cost.** Sumo Logic's Cloud SIEM is a separate add-on with additional licensing that can double your costs. LogTide includes Sigma detection rules, MITRE ATT&CK mapping, and incident management in the free open-source version. You get 2,000+ community Sigma rules from SigmaHQ out of the box.
 
-**No vendor lock-in.** LogTide is AGPLv3 open-source. Your data lives in TimescaleDB or ClickHouse (your choice) using standard SQL. Your detection rules are portable Sigma YAML files. Nothing is proprietary -- you can fork, modify, or migrate at any time.
+**No vendor lock-in.** LogTide is AGPLv3 open-source. Your data lives in TimescaleDB or ClickHouse (your choice) using standard SQL. Your detection rules are portable Sigma YAML files. Nothing is proprietary - you can fork, modify, or migrate at any time.
 
-**Unlimited retention.** Sumo Logic's free tier retains logs for only 7 days. Even paid tiers have retention limits, and extended retention incurs additional fees. LogTide retains logs for as long as your storage allows -- months or years at just the cost of disk space. This is critical for compliance requirements that mandate long-term log retention.
+**Unlimited retention.** Sumo Logic's free tier retains logs for only 7 days. Even paid tiers have retention limits, and extended retention incurs additional fees. LogTide retains logs for as long as your storage allows - months or years at just the cost of disk space. This is critical for compliance requirements that mandate long-term log retention.
 
 **Transparent operations.** With LogTide, you have full visibility into how your logs are stored, indexed, and queried. No black boxes, no proprietary formats, no surprises on your invoice.
 

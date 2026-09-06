@@ -32,7 +32,7 @@ faqs:
   - question: "Does LogTide support full-text search, unlike Grafana Loki?"
     answer: "Yes. Loki indexes only labels and requires regex scanning across log chunks to search message content, which is slow and resource-intensive at scale. LogTide indexes both labels and log content, so any text search with the q parameter returns results instantly without scanning raw chunks."
   - question: "Does LogTide include SIEM and alerting without needing Grafana?"
-    answer: "Yes. Loki ships no UI, no alerting engine, and no security detection — you must add Grafana for dashboards and AlertManager for alerts. LogTide bundles its own web UI, native alert rules, Sigma detection rules, MITRE ATT&CK mapping, and incident management in a single Docker Compose stack."
+    answer: "Yes. Loki ships no UI, no alerting engine, and no security detection - you must add Grafana for dashboards and AlertManager for alerts. LogTide bundles its own web UI, native alert rules, Sigma detection rules, MITRE ATT&CK mapping, and incident management in a single Docker Compose stack."
   - question: "When is Grafana Loki the better choice over LogTide?"
     answer: "Loki is the better fit when you already run Grafana for metrics (Prometheus, Mimir) and want logs in the same familiar interface, when you primarily filter by labels and rarely need content search, or when you need Kubernetes-native pod log collection with minimal overhead. Its label-only indexing also makes it extremely cost-efficient for very high volumes where content search is not required."
   - question: "How do I migrate from Grafana Loki to LogTide?"

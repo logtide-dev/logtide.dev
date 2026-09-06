@@ -35,9 +35,9 @@ faqs:
     answer: "Yes. A common setup keeps CloudWatch as the default sink and forwards a copy to LogTide via a subscription filter, so you get LogTide's search, alerting and SIEM without removing existing AWS tooling."
 ---
 
-AWS Lambda functions generate logs that end up in CloudWatch by default, but searching, alerting, and retaining those logs can be expensive and cumbersome. This guide shows you how to send Lambda logs directly to LogTide using the JavaScript SDK, forward them from CloudWatch, or use Lambda extensions -- giving you structured queries, real-time alerting, and significant cost savings.
+AWS Lambda functions generate logs that end up in CloudWatch by default, but searching, alerting, and retaining those logs can be expensive and cumbersome. This guide shows you how to send Lambda logs directly to LogTide using the JavaScript SDK, forward them from CloudWatch, or use Lambda extensions - giving you structured queries, real-time alerting, and significant cost savings.
 
-> **Running Java on Lambda?** This guide covers the Node.js/TypeScript SDK. For `log4j` on AWS Lambda — plugin cache shading, the Log4j2 Lambda appender, and flush-before-freeze — follow the dedicated [AWS Lambda Log4j2 logging guide](/integrations/aws-lambda-java/).
+> **Running Java on Lambda?** This guide covers the Node.js/TypeScript SDK. For `log4j` on AWS Lambda - plugin cache shading, the Log4j2 Lambda appender, and flush-before-freeze - follow the dedicated [AWS Lambda Log4j2 logging guide](/integrations/aws-lambda-java/).
 
 ## Why use LogTide with AWS Lambda?
 
@@ -673,7 +673,7 @@ aws logs put-retention-policy \
    return response;
    ```
 
-3. Check Lambda timeout -- if the function times out, the flush may not complete. Increase timeout or reduce `flushInterval`.
+3. Check Lambda timeout - if the function times out, the flush may not complete. Increase timeout or reduce `flushInterval`.
 
 ### Forwarder Lambda errors
 

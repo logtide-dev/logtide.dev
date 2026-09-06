@@ -19,27 +19,27 @@ faqs:
   - question: "What is the LogTide JavaScript SDK?"
     answer: "It is the official @logtide/core package (plus framework adapters like @logtide/fastify and @logtide/express) that sends structured logs, exceptions, and OpenTelemetry-compatible traces to a LogTide instance you host yourself. It provides leveled logging, structured error capture, a Hub/Scope model for per-request isolation, breadcrumbs, distributed tracing with W3C traceparent, and automatic request instrumentation through framework plugins."
   - question: "How do I add LogTide to a Node.js app?"
-    answer: "Install @logtide/core and, for web apps, your framework adapter (e.g. npm install @logtide/fastify). Register the plugin with your DSN and service name — the adapter installs the console and global-error integrations, creates a per-request scope, parses and injects traceparent, and starts a span for every request. For non-HTTP code, call hub.init once at startup and use hub.captureLog / hub.captureError."
+    answer: "Install @logtide/core and, for web apps, your framework adapter (e.g. npm install @logtide/fastify). Register the plugin with your DSN and service name - the adapter installs the console and global-error integrations, creates a per-request scope, parses and injects traceparent, and starts a span for every request. For non-HTTP code, call hub.init once at startup and use hub.captureLog / hub.captureError."
   - question: "How do I get a complete trace instead of one span per request?"
-    answer: "The framework plugin opens one root span per request and exposes the request scope (e.g. request.logtideScope). Wrap meaningful operations — DB queries, upstream API calls, payment steps — in startChildSpan(name, scope) / finishChildSpan(spanId). Children inherit the scope's traceId and nest under the HTTP span, so the whole request shows up as a single connected trace."
+    answer: "The framework plugin opens one root span per request and exposes the request scope (e.g. request.logtideScope). Wrap meaningful operations - DB queries, upstream API calls, payment steps - in startChildSpan(name, scope) / finishChildSpan(spanId). Children inherit the scope's traceId and nest under the HTTP span, so the whole request shows up as a single connected trace."
   - question: "Can LogTide capture request and response bodies?"
     answer: "Yes, on the Fastify adapter. Set includeRequestBody and includeResponseBody (v0.9.0+) when registering the plugin; the bodies are attached to the request span as http.request_body and http.response_body, truncated to 4096 characters. Capture is raw with no redaction, so enable it only on non-sensitive routes or gate it behind your own logic."
 ---
 
-One span per request tells you *that* a request was slow. It doesn't tell you *where* the time went, which downstream call failed, or what the payload looked like. Full observability means logs, errors, and traces that are all stitched to the same request — and the **LogTide JavaScript SDK** gives you that without changing how you write Node.
+One span per request tells you *that* a request was slow. It doesn't tell you *where* the time went, which downstream call failed, or what the payload looked like. Full observability means logs, errors, and traces that are all stitched to the same request - and the **LogTide JavaScript SDK** gives you that without changing how you write Node.
 
-This post walks through instrumenting a Node.js service end to end: structured logs, error capture, per-request context, breadcrumbs, *complete* distributed traces, and request/response body capture — shipped to a LogTide backend you host yourself.
+This post walks through instrumenting a Node.js service end to end: structured logs, error capture, per-request context, breadcrumbs, *complete* distributed traces, and request/response body capture - shipped to a LogTide backend you host yourself.
 
 ## What you get
 
 The SDK is built around `@logtide/core`, with thin adapters per framework:
 
-- **Leveled logging** — `debug`, `info`, `warn`, `error`, plus structured error capture
-- **Hub / Scope model** — per-request isolation for tags, user, extras, and breadcrumbs
-- **Distributed tracing** — root spans, child spans, OTLP export, and W3C `traceparent` in and out
-- **Framework plugins** — Fastify, Express, Hono, Elysia, Next.js, Nuxt, SvelteKit, Angular: automatic request spans, error capture, and per-request scope with no wiring
-- **Console + global-error integrations** — capture `console.*` and uncaught exceptions automatically
-- **Reliable transport** — batching, retry with backoff, a circuit breaker, and a bounded buffer so logging never blocks or destabilises your app
+- **Leveled logging** - `debug`, `info`, `warn`, `error`, plus structured error capture
+- **Hub / Scope model** - per-request isolation for tags, user, extras, and breadcrumbs
+- **Distributed tracing** - root spans, child spans, OTLP export, and W3C `traceparent` in and out
+- **Framework plugins** - Fastify, Express, Hono, Elysia, Next.js, Nuxt, SvelteKit, Angular: automatic request spans, error capture, and per-request scope with no wiring
+- **Console + global-error integrations** - capture `console.*` and uncaught exceptions automatically
+- **Reliable transport** - batching, retry with backoff, a circuit breaker, and a bounded buffer so logging never blocks or destabilises your app
 
 ## Install
 
@@ -53,7 +53,7 @@ npm install @logtide/fastify    # or @logtide/express, @logtide/hono, …
 
 ## Initialize
 
-For a web app, registering the framework plugin is all the setup you need — it calls `hub.init` for you:
+For a web app, registering the framework plugin is all the setup you need - it calls `hub.init` for you:
 
 ```typescript
 import Fastify from 'fastify';
@@ -70,7 +70,7 @@ await app.register(logtide, {
 });
 ```
 
-The plugin already installs `ConsoleIntegration` and `GlobalErrorIntegration` — **don't pass them again** in `integrations`. (Since v0.9.0 a duplicate is ignored anyway, but adding them was previously a common way to double-capture every `console.*` call.)
+The plugin already installs `ConsoleIntegration` and `GlobalErrorIntegration` - **don't pass them again** in `integrations`. (Since v0.9.0 a duplicate is ignored anyway, but adding them was previously a common way to double-capture every `console.*` call.)
 
 For non-HTTP code (workers, scripts, queues), initialize the hub once at startup:
 
@@ -125,7 +125,7 @@ hub.addBreadcrumb({
 });
 ```
 
-Since **v0.9.0**, when an event is captured with a scope, it carries *that scope's* breadcrumbs (request-local) rather than the global, process-wide buffer — so a single request's metadata no longer accumulates unrelated history from the rest of the app.
+Since **v0.9.0**, when an event is captured with a scope, it carries *that scope's* breadcrumbs (request-local) rather than the global, process-wide buffer - so a single request's metadata no longer accumulates unrelated history from the rest of the app.
 
 ## Complete traces with child spans
 
@@ -156,7 +156,7 @@ app.post('/checkout', async (request) => {
 });
 ```
 
-Both children share the request's `traceId` and nest under the HTTP span — one connected trace instead of disconnected events. For deeper nesting, clone the scope and set `childScope.spanId = span.spanId` before passing it to grandchild spans.
+Both children share the request's `traceId` and nest under the HTTP span - one connected trace instead of disconnected events. For deeper nesting, clone the scope and set `childScope.spanId = span.spanId` before passing it to grandchild spans.
 
 ## Background jobs get their own trace
 
@@ -210,7 +210,7 @@ await fetch('https://api.example.com/data', { headers: { traceparent: header } }
 
 ## Reliability and graceful shutdown
 
-The transport batches entries, retries with backoff, trips a circuit breaker on repeated failures, and drops from a bounded buffer rather than growing unbounded — logging never blocks your request path. Flush on shutdown so nothing is lost:
+The transport batches entries, retries with backoff, trips a circuit breaker on repeated failures, and drops from a bounded buffer rather than growing unbounded - logging never blocks your request path. Flush on shutdown so nothing is lost:
 
 ```typescript
 process.on('SIGTERM', async () => {

@@ -28,7 +28,7 @@ faqs:
   - question: "How does LogTide handle Elysia errors and exceptions?"
     answer: "The plugin registers an onError lifecycle hook that captures errors with full request context automatically. You can still add your own onError handler to return a custom response; the error is already recorded by LogTide before your handler runs."
   - question: "Does LogTide flush pending logs when the Elysia server stops?"
-    answer: "Buffered events are flushed automatically on the batching interval. For graceful shutdown, call hub.flush() (or hub.close()) before the process exits to ensure no logs are lost — the plugin does not register a shutdown hook itself."
+    answer: "Buffered events are flushed automatically on the batching interval. For graceful shutdown, call hub.flush() (or hub.close()) before the process exits to ensure no logs are lost - the plugin does not register a shutdown hook itself."
 ---
 
 LogTide's Elysia SDK provides a Bun-optimized plugin for automatic request logging, scoped context, lifecycle hooks, and W3C trace propagation.

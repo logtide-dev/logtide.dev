@@ -41,7 +41,7 @@ faqs:
     answer: "LogTide provides SDKs for Node.js frameworks such as Express and Fastify as well as a Python client, and the same trace propagation pattern works across all of them via HTTP headers. The shared structured schema ensures that cross-service queries return consistent results regardless of which language each service uses."
 ---
 
-In a microservices architecture, every user action fans out across dozens of services. When something breaks, the error you see in one service is often just a symptom -- the root cause lives three hops upstream, buried in a different service's logs. This guide shows how to build full observability across your distributed system with LogTide.
+In a microservices architecture, every user action fans out across dozens of services. When something breaks, the error you see in one service is often just a symptom - the root cause lives three hops upstream, buried in a different service's logs. This guide shows how to build full observability across your distributed system with LogTide.
 
 ## The Problem with Distributed Logs
 
@@ -106,9 +106,9 @@ req -> ana -> nowhere { class: flow }
 
 LogTide solves distributed observability with three principles:
 
-1. **One destination** -- All services ship logs to a single LogTide instance
-2. **Correlation by design** -- Trace context propagates automatically across service boundaries
-3. **Structure everything** -- Consistent schemas make cross-service queries possible
+1. **One destination** - All services ship logs to a single LogTide instance
+2. **Correlation by design** - Trace context propagates automatically across service boundaries
+3. **Structure everything** - Consistent schemas make cross-service queries possible
 
 ### Architecture Overview
 

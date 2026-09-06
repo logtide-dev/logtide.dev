@@ -1,6 +1,6 @@
 ---
 title: "Flask Application Logging Integration"
-description: "Add structured logging to Flask apps with the LogTide Python SDK — request middleware, blueprint support, error handlers, and Gunicorn deployment."
+description: "Add structured logging to Flask apps with the LogTide Python SDK - request middleware, blueprint support, error handlers, and Gunicorn deployment."
 category: "framework"
 difficulty: "easy"
 sdk: "python"

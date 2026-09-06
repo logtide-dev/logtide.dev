@@ -119,6 +119,6 @@ defer client.Close()
 
 ## Next Steps
 
-- [Go SDK reference](/docs/sdks/go/) — full API documentation
-- [Docker Integration](/integrations/docker/) — container deployment
-- [Kubernetes Integration](/integrations/kubernetes/) — cluster logging
+- [Go SDK reference](/docs/sdks/go/) - full API documentation
+- [Docker Integration](/integrations/docker/) - container deployment
+- [Kubernetes Integration](/integrations/kubernetes/) - cluster logging

@@ -38,11 +38,11 @@ When you're generating millions of log events per second, shipping directly to L
 
 ## Why Kafka for log transport?
 
-- **Backpressure handling**: Applications never block on log shipping — Kafka absorbs bursts
-- **Durability**: Logs are persisted to disk before acknowledgment — no data loss on restarts
+- **Backpressure handling**: Applications never block on log shipping - Kafka absorbs bursts
+- **Durability**: Logs are persisted to disk before acknowledgment - no data loss on restarts
 - **Replay**: Re-process historical logs by resetting consumer offsets
 - **Fanout**: Send the same log stream to LogTide, S3 archival, and real-time alerting
-- **Decoupling**: Applications don't need to know about LogTide — they publish to Kafka
+- **Decoupling**: Applications don't need to know about LogTide - they publish to Kafka
 - **Throughput**: Kafka handles millions of messages per second per partition
 
 ## Architecture

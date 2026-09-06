@@ -32,13 +32,13 @@ keywords:
   - "github actions logging"
 faqs:
   - question: "How does LogTide help with CI/CD pipeline visibility?"
-    answer: "LogTide centralises build, test, and deployment events from GitHub Actions, GitLab CI, and other pipelines into a single searchable store. Every pipeline event — build start, test results, deploy completion, rollback — is captured with rich metadata so you can correlate a production incident with the exact release that caused it."
+    answer: "LogTide centralises build, test, and deployment events from GitHub Actions, GitLab CI, and other pipelines into a single searchable store. Every pipeline event - build start, test results, deploy completion, rollback - is captured with rich metadata so you can correlate a production incident with the exact release that caused it."
   - question: "Why not rely on GitHub Actions or GitLab CI logs alone?"
     answer: "GitHub Actions retains logs for 90 days and GitLab CI for 30 days. When a production incident traces back to a deploy from weeks or months ago, those native logs are already gone. Shipping events to LogTide in real-time gives you permanent, queryable retention configured to match your compliance requirements."
   - question: "Can LogTide track DORA metrics like deployment frequency and change failure rate?"
     answer: "Yes. Because LogTide captures every deploy.completed and deploy.rollback event, you can query deployment frequency per environment and compute change failure rate directly from the structured log data."
   - question: "How do I audit a CI/CD pipeline?"
-    answer: "Auditing a CI/CD pipeline means recording who triggered what, which commit was built, what tests ran, who approved, and what was deployed where — in a tamper-evident store outside the CI platform itself. Ship structured pipeline events (build.start, test.results, deploy.completed, deploy.rollback with actor and commit metadata) to LogTide, where retention outlives the CI platform's 30-90 day limits and auditors can query the full release history."
+    answer: "Auditing a CI/CD pipeline means recording who triggered what, which commit was built, what tests ran, who approved, and what was deployed where - in a tamper-evident store outside the CI platform itself. Ship structured pipeline events (build.start, test.results, deploy.completed, deploy.rollback with actor and commit metadata) to LogTide, where retention outlives the CI platform's 30-90 day limits and auditors can query the full release history."
   - question: "How do I set up CI/CD logging with LogTide?"
     answer: "LogTide provides a reusable shell helper script that any CI platform can call via HTTP POST to the ingest API. For GitHub Actions you source the script and call helper functions such as logtide_build_start, logtide_test_results, and logtide_deploy at the relevant workflow steps."
 ---
@@ -62,7 +62,7 @@ CI/CD platforms treat logs as ephemeral artifacts:
 
 | Scenario | Without Centralized Pipeline Logs |
 |----------|----------------------------------|
-| Production incident | "When was the last deploy?" -- check 3 different UIs |
+| Production incident | "When was the last deploy?" - check 3 different UIs |
 | Flaky test investigation | No way to see test failure patterns over time |
 | Compliance audit | Manually screenshot pipeline runs to prove controls |
 | Build time regression | No historical data to compare build durations |

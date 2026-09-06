@@ -31,13 +31,13 @@ keywords:
   - "log management pricing"
 faqs:
   - question: "Is there a free, open-source alternative to Datadog logs?"
-    answer: "Yes — LogTide is open-source and free to self-host. You run it on your own infrastructure with unlimited users, instead of paying Datadog's per-GB ingestion plus per-seat fees."
+    answer: "Yes - LogTide is open-source and free to self-host. You run it on your own infrastructure with unlimited users, instead of paying Datadog's per-GB ingestion plus per-seat fees."
   - question: "How much cheaper is LogTide than Datadog?"
     answer: "Datadog log management runs roughly $0.10-$1.70/GB ingested plus indexing and per-user charges. Self-hosting LogTide typically saves up to 90% at scale, since cost is driven by infrastructure rather than volume and seats."
   - question: "How do I migrate from Datadog to LogTide?"
     answer: "Follow the LogTide Datadog migration guide: point your existing log shippers (Agent, Vector, Fluent Bit) at LogTide's HTTP endpoint, run both in parallel to validate dashboards and alerts, then cut over and turn off Datadog ingestion."
   - question: "Does LogTide replace Datadog's security monitoring?"
-    answer: "For logs, yes — LogTide includes built-in SIEM with Sigma rules and MITRE ATT&CK mapping at no extra cost. Note Datadog also covers APM, metrics and infrastructure monitoring beyond logs; LogTide focuses on log management and log-based detection."
+    answer: "For logs, yes - LogTide includes built-in SIEM with Sigma rules and MITRE ATT&CK mapping at no extra cost. Note Datadog also covers APM, metrics and infrastructure monitoring beyond logs; LogTide focuses on log management and log-based detection."
 ---
 
 Datadog is a popular SaaS observability platform. LogTide is a self-hosted, open-source log management platform with built-in SIEM. Here's an honest comparison to help you decide which is right for your team.

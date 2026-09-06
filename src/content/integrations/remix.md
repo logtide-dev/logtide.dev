@@ -37,7 +37,7 @@ Remix runs loaders and actions on the server, making it a natural fit for struct
 
 ## Why use LogTide with Remix?
 
-- **Server-side first**: Loaders and actions run on the server — log them with full context
+- **Server-side first**: Loaders and actions run on the server - log them with full context
 - **Request tracing**: Correlate logs across nested route loaders in a single page load
 - **Error boundaries**: Capture errors with the route context that triggered them
 - **Action audit trail**: Log form submissions and mutations with user context
@@ -359,7 +359,7 @@ services:
 
 ### Logs not appearing
 
-1. Ensure `logtide.server.ts` has the `.server.ts` suffix — without it, the client bundle may try to import server-only code
+1. Ensure `logtide.server.ts` has the `.server.ts` suffix - without it, the client bundle may try to import server-only code
 2. Check credentials are set: `echo $LOGTIDE_API_URL` and `echo $LOGTIDE_API_KEY`
 3. Add `await logtide.close()` to your server's graceful shutdown handler
 

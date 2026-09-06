@@ -1,6 +1,6 @@
 ---
 title: "Structured Logging and Error Tracking for Ruby and Rails"
-description: "Ship structured logs, exceptions, and traces from Ruby and Rails with the new LogTide Ruby SDK — a stdlib-only gem with Rack and Rails middleware."
+description: "Ship structured logs, exceptions, and traces from Ruby and Rails with the new LogTide Ruby SDK - a stdlib-only gem with Rack and Rails middleware."
 pubDate: 2026-06-20
 author: "LogTide Team"
 tags:
@@ -15,16 +15,16 @@ keywords:
   - "rails self-hosted logging"
 faqs:
   - question: "What is the LogTide Ruby SDK?"
-    answer: "It is the official logtide gem for Ruby 3.1+ that sends structured logs, exceptions, and traces to a LogTide instance. It implements the LogTide SDK spec v1.0 with leveled logging, structured exception capture, a Hub/Scope model, distributed tracing, Rack middleware, a Rails Railtie, and a stdlib Logger bridge — using the standard library only, with no runtime dependencies."
+    answer: "It is the official logtide gem for Ruby 3.1+ that sends structured logs, exceptions, and traces to a LogTide instance. It implements the LogTide SDK spec v1.0 with leveled logging, structured exception capture, a Hub/Scope model, distributed tracing, Rack middleware, a Rails Railtie, and a stdlib Logger bridge - using the standard library only, with no runtime dependencies."
   - question: "How do I add LogTide to a Rails app?"
     answer: "Add gem \"logtide\" to your Gemfile, run bundle install, and create config/initializers/logtide.rb that calls Logtide.init with your DSN and service name. The Railtie installs the Rack middleware automatically, giving you per-request scope isolation, HTTP tags, traceparent parsing, and breadcrumbs without further configuration."
   - question: "Does structured logging in Ruby require extra dependencies?"
     answer: "Not with the LogTide gem. It is built on the Ruby standard library (net/http, json, securerandom, zlib, logger), so it adds nothing to your dependency tree beyond the gem itself. It batches entries, retries with backoff, and uses a circuit breaker and bounded buffer so logging never blocks or destabilises your app."
   - question: "Is LogTide cheaper than hosted log management for Ruby apps?"
-    answer: "LogTide is self-hosted, so you pay infrastructure costs only — there are no per-GB ingestion or retention surcharges. For high-volume Ruby and Rails services this is typically far cheaper than usage-priced SaaS log platforms, while keeping log data on your own infrastructure for data-residency and compliance reasons."
+    answer: "LogTide is self-hosted, so you pay infrastructure costs only - there are no per-GB ingestion or retention surcharges. For high-volume Ruby and Rails services this is typically far cheaper than usage-priced SaaS log platforms, while keeping log data on your own infrastructure for data-residency and compliance reasons."
 ---
 
-Ruby's built-in `Logger` is fine until you need to *find* something. Plain text lines don't carry the structure you want when an incident hits at 2am: which user, which request, which trace, what was the exception's cause chain. The **LogTide Ruby SDK** — the new `logtide` gem — adds that structure without changing how you write Ruby, and ships it to a log backend you host yourself.
+Ruby's built-in `Logger` is fine until you need to *find* something. Plain text lines don't carry the structure you want when an incident hits at 2am: which user, which request, which trace, what was the exception's cause chain. The **LogTide Ruby SDK** - the new `logtide` gem - adds that structure without changing how you write Ruby, and ships it to a log backend you host yourself.
 
 This post walks through getting structured logs, exception capture, and distributed tracing out of a Ruby or Rails app, end to end.
 
@@ -32,15 +32,15 @@ This post walks through getting structured logs, exception capture, and distribu
 
 The `logtide` gem implements the LogTide SDK spec v1.0:
 
-- **Leveled logging** — `debug`, `info`, `warn`, `error`, `critical`, plus `capture_exception`
+- **Leveled logging** - `debug`, `info`, `warn`, `error`, `critical`, plus `capture_exception`
 - **Structured exception capture** with cause chains and stack frames
-- **Hub / Scope model** — per-request isolation for tags, user, and breadcrumbs
-- **Distributed tracing** — spans, OTLP export, and W3C `traceparent` in and out
-- **Rack middleware + Rails Railtie** — request instrumentation with no wiring
-- **stdlib `Logger` bridge** — a drop-in replacement for `Logger`
-- **Reliability** — batching, exponential-backoff retry, a circuit breaker, and a bounded buffer
+- **Hub / Scope model** - per-request isolation for tags, user, and breadcrumbs
+- **Distributed tracing** - spans, OTLP export, and W3C `traceparent` in and out
+- **Rack middleware + Rails Railtie** - request instrumentation with no wiring
+- **stdlib `Logger` bridge** - a drop-in replacement for `Logger`
+- **Reliability** - batching, exponential-backoff retry, a circuit breaker, and a bounded buffer
 
-And it uses the **standard library only** — no runtime dependencies, and it requires Ruby 3.1+.
+And it uses the **standard library only** - no runtime dependencies, and it requires Ruby 3.1+.
 
 ## Install
 
@@ -77,9 +77,9 @@ end
 Logtide.flush
 ```
 
-The second argument to any log method is a metadata hash — that's the "structured" part. Instead of interpolating values into a string, you attach them as fields you can later filter and aggregate on.
+The second argument to any log method is a metadata hash - that's the "structured" part. Instead of interpolating values into a string, you attach them as fields you can later filter and aggregate on.
 
-`capture_exception` is the one to reach for on errors: it serialises the exception, its cause chain, and (when `attach_stacktrace` is on, which it is by default) the stack frames — far more useful than `Logtide.error(e.message)`.
+`capture_exception` is the one to reach for on errors: it serialises the exception, its cause chain, and (when `attach_stacktrace` is on, which it is by default) the stack frames - far more useful than `Logtide.error(e.message)`.
 
 For short-lived scripts and rake tasks, call `Logtide.flush` before exit so buffered entries are delivered. A best-effort `at_exit` hook exists, but an explicit flush is the safe choice.
 
@@ -97,7 +97,7 @@ Logtide.init(
 )
 ```
 
-From here, every request gets an isolated scope, HTTP tags, inbound `traceparent` parsing, and request/response breadcrumbs — automatically.
+From here, every request gets an isolated scope, HTTP tags, inbound `traceparent` parsing, and request/response breadcrumbs - automatically.
 
 ### Enrich the request scope
 
@@ -127,7 +127,7 @@ end
 
 ### Keep your existing logger
 
-If you'd rather not change call sites, swap the Rails logger for the bridge — a drop-in replacement for the stdlib `Logger`:
+If you'd rather not change call sites, swap the Rails logger for the bridge - a drop-in replacement for the stdlib `Logger`:
 
 ```ruby
 Rails.logger = Logtide::LoggerBridge.new
@@ -175,10 +175,10 @@ The Rack middleware reads inbound `traceparent` headers automatically, so the ot
 
 ## Why self-hosted
 
-Hosted log platforms price by the gigabyte, and Ruby apps under load generate a lot of gigabytes. LogTide is self-hosted: you run it on your own infrastructure and pay for that infrastructure, not for ingestion or retention. At meaningful volume that's a large saving, and your log data — which often contains user and request detail — never leaves systems you control. That matters for data residency and compliance as much as for cost.
+Hosted log platforms price by the gigabyte, and Ruby apps under load generate a lot of gigabytes. LogTide is self-hosted: you run it on your own infrastructure and pay for that infrastructure, not for ingestion or retention. At meaningful volume that's a large saving, and your log data - which often contains user and request detail - never leaves systems you control. That matters for data residency and compliance as much as for cost.
 
 ## Next steps
 
-- [Ruby SDK reference](/docs/sdks/ruby/) — every method and configuration option
-- [Rails integration guide](/integrations/rails/) — the full Rails walkthrough
-- [Self-hosted log management](/self-hosted-log-management/) — how LogTide is deployed
+- [Ruby SDK reference](/docs/sdks/ruby/) - every method and configuration option
+- [Rails integration guide](/integrations/rails/) - the full Rails walkthrough
+- [Self-hosted log management](/self-hosted-log-management/) - how LogTide is deployed

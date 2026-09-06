@@ -739,7 +739,7 @@ Queues with messages but no consumers.
 service:rabbitmq AND log_type:dead_letter
 ```
 
-Any occurrence -- failed message processing needs investigation.
+Any occurrence - failed message processing needs investigation.
 
 ### Memory Alarm
 
@@ -747,7 +747,7 @@ Any occurrence -- failed message processing needs investigation.
 service:rabbitmq AND mem_alarm:true
 ```
 
-Critical -- RabbitMQ will block publishing when memory alarm triggers.
+Critical - RabbitMQ will block publishing when memory alarm triggers.
 
 ### Disk Space Alarm
 
@@ -755,7 +755,7 @@ Critical -- RabbitMQ will block publishing when memory alarm triggers.
 service:rabbitmq AND disk_free_alarm:true
 ```
 
-Critical -- RabbitMQ will block publishing when disk space is low.
+Critical - RabbitMQ will block publishing when disk space is low.
 
 ### Node Down
 
@@ -763,7 +763,7 @@ Critical -- RabbitMQ will block publishing when disk space is low.
 service:rabbitmq AND log_type:node_metrics AND running:false
 ```
 
-Any occurrence -- cluster degradation.
+Any occurrence - cluster degradation.
 
 ### Connection Spike
 

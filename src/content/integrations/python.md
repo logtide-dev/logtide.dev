@@ -40,7 +40,7 @@ The LogTide Python SDK provides structured logging with automatic batching, sync
 - **Sync & async**: `LogTideClient` (requests) and `AsyncLogTideClient` (aiohttp) for every use case
 - **stdlib `logging` integration**: Drop in `LogTideHandler` to any existing logging setup
 - **Automatic batching**: Reduces network overhead with intelligent batching and configurable flush interval
-- **Circuit breaker**: Prevents app crashes if LogTide is unreachable — logs are silently dropped, never blocking
+- **Circuit breaker**: Prevents app crashes if LogTide is unreachable - logs are silently dropped, never blocking
 - **Payload limits**: Truncate oversized fields, remove base64 blobs, exclude sensitive fields
 - **Trace correlation**: Context managers for request-scoped trace IDs
 - **Type hints**: Full typing support for Python 3.8+
@@ -89,11 +89,11 @@ client = LogTideClient(
     )
 )
 
-# Send logs — args: service, message, metadata (dict or Exception)
+# Send logs - args: service, message, metadata (dict or Exception)
 client.info("api-gateway", "Server started", {"port": 3000})
 client.error("database", "Connection failed", Exception("Timeout"))
 
-# Graceful shutdown — also registered automatically via atexit
+# Graceful shutdown - also registered automatically via atexit
 client.close()
 ```
 
@@ -166,7 +166,7 @@ client.critical("system", "Out of memory", {"used": "95%"})
 
 ### Exception Auto-Serialization
 
-Pass an `Exception` directly as metadata — it is serialized automatically with full stack frames:
+Pass an `Exception` directly as metadata - it is serialized automatically with full stack frames:
 
 ```python
 try:
@@ -219,7 +219,7 @@ finally:
 
 ## stdlib `logging` Integration
 
-`LogTideHandler` is a standard `logging.Handler` — drop it into any existing setup:
+`LogTideHandler` is a standard `logging.Handler` - drop it into any existing setup:
 
 ```python
 import logging

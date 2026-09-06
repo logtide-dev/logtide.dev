@@ -31,11 +31,11 @@ keywords:
   - "GCP log management cost"
 faqs:
   - question: "Is LogTide cheaper than Google Cloud Logging?"
-    answer: "Beyond GCP's 50 GiB/month free tier, Cloud Logging charges $0.50/GiB. At 100 GiB/day, LogTide on a GCE instance costs roughly $450/month versus about $1,675/month for Cloud Logging plus Log Analytics — around 73% less, or ~$14,700/year saved."
+    answer: "Beyond GCP's 50 GiB/month free tier, Cloud Logging charges $0.50/GiB. At 100 GiB/day, LogTide on a GCE instance costs roughly $450/month versus about $1,675/month for Cloud Logging plus Log Analytics - around 73% less, or ~$14,700/year saved."
   - question: "Can I migrate from Cloud Logging to LogTide without losing data?"
     answer: "Yes. Use Cloud Logging's Log Router to forward logs to LogTide through a Pub/Sub sink, run both in parallel to validate, then reduce Cloud Logging retention to minimize cost. No re-instrumentation of your apps is required."
   - question: "Does LogTide include SIEM like Chronicle?"
-    answer: "Yes. LogTide ships Sigma detection rules and MITRE ATT&CK mapping at no extra cost. Cloud Logging has no native SIEM — you would need Chronicle or a third-party tool, both billed separately."
+    answer: "Yes. LogTide ships Sigma detection rules and MITRE ATT&CK mapping at no extra cost. Cloud Logging has no native SIEM - you would need Chronicle or a third-party tool, both billed separately."
   - question: "When is Google Cloud Logging the better choice?"
     answer: "Under ~50 GiB/month it is effectively free, and it auto-collects logs from GKE, Cloud Run and other GCP services with zero setup. If you run exclusively on GCP at low volume and don't want to manage infrastructure, Cloud Logging wins."
 ---
@@ -105,7 +105,7 @@ If you're under 50 GiB/month, Cloud Logging's free tier wins. At exactly 50 GiB/
 
 ## Where Cloud Logging Wins
 
-**Native GCP integration.** Every GCP service — GKE, Cloud Run, Cloud Functions, App Engine — ships logs automatically. No agent, no configuration. It just works.
+**Native GCP integration.** Every GCP service - GKE, Cloud Run, Cloud Functions, App Engine - ships logs automatically. No agent, no configuration. It just works.
 
 **Free tier.** 50 GiB/month free is generous for small projects. If you're under this limit, Cloud Logging is effectively free.
 
@@ -119,9 +119,9 @@ If you're under 50 GiB/month, Cloud Logging's free tier wins. At exactly 50 GiB/
 
 **Cost at scale.** Beyond the free tier, Cloud Logging charges $0.50/GiB. At 100+ GiB/day, LogTide saves 70-85% on log management costs.
 
-**Built-in SIEM.** LogTide includes Sigma detection rules, MITRE ATT&CK mapping, and incident management at no extra cost. Cloud Logging has no native SIEM — you'd need Chronicle SIEM or a third-party solution.
+**Built-in SIEM.** LogTide includes Sigma detection rules, MITRE ATT&CK mapping, and incident management at no extra cost. Cloud Logging has no native SIEM - you'd need Chronicle SIEM or a third-party solution.
 
-**Multi-cloud support.** LogTide runs anywhere — AWS, GCP, Azure, on-premises. Cloud Logging is GCP-only. If you run multi-cloud, LogTide provides a single pane of glass.
+**Multi-cloud support.** LogTide runs anywhere - AWS, GCP, Azure, on-premises. Cloud Logging is GCP-only. If you run multi-cloud, LogTide provides a single pane of glass.
 
 **No query costs.** Cloud Logging queries are free in the Logs Explorer, but Log Analytics (BigQuery-linked) charges per query. LogTide queries are always unlimited.
 

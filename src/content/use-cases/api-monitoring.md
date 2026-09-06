@@ -41,7 +41,7 @@ faqs:
     answer: "LogTide provides ready-made middleware for Express and a plugin for Fastify. Both implementations capture request metadata asynchronously using batched, compressed payloads to minimise performance overhead on your API."
 ---
 
-Your API is your product. When response times creep up, error rates spike, or a specific consumer hammers your endpoints, you need to know immediately -- not when customers start complaining. This guide shows how to build comprehensive API monitoring with LogTide, from basic request logging to latency percentile tracking and consumer analytics.
+Your API is your product. When response times creep up, error rates spike, or a specific consumer hammers your endpoints, you need to know immediately - not when customers start complaining. This guide shows how to build comprehensive API monitoring with LogTide, from basic request logging to latency percentile tracking and consumer analytics.
 
 ## The Problem
 
