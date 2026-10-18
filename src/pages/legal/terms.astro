@@ -96,7 +96,7 @@ const breadcrumbs = [
     <ul>
       <li>You may delete your account at any time through the Service settings</li>
       <li>We may suspend or terminate your account if you violate these Terms or the Acceptable Use Policy</li>
-      <li>Upon termination, your right to access the Service ceases immediately</li>
+      <li>Upon termination, your right to access the Service ceases immediately, so export any data you need before then</li>
       <li>We will delete your account data within 30 days of termination, unless legally required to retain it</li>
     </ul>
 
@@ -143,10 +143,11 @@ const breadcrumbs = [
     <ul>
       <li>You can cancel at any time from the Stripe Customer Portal, linked from your billing settings</li>
       <li>Cancellation takes effect at the end of the current billing period. You keep access to the paid plan until then</li>
+      <li>At the end of the paid period, a cancelled account continues on the Free plan (7-day retention)</li>
     </ul>
     <h3>14.4 Downgrade and Data Retention</h3>
     <p>
-      When a subscription is cancelled or moved to a plan with shorter retention, data older than the retention of the new plan will be deleted. We notify you by email at least 14 days before that deletion, so you can export what you need.
+      When a subscription is cancelled, the account moves to the Free plan, and data older than the Free plan retention (7 days) will be deleted. When you move to another paid plan with shorter retention, data older than the retention of that plan will be deleted. In both cases we notify you by email at least 14 days before that deletion, and you can export your data while your account is active, including during this notice period.
     </p>
     <h3>14.5 Failed Payments</h3>
     <p>
@@ -154,7 +155,7 @@ const breadcrumbs = [
     </p>
     <h3>14.6 Quotas</h3>
     <p>
-      Paid plans include a 10% grace over the monthly quota, with immediate notice. After that, ingestion is paused until the next renewal or an upgrade. We do not charge overage fees.
+      Paid plans include a 10% grace over the monthly quota, with immediate notice. After that, ingestion is paused until the monthly quota resets on the 1st of the next month (UTC) or until you upgrade. Quotas are monthly and reset on the 1st of each calendar month (UTC), regardless of whether you are billed monthly or annually. We do not charge overage fees.
     </p>
     <h3>14.7 Refunds</h3>
     <p>
@@ -170,19 +171,18 @@ const breadcrumbs = [
       The Service is available to both businesses and consumers. If you are a consumer in the EU (a person acting outside any trade, business or profession), you have a 14-day right to withdraw from a distance contract without giving a reason, starting from the day the contract is concluded.
     </p>
     <p>
-      The Service is digital and starts as soon as you pay. At checkout, we ask you to confirm the following:
+      The Service is digital and starts as soon as you pay. To purchase a paid plan you must expressly confirm the following at checkout, by ticking the box in Stripe Checkout:
     </p>
     <blockquote>
       I agree to the Terms of Service and request that the service starts immediately. I acknowledge that I lose my right of withdrawal once the service has started.
     </blockquote>
     <ul>
-      <li>If you give this confirmation, the service starts immediately and, once it has started, you lose the right of withdrawal as provided by the EU Consumer Rights Directive (2011/83/EU)</li>
-      <li>If you withdraw within the 14 days before the service has started, we reimburse the amount paid without undue delay and within 14 days of receiving your withdrawal</li>
-      <li>To withdraw, send a clear statement to <a href="mailto:legal@logtide.dev">legal@logtide.dev</a></li>
+      <li>A purchase requires this express request. The service starts at the moment of payment, and the 14-day right of withdrawal is therefore lost once the service has started, as provided by the EU Consumer Rights Directive (2011/83/EU)</li>
+      <li>Questions about your purchase can be sent to <a href="mailto:legal@logtide.dev">legal@logtide.dev</a></li>
       <li>This section does not limit any mandatory consumer rights you have under the law of your country</li>
     </ul>
     <p>
-      [OPERATOR: confirm with counsel the wording on loss of the right, any proportional payment for service already used, and whether a model withdrawal form must be attached.]
+      [OPERATOR: confirm with counsel the wording on loss of the right of withdrawal for subscription services, any proportional payment for service already used, and whether a model withdrawal form must be provided.]
     </p>
 
     <h2>16. Contact</h2>

@@ -42,6 +42,7 @@ const breadcrumbs = [
       <li><strong>Email address</strong> - used for authentication, account recovery, and alert notifications</li>
       <li><strong>Display name</strong> - shown within the application interface</li>
       <li><strong>Password</strong> - stored only as a bcrypt hash, never in plain text</li>
+      <li><strong>Billing data</strong> (paid plans) - billing name, address, VAT number, plan and payment status, received from Stripe. We do not receive your full card details</li>
     </ul>
 
     <h3>2.2 Usage Data</h3>
@@ -63,7 +64,7 @@ const breadcrumbs = [
       <li>Use third-party analytics services (no Google Analytics, no tracking pixels)</li>
       <li>Collect browser fingerprints or device identifiers</li>
       <li>Track your behavior across websites</li>
-      <li>Sell or share your data with third parties</li>
+      <li>Sell your data, or share it with third parties other than the service providers listed in section 7 that we need to operate the service</li>
       <li>Store your full payment card details (payments for paid plans are handled by Stripe, see section 7)</li>
     </ul>
 
@@ -84,6 +85,7 @@ const breadcrumbs = [
     <ul>
       <li><strong>Contract performance</strong> (Art. 6(1)(b)) - processing necessary to provide the service you signed up for</li>
       <li><strong>Legitimate interest</strong> (Art. 6(1)(f)) - security measures, abuse prevention, and service improvement</li>
+      <li><strong>Legal obligation</strong> (Art. 6(1)(c)) - keeping invoices and billing records as required by tax and accounting law</li>
       <li><strong>Consent</strong> (Art. 6(1)(a)) - where applicable, such as receiving optional communications</li>
     </ul>
 
@@ -102,6 +104,7 @@ const breadcrumbs = [
     <ul>
       <li><strong>Account data</strong> - retained while your account is active, deleted upon account deletion</li>
       <li><strong>Log data</strong> - retained according to your configured retention policies</li>
+      <li><strong>Invoices and billing records</strong> - kept as required by tax law [OPERATOR: retention period required by local tax law]</li>
       <li><strong>Authentication tokens</strong> - automatically expire after 30 days of inactivity</li>
     </ul>
 
