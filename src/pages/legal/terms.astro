@@ -1,5 +1,6 @@
 ---
 import ContentPage from '../../layouts/ContentPage.astro';
+import DraftBanner from '../../components/DraftBanner.astro';
 
 const title = 'Terms of Service - LogTide';
 const description = 'LogTide terms of service. Read the conditions for using the LogTide log management platform.';
@@ -11,7 +12,9 @@ const breadcrumbs = [
 
 <ContentPage title={title} description={description} breadcrumbs={breadcrumbs}>
   <h1>Terms of Service</h1>
-  <p class="text-muted-foreground">Last updated: February 2026</p>
+  <p class="text-muted-foreground">Last updated: October 2026</p>
+
+  <DraftBanner />
 
   <div class="prose-content">
     <p>
@@ -49,6 +52,11 @@ const breadcrumbs = [
     <h3>4.2 License to Operate</h3>
     <p>
       You grant LogTide a limited license to process Your Data solely for the purpose of providing and improving the Service. This license terminates when you delete Your Data or your account.
+    </p>
+
+    <h3>4.2.1 Data Processing</h3>
+    <p>
+      Where Your Data contains personal data, LogTide acts as your processor under our <a href="/legal/dpa/">Data Processing Agreement</a>, which forms part of these Terms.
     </p>
 
     <h3>4.3 Data Responsibility</h3>
@@ -115,7 +123,69 @@ const breadcrumbs = [
       If any provision of these Terms is found to be unenforceable, the remaining provisions shall continue in full force and effect.
     </p>
 
-    <h2>14. Contact</h2>
+    <h2 id="billing">14. Paid Plans, Billing and Taxes</h2>
+    <p>
+      This section applies to paid plans of the cloud-hosted Service. Plan limits and prices are shown on the pricing page and at checkout.
+    </p>
+    <h3>14.1 Billing and Renewal</h3>
+    <ul>
+      <li>Paid plans are billed in advance, monthly or annually, as you choose at checkout</li>
+      <li>Subscriptions renew automatically for the same period until cancelled</li>
+      <li>Payments are processed by Stripe Payments Europe, Ltd. (Ireland). We do not store your full card details</li>
+    </ul>
+    <h3>14.2 Taxes</h3>
+    <ul>
+      <li>Prices exclude VAT and other applicable taxes</li>
+      <li>VAT is calculated at checkout based on your location</li>
+      <li>Business customers in the EU who provide a valid VAT identification number may be invoiced under the reverse charge mechanism, where applicable</li>
+    </ul>
+    <h3>14.3 Cancellation</h3>
+    <ul>
+      <li>You can cancel at any time from the Stripe Customer Portal, linked from your billing settings</li>
+      <li>Cancellation takes effect at the end of the current billing period. You keep access to the paid plan until then</li>
+    </ul>
+    <h3>14.4 Downgrade and Data Retention</h3>
+    <p>
+      When a subscription is cancelled or moved to a plan with shorter retention, data older than the retention of the new plan will be deleted. We notify you by email at least 14 days before that deletion, so you can export what you need.
+    </p>
+    <h3>14.5 Failed Payments</h3>
+    <p>
+      If a payment fails, we keep your plan active for 7 days while the payment is retried. After that, the account is downgraded to the Free plan and section 14.4 applies.
+    </p>
+    <h3>14.6 Quotas</h3>
+    <p>
+      Paid plans include a 10% grace over the monthly quota, with immediate notice. After that, ingestion is paused until the next renewal or an upgrade. We do not charge overage fees.
+    </p>
+    <h3>14.7 Refunds</h3>
+    <p>
+      Except where the law or section 15 gives you a right to a refund, payments are non-refundable and we do not refund partial periods after cancellation. [OPERATOR: confirm the refund policy, for example whether a discretionary refund window applies to annual plans.]
+    </p>
+    <h3>14.8 Price Changes</h3>
+    <p>
+      We may change prices with at least 30 days' notice by email. The change applies from your next renewal, and you can cancel before then.
+    </p>
+
+    <h2 id="withdrawal">15. Right of Withdrawal for EU Consumers</h2>
+    <p>
+      The Service is available to both businesses and consumers. If you are a consumer in the EU (a person acting outside any trade, business or profession), you have a 14-day right to withdraw from a distance contract without giving a reason, starting from the day the contract is concluded.
+    </p>
+    <p>
+      The Service is digital and starts as soon as you pay. At checkout, we ask you to confirm the following:
+    </p>
+    <blockquote>
+      I agree to the Terms of Service and request that the service starts immediately. I acknowledge that I lose my right of withdrawal once the service has started.
+    </blockquote>
+    <ul>
+      <li>If you give this confirmation, the service starts immediately and, once it has started, you lose the right of withdrawal as provided by the EU Consumer Rights Directive (2011/83/EU)</li>
+      <li>If you withdraw within the 14 days before the service has started, we reimburse the amount paid without undue delay and within 14 days of receiving your withdrawal</li>
+      <li>To withdraw, send a clear statement to <a href="mailto:legal@logtide.dev">legal@logtide.dev</a></li>
+      <li>This section does not limit any mandatory consumer rights you have under the law of your country</li>
+    </ul>
+    <p>
+      [OPERATOR: confirm with counsel the wording on loss of the right, any proportional payment for service already used, and whether a model withdrawal form must be attached.]
+    </p>
+
+    <h2>16. Contact</h2>
     <p>For questions about these Terms:</p>
     <ul>
       <li><strong><a href="https://solture.it" target="_blank" rel="noopener noreferrer">Solture S.R.L.</a></strong> - VAT: IT05078680237</li>
