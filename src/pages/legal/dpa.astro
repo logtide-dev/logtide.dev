@@ -1,0 +1,113 @@
+---
+import ContentPage from '../../layouts/ContentPage.astro';
+import DraftBanner from '../../components/DraftBanner.astro';
+
+const title = 'Data Processing Agreement - LogTide';
+const description = 'LogTide Data Processing Agreement (GDPR Art. 28) for the LogTide Cloud service, covering the log data customers send to the platform.';
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Data Processing Agreement', url: '/legal/dpa/' },
+];
+---
+
+<ContentPage title={title} description={description} breadcrumbs={breadcrumbs}>
+  <h1>Data Processing Agreement</h1>
+  <p class="text-muted-foreground">Last updated: October 2026</p>
+
+  <DraftBanner />
+
+  <div class="prose-content">
+    <p>
+      This Data Processing Agreement ("DPA") forms part of the <a href="/legal/terms/">Terms of Service</a> between <strong><a href="https://solture.it" target="_blank" rel="noopener noreferrer">Solture S.R.L.</a></strong> (VAT: IT05078680237) ("LogTide", the "Processor") and the customer using the cloud-hosted LogTide service (the "Customer", the "Controller"). It applies to personal data contained in the log data, traces, metrics and configuration the Customer submits to the Service ("Customer Personal Data"). It does not apply to self-hosted deployments, where LogTide does not process your data.
+    </p>
+    <p>
+      For personal data about the Customer's own account holders (such as email address and display name), LogTide acts as a controller, as described in the <a href="/legal/privacy/">Privacy Policy</a>.
+    </p>
+
+    <h2>1. Roles</h2>
+    <p>
+      The Customer is the controller (or a processor acting on behalf of its own controller) of Customer Personal Data. LogTide is the processor, in accordance with Article 28 of Regulation (EU) 2016/679 ("GDPR"). The Customer decides what is sent to the Service and is responsible for having a lawful basis for it.
+    </p>
+
+    <h2>2. Subject Matter, Nature and Purpose</h2>
+    <ul>
+      <li><strong>Subject matter</strong>: provision of the LogTide Cloud log management and SIEM service</li>
+      <li><strong>Nature of processing</strong>: ingestion, storage, indexing, querying, alerting, correlation and deletion of the data the Customer sends</li>
+      <li><strong>Purpose</strong>: solely to provide the Service to the Customer as described in the Terms and the Customer's documented instructions</li>
+      <li><strong>Duration</strong>: the term of the Customer's subscription, plus the deletion period in section 9</li>
+    </ul>
+
+    <h2>3. Categories of Data and Data Subjects</h2>
+    <p>
+      The Customer controls the content of its logs. Depending on the Customer's use, Customer Personal Data may include IP addresses, user identifiers, email addresses, request metadata and any other personal data written to logs. Data subjects may include the Customer's employees, end users and customers. The Customer must not send special categories of data (GDPR Art. 9) unless it has taken appropriate measures such as PII masking before ingestion.
+    </p>
+
+    <h2>4. Instructions</h2>
+    <p>
+      LogTide processes Customer Personal Data only on the Customer's documented instructions, which are the Terms, this DPA and the Customer's use of the Service features and API. If LogTide believes an instruction infringes data protection law, it will inform the Customer without undue delay.
+    </p>
+
+    <h2>5. Confidentiality</h2>
+    <p>
+      LogTide ensures that persons authorised to process Customer Personal Data are bound by confidentiality obligations.
+    </p>
+
+    <h2>6. Security</h2>
+    <p>
+      LogTide implements appropriate technical and organisational measures under GDPR Art. 32. Measures already described publicly are: tenant isolation between organizations, encrypted databases for account data, TLS/HTTPS for all connections, and optional PII masking rules that the Customer can apply to incoming logs. See the <a href="/legal/privacy/">Privacy Policy</a> for details.
+    </p>
+    <p>
+      [OPERATOR: confirm or extend the list of technical and organisational measures (for example backups, access controls, logging, incident response) before publication. Do not list measures that are not in place.]
+    </p>
+
+    <h2>7. Subprocessors</h2>
+    <p>
+      The Customer gives general authorisation for LogTide to engage the subprocessors listed on the <a href="/legal/subprocessors/">Subprocessors</a> page. LogTide imposes on each subprocessor data protection obligations no less protective than those in this DPA and remains liable for their performance.
+    </p>
+    <p>
+      LogTide will notify the Customer by email or through the Service of any intended addition or replacement of a subprocessor at least 30 days in advance. The Customer may object on reasonable data protection grounds within that period. If the parties cannot resolve the objection, the Customer may terminate the affected subscription.
+    </p>
+
+    <h2>8. Assistance</h2>
+    <p>
+      Taking into account the nature of the processing, LogTide will assist the Customer, by appropriate technical and organisational measures, in responding to data subject requests (access, rectification, erasure, restriction, portability, objection). The Customer can search and delete its own log data through the Service. LogTide will also assist with the Customer's obligations on security, breach notification, data protection impact assessments and prior consultation (GDPR Arts. 32 to 36), considering the information available to LogTide.
+    </p>
+
+    <h2>9. Deletion and Return</h2>
+    <ul>
+      <li>Log data is deleted automatically when it exceeds the retention period of the Customer's plan</li>
+      <li>On downgrade or cancellation, data beyond the retention of the new plan is deleted after 14 days' notice by email, as described in the <a href="/legal/terms/#billing">Terms</a></li>
+      <li>On termination of the Service, LogTide deletes Customer Personal Data within 30 days, unless law requires retention</li>
+      <li>Before deletion, the Customer can export its data through the Service and its API</li>
+    </ul>
+
+    <h2>10. Personal Data Breach</h2>
+    <p>
+      LogTide will notify the Customer without undue delay after becoming aware of a personal data breach affecting Customer Personal Data, and will provide the information reasonably available to help the Customer meet its notification duties under GDPR Art. 33.
+    </p>
+
+    <h2>11. Audits</h2>
+    <p>
+      LogTide will make available to the Customer the information necessary to demonstrate compliance with Article 28 and will allow for and contribute to audits, including inspections, conducted by the Customer or a mandated auditor, with reasonable notice, during business hours, subject to confidentiality and without unreasonable disruption.
+    </p>
+
+    <h2>12. International Transfers</h2>
+    <p>
+      LogTide infrastructure is located in the European Union and Customer Personal Data is not transferred outside the EU/EEA, except where a subprocessor listed on the <a href="/legal/subprocessors/">Subprocessors</a> page does so under an appropriate transfer mechanism (such as an adequacy decision or the EU Standard Contractual Clauses).
+    </p>
+
+    <h2>13. Liability and Governing Law</h2>
+    <p>
+      The limitations of liability in the Terms apply to this DPA to the extent permitted by law. This DPA is governed by the same law and jurisdiction as the Terms.
+    </p>
+
+    <h2>14. Contact</h2>
+    <ul>
+      <li><strong><a href="https://solture.it" target="_blank" rel="noopener noreferrer">Solture S.R.L.</a></strong> - VAT: IT05078680237</li>
+      <li>Email: <a href="mailto:privacy@logtide.dev">privacy@logtide.dev</a></li>
+    </ul>
+    <p>
+      [OPERATOR: add the data protection contact or DPO, if one is appointed, and the process by which customers countersign or accept this DPA.]
+    </p>
+  </div>
+</ContentPage>

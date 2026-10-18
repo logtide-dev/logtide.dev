@@ -1,0 +1,65 @@
+---
+import ContentPage from '../../layouts/ContentPage.astro';
+import DraftBanner from '../../components/DraftBanner.astro';
+
+const title = 'Subprocessors - LogTide';
+const description = 'List of subprocessors LogTide uses to provide the LogTide Cloud service, with purpose, location and transfer basis.';
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Subprocessors', url: '/legal/subprocessors/' },
+];
+---
+
+<ContentPage title={title} description={description} breadcrumbs={breadcrumbs}>
+  <h1>Subprocessors</h1>
+  <p class="text-muted-foreground">Last updated: October 2026</p>
+
+  <DraftBanner />
+
+  <div class="prose-content">
+    <p>
+      LogTide Cloud, operated by <strong><a href="https://solture.it" target="_blank" rel="noopener noreferrer">Solture S.R.L.</a></strong>, uses the third parties below to deliver the service. This list is referenced by the <a href="/legal/dpa/">Data Processing Agreement</a>. Self-hosted deployments do not use any of them.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Purpose</th>
+          <th>Location</th>
+          <th>Transfer basis</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>[OPERATOR: hosting provider name]</td>
+          <td>Infrastructure hosting for the cloud service, including storage of customer log data</td>
+          <td>[OPERATOR: hosting provider location and region]</td>
+          <td>[OPERATOR: transfer basis, or "Not applicable (EU/EEA)"]</td>
+        </tr>
+        <tr>
+          <td>Stripe Payments Europe, Ltd.</td>
+          <td>Payment processing, subscriptions, invoicing and tax calculation. Receives billing details only, never log data.</td>
+          <td>Ireland (EU). The Stripe group may process data in other countries.</td>
+          <td>[OPERATOR: confirm basis, typically Stripe's Data Processing Agreement with EU Standard Contractual Clauses and the EU-US Data Privacy Framework]</td>
+        </tr>
+        <tr>
+          <td>[OPERATOR: transactional email provider name]</td>
+          <td>Delivery of transactional email such as account messages, alert notifications and billing notices</td>
+          <td>[OPERATOR: provider location and region]</td>
+          <td>[OPERATOR: transfer basis, or "Not applicable (EU/EEA)"]</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Changes to this list</h2>
+    <p>
+      We notify customers by email or through the Service at least 30 days before adding or replacing a subprocessor, as described in section 7 of the <a href="/legal/dpa/">DPA</a>. To object, contact <a href="mailto:privacy@logtide.dev">privacy@logtide.dev</a>.
+    </p>
+
+    <h2>Contact</h2>
+    <ul>
+      <li>Email: <a href="mailto:privacy@logtide.dev">privacy@logtide.dev</a></li>
+    </ul>
+  </div>
+</ContentPage>
