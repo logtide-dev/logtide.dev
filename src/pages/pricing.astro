@@ -91,7 +91,7 @@ const faqs = [
   {
     question: 'What happens when I reach my monthly quota?',
     answer:
-      'On paid plans you get a 10% margin over your quota and an immediate notice as soon as you reach it. After that margin, ingestion pauses until your plan renews or you upgrade. You are never charged extra: there are no surprise overage fees.',
+      'On paid plans you get a 10% margin over your quota and an immediate notice as soon as you reach it. After that margin, ingestion pauses until your monthly quota resets on the 1st of the next month (UTC) or until you upgrade. Quotas reset monthly, whether you pay monthly or annually. You are never charged extra: there are no surprise overage fees.',
   },
   {
     question: 'What about the Free plan?',
@@ -278,7 +278,7 @@ const faqs = [
           <h2 id="quota-heading" class="mb-4 text-3xl font-bold">No surprise charges</h2>
           <p class="text-lg text-muted-foreground">
             When you reach your quota, paid plans get a 10% margin and an immediate notice. After that,
-            ingestion pauses until renewal or upgrade. You are never billed more than your plan price.
+            ingestion pauses until your monthly quota resets on the 1st of the next month (UTC) or until you upgrade. You are never billed more than your plan price.
           </p>
         </div>
       </section>
