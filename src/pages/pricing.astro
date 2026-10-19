@@ -138,8 +138,8 @@ const faqs = [
       'Yes. You can cancel your subscription whenever you like. Consumers in the EU also have a statutory right of withdrawal, described in our Terms.',
   },
   {
-    question: 'What if I need more than 400 GB per month?',
-    answer: 'Contact us and we will put together a plan for your volume.',
+    question: 'What if I need more volume or longer retention?',
+    answer: 'Contact us and we will put together a custom plan for your data volume and retention needs.',
   },
   {
     question: 'Should I self-host or use LogTide Cloud?',
@@ -251,7 +251,7 @@ const faqs = [
                   <span class="text-muted-foreground">{plan.priceNote}</span>
                 </p>
                 <p
-                  class="mt-1 min-h-[1.25rem] text-sm text-muted-foreground"
+                  class="mt-1 min-h-[2.5rem] text-sm text-muted-foreground"
                   data-annual-monthly={plan.annual ? plan.annualMonthly : undefined}
                   data-annual-total={plan.annual ? plan.annualTotal : undefined}
                 >
@@ -298,9 +298,9 @@ const faqs = [
           </div>
 
           <div class="mt-8 rounded-2xl border border-border bg-muted/30 p-6 text-center">
-            <p class="font-medium">Need more than 400 GB per month?</p>
+            <p class="font-medium">Need more volume or longer retention?</p>
             <p class="mt-1 text-sm text-muted-foreground">
-              <a href="/contact/" class="text-primary-readable hover:underline">Contact us</a> and we will size a plan for your volume.
+              <a href="/contact/" class="text-primary-readable hover:underline">Contact us</a> for a custom plan sized to your data and retention needs.
             </p>
           </div>
         </div>
