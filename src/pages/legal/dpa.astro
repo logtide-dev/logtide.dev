@@ -54,11 +54,29 @@ const breadcrumbs = [
 
     <h2>6. Security</h2>
     <p>
-      LogTide implements appropriate technical and organisational measures under GDPR Art. 32. Measures stated in the <a href="/legal/privacy/">Privacy Policy</a> are: infrastructure located in the European Union, encrypted databases, and encryption of all connections via TLS/HTTPS. The complete list is in the technical and organisational measures annex.
+      LogTide implements appropriate technical and organisational measures under GDPR Art. 32, including the following.
     </p>
-    <p>
-      [OPERATOR: technical and organisational measures annex. List only measures that are in place (for example tenant isolation, PII masking, backups, access controls, incident response).]
-    </p>
+    <h3>6.1 Technical measures</h3>
+    <ul>
+      <li>Encryption of all connections in transit via TLS/HTTPS</li>
+      <li>Passwords stored only as bcrypt hashes</li>
+      <li>API keys stored only as SHA-256 hashes</li>
+      <li>Organization-level tenant isolation enforced on every query</li>
+      <li>Role-based access control (owner, admin, member)</li>
+      <li>Audit log of administrative actions</li>
+      <li>Optional PII masking rules applied to incoming data before storage</li>
+      <li>Rate limiting on authentication and ingestion endpoints</li>
+      <li>Optional email verification</li>
+      <li>Data stored in the European Union (Strasbourg, France)</li>
+    </ul>
+    <h3>6.2 Organisational measures</h3>
+    <ul>
+      <li>Access to production systems is limited to authorised personnel on a need-to-know basis and bound by confidentiality</li>
+      <li>Credentials and access are reviewed when personnel change</li>
+      <li>Security updates are applied to systems in a timely manner</li>
+      <li>Personal data breaches are notified to the Customer without undue delay after LogTide becomes aware of them (section 10)</li>
+      <li>Data is deleted at the end of the service as described in section 9</li>
+    </ul>
 
     <h2>7. Subprocessors</h2>
     <p>
@@ -88,12 +106,18 @@ const breadcrumbs = [
 
     <h2>11. Audits</h2>
     <p>
-      LogTide will make available to the Customer the information necessary to demonstrate compliance with Article 28 and will allow for and contribute to audits, including inspections, conducted by the Customer or a mandated auditor, with reasonable notice, during business hours, subject to confidentiality and without unreasonable disruption.
+      LogTide will make available to the Customer the information necessary to demonstrate compliance with Article 28 and will contribute to audits, on the following terms:
     </p>
+    <ul>
+      <li>Audits are first satisfied through documentation: a security questionnaire, a description of the measures in section 6, and the hosting provider's certifications</li>
+      <li>An on-site inspection takes place only when the documentation is insufficient, or when a supervisory authority requires it</li>
+      <li>Inspections require at least 30 days' notice, may take place at most once per year, during business hours, at the Customer's expense, under confidentiality, and without access to other customers' data</li>
+      <li>The hosting provider's data centers are covered by the provider's own certifications and are not inspected by customers</li>
+    </ul>
 
     <h2>12. International Transfers</h2>
     <p>
-      LogTide infrastructure is located in the European Union and Customer Personal Data is not transferred outside the EU/EEA, except where a subprocessor listed on the <a href="/legal/subprocessors/">Subprocessors</a> page does so under an appropriate transfer mechanism (such as an adequacy decision or the EU Standard Contractual Clauses).
+      LogTide infrastructure is hosted in Strasbourg, France, and Customer Personal Data is not transferred outside the EU/EEA. Billing data processed by Stripe is the only data that may be transferred outside the EU/EEA, under the transfer mechanisms listed on the <a href="/legal/subprocessors/">Subprocessors</a> page.
     </p>
 
     <h2>13. Liability and Governing Law</h2>
@@ -107,7 +131,7 @@ const breadcrumbs = [
       <li>Email: <a href="mailto:privacy@logtide.dev">privacy@logtide.dev</a></li>
     </ul>
     <p>
-      [OPERATOR: add the data protection contact or DPO, if one is appointed, and the process by which customers countersign or accept this DPA.]
+      No Data Protection Officer is appointed, because one is not required. Data protection questions can be sent to the contact above. This DPA applies automatically when the Customer accepts the Terms.
     </p>
   </div>
 </ContentPage>
