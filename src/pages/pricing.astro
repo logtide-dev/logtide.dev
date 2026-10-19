@@ -66,7 +66,7 @@ const plans = [
   },
   {
     name: 'Pro Plus',
-    tagline: 'For larger teams with compliance and SSO needs.',
+    tagline: 'For larger teams with compliance and long-retention needs.',
     price: '$99',
     priceNote: '/month',
     annual: '$79/month billed annually ($948/year)',
@@ -134,7 +134,7 @@ const faqs = [
   },
   {
     question: 'Which plans include SSO?',
-    answer: 'SSO (OIDC) is included in Pro Plus. Free and Pro do not include SSO.',
+    answer: 'Per-organization SSO (OIDC) is coming soon and will be included in Pro Plus. It is not available on any plan yet.',
   },
 ];
 ---
@@ -255,8 +255,8 @@ const faqs = [
                   ))}
                   {plan.sso && (
                     <li class="flex items-start gap-2">
-                      <Icon name="lucide:check" class="mt-0.5 h-4 w-4 shrink-0 text-primary-readable" />
-                      <span>SSO (OIDC)</span>
+                      <Icon name="lucide:clock" class="mt-0.5 h-4 w-4 shrink-0 text-primary-readable" />
+                      <span>SSO (OIDC), coming soon</span>
                     </li>
                   )}
                 </ul>
