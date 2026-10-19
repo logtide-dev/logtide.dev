@@ -5,6 +5,12 @@ import SEO from '../components/SEO.astro';
 import FAQSection from '../components/content/FAQSection.astro';
 import { ClientRouter } from 'astro:transitions';
 import { Icon } from 'astro-icon/components';
+import { EU_COUNTRIES, TIMEZONE_COUNTRY } from '../data/eu-vat-rates';
+
+const countryOptions = Object.entries(EU_COUNTRIES)
+  .map(([code, c]) => ({ code, name: c.name }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+const clientData = JSON.stringify({ countries: EU_COUNTRIES, timezones: TIMEZONE_COUNTRY });
 
 const title = 'LogTide Cloud Pricing: Log Management and SIEM from $0 | LogTide';
 const description =
@@ -32,6 +38,9 @@ const plans = [
     price: '$0',
     priceNote: 'forever',
     annual: null,
+    monthly: 0,
+    annualMonthly: 0,
+    annualTotal: 0,
     cta: { label: 'Start for free', href: signup },
     highlight: false,
     limits: [
@@ -51,6 +60,9 @@ const plans = [
     price: '$29',
     priceNote: '/month',
     annual: '$24/month billed annually ($288/year)',
+    monthly: 29,
+    annualMonthly: 24,
+    annualTotal: 288,
     cta: { label: 'Start with Pro', href: signup },
     highlight: true,
     limits: [
@@ -70,6 +82,9 @@ const plans = [
     price: '$99',
     priceNote: '/month',
     annual: '$79/month billed annually ($948/year)',
+    monthly: 99,
+    annualMonthly: 79,
+    annualTotal: 948,
     cta: { label: 'Start with Pro Plus', href: signup },
     highlight: false,
     limits: [
@@ -111,12 +126,12 @@ const faqs = [
   {
     question: 'Do prices include VAT?',
     answer:
-      'No. Prices are shown excluding VAT. Applicable taxes are added at checkout, and you can provide a VAT ID if you are buying as a business.',
+      'It depends on who you are. Consumers in the EU see prices including the VAT of their country. Businesses see prices excluding VAT, and EU businesses with a valid VAT ID pay no VAT (reverse charge). Outside the EU, applicable taxes are added at checkout. The exact VAT is always calculated at checkout by Stripe Tax; use the selector above the plans to see prices for your situation.',
   },
   {
     question: 'How does annual billing work?',
     answer:
-      'Pro is $29/month billed monthly, or $24/month billed annually ($288/year). Pro Plus is $99/month billed monthly, or $79/month billed annually ($948/year).',
+      'Pro is $29/month billed monthly, or $24/month billed annually ($288/year). Pro Plus is $99/month billed monthly, or $79/month billed annually ($948/year). These are prices excluding VAT; EU consumers see the VAT-inclusive amount for their country in the price selector.',
   },
   {
     question: 'Can I cancel at any time?',
@@ -194,7 +209,7 @@ const faqs = [
             Every LogTide Cloud plan includes Sigma detection, incidents and MITRE ATT&amp;CK mapping,
             with unlimited users. Fixed tiers, no per-user pricing, no surprise overage.
           </p>
-          <p class="text-sm text-muted-foreground">All prices exclude VAT.</p>
+          <p class="text-sm text-muted-foreground">Prices shown for your selection below. VAT is calculated at checkout.</p>
         </div>
       </section>
 
@@ -210,6 +225,18 @@ const faqs = [
               </span>
             ))}
           </div>
+          <div id="price-controls" class="mb-6 flex flex-wrap items-center justify-center gap-3 text-sm">
+            <span class="font-medium text-foreground">Prices for:</span>
+            <div class="inline-flex rounded-lg border border-border bg-card p-0.5" role="group" aria-label="Customer type">
+              <button type="button" data-audience="personal" aria-pressed="false" class="rounded-md px-3 py-1.5 font-medium text-muted-foreground transition-colors aria-pressed:bg-primary aria-pressed:text-primary-foreground">Personal</button>
+              <button type="button" data-audience="business" aria-pressed="true" class="rounded-md px-3 py-1.5 font-medium text-muted-foreground transition-colors aria-pressed:bg-primary aria-pressed:text-primary-foreground">Business</button>
+            </div>
+            <label class="sr-only" for="price-country">Country</label>
+            <select id="price-country" class="rounded-lg border border-border bg-card px-3 py-2 text-foreground">
+              {countryOptions.map((c) => <option value={c.code}>{c.name}</option>)}
+              <option value="OUT">Outside the EU</option>
+            </select>
+          </div>
           <div class="grid gap-6 lg:grid-cols-3">
             {plans.map((plan) => (
               <article
@@ -221,11 +248,18 @@ const faqs = [
                 <h3 class="text-xl font-semibold">{plan.name}</h3>
                 <p class="mb-4 mt-1 min-h-10 text-sm text-muted-foreground">{plan.tagline}</p>
                 <p class="flex items-baseline gap-1">
-                  <span class="text-4xl font-bold tracking-tight">{plan.price}</span>
+                  <span class="text-4xl font-bold tracking-tight" data-price-monthly={plan.monthly || undefined}>{plan.price}</span>
                   <span class="text-muted-foreground">{plan.priceNote}</span>
                 </p>
-                <p class="mb-6 mt-1 min-h-[1.25rem] text-sm text-muted-foreground">
+                <p
+                  class="mt-1 min-h-[1.25rem] text-sm text-muted-foreground"
+                  data-annual-monthly={plan.annual ? plan.annualMonthly : undefined}
+                  data-annual-total={plan.annual ? plan.annualTotal : undefined}
+                >
                   {plan.annual ? `or ${plan.annual}` : 'No credit card required'}
+                </p>
+                <p class="mb-6 mt-1 min-h-[2.5rem] text-xs text-muted-foreground" data-tax-note>
+                  {plan.annual ? 'excl. VAT. EU consumers: VAT of your country is included at checkout.' : ''}
                 </p>
                 <a
                   href={plan.cta.href}
@@ -316,6 +350,104 @@ const faqs = [
     </main>
 
     <Footer />
+
+    <script is:inline type="application/json" id="vat-data" set:html={clientData} />
+    <script>
+      import { priceWithVat } from '../data/eu-vat-rates';
+
+      type Vat = { countries: Record<string, { name: string; vat: number }>; timezones: Record<string, string> };
+      const KEY = 'logtide_price_view';
+
+      function init() {
+        const dataEl = document.getElementById('vat-data');
+        const select = document.getElementById('price-country') as HTMLSelectElement | null;
+        const buttons = document.querySelectorAll<HTMLButtonElement>('[data-audience]');
+        if (!dataEl || !select || !buttons.length) return;
+        const data: Vat = JSON.parse(dataEl.textContent || '{}');
+
+        function guess(): string {
+          try {
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            if (tz && data.timezones[tz]) return data.timezones[tz];
+          } catch {}
+          try {
+            const region = (navigator.language || '').split('-')[1]?.toUpperCase();
+            if (region && data.countries[region]) return region;
+          } catch {}
+          return 'OUT';
+        }
+
+        let audience = 'business';
+        let country = 'OUT';
+        let saved: { audience?: string; country?: string } | null = null;
+        try {
+          saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+        } catch {}
+        if (
+          saved &&
+          (saved.audience === 'personal' || saved.audience === 'business') &&
+          typeof saved.country === 'string' &&
+          (saved.country === 'OUT' || data.countries[saved.country])
+        ) {
+          audience = saved.audience;
+          country = saved.country;
+        } else {
+          country = guess();
+          audience = country === 'OUT' ? 'business' : 'personal';
+        }
+
+        const usd = (n: number) => '$' + (Number.isInteger(n) ? String(n) : n.toFixed(2));
+
+        function render() {
+          const c = data.countries[country];
+          const consumer = audience === 'personal' && !!c;
+          const rate = consumer ? c.vat : 0;
+          const amt = (n: number) => (consumer ? priceWithVat(n, rate) : n);
+          select!.value = country;
+          buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.audience === audience)));
+          document.querySelectorAll<HTMLElement>('article').forEach((card) => {
+            const priceEl = card.querySelector<HTMLElement>('[data-price-monthly]');
+            const annEl = card.querySelector<HTMLElement>('[data-annual-monthly]');
+            const noteEl = card.querySelector<HTMLElement>('[data-tax-note]');
+            if (!priceEl || !annEl || !noteEl) return;
+            priceEl.textContent = usd(amt(Number(priceEl.dataset.priceMonthly)));
+            const m = amt(Number(annEl.dataset.annualMonthly));
+            const t = amt(Number(annEl.dataset.annualTotal));
+            annEl.textContent = `or ${usd(m)}/month billed annually (${usd(t)}/year)`;
+            if (consumer) {
+              noteEl.textContent = `incl. ${rate}% VAT (${c.name})`;
+            } else if (country === 'OUT') {
+              noteEl.textContent = 'plus applicable taxes';
+            } else {
+              noteEl.textContent = 'excl. VAT; EU businesses with a valid VAT ID pay no VAT (reverse charge)';
+            }
+          });
+        }
+
+        function save() {
+          try {
+            localStorage.setItem(KEY, JSON.stringify({ audience, country }));
+          } catch {}
+        }
+
+        buttons.forEach((b) =>
+          b.addEventListener('click', () => {
+            audience = b.dataset.audience || 'business';
+            if (audience === 'personal' && country === 'OUT') country = guess() === 'OUT' ? 'IT' : guess();
+            render();
+            save();
+          })
+        );
+        select.addEventListener('change', () => {
+          country = select.value;
+          render();
+          save();
+        });
+        render();
+      }
+
+      document.addEventListener('astro:page-load', init);
+    </script>
 
     <style is:global>
       @import '../styles/tailwind.css';
