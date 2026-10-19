@@ -14,7 +14,7 @@ const clientData = JSON.stringify({ countries: EU_COUNTRIES, timezones: TIMEZONE
 
 const title = 'LogTide Cloud Pricing: Log Management and SIEM from $0 | LogTide';
 const description =
-  'Simple fixed pricing for LogTide Cloud. A real SIEM (Sigma rules, incidents, MITRE ATT&CK) and unlimited users in every plan. Free, Pro $29/month, Pro Plus $99/month.';
+  'Simple fixed pricing for LogTide Cloud. A real SIEM (Sigma rules, incidents, MITRE ATT&CK) and unlimited users in every plan. Free (10 GB/month), Pro $29/month (100 GB), Pro Plus $99/month (400 GB). One combined quota for logs, traces and metrics.';
 const keywords = [
   'logtide pricing',
   'log management pricing',
@@ -44,9 +44,7 @@ const plans = [
     cta: { label: 'Start for free', href: signup },
     highlight: false,
     limits: [
-      '10 GB logs / month',
-      '10M spans / month',
-      '20M metric datapoints / month',
+      '10 GB / month of logs, traces and metrics',
       '7-day retention',
       '2 projects',
       '5 alert rules',
@@ -66,9 +64,7 @@ const plans = [
     cta: { label: 'Start with Pro', href: signup },
     highlight: true,
     limits: [
-      '100 GB logs / month',
-      '100M spans / month',
-      '250M metric datapoints / month',
+      '100 GB / month of logs, traces and metrics',
       '30-day retention',
       'Unlimited projects',
       'Unlimited alert rules',
@@ -88,9 +84,7 @@ const plans = [
     cta: { label: 'Start with Pro Plus', href: signup },
     highlight: false,
     limits: [
-      '400 GB logs / month',
-      '400M spans / month',
-      '1B metric datapoints / month',
+      '400 GB / month of logs, traces and metrics',
       '90-day retention',
       'Unlimited projects',
       'Unlimited alert rules',
@@ -104,9 +98,14 @@ const siemIncluded = ['Sigma detection rules', 'Incidents', 'MITRE ATT&CK mappin
 
 const faqs = [
   {
+    question: 'How is usage measured?',
+    answer:
+      'Usage is the size of the data we store for you: each log record, span and metric datapoint as JSON, before compression, summed across all three signals. The quota resets on the 1st of each month (UTC). A typical log line is 300 bytes to 1 KB, so 100 GB is roughly 100 to 350 million log lines per month. Metric ingestion is subject to fair use.',
+  },
+  {
     question: 'What happens when I reach my monthly quota?',
     answer:
-      'On paid plans you get a 10% margin over your quota and an immediate notice as soon as you reach it. After that margin, ingestion pauses until your monthly quota resets on the 1st of the next month (UTC) or until you upgrade. Quotas reset monthly, whether you pay monthly or annually. You are never charged extra: there are no surprise overage fees.',
+      'Your monthly quota is the combined total across logs, traces and metrics. On paid plans you get a 10% margin over your quota and an immediate notice as soon as you reach it. After that margin, ingestion pauses until your monthly quota resets on the 1st of the next month (UTC) or until you upgrade. Quotas reset monthly, whether you pay monthly or annually. You are never charged extra: there are no surprise overage fees.',
   },
   {
     question: 'What about the Free plan?',
