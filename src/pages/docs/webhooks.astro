@@ -11,6 +11,7 @@ const headings = [
   { text: "Event Envelope", slug: "event-envelope", depth: 2 },
   { text: "Event Types", slug: "event-types", depth: 2 },
   { text: "Discord Destinations", slug: "discord-destinations", depth: 2 },
+  { text: "Slack and Teams Destinations", slug: "slack-and-teams-destinations", depth: 2 },
   { text: "Verifying Signatures", slug: "verifying-signatures", depth: 2 },
   { text: "SSRF Protection", slug: "ssrf-protection", depth: 2 },
   { text: "Replaying Deliveries", slug: "replaying-deliveries", depth: 2 },
@@ -24,13 +25,16 @@ const keywords = [
   "webhook SSRF protection",
   "alert webhook payload",
   "webhook event envelope",
-  "Discord webhook notifications"
+  "Discord webhook notifications",
+  "Slack webhook notifications",
+  "Microsoft Teams webhook notifications",
+  "alert.resolved webhook"
 ];
 ---
 
 <DocsLayout
   title="Webhooks"
-  description="Outbound webhook delivery in LogTide: a signed event envelope, HMAC verification, retry with backoff, a dead-letter queue, Discord-formatted deliveries, and SSRF protection."
+  description="Outbound webhook delivery in LogTide: a signed event envelope, HMAC verification, retry with backoff, a dead-letter queue, Discord, Slack and Teams formatted deliveries, the alert.resolved event, and SSRF protection."
   keywords={keywords}
   headings={headings}
 >
@@ -117,7 +121,7 @@ const keywords = [
   <div class="mb-8 space-y-4">
     <ul class="list-disc list-inside space-y-2 ml-2">
       <li><strong>Retries</strong> - transient failures (network errors, timeouts, HTTP 5xx, 429) are retried with exponential backoff (<code>1s, 5s, 25s, 2m, 10m</code>), up to <code>WEBHOOK_MAX_ATTEMPTS</code> (default 5). Other 4xx responses and SSRF-blocked targets are terminal and not retried.</li>
-      <li><strong>Dead-letter queue</strong> - after the final failed attempt a delivery is marked <code>dead</code>. Dead and failed deliveries can be replayed from <strong>Settings → Webhook Deliveries</strong>.</li>
+      <li><strong>Dead-letter queue</strong> - after the final failed attempt a delivery is marked <code>dead</code>. Dead and failed deliveries can be replayed from <strong>Settings → Notifications → Delivery log</strong>.</li>
       <li><strong>Idempotency</strong> - each delivery carries a stable id, so a receiver can safely deduplicate on the envelope <code>id</code>.</li>
       <li><strong>Deduplication is time-bounded</strong> - re-enqueueing the same event (same organization, event type and event id) while a delivery for it is still in flight reuses that delivery instead of creating a second one. The window is <code>WEBHOOK_DEDUP_WINDOW_MS</code> (default 60s): anything older, or already delivered or dead-lettered, starts a new delivery. Sources that reuse an event id across occurrences - a monitor that goes down, recovers and goes down again, for example - therefore deliver every occurrence, while a genuine double-enqueue within the window still collapses into one.</li>
       <li><strong>Timeout</strong> - each attempt times out after <code>WEBHOOK_REQUEST_TIMEOUT_MS</code> (default 10s).</li>
@@ -162,9 +166,9 @@ const keywords = [
     "alert_name": "Error rate spike",
     "log_count": 142,
     "threshold": 50,
-    "time_window": 300,
+    "time_window": 5,
     "baseline_metadata": null,
-    "link": "https://app.logtide.dev/alerts/history/abc123"
+    "link": "https://app.logtide.dev/dashboard/incidents/7c1d2e3f-4a5b-6c7d-8e9f-0a1b2c3d4e5f"
   }
 }`}
     />
@@ -231,7 +235,8 @@ const event = parseWebhookEvent(body);`}
           </tr>
         </thead>
         <tbody class="text-muted-foreground">
-          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>alert.triggered</code></td><td class="py-2">An alert rule or anomaly detection fired. Anomaly detections carry a non-null <code>data.baseline_metadata</code>.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>alert.triggered</code></td><td class="py-2">An alert rule or anomaly detection fired. Anomaly detections carry a non-null <code>data.baseline_metadata</code>. A threshold rule sends it when it starts firing and again every <code>renotify_minutes</code> while it keeps firing (<code>data.renotify</code> is <code>true</code> on those repeats).</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>alert.resolved</code></td><td class="py-2">A firing alert rule returned to OK. Sent only if the firing notification was sent. See <a href="#alert-resolved"><code>alert.resolved</code> data</a>.</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>incident.created</code></td><td class="py-2">A new security incident was created (typically from a Sigma rule detection).</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>error.detected</code></td><td class="py-2">An exception group crossed its notification threshold.</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>monitor.status_changed</code></td><td class="py-2">An uptime monitor changed status (e.g. up → down).</td></tr>
@@ -256,7 +261,7 @@ const event = parseWebhookEvent(body);`}
   "alert_name": "Error rate spike",
   "log_count": 142,
   "threshold": 50,
-  "time_window": 300,
+  "time_window": 5,
   "baseline_metadata": {
     "baseline_value": 30,
     "current_value": 142,
@@ -264,12 +269,49 @@ const event = parseWebhookEvent(body);`}
     "baseline_type": "rate_of_change",
     "evaluation_time": "2026-06-11T14:32:07.841Z"
   },
-  "link": "https://app.logtide.dev/alerts/history/abc123"
+  "link": "https://app.logtide.dev/dashboard/incidents/7c1d2e3f-4a5b-6c7d-8e9f-0a1b2c3d4e5f",
+  "alert_rule_id": "5d6e7f80-9a1b-4c2d-8e3f-4a5b6c7d8e9f",
+  "renotify": false,
+  "firing_since": "2026-06-11T14:32:07.841Z",
+  "incident_id": "7c1d2e3f-4a5b-6c7d-8e9f-0a1b2c3d4e5f"
 }`}
     />
     <p class="text-sm text-muted-foreground">
       <code>baseline_metadata</code> is <code>null</code> for plain threshold rules and non-null
-      for anomaly / rate-of-change detections.
+      for anomaly / rate-of-change detections. <code>time_window</code> is in minutes.
+      <code>alert_rule_id</code>, <code>renotify</code>, <code>firing_since</code> and
+      <code>incident_id</code> are present on payloads from alert rules; they are absent on older
+      deliveries and on Sigma detections, so treat them as optional. <code>incident_id</code> is
+      <code>null</code> if the incident could not be recorded.
+    </p>
+
+    <h3 id="alert-resolved" class="text-lg font-semibold mb-3 scroll-mt-24">
+      <code>alert.resolved</code> data
+    </h3>
+    <Code
+      lang="json"
+      theme="one-dark-pro"
+      code={`{
+  "alert_rule_id": "5d6e7f80-9a1b-4c2d-8e3f-4a5b6c7d8e9f",
+  "alert_name": "Error rate spike",
+  "alert_type": "threshold",
+  "title": "Alert resolved: Error rate spike",
+  "message": "Error rate spike is back to normal after 12 minutes",
+  "log_count": 3,
+  "threshold": 50,
+  "time_window": 5,
+  "firing_since": "2026-06-11T14:32:07.841Z",
+  "resolved_at": "2026-06-11T14:44:07.512Z",
+  "duration_seconds": 720,
+  "incident_id": "7c1d2e3f-4a5b-6c7d-8e9f-0a1b2c3d4e5f",
+  "link": "https://app.logtide.dev/dashboard/incidents/7c1d2e3f-4a5b-6c7d-8e9f-0a1b2c3d4e5f"
+}`}
+    />
+    <p class="text-sm text-muted-foreground">
+      <code>alert.resolved</code> goes to the same webhook, Slack, Teams and PagerDuty
+      destinations as the firing notification; it is not sent by email. A snoozed rule still sends
+      it. <code>alert_type</code> is <code>threshold</code> or <code>rate_of_change</code>. See
+      <a href="/docs/notification-routing/#alert-lifecycle">the alert lifecycle</a> for when it fires.
     </p>
 
     <h3 id="error-detected" class="text-lg font-semibold mb-3 scroll-mt-24">
@@ -402,6 +444,30 @@ const event = parseWebhookEvent(body);`}
     </div>
   </div>
 
+  <h2 id="slack-and-teams-destinations" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Slack and Teams Destinations
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Like Discord, Slack and Microsoft Teams reject the envelope, so a webhook destination whose
+      URL is recognized receives a native message instead. There is nothing to configure: paste the
+      URL as a normal webhook destination and LogTide shows it with a Slack or Teams label.
+    </p>
+
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li><strong>Slack</strong> - classic incoming webhooks on <code>hooks.slack.com</code> or <code>hooks.slack-gov.com</code> (paths like <code>/services/T.../B.../token</code>) receive a Block Kit message with an "Open in LogTide" button. Slack Workflow trigger URLs (<code>/triggers/...</code>) take free-form JSON and keep receiving the envelope. Dynamic text is escaped so a log message cannot ping a channel.</li>
+      <li><strong>Microsoft Teams</strong> - Office 365 connector URLs (<code>*.webhook.office.com</code>, <code>outlook.office.com</code>) and Power Automate Workflows (<code>*.logic.azure.com/workflows/...</code>, <code>*.api.powerplatform.com/...</code>) receive an Adaptive Card. Because Logic Apps and Power Automate URLs cannot be told apart from Teams flows, a flow that parses the envelope must be reached through a URL on another host.</li>
+    </ul>
+
+    <p class="text-sm text-muted-foreground">
+      Both formats apply to every source (alerts, alert resolutions, monitors, security incidents,
+      error groups, channel tests), retries and replays. Test a destination before saving it from
+      the destination form. See <a href="/docs/notification-routing/">Notification Routing</a>
+      for how destinations are chosen.
+    </p>
+  </div>
+
   <h2 id="verifying-signatures" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
     Verifying Signatures
   </h2>
@@ -480,7 +546,7 @@ function verify(secret, headers, rawBody) {
   <div class="mb-8 space-y-4">
     <p>
       Every delivery and each of its attempts are recorded in a bounded delivery log, browsable
-      under <strong>Settings → Webhook Deliveries</strong> with a status filter. Failed and
+      under <strong>Settings → Notifications → Delivery log</strong> with a status filter. Failed and
       dead-lettered deliveries can be replayed from there.
     </p>
     <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">

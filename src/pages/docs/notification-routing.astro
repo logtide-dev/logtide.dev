@@ -1,0 +1,300 @@
+---
+import DocsLayout from '../../layouts/Docs.astro';
+import Card from '../../components/ui/Card.astro';
+import CardContent from '../../components/ui/CardContent.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Overview", slug: "overview", depth: 2 },
+  { text: "Destinations", slug: "destinations", depth: 2 },
+  { text: "How Routing Is Decided", slug: "how-routing-is-decided", depth: 2 },
+  { text: "Organization Defaults", slug: "organization-defaults", depth: 2 },
+  { text: "Per-Rule Destinations", slug: "per-rule-destinations", depth: 2 },
+  { text: "Email Fallback", slug: "email-fallback", depth: 2 },
+  { text: "Routing Preview", slug: "routing-preview", depth: 2 },
+  { text: "PagerDuty", slug: "pagerduty", depth: 2 },
+  { text: "Alert Lifecycle", slug: "alert-lifecycle", depth: 2 }
+];
+
+const keywords = [
+  "LogTide notification routing",
+  "Slack alert notifications",
+  "Microsoft Teams alert notifications",
+  "PagerDuty integration",
+  "alert renotify snooze",
+  "alert.resolved webhook"
+];
+---
+
+<DocsLayout
+  title="Notification Routing"
+  description="How LogTide decides who is notified: destinations (email, Slack, Teams, PagerDuty, webhook), organization defaults, per-rule destinations, the owners and admins email fallback, the routing preview, and the alert lifecycle."
+  keywords={keywords}
+  headings={headings}
+>
+  <div class="flex items-center gap-3 mb-4">
+    <div class="p-2 bg-primary/10 rounded-lg">
+      <Icon name="lucide:send" class="w-6 h-6 text-primary-readable" />
+    </div>
+    <h1 class="text-3xl font-bold">Notification Routing</h1>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+    Every alert, detection, uptime check and error notification goes through one routing rule:
+    the destinations on the rule, else your organization defaults, else an email to your owners
+    and admins. You can preview the result before you save a rule.
+  </p>
+
+  <h2 id="overview" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Overview
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Notification settings live under <strong>Settings → Notifications</strong>, in four pages:
+      <strong>Destinations</strong> (where messages can go), <strong>Routing</strong> (the default
+      destinations per event type), <strong>Digests</strong> and <strong>Delivery log</strong>
+      (every outbound delivery, with retries and replay, see <a href="/docs/webhooks/">Webhooks</a>).
+    </p>
+  </div>
+
+  <h2 id="destinations" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Destinations
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Destination</th>
+            <th class="py-2 font-semibold">Setup and format</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Email</td><td class="py-2">One or more recipient addresses. Needs SMTP configured on the instance.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Slack</td><td class="py-2">Paste an incoming webhook URL (<code>hooks.slack.com/services/...</code>). Messages are formatted for Slack.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Microsoft Teams</td><td class="py-2">Paste a Teams incoming webhook or Power Automate Workflows URL. Messages are sent as Adaptive Cards.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">PagerDuty</td><td class="py-2">Enter an Events API v2 routing key. See <a href="#pagerduty">PagerDuty</a>.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Discord</td><td class="py-2">Paste a Discord webhook URL. Messages are sent as embeds.</td></tr>
+          <tr><td class="py-2 pr-4">Webhook</td><td class="py-2">Any URL that passes SSRF protection. Receives the signed <a href="/docs/webhooks/#event-envelope">event envelope</a>. Method, custom headers, and bearer or basic authentication are configurable.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      Slack, Teams and Discord are webhook destinations: LogTide recognizes the URL and switches
+      to the matching message format, and shows the destination with its own label and icon.
+      Details are in <a href="/docs/webhooks/#slack-and-teams-destinations">Webhooks</a>. You can
+      send a test message before saving a destination. Secrets (routing keys, tokens, passwords)
+      are not returned by the API after saving; leaving the field blank when editing keeps the
+      stored value. Only owners and admins see destination webhook URLs.
+    </p>
+  </div>
+
+  <h2 id="how-routing-is-decided" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    How Routing Is Decided
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Notifications belong to one of five event types: <strong>Alerts</strong>,
+      <strong>Security detections</strong>, <strong>Security incidents</strong>,
+      <strong>Uptime</strong> and <strong>Errors</strong>. For each notification LogTide applies the
+      same three steps:
+    </p>
+
+    <ol class="list-decimal list-inside space-y-2 ml-2">
+      <li><strong>Destinations on the rule.</strong> If the alert rule, detection rule, monitor or error notification has enabled destinations of its own, those are used and nothing else.</li>
+      <li><strong>Organization defaults.</strong> Otherwise the default destinations for that event type are used.</li>
+      <li><strong>Email fallback.</strong> If neither exists and SMTP is configured, an email goes to the organization owners and admins. Without SMTP, nobody is notified.</li>
+    </ol>
+
+    <p class="text-sm text-muted-foreground">
+      The notification jobs and the routing preview share this code, so the preview cannot
+      disagree with what is sent. Alert notifications also appear in the in-app notification panel
+      for every member, whichever destinations are configured.
+    </p>
+  </div>
+
+  <h2 id="organization-defaults" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Organization Defaults
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      <strong>Settings → Notifications → Routing</strong> lists each event type with its default
+      destinations, a short explanation, and a line stating what happens when none is set. Rules that
+      override the defaults are listed below with links. Only organization owners and admins can
+      change the defaults; members can read them.
+    </p>
+    <p class="text-sm text-muted-foreground">
+      Defaults for Alerts and Security detections are honored from 1.6. Before, they were never
+      read, so alert rules and detection rules had to name their destinations explicitly.
+    </p>
+  </div>
+
+  <h2 id="per-rule-destinations" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Per-Rule Destinations
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Alert rules, detection rules, monitors and error notification settings can each pick their
+      own destinations. This replaces the defaults for that rule; it does not add to them. A rule
+      form shows a <strong>Will notify</strong> line with the result before you save, for example
+      "Slack: #ops-alerts, PagerDuty: Platform on-call". Disabled destinations are ignored, so a
+      rule whose only destination is disabled falls through to the defaults.
+    </p>
+  </div>
+
+  <h2 id="email-fallback" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Email Fallback
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      When no destination resolves and SMTP is configured, the notification is emailed to the
+      organization's <strong>owners and admins</strong>, skipping disabled accounts. The rule is
+      the same for every event type. Earlier versions mailed every member for some events and
+      nobody for alerts and detections.
+    </p>
+
+    <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+        <div>
+          <h4 class="font-medium mb-1">Want every member notified?</h4>
+          <p class="text-sm text-muted-foreground">
+            Add an email destination listing the addresses you want and set it as the default for
+            the event types you care about. A default that is not an email (a Slack channel, for
+            example) does not also email members.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="routing-preview" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Routing Preview
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      The preview answers "who would be notified?" for an event type, optionally with a
+      destination selection from a form that is not saved yet. Any organization member can call it.
+    </p>
+
+    <Code
+      lang="bash"
+      theme="one-dark-pro"
+      code={`curl -G http://localhost:8080/api/v1/notification-routing/preview \\
+  -H "Authorization: Bearer YOUR_SESSION_TOKEN" \\
+  --data-urlencode "organizationId=ORG_UUID" \\
+  --data-urlencode "eventType=alert" \\
+  --data-urlencode "channelIds=CHANNEL_UUID_1,CHANNEL_UUID_2"`}
+    />
+
+    <Code
+      lang="json"
+      theme="one-dark-pro"
+      code={`{
+  "destinations": [
+    { "id": "3b1c...", "name": "ops-alerts", "type": "slack" },
+    { "id": "9a7e...", "name": "Platform on-call", "type": "pagerduty" }
+  ],
+  "fallback": null
+}`}
+    />
+
+    <p class="text-sm text-muted-foreground">
+      <code>eventType</code> is one of <code>alert</code>, <code>sigma</code> (security
+      detections), <code>incident</code> (security incidents), <code>error</code> and
+      <code>monitoring</code> (uptime). <code>type</code> is <code>email</code>,
+      <code>webhook</code>, <code>slack</code>, <code>teams</code>, <code>discord</code> or
+      <code>pagerduty</code>. When nothing resolves, <code>destinations</code> is empty and
+      <code>fallback</code> is <code>"owners_admins_email"</code> if SMTP is configured, otherwise
+      <code>null</code>. Pass up to 50 comma-separated <code>channelIds</code> to preview a
+      selection; omit it to preview the organization defaults.
+    </p>
+  </div>
+
+  <h2 id="pagerduty" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    PagerDuty
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      The PagerDuty destination uses the Events API v2 with the routing key (integration key) of a
+      PagerDuty service. Events opened by LogTide can be closed by LogTide, because every event for
+      the same thing uses the same deduplication key:
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Event</th>
+            <th class="py-2 pr-4 font-semibold">Trigger</th>
+            <th class="py-2 pr-4 font-semibold">Resolve</th>
+            <th class="py-2 font-semibold">Dedup key</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Alert rule</td><td class="py-2 pr-4">Rule starts firing, and on each re-notification</td><td class="py-2 pr-4"><code>alert.resolved</code></td><td class="py-2"><code>alert:&lt;ruleId&gt;</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Uptime monitor</td><td class="py-2 pr-4">Monitor is reported down</td><td class="py-2 pr-4">Monitor recovers</td><td class="py-2"><code>monitor:&lt;monitorId&gt;</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Security incident</td><td class="py-2 pr-4">Incident created</td><td class="py-2 pr-4">-</td><td class="py-2"><code>incident:&lt;incidentId&gt;</code></td></tr>
+          <tr><td class="py-2 pr-4">Error</td><td class="py-2 pr-4">New, regressed or escalating error group</td><td class="py-2 pr-4">-</td><td class="py-2"><code>error:&lt;groupId&gt;</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      LogTide severities map to PagerDuty as critical to <code>critical</code>, high to
+      <code>error</code>, medium to <code>warning</code>, and low or informational to
+      <code>info</code>. Triggers carry a link back to LogTide. Security incident and error events
+      have no automatic resolve; close them in PagerDuty or let them age out there.
+    </p>
+  </div>
+
+  <h2 id="alert-lifecycle" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Alert Lifecycle
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      A threshold alert rule is either <strong>OK</strong> or <strong>Firing</strong>, and
+      notifications follow the changes of state instead of every evaluation:
+    </p>
+
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li><strong>Transition to firing</strong> - one notification when the rule starts firing, and an <a href="/docs/incidents/">incident</a> is opened. A sustained problem no longer produces a notification per minute.</li>
+      <li><strong>Re-notify</strong> - set <code>renotify_minutes</code> (5 to 1,440) to repeat the notification at that interval while the rule keeps firing. Leave it empty to never repeat.</li>
+      <li><strong>Resolved</strong> - when the rule returns to OK, LogTide sends the <a href="/docs/webhooks/#alert-resolved"><code>alert.resolved</code></a> event to webhook, Slack, Teams and PagerDuty destinations, and resolves the incident. Nothing is sent by email or to the in-app panel for the resolution, and no resolved event is sent if the firing notification itself never went out (for example because the rule was snoozed the whole time).</li>
+      <li><strong>Snooze</strong> - mute a rule for 1 hour, 4 hours, 24 hours or until a date, up to 365 days (<code>POST /api/v1/alerts/:id/snooze</code> with <code>until</code>, <code>DELETE</code> to end it). A snoozed rule keeps evaluating and tracking its state but sends no triggers or re-notifications. Resolutions are still sent. If the rule is still firing when the snooze ends, you get one notification.</li>
+    </ul>
+
+    <p class="text-sm text-muted-foreground">
+      Threshold rules count every matching log in the last <code>time_window</code> minutes on
+      each run. Rate-of-change rules keep their cooldown behavior and also gain state, incidents
+      and <code>alert.resolved</code>. Disabling or deleting a firing rule resolves its incident.
+      The rules table shows each rule as Firing, OK, Snoozed or Disabled, with its last trigger
+      time.
+    </p>
+
+    <div class="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:alert-circle" class="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
+        <div>
+          <h4 class="font-medium mb-1">Upgrading from 1.5</h4>
+          <p class="text-sm text-muted-foreground">
+            Before 1.6 a threshold rule notified on every evaluation that found enough new logs.
+            If you built automation around that cadence, switch it to <code>alert.triggered</code>
+            plus <code>alert.resolved</code>, or set <code>renotify_minutes</code> to get repeats.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</DocsLayout>

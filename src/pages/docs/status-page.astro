@@ -1,0 +1,253 @@
+---
+import DocsLayout from '../../layouts/Docs.astro';
+import Card from '../../components/ui/Card.astro';
+import CardContent from '../../components/ui/CardContent.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Overview", slug: "overview", depth: 2 },
+  { text: "Public Status Page", slug: "public-status-page", depth: 2 },
+  { text: "Email Subscriptions", slug: "email-subscriptions", depth: 2 },
+  { text: "Subscribing", slug: "subscribing", depth: 2 },
+  { text: "What Subscribers Receive", slug: "what-subscribers-receive", depth: 2 },
+  { text: "Unsubscribing", slug: "unsubscribing", depth: 2 },
+  { text: "Managing Subscribers", slug: "managing-subscribers", depth: 2 },
+  { text: "Limits", slug: "limits", depth: 2 },
+  { text: "API", slug: "api", depth: 2 }
+];
+
+const keywords = [
+  "LogTide status page",
+  "status page email subscriptions",
+  "status page double opt-in",
+  "uptime status page subscribers",
+  "self-hosted status page"
+];
+---
+
+<DocsLayout
+  title="Status Page Subscriptions"
+  description="The LogTide public status page and its email subscriptions: double opt-in, the updates subscribers receive, one-click unsubscribe, managing subscribers, and limits."
+  keywords={keywords}
+  headings={headings}
+>
+  <div class="flex items-center gap-3 mb-4">
+    <div class="p-2 bg-primary/10 rounded-lg">
+      <Icon name="lucide:mail-check" class="w-6 h-6 text-primary-readable" />
+    </div>
+    <h1 class="text-3xl font-bold">Status Page Subscriptions</h1>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+    Let your users subscribe by email to your public status page. They confirm their address once
+    and then hear about status updates and scheduled maintenance without checking the page.
+  </p>
+
+  <h2 id="overview" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Overview
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Subscriptions are offered only when both of these are true, otherwise the subscribe form is
+      hidden and the subscribe endpoint answers 404:
+    </p>
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li>the project's status page visibility is <strong>Public</strong> (not password protected, members only or disabled), and</li>
+      <li>SMTP is configured on the LogTide instance.</li>
+    </ul>
+  </div>
+
+  <h2 id="public-status-page" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Public Status Page
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Each project has its own page at <code>/status/&lt;organization-slug&gt;/&lt;project-slug&gt;</code>.
+      It shows the current state of the project's monitors, ongoing and past
+      <strong>status updates</strong> (the public communications about incidents, written by your
+      team) and scheduled maintenance. Owners and admins can set the page title, description, logo
+      URL and accent color, choose which monitors appear as components with a public display
+      name, group and order, and show monitor types. Visibility is a project setting: public,
+      password protected, members only or disabled.
+    </p>
+    <p class="text-sm text-muted-foreground">
+      Status updates are separate from the internal <a href="/docs/incidents/">incidents inbox</a>.
+      You can publish an uptime incident to the status page as a pre-filled status update.
+    </p>
+  </div>
+
+  <h2 id="email-subscriptions" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Email Subscriptions
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <div class="grid md:grid-cols-2 gap-4">
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:shield-check" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">Double opt-in</h4>
+              <p class="text-sm text-muted-foreground">An address receives updates only after its owner clicks the link in a confirmation email.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:mouse-pointer-click" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">One-click unsubscribe</h4>
+              <p class="text-sm text-muted-foreground">Every update email carries a signed unsubscribe link. No account or password involved.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+
+  <h2 id="subscribing" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Subscribing
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <ol class="list-decimal list-inside space-y-2 ml-2">
+      <li>A visitor enters an email address in the subscribe form on the public page.</li>
+      <li>LogTide sends a confirmation email with a link that is valid for 48 hours and can be used once.</li>
+      <li>Opening the link activates the subscription.</li>
+    </ol>
+
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li>The page answers the same way whether or not the address is already known, so the form cannot be used to find out who is subscribed.</li>
+      <li>Submitting an address that is still waiting for confirmation sends a fresh link, at most once per minute and at most 3 confirmation emails per address in 24 hours. An address that is already confirmed is left alone.</li>
+      <li>Each status page keeps at most 200 unconfirmed addresses. Beyond that, new addresses are silently ignored until old links expire.</li>
+      <li>Addresses that never confirm expire with their link and never count against your subscriber limit.</li>
+      <li>Confirmation and unsubscribe links open a status page that completes the action itself with a <code>POST</code> request, so a mail scanner that only fetches the URL does not subscribe or unsubscribe anyone.</li>
+    </ul>
+  </div>
+
+  <h2 id="what-subscribers-receive" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    What Subscribers Receive
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>Confirmed subscribers of a page are emailed when:</p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Event</th>
+            <th class="py-2 font-semibold">Email heading</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">A status update is created</td><td class="py-2">New incident</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">A status update gets a new message</td><td class="py-2">Incident update</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">A status update is resolved</td><td class="py-2">Incident resolved</td></tr>
+          <tr><td class="py-2 pr-4">Scheduled maintenance is created</td><td class="py-2">Scheduled maintenance, with its start and end time</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      The subject line starts with the page title, for example
+      <code>[Acme Status] Resolved: Checkout errors</code>. Internal incidents, alerts and monitor
+      checks never email subscribers; only the status updates and maintenance you publish do.
+      Nothing is sent if the page has stopped being public or SMTP is no longer configured.
+    </p>
+  </div>
+
+  <h2 id="unsubscribing" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Unsubscribing
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Each email ends with an <strong>Unsubscribe</strong> link. The link holds a token signed with
+      your instance's <code>API_KEY_SECRET</code>, so it needs no stored secret per subscriber and
+      cannot be forged. Unsubscribing removes the address immediately. The link keeps working even
+      if the page is no longer public, so nobody gets stuck on your list. Rotating
+      <code>API_KEY_SECRET</code> invalidates links in emails already sent.
+    </p>
+  </div>
+
+  <h2 id="managing-subscribers" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Managing Subscribers
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      In the status page settings, organization owners and admins can see the confirmed
+      subscribers of a page (50 per page, newest first) and remove any of them. Members cannot
+      see subscriber addresses. Changes to the status page configuration, components and
+      subscribers are recorded in the audit log.
+    </p>
+  </div>
+
+  <h2 id="limits" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Limits
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Limit</th>
+            <th class="py-2 font-semibold">Value</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Subscribers per organization</td><td class="py-2">Unlimited by default. Set the <code>status_page.subscribers.max</code> capability to cap it. Only confirmed subscribers count. At the cap, no new confirmation emails are sent and confirmation links stop working.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Subscribe requests</td><td class="py-2">5 per minute per client address</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Confirmation link lifetime</td><td class="py-2">48 hours, single use</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Confirmation emails for the same address</td><td class="py-2">At most one per minute and 3 per 24 hours</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Unconfirmed addresses per status page</td><td class="py-2">200</td></tr>
+          <tr><td class="py-2 pr-4">Email address length</td><td class="py-2">254 characters</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2 id="api" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    API
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      The public endpoints need no authentication. They are what the status page itself calls.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Endpoint</th>
+            <th class="py-2 font-semibold">Purpose</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>POST /api/v1/status/:orgSlug/:projectSlug/subscribe</code></td><td class="py-2">Body <code>{`{ "email": "..." }`}</code>. Answers 202 whether or not the address is known, new, rate limited or over a limit.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>POST /api/v1/status/:orgSlug/:projectSlug/subscribe/confirm</code></td><td class="py-2">Body <code>{`{ "token": "..." }`}</code>. 400 for an unknown, expired or used link.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>POST /api/v1/status/:orgSlug/:projectSlug/unsubscribe</code></td><td class="py-2">Body <code>{`{ "token": "..." }`}</code>. 400 for an invalid link.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>GET /api/v1/status-page/subscribers</code></td><td class="py-2">Signed-in owners and admins: confirmed subscribers of a project (<code>organizationId</code>, <code>projectId</code>, <code>page</code>).</td></tr>
+          <tr><td class="py-2 pr-4"><code>DELETE /api/v1/status-page/subscribers/:id</code></td><td class="py-2">Signed-in owners and admins: remove a subscriber.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <Code
+      lang="bash"
+      theme="one-dark-pro"
+      code={`curl -X POST http://localhost:8080/api/v1/status/acme/api/subscribe \\
+  -H "Content-Type: application/json" \\
+  -d '{ "email": "oncall@example.com" }'`}
+    />
+  </div>
+</DocsLayout>

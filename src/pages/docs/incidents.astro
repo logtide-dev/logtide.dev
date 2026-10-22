@@ -1,0 +1,250 @@
+---
+import DocsLayout from '../../layouts/Docs.astro';
+import Card from '../../components/ui/Card.astro';
+import CardContent from '../../components/ui/CardContent.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Overview", slug: "overview", depth: 2 },
+  { text: "Sources", slug: "sources", depth: 2 },
+  { text: "Statuses", slug: "statuses", depth: 2 },
+  { text: "Working an Incident", slug: "working-an-incident", depth: 2 },
+  { text: "Auto-Resolve", slug: "auto-resolve", depth: 2 },
+  { text: "Links From Alerts and Monitors", slug: "links", depth: 2 },
+  { text: "API", slug: "api", depth: 2 }
+];
+
+const keywords = [
+  "LogTide incidents",
+  "incident inbox",
+  "acknowledge resolve incident",
+  "alert incidents",
+  "uptime incidents",
+  "security incident triage"
+];
+---
+
+<DocsLayout
+  title="Incidents Inbox"
+  description="One inbox for alert, uptime, security and manual incidents in LogTide: statuses, acknowledge, assign and resolve, auto-resolve on recovery, and how alerts and monitors link to their incident."
+  keywords={keywords}
+  headings={headings}
+>
+  <div class="flex items-center gap-3 mb-4">
+    <div class="p-2 bg-primary/10 rounded-lg">
+      <Icon name="lucide:siren" class="w-6 h-6 text-primary-readable" />
+    </div>
+    <h1 class="text-3xl font-bold">Incidents Inbox</h1>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+    Alerts, uptime outages, security detections and manually created incidents share one list
+    and one API. You see what needs attention in one place, whoever or whatever raised it.
+  </p>
+
+  <h2 id="overview" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Overview
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Open <strong>Incidents</strong> in the sidebar. The list shows status, severity, title,
+      source, project, assignee, age and the time of the last event. It defaults to incidents that
+      are Open or Acknowledged and can be filtered by source, severity, assignee (Me, Unassigned,
+      Anyone) and project. You can acknowledge, resolve or assign several incidents at once, and
+      the list updates live.
+    </p>
+    <p>
+      An incident page shows one merged timeline of events, comments and status history, with
+      actions in the header and a panel specific to the source.
+    </p>
+  </div>
+
+  <h2 id="sources" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Sources
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Source</th>
+            <th class="py-2 pr-4 font-semibold">API value</th>
+            <th class="py-2 font-semibold">Created when</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Alert</td><td class="py-2 pr-4"><code>alert</code></td><td class="py-2">An alert rule starts firing. While it keeps firing, new triggers update the same incident.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Monitor</td><td class="py-2 pr-4"><code>monitor</code></td><td class="py-2">An uptime monitor reaches its failure threshold and is reported down.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Security</td><td class="py-2 pr-4"><code>sigma</code></td><td class="py-2">Detections are grouped into a security incident, with MITRE tags, IP reputation and geo data.</td></tr>
+          <tr><td class="py-2 pr-4">Manual</td><td class="py-2 pr-4"><code>manual</code></td><td class="py-2">A member creates one, for example through <code>POST /api/v1/siem/incidents</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      An alert incident takes its severity from the levels the rule watches: <code>critical</code>
+      gives critical, <code>error</code> gives high, <code>warn</code> gives medium, anything else
+      low. An incident's severity can escalate while it is active but never drops on its own.
+      There is at most one active (open or acknowledged) incident per alert rule or monitor. A
+      resolved incident is never reopened by the source: the next failure opens a new one.
+    </p>
+
+    <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+        <div>
+          <h4 class="font-medium mb-1">No extra notification</h4>
+          <p class="text-sm text-muted-foreground">
+            Alert and monitor incidents do not send an additional "incident created" notification.
+            The alert or monitor notification already went out, and it links to the incident.
+            Security incidents keep their own notifications.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="statuses" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Statuses
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Shown as</th>
+            <th class="py-2 pr-4 font-semibold">API value</th>
+            <th class="py-2 font-semibold">Meaning</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Open</td><td class="py-2 pr-4"><code>open</code></td><td class="py-2">New and not yet picked up.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Acknowledged</td><td class="py-2 pr-4"><code>investigating</code></td><td class="py-2">Someone is on it. LogTide records who acknowledged it and when.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Resolved</td><td class="py-2 pr-4"><code>resolved</code></td><td class="py-2">Fixed, or recovered on its own. LogTide records who resolved it and when, or that it recovered automatically.</td></tr>
+          <tr><td class="py-2 pr-4">False positive</td><td class="py-2 pr-4"><code>false_positive</code></td><td class="py-2">Security incidents only. Setting it on any other source is rejected with HTTP 409.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      The stored status values did not change; the interface labels <code>investigating</code> as
+      Acknowledged. Setting an incident back to Open clears its resolution.
+    </p>
+  </div>
+
+  <h2 id="working-an-incident" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Working an Incident
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li><strong>Acknowledge</strong> - tells the team you are looking at it. An already acknowledged incident is left unchanged.</li>
+      <li><strong>Assign</strong> - to any member of the organization, or to nobody. Assigning to someone outside the organization is rejected.</li>
+      <li><strong>Resolve</strong> - closes the incident. You can add a comment first; comments appear in the timeline.</li>
+      <li><strong>Mark false positive</strong> - security incidents only. From a security incident you can also add a detection rule exception based on the logs that matched.</li>
+      <li><strong>Publish to status page</strong> - on a monitor incident, creates a pre-filled <a href="/docs/status-page/">status update</a> for your public page.</li>
+    </ul>
+
+    <p class="text-sm text-muted-foreground">
+      Bulk actions work on up to 100 incidents per request. Incidents the action does not apply to
+      (for example acknowledging a resolved incident) are skipped and reported in the response;
+      the rest are updated.
+    </p>
+  </div>
+
+  <h2 id="auto-resolve" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Auto-Resolve
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <div class="grid md:grid-cols-2 gap-4">
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:bell" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">Alert incidents</h4>
+              <p class="text-sm text-muted-foreground">Resolved automatically when the rule returns to OK. Also resolved when you disable or delete a rule that is firing, so no incident is left open for a rule that no longer runs.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:activity" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">Monitor incidents</h4>
+              <p class="text-sm text-muted-foreground">Resolved on recovery when the monitor's <strong>Resolve the incident automatically on recovery</strong> option is on (the default). With it off, the incident stays open until someone resolves it.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      A snoozed alert rule does not stop its incident from resolving: snoozing silences triggers
+      and re-notifications, never the recovery. See
+      <a href="/docs/notification-routing/#alert-lifecycle">the alert lifecycle</a>.
+    </p>
+  </div>
+
+  <h2 id="links" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Links From Alerts and Monitors
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li>The notification an alert sends (email, Slack, Teams, webhook) links to <code>/dashboard/incidents/&lt;id&gt;</code> when an incident exists. <code>alert.triggered</code> and <code>alert.resolved</code> webhook payloads carry <code>incident_id</code>.</li>
+      <li>Uptime down and recovery notifications link to the monitor's incident in the same way, and carry <code>incident_id</code>.</li>
+      <li>The incident page shows a source panel. For an alert it summarizes the rule and offers <strong>Show matched logs</strong>, which opens the Logs explorer with the rule's criteria and the trigger window. For a monitor it links to the monitor with its status and response time. Each trigger or failed check appears in the timeline.</li>
+    </ul>
+  </div>
+
+  <h2 id="api" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    API
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      The incidents API requires a signed-in user who is a member of the organization. Every call
+      carries <code>organizationId</code>. <code>/api/v1/siem/incidents</code> remains as an alias
+      of the same routes; it now returns incidents of every source, so add
+      <code>source=sigma</code> to get the previous security-only result.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Endpoint</th>
+            <th class="py-2 font-semibold">Purpose</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>GET /api/v1/incidents</code></td><td class="py-2">List. Filters: <code>status</code>, <code>source</code>, <code>severity</code>, <code>projectId</code> (several allowed), <code>assignee</code> (<code>me</code>, <code>unassigned</code>, <code>anyone</code> or a user id), <code>ruleId</code>, <code>service</code>, <code>technique</code>. Sort by <code>last_event_at</code>, <code>created_at</code> or <code>severity</code>. <code>limit</code> up to 100.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>GET /api/v1/incidents/:id</code></td><td class="py-2">Detail with detections, comments, history and the alert triggers or monitor checks behind it.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>PATCH /api/v1/incidents/:id</code></td><td class="py-2">Change <code>status</code>, <code>assigneeId</code> (null unassigns), <code>severity</code>, <code>title</code> or <code>description</code>.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>POST /api/v1/incidents/bulk</code></td><td class="py-2"><code>action</code> is <code>acknowledge</code>, <code>resolve</code> or <code>assign</code>; up to 100 <code>ids</code>.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>GET</code> &middot; <code>POST /api/v1/incidents/:id/comments</code></td><td class="py-2">Read or add comments.</td></tr>
+          <tr><td class="py-2 pr-4"><code>GET /api/v1/incidents/:id/history</code></td><td class="py-2">Status, assignment and severity changes.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <Code
+      lang="bash"
+      theme="one-dark-pro"
+      code={`# Acknowledge an incident
+curl -X PATCH http://localhost:8080/api/v1/incidents/INCIDENT_UUID \\
+  -H "Authorization: Bearer YOUR_SESSION_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{ "organizationId": "ORG_UUID", "status": "investigating" }'`}
+    />
+  </div>
+</DocsLayout>

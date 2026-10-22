@@ -1,0 +1,448 @@
+---
+import DocsLayout from '../../layouts/Docs.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Overview", slug: "overview", depth: 2 },
+  { text: "Words and Phrases", slug: "words-and-phrases", depth: 2 },
+  { text: "Field Clauses", slug: "field-clauses", depth: 2 },
+  { text: "Negation and Missing Fields", slug: "negation", depth: 2 },
+  { text: "OR Groups", slug: "or-groups", depth: 2 },
+  { text: "Built-in Fields", slug: "built-in-fields", depth: 2 },
+  { text: "Metadata Fields", slug: "metadata-fields", depth: 2 },
+  { text: "Time and Scope", slug: "time-and-scope", depth: 2 },
+  { text: "Examples", slug: "examples", depth: 2 },
+  { text: "Errors", slug: "errors", depth: 2 },
+  { text: "API", slug: "api", depth: 2 },
+  { text: "Limits", slug: "limits", depth: 2 },
+  { text: "Storage Engines", slug: "storage-engines", depth: 2 }
+];
+
+const keywords = [
+  "LogTide query syntax",
+  "log search query language",
+  "log query field filters",
+  "search logs by metadata",
+  "log search OR exclude phrase",
+  "LogTide logs API q parameter"
+];
+---
+
+<DocsLayout
+  title="Query Syntax"
+  description="The LogTide log query language: words, quoted phrases, field filters, negation, OR groups, metadata exists and in clauses, limits, and how search behaves on TimescaleDB, ClickHouse and MongoDB."
+  keywords={keywords}
+  headings={headings}
+>
+  <div class="flex items-center gap-3 mb-4">
+    <div class="p-2 bg-primary/10 rounded-lg">
+      <Icon name="lucide:search" class="w-6 h-6 text-primary-readable" />
+    </div>
+    <h1 class="text-3xl font-bold">Query Syntax</h1>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+    One search language for the logs explorer, live tail, saved searches, export and threshold
+    alert rules. It is the same on TimescaleDB, ClickHouse and MongoDB, so a query you write once
+    returns the same logs on every storage engine.
+  </p>
+
+  <h2 id="overview" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Overview
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      A query is a list of clauses separated by whitespace. Every clause must match, so
+      <code>timeout db</code> finds logs containing both words. Clauses are either free text
+      (matched against the log message) or <code>key:value</code> field filters.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Syntax</th>
+            <th class="py-2 font-semibold">Meaning</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>timeout</code></td><td class="py-2">The message contains the word <code>timeout</code> (case-insensitive).</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>"connection refused"</code></td><td class="py-2">The message contains this exact phrase (case-insensitive).</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>-debug</code> &middot; <code>-"health check"</code></td><td class="py-2">Exclude logs matching the word or phrase.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>timeout OR refused</code></td><td class="py-2">Either word. <code>OR</code> must be uppercase.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>service:api</code></td><td class="py-2">Field equals value.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>-service:api</code></td><td class="py-2">Field does not equal value.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>level:(error OR critical)</code></td><td class="py-2">Field is one of the listed values.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>-level:(debug OR info)</code></td><td class="py-2">Field is none of the listed values.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>user.id:*</code></td><td class="py-2">Metadata key exists.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>-user.id:*</code></td><td class="py-2">Metadata key does not exist.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>path:*admin*</code></td><td class="py-2">Metadata value contains <code>admin</code> (case-insensitive).</td></tr>
+          <tr><td class="py-2 pr-4"><code>error.message:"disk full"</code></td><td class="py-2">Quote a field value that contains spaces: <code>key:"value with spaces"</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      The logs explorer highlights the query as you type, underlines the offending token when
+      something is wrong, and autocompletes field names and values. An explicit <code>AND</code>
+      between two clauses is accepted and means the same as whitespace.
+    </p>
+  </div>
+
+  <h2 id="words-and-phrases" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Words and Phrases
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li><strong>Word</strong> - a run of letters, digits and underscores, such as <code>timeout</code> or <code>user_id</code>. It matches whole words in the message, ignoring case. <code>time</code> does not match <code>timeout</code>.</li>
+      <li><strong>Phrase</strong> - text in double quotes. It matches anywhere in the message as a case-insensitive substring. Use <code>\"</code> for a quote and <code>\\</code> for a backslash inside a phrase.</li>
+      <li><strong>Anything else is a phrase too.</strong> A term containing punctuation, such as <code>10:42:13</code>, <code>http://example.com/health</code>, <code>10.0.0.5</code>, <code>Error:</code> or an IPv6 address, is searched as plain text, so you can paste a log line fragment straight into the search bar.</li>
+    </ul>
+
+    <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:info" class="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+        <div>
+          <h4 class="font-medium mb-1">When does <code>key:value</code> count as a field?</h4>
+          <p class="text-sm text-muted-foreground">
+            Only when the key starts with a letter or underscore, contains only letters, digits,
+            <code>_</code>, <code>.</code> or <code>-</code>, and is immediately followed by a
+            non-empty value that does not start with <code>//</code>. Everything else stays free
+            text, which is why <code>10:42:13</code> and <code>http://x</code> need no quoting.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="field-clauses" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Field Clauses
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Clause</th>
+            <th class="py-2 pr-4 font-semibold">Operator</th>
+            <th class="py-2 font-semibold">Matches</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>key:value</code></td><td class="py-2 pr-4">equals</td><td class="py-2">The value, compared as text, is exactly equal.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>-key:value</code></td><td class="py-2 pr-4">not equals</td><td class="py-2">Anything else, including logs without the key.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>key:(a OR b)</code></td><td class="py-2 pr-4">in</td><td class="py-2">Equal to any value in the list.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>-key:(a OR b)</code></td><td class="py-2 pr-4">not in</td><td class="py-2">Equal to none of the values, including logs without the key.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>key:*</code></td><td class="py-2 pr-4">exists</td><td class="py-2">The key is present.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>-key:*</code></td><td class="py-2 pr-4">not exists</td><td class="py-2">The key is absent.</td></tr>
+          <tr><td class="py-2 pr-4"><code>key:*text*</code></td><td class="py-2 pr-4">contains</td><td class="py-2">The value contains the text, ignoring case.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      Numbers and booleans compare by their text, so <code>status:500</code> and
+      <code>ok:false</code> work as you would expect. Arrays and objects have no text form and
+      never match an equals, in or contains clause. Excluding a contains match
+      (<code>-path:*admin*</code>) is not supported and is reported as an error.
+    </p>
+  </div>
+
+  <h2 id="negation" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Negation and Missing Fields
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Put <code>-</code> directly in front of a word, phrase or field clause to exclude it. A
+      negated clause matches logs that do not have the key at all. For example
+      <code>-env:prod</code> returns staging logs and logs that carry no <code>env</code> field. To
+      require the key and exclude one value, combine the two clauses:
+    </p>
+
+    <Code lang="text" theme="one-dark-pro" code={`env:* -env:prod`} />
+  </div>
+
+  <h2 id="or-groups" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    OR Groups
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      <code>OR</code> (uppercase) joins the two terms next to it into an any-of group. Groups are
+      AND-ed with the rest of the query, so <code>timeout OR refused db</code> means
+      <code>(timeout OR refused) AND db</code>. There are no nested parentheses.
+    </p>
+
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li>Between free-text terms: <code>timeout OR "connection reset"</code>.</li>
+      <li>Between values of one field: <code>env:prod OR env:staging</code> is the same as <code>env:(prod OR staging)</code>.</li>
+      <li>OR between clauses of different fields (<code>service:api OR level:error</code>) is an error with a hint. Run two searches, or use a list on a single field.</li>
+      <li>OR cannot join excluded terms (<code>-a OR -b</code>).</li>
+      <li>Parentheses are only valid as a value list after a key, like <code>key:(a OR b)</code>. Quote text that contains parentheses.</li>
+    </ul>
+  </div>
+
+  <h2 id="built-in-fields" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Built-in Fields
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Key</th>
+            <th class="py-2 pr-4 font-semibold">Alias</th>
+            <th class="py-2 font-semibold">Supported clauses</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>level</code></td><td class="py-2 pr-4">-</td><td class="py-2">equals, not equals, in, not in. Values: <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>, <code>critical</code> (any case).</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>service</code></td><td class="py-2 pr-4">-</td><td class="py-2">equals, not equals, in, not in.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>host</code></td><td class="py-2 pr-4"><code>hostname</code></td><td class="py-2">equals, not equals, in, not in.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>trace</code></td><td class="py-2 pr-4"><code>trace_id</code></td><td class="py-2">equals only.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>session</code></td><td class="py-2 pr-4"><code>session_id</code></td><td class="py-2">equals only.</td></tr>
+          <tr><td class="py-2 pr-4"><code>span</code></td><td class="py-2 pr-4"><code>span_id</code></td><td class="py-2">equals only.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      Any other operator on a built-in field (<code>service:*api*</code>, <code>level:*</code>,
+      <code>-trace:abc</code>) is a parse error, so the search bar, the API and live tail always
+      agree. Each built-in can appear once as a positive filter; use a list
+      (<code>service:(api OR worker)</code>) for several values. Key names are case-sensitive.
+    </p>
+  </div>
+
+  <h2 id="metadata-fields" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Metadata Fields
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Any other key filters on the log's metadata. Nested objects are reached with dots:
+      <code>user.id:42</code> finds <code>{`{"user": {"id": 42}}`}</code>. If a log has a metadata
+      key that literally contains a dot, such as <code>http.status_code</code>, the exact key wins
+      over the nested path. Paths never index into arrays.
+    </p>
+
+    <Code
+      lang="text"
+      theme="one-dark-pro"
+      code={`env:(prod OR staging)
+user.id:*
+-region:eu-west-1
+http.status_code:500
+path:*admin*`}
+    />
+
+    <p class="text-sm text-muted-foreground">
+      The logs explorer discovers metadata keys from recent logs and offers them as autocomplete
+      suggestions and facets. Clicking a value in the details panel adds or removes the matching
+      clause in the query text, so the query bar is always the full description of the current view.
+    </p>
+  </div>
+
+  <h2 id="time-and-scope" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Time and Scope
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Time and project are not part of the query text. They are set by the scope bar at the top of
+      every explore page and carried in the page URL, so a shared link opens with the same scope:
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">URL parameter</th>
+            <th class="py-2 font-semibold">Meaning</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>project</code></td><td class="py-2">Comma-separated project ids. Missing means all projects you can see.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>range</code></td><td class="py-2">A preset: <code>15m</code>, <code>1h</code>, <code>6h</code>, <code>12h</code>, <code>24h</code>, <code>48h</code>, <code>3d</code>, <code>7d</code>, <code>14d</code> or <code>30d</code>.</td></tr>
+          <tr><td class="py-2 pr-4"><code>from</code> &middot; <code>to</code></td><td class="py-2">A custom window as ISO 8601 timestamps, used instead of <code>range</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      Through the API, pass <code>projectId</code>, <code>from</code> and <code>to</code> as query
+      parameters next to <code>q</code>. The last used scope is remembered per browser.
+    </p>
+  </div>
+
+  <h2 id="examples" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Examples
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Query</th>
+            <th class="py-2 font-semibold">Finds</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>level:(error OR critical) service:checkout</code></td><td class="py-2">Errors and criticals from the checkout service.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>"connection refused" -host:web-1</code></td><td class="py-2">The phrase on every host except <code>web-1</code>.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>timeout OR deadline db</code></td><td class="py-2">Logs that mention <code>db</code> and either <code>timeout</code> or <code>deadline</code>.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>user.id:42 -level:debug</code></td><td class="py-2">Everything user 42 did, without debug noise.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>trace:4bf92f3577b34da6a3ce929d0e0e4736</code></td><td class="py-2">All logs of one trace.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>order_id:* -payment:*</code></td><td class="py-2">Order logs that carry no payment field.</td></tr>
+          <tr><td class="py-2 pr-4"><code>path:*/admin* -"health check"</code></td><td class="py-2">Admin paths, excluding health check chatter.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2 id="errors" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Errors
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Only genuinely malformed input is rejected: an unclosed quote or parenthesis, an
+      <code>OR</code> without a term on both sides, an <code>OR</code> between different fields, an
+      unknown <code>level</code> value, or an operator a built-in field does not support. Each error
+      carries the character position of the problem. The UI underlines that token, and the API
+      answers HTTP 400. For <code>service:api OR level:error</code> the response is:
+    </p>
+
+    <Code
+      lang="json"
+      theme="one-dark-pro"
+      code={`{
+  "error": "OR can only join free-text terms, or values of the same field; use key:(a OR b)",
+  "position": 12
+}`}
+    />
+  </div>
+
+  <h2 id="api" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    API
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      The query goes in the <code>q</code> parameter. It is accepted by the same endpoints, with
+      the same authentication as <code>GET /api/v1/logs</code>:
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Endpoint</th>
+            <th class="py-2 font-semibold">Purpose</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>GET /api/v1/logs</code></td><td class="py-2">Search logs. <code>limit</code> up to 1,000, cursor pagination.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>GET /api/v1/logs/count</code></td><td class="py-2">Exact count of matching logs.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>GET /api/v1/logs/histogram</code></td><td class="py-2">Volume over time, stacked by level. Optional <code>bucketSeconds</code> (1 to 604,800); chosen automatically when omitted.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>GET /api/v1/logs/facets</code></td><td class="py-2">Top values with counts. <code>fields</code> is a comma list of query keys (default <code>level,service,host</code>), <code>limit</code> defaults to 10 and is at most 50.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>GET /api/v1/logs/fields</code></td><td class="py-2">Metadata keys seen in recent logs. <code>sampleSize</code> 100 to 5,000, default 1,000.</td></tr>
+          <tr><td class="py-2 pr-4"><code>GET /api/v1/logs/stream</code></td><td class="py-2">Live tail over SSE. The full query is applied on the server.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <Code
+      lang="bash"
+      theme="one-dark-pro"
+      code={`curl -G http://localhost:8080/api/v1/logs \\
+  -H "X-API-Key: lp_your_api_key" \\
+  --data-urlencode 'projectId=PROJECT_UUID' \\
+  --data-urlencode 'from=2026-10-30T08:00:00Z' \\
+  --data-urlencode 'to=2026-10-30T09:00:00Z' \\
+  --data-urlencode 'q=level:(error OR critical) "connection refused" -host:web-1'`}
+    />
+
+    <p class="text-sm text-muted-foreground">
+      <strong>Legacy parameters.</strong> <code>searchMode=substring</code> treats the whole
+      <code>q</code> as one phrase, as before. <code>searchMode=fulltext</code> or no
+      <code>searchMode</code> parses <code>q</code> with this grammar, so existing callers keep
+      working. Alert rules accept the same syntax in their <code>query</code> field (threshold
+      rules only); an invalid query is rejected with HTTP 400 and a position.
+    </p>
+  </div>
+
+  <h2 id="limits" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Limits
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Limit</th>
+            <th class="py-2 font-semibold">Value</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Query length through the API</td><td class="py-2">2,000 characters</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Metadata field clauses per query</td><td class="py-2">10</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Values in one list</td><td class="py-2">50</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Length of one value</td><td class="py-2">1,000 characters</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Length of a field key</td><td class="py-2">200 characters</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Histogram buckets</td><td class="py-2">At most 1,000. A wider range with a small <code>bucketSeconds</code> is rejected with HTTP 400; omit <code>bucketSeconds</code> to let LogTide pick a size.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Facet fields per request</td><td class="py-2">12</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Facet values per field</td><td class="py-2">50</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Metadata keys discovered</td><td class="py-2">500, from the most recent sample of logs</td></tr>
+          <tr><td class="py-2 pr-4">Analytics reads (count, histogram, facets, fields)</td><td class="py-2">30 second time limit on every engine</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      Numeric comparisons (<code>status:&gt;=500</code>) and nested parentheses are not supported.
+    </p>
+  </div>
+
+  <h2 id="storage-engines" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Storage Engines
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      The grammar, the field rules and the handling of missing keys are identical on all three
+      engines and pinned by a shared conformance suite. The differences are in how free-text words
+      are looked up:
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class="py-2 pr-4 font-semibold">Engine</th>
+            <th class="py-2 font-semibold">Words and phrases</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">TimescaleDB</td><td class="py-2">Words use the existing full-text index with English stemming, so <code>connections</code> also finds <code>connection</code>. Phrases are case-insensitive substring matches.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">ClickHouse</td><td class="py-2">Whole-word and case-insensitive substring matching, no stemming.</td></tr>
+          <tr><td class="py-2 pr-4">MongoDB</td><td class="py-2">Whole-word and case-insensitive substring matching, no stemming. Requires MongoDB 5.2 or later (7.0 recommended).</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      English stemming on TimescaleDB is the one documented difference. Quoted phrases are never
+      stemmed. See <a href="/docs/storage-engines/">Storage Engines</a> for
+      engine requirements.
+    </p>
+  </div>
+</DocsLayout>

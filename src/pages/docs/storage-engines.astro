@@ -132,7 +132,7 @@ App → Reservoir API → TimescaleDB (PostgreSQL)
         <CardContent class="text-sm text-muted-foreground">
           <ul class="space-y-1">
             <li>Dynamic metadata - no fixed schema</li>
-            <li>Time-series collections (MongoDB 5.0+)</li>
+            <li>Time-series collections (MongoDB 5.2 or later required)</li>
             <li>Native TTL indexes for retention</li>
             <li>Easy horizontal scaling via sharding</li>
             <li>Ideal for flexible, unstructured logs</li>
@@ -253,7 +253,7 @@ App → Reservoir API → TimescaleDB (PostgreSQL)
     <p class="text-muted-foreground">
       <a href="https://www.mongodb.com/" class="text-primary-readable hover:underline" target="_blank" rel="noopener noreferrer">MongoDB</a>
       is a document-oriented NoSQL database. LogTide uses MongoDB for flexible log storage, leveraging
-      <strong>Time-Series Collections</strong> (available in MongoDB 5.0+) for optimized ingestion and storage.
+      <strong>Time-Series Collections</strong> (MongoDB 5.2 or later) for optimized ingestion and storage.
     </p>
 
     <Card>
@@ -280,8 +280,7 @@ App → Reservoir API → TimescaleDB (PostgreSQL)
       </CardHeader>
       <CardContent class="text-sm text-muted-foreground">
         <ul class="space-y-1">
-          <li><strong>Version 5.0+:</strong> Required for Time-Series collections support.</li>
-          <li><strong>Version 6.0+:</strong> Recommended for advanced aggregation performance and better compression.</li>
+          <li><strong>MongoDB 5.2 or later (7.0 recommended):</strong> 5.2 is the minimum supported version. 7.0 is recommended for the best aggregation performance and percentile support.</li>
         </ul>
       </CardContent>
     </Card>
