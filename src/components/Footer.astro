@@ -4,7 +4,7 @@ import GitHubIcon from './ui/GitHubIcon.astro';
 type FooterLink = { href: string; label: string; external?: boolean };
 
 // The same links as before the redesign (they matter for internal linking),
-// regrouped into five columns of four to six.
+// regrouped into six columns of four to six.
 const columns: { title: string; links: FooterLink[] }[] = [
   {
     title: 'docs',
@@ -28,12 +28,22 @@ const columns: { title: string; links: FooterLink[] }[] = [
       { href: '/contact/', label: 'Contact' },
     ],
   },
+  // The three most searched comparisons get a direct link from every page;
+  // the homepage stopped linking them when its explore section was dropped.
   {
     title: 'compare',
     links: [
-      { href: '/vs/', label: 'Comparisons' },
-      { href: '/elk-alternatives/', label: 'ELK Alternatives' },
+      { href: '/vs/datadog/', label: 'vs Datadog' },
+      { href: '/vs/splunk/', label: 'vs Splunk' },
+      { href: '/vs/elk-stack/', label: 'vs ELK Stack' },
+      { href: '/vs/', label: 'All comparisons' },
+    ],
+  },
+  {
+    title: 'guides',
+    links: [
       { href: '/self-hosted-log-management/', label: 'Self-Hosted Logging' },
+      { href: '/elk-alternatives/', label: 'ELK Alternatives' },
       { href: '/cloud-logging-pricing/', label: 'Cloud Logging Pricing' },
       { href: '/docs/migration/', label: 'Migration Guides' },
     ],
@@ -77,9 +87,9 @@ const iconLink =
   'grid h-9 w-9 place-items-center rounded-[9px] border border-foreground/15 text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground';
 ---
 
-<footer class="overflow-hidden border-t border-foreground/[0.08]">
-  <div class="mx-auto flex max-w-[77.5rem] flex-wrap gap-x-10 gap-y-12 px-4 pb-10 pt-16 sm:px-6 lg:px-10">
-    <div class="flex min-w-0 flex-[1.6_1_16rem] flex-col gap-[18px]">
+<footer class="band overflow-hidden border-t border-foreground/[0.08]">
+  <div class="mx-auto grid max-w-[77.5rem] grid-cols-2 gap-x-8 gap-y-12 px-4 pb-10 pt-16 sm:grid-cols-3 sm:px-6 lg:grid-cols-[minmax(0,1.9fr)_repeat(6,minmax(0,1fr))] lg:px-10">
+    <div class="col-span-2 flex min-w-0 flex-col gap-[18px] sm:col-span-3 lg:col-span-1">
       <a href="/" class="self-start rounded-lg" aria-label="LogTide home">
         <img src="/logo/white.svg" alt="LogTide" class="hidden h-7 w-auto dark:block" width="102" height="28" loading="lazy" />
         <img src="/logo/dark.svg" alt="LogTide" class="block h-7 w-auto dark:hidden" width="102" height="28" loading="lazy" />
@@ -95,7 +105,7 @@ const iconLink =
         href={statusUrl}
         target="_blank"
         rel="noopener noreferrer"
-        class="inline-flex h-9 items-center gap-2.5 self-start rounded-[9px] border border-foreground/15 bg-success/[0.06] pl-3 pr-3.5 text-[13px] text-foreground/85 transition-colors hover:border-foreground/30 hover:text-foreground"
+        class="inline-flex h-9 items-center gap-2.5 self-start whitespace-nowrap rounded-[9px] border border-foreground/15 bg-success/[0.06] pl-3 pr-3.5 text-[13px] text-foreground/85 transition-colors hover:border-foreground/30 hover:text-foreground"
       >
         <span id="logtide-status-dot" class="ping relative h-[7px] w-[7px] rounded-full bg-success" aria-hidden="true"></span>
         <span id="logtide-status-label" role="status">All systems operational</span>
@@ -135,7 +145,7 @@ const iconLink =
     </div>
 
     {columns.map((column) => (
-      <nav aria-label={`Footer: ${column.title}`} class="min-w-0 flex-[1_1_8.25rem]">
+      <nav aria-label={`Footer: ${column.title}`} class="min-w-0">
         <h2 class="font-mono text-xs font-normal tracking-normal text-muted-foreground">{column.title}</h2>
         <ul class="m-0 mt-4 flex list-none flex-col gap-2.5 p-0 text-sm">
           {column.links.map((link) => (

@@ -25,7 +25,10 @@ const options = [
 ];
 ---
 
-<section class="mx-auto max-w-[77.5rem] px-4 pt-24 sm:px-6 md:pt-40 lg:px-10" aria-labelledby="deploy-heading">
+<!-- In the light theme the section is a full-bleed tinted band; in the dark
+     theme it keeps the plain spacing (dark:py-0). -->
+<section class="band mt-24 md:mt-40" aria-labelledby="deploy-heading">
+<div class="mx-auto max-w-[77.5rem] px-4 py-20 sm:px-6 md:py-28 lg:px-10 dark:py-0">
   <h2 id="deploy-heading" class="max-w-[18ch] text-section font-bold" data-reveal>
     Run it yourself, or let us run it in the EU.
   </h2>
@@ -61,4 +64,5 @@ const options = [
       </div>
     ))}
   </div>
+</div>
 </section>

@@ -43,10 +43,13 @@ const engines = [
 
 const label = 'font-mono text-xs text-primary-readable';
 const title = 'mt-2.5 text-[22px] font-semibold leading-snug tracking-[-0.015em]';
-const panel = 'rounded-[10px] border border-border bg-background dark:bg-card';
+const panel = 'rounded-[10px] border border-border bg-muted/60 dark:bg-card';
 ---
 
-<section class="mx-auto max-w-[77.5rem] px-4 pt-24 sm:px-6 md:pt-40 lg:px-10" aria-labelledby="features-heading">
+<!-- In the light theme the section is a full-bleed tinted band; in the dark
+     theme it keeps the plain spacing (dark:py-0). -->
+<section class="band mt-24 md:mt-40" aria-labelledby="features-heading">
+<div class="mx-auto max-w-[77.5rem] px-4 py-20 sm:px-6 md:py-28 lg:px-10 dark:py-0">
   <div class="flex flex-wrap items-end justify-between gap-x-16 gap-y-5" data-reveal>
     <h2 id="features-heading" class="max-w-[17ch] flex-[1_1_32rem] text-section font-bold">
       Find it, trace it, catch it next time.
@@ -225,6 +228,7 @@ const panel = 'rounded-[10px] border border-border bg-background dark:bg-card';
       </div>
     </article>
   </div>
+</div>
 </section>
 
 <style>
