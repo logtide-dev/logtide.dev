@@ -49,14 +49,14 @@ const formattedDate = date
   datePublished={date ? date.toISOString() : null}
 >
   <!-- Navigation breadcrumb -->
-  <nav class="mb-6" aria-label="Breadcrumb">
-    <ol class="flex items-center gap-2 text-sm text-muted-foreground">
+  <nav class="mb-8" aria-label="Breadcrumb">
+    <ol class="m-0 flex list-none flex-wrap items-center gap-x-2 gap-y-1 p-0 font-mono text-xs text-muted-foreground">
       <li>
-        <a href="/" class="hover:text-foreground transition-colors">Home</a>
+        <a href="/" class="transition-colors hover:text-foreground">Home</a>
       </li>
       <li class="text-muted-foreground/50">/</li>
       <li>
-        <a href="/changelog/" class="hover:text-foreground transition-colors">Changelog</a>
+        <a href="/changelog/" class="transition-colors hover:text-foreground">Changelog</a>
       </li>
       <li class="text-muted-foreground/50">/</li>
       <li class="text-foreground line-clamp-1">{version ?? title}</li>
@@ -64,27 +64,22 @@ const formattedDate = date
   </nav>
 
   <!-- Page Header -->
-  <header class="mb-8">
-    <div class="flex flex-wrap items-center gap-3 mb-4">
+  <header class="mb-10">
+    <p class="font-mono text-xs text-primary-readable">changelog</p>
+    <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
       {version && (
-        <span class="font-mono text-sm font-bold text-primary-readable">{version}</span>
+        <span class="font-mono text-sm font-semibold">{version}</span>
       )}
       <StatusBadge status={status} />
       <TypeBadge type={entry.data.type} />
       {formattedDate && (
         date
-          ? <time datetime={date.toISOString()} class="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <Icon name="lucide:calendar" class="w-4 h-4" />
-              {formattedDate}
-            </time>
-          : <span class="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <Icon name="lucide:calendar" class="w-4 h-4" />
-              {formattedDate}
-            </span>
+          ? <time datetime={date.toISOString()} class="font-mono text-xs text-muted-foreground">{formattedDate}</time>
+          : <span class="font-mono text-xs text-muted-foreground">{formattedDate}</span>
       )}
     </div>
 
-    <h1 class="text-4xl font-bold mb-4 text-foreground leading-tight">
+    <h1 class="mt-5">
       {title}
     </h1>
 
@@ -93,12 +88,9 @@ const formattedDate = date
     </p>
 
     {highlights.length > 0 && (
-      <ul class="grid gap-2 sm:grid-cols-2 mt-6">
+      <ul class="m-0 mt-6 grid list-none gap-px overflow-hidden rounded-xl border border-foreground/[0.08] cell-grid p-0 sm:grid-cols-2">
         {highlights.map((h) => (
-          <li class="flex items-start gap-2 text-sm text-muted-foreground">
-            <Icon name="lucide:check" class="w-4 h-4 flex-shrink-0 mt-0.5 text-green-500" />
-            {h}
-          </li>
+          <li class="bg-background px-4 py-3.5 text-[14.5px] text-foreground/85">{h}</li>
         ))}
       </ul>
     )}
@@ -110,11 +102,11 @@ const formattedDate = date
   </div>
 
   <!-- Footer links -->
-  <div class="mt-16 pt-8 border-t border-border">
+  <div class="mt-16 border-t border-foreground/[0.08] pt-8">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <a
         href="/changelog/"
-        class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors no-underline"
+        class="inline-flex items-center gap-2 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground"
       >
         <Icon name="lucide:arrow-left" class="w-4 h-4" />
         All releases
@@ -124,7 +116,7 @@ const formattedDate = date
           href={githubPr}
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors no-underline"
+          class="inline-flex items-center gap-2 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground"
         >
           <Icon name="simple-icons:github" class="w-4 h-4" />
           View pull request

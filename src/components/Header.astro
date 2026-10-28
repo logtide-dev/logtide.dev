@@ -1,69 +1,73 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
 import GitHubIcon from './ui/GitHubIcon.astro';
+import { getGitHubStars, formatStars } from '../lib/github';
 
 const navLinks = [
-  { href: '/pricing/', label: 'Pricing' },
   { href: '/docs/', label: 'Docs' },
+  { href: '/pricing/', label: 'Pricing' },
   { href: '/integrations/', label: 'Integrations' },
-  { href: '/use-cases/', label: 'Use Cases' },
-  { href: '/vs/', label: 'Comparisons' },
+  { href: '/use-cases/', label: 'Use cases' },
   { href: '/blog/', label: 'Blog' },
   { href: '/changelog/', label: 'Changelog' },
-  { href: 'https://github.com/logtide-dev/logtide', label: 'GitHub', external: true },
 ];
 
+const githubUrl = 'https://github.com/logtide-dev/logtide';
+const stars = await getGitHubStars();
+
 const path = Astro.url.pathname;
-const isActive = (href: string) => !href.startsWith('http') && path.startsWith(href);
+const isActive = (href: string) => path.startsWith(href);
 ---
 
-<header class="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-  <div class="header-container flex h-16 items-center justify-between gap-6">
-    <a href="/" class="flex shrink-0 items-center gap-2 rounded-lg" aria-label="LogTide home">
-      <img src="/logo/white.svg" alt="LogTide" class="hidden h-8 w-auto dark:block" width="120" height="32" />
-      <img src="/logo/dark.svg" alt="LogTide" class="block h-8 w-auto dark:hidden" width="120" height="32" />
+<header class="sticky top-0 z-50 border-b border-border/70 bg-background/75 backdrop-blur-md">
+  <div class="header-container flex h-16 items-center gap-8">
+    <a href="/" class="flex shrink-0 items-center rounded-lg" aria-label="LogTide home">
+      <img src="/logo/white.svg" alt="LogTide" class="hidden h-7 w-auto dark:block" width="102" height="28" />
+      <img src="/logo/dark.svg" alt="LogTide" class="block h-7 w-auto dark:hidden" width="102" height="28" />
     </a>
 
-    <!-- Desktop nav. Shown from xl so seven labels never wrap to a second row. -->
-    <nav class="hidden items-center gap-6 xl:flex" aria-label="Main">
+    <nav class="hidden items-center gap-7 lg:flex" aria-label="Main">
       {navLinks.map((link) => (
         <a
           href={link.href}
           class:list={[
-            'flex items-center gap-1.5 whitespace-nowrap text-sm transition-colors hover:text-foreground',
-            isActive(link.href) ? 'font-medium text-foreground' : 'text-muted-foreground',
+            'whitespace-nowrap text-sm transition-colors hover:text-foreground',
+            isActive(link.href) ? 'text-foreground' : 'text-muted-foreground',
           ]}
-          target={link.external ? '_blank' : undefined}
-          rel={link.external ? 'noopener noreferrer' : undefined}
           aria-current={isActive(link.href) ? 'page' : undefined}
-          aria-label={link.external ? `${link.label} (opens in new tab)` : undefined}
         >
-          {link.external && <GitHubIcon />}
           {link.label}
         </a>
       ))}
     </nav>
 
-    <div class="flex shrink-0 items-center gap-3">
+    <div class="ml-auto flex shrink-0 items-center gap-2">
+      <a
+        href={githubUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="hidden h-9 items-center gap-2 rounded-lg border border-border px-3 font-mono text-xs text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground md:inline-flex"
+        aria-label={stars ? `LogTide on GitHub, ${stars} stars (opens in new tab)` : 'LogTide on GitHub (opens in new tab)'}
+      >
+        <GitHubIcon class="h-4 w-4" />
+        {stars ? <span>{formatStars(stars)}</span> : <span>GitHub</span>}
+      </a>
       <ThemeToggle />
       <a
         href="https://app.logtide.dev/login"
-        class="hidden rounded-lg text-sm text-muted-foreground transition-colors hover:text-foreground sm:block"
+        class="hidden h-9 items-center rounded-lg px-3 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
       >
-        Login
+        Log in
       </a>
       <a
         href="https://app.logtide.dev/register"
-        class="hidden items-center gap-1.5 whitespace-nowrap rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-600 sm:inline-flex"
+        class="btn-primary hidden h-9 items-center whitespace-nowrap rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground sm:inline-flex"
       >
-        Start for free
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-        </svg>
+        Start free
       </a>
       <button
         id="mobile-menu-btn"
-        class="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground xl:hidden"
+        class="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:hidden"
         aria-label="Open menu"
         aria-expanded="false"
         aria-controls="mobile-menu"
@@ -80,7 +84,7 @@ const isActive = (href: string) => !href.startsWith('http') && path.startsWith(h
 
   <nav
     id="mobile-menu"
-    class="hidden border-t border-border bg-background/95 backdrop-blur-md xl:hidden"
+    class="hidden border-t border-border bg-background/95 backdrop-blur-md lg:hidden"
     aria-label="Mobile navigation"
   >
     <div class="header-container flex flex-col gap-1 py-4">
@@ -88,29 +92,35 @@ const isActive = (href: string) => !href.startsWith('http') && path.startsWith(h
         <a
           href={link.href}
           class:list={[
-            'flex items-center gap-2 rounded-lg px-4 py-3 text-sm transition-colors hover:bg-muted hover:text-foreground',
-            isActive(link.href) ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground',
+            'rounded-lg px-4 py-3 text-sm transition-colors hover:bg-muted hover:text-foreground',
+            isActive(link.href) ? 'bg-nav-active font-medium text-nav-active-foreground' : 'text-muted-foreground',
           ]}
-          target={link.external ? '_blank' : undefined}
-          rel={link.external ? 'noopener noreferrer' : undefined}
           aria-current={isActive(link.href) ? 'page' : undefined}
         >
-          {link.external && <GitHubIcon />}
           {link.label}
         </a>
       ))}
+      <a
+        href={githubUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="flex items-center gap-2 rounded-lg px-4 py-3 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      >
+        <GitHubIcon />
+        GitHub{stars ? ` · ${formatStars(stars)} stars` : ''}
+      </a>
       <div class="mt-2 flex flex-col gap-2 border-t border-border pt-4">
         <a
           href="https://app.logtide.dev/login"
           class="rounded-lg px-4 py-3 text-center text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
-          Login
+          Log in
         </a>
         <a
           href="https://app.logtide.dev/register"
-          class="mx-4 rounded-lg bg-primary py-3 text-center text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-600"
+          class="btn-primary mx-4 rounded-lg bg-primary py-3 text-center text-sm font-medium text-primary-foreground"
         >
-          Start for free
+          Start free
         </a>
       </div>
     </div>

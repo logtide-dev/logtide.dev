@@ -1,203 +1,267 @@
 ---
-const productLinks = [
-  { href: '/docs/getting-started/', label: 'Getting Started' },
-  { href: '/docs/api/', label: 'API Reference' },
-  { href: '/docs/sdks/', label: 'SDKs' },
-  { href: '/docs/architecture/', label: 'Architecture' },
-  { href: '/docs/deployment/', label: 'Deployment' },
+import GitHubIcon from './ui/GitHubIcon.astro';
+
+type FooterLink = { href: string; label: string; external?: boolean };
+
+// The same links as before the redesign (they matter for internal linking),
+// regrouped into five columns of four to six.
+const columns: { title: string; links: FooterLink[] }[] = [
+  {
+    title: 'docs',
+    links: [
+      { href: '/docs/getting-started/', label: 'Getting Started' },
+      { href: '/docs/', label: 'Documentation' },
+      { href: '/docs/api/', label: 'API Reference' },
+      { href: '/docs/sdks/', label: 'SDKs' },
+      { href: '/docs/architecture/', label: 'Architecture' },
+      { href: '/docs/deployment/', label: 'Deployment' },
+    ],
+  },
+  {
+    title: 'resources',
+    links: [
+      { href: '/integrations/', label: 'Integrations' },
+      { href: '/use-cases/', label: 'Use Cases' },
+      { href: '/blog/', label: 'Blog' },
+      { href: '/changelog/', label: 'Changelog' },
+      { href: 'https://app.logtide.dev/status/logtide/overview', label: 'Status', external: true },
+      { href: '/contact/', label: 'Contact' },
+    ],
+  },
+  {
+    title: 'compare',
+    links: [
+      { href: '/vs/', label: 'Comparisons' },
+      { href: '/elk-alternatives/', label: 'ELK Alternatives' },
+      { href: '/self-hosted-log-management/', label: 'Self-Hosted Logging' },
+      { href: '/cloud-logging-pricing/', label: 'Cloud Logging Pricing' },
+      { href: '/docs/migration/', label: 'Migration Guides' },
+    ],
+  },
+  {
+    title: 'open source',
+    links: [
+      { href: 'https://github.com/logtide-dev/logtide', label: 'GitHub', external: true },
+      { href: 'https://github.com/logtide-dev/logtide/blob/main/LICENSE', label: 'AGPLv3 License', external: true },
+      { href: 'https://github.com/logtide-dev/logtide/issues', label: 'Report Issue', external: true },
+      { href: '/docs/contributing/', label: 'Contributing' },
+    ],
+  },
+  {
+    title: 'legal',
+    links: [
+      { href: '/legal/privacy/', label: 'Privacy Policy' },
+      { href: '/legal/terms/', label: 'Terms of Service' },
+      { href: '/legal/dpa/', label: 'Data Processing Agreement' },
+      { href: '/legal/subprocessors/', label: 'Subprocessors' },
+      { href: '/legal/cookies/', label: 'Cookie Policy' },
+      { href: '/legal/acceptable-use/', label: 'Acceptable Use' },
+    ],
+  },
 ];
 
-const resourceLinks = [
-  { href: '/self-hosted-log-management/', label: 'Self-Hosted Logging' },
-  { href: '/elk-alternatives/', label: 'ELK Alternatives' },
-  { href: '/cloud-logging-pricing/', label: 'Cloud Logging Pricing' },
-  { href: '/integrations/', label: 'Integrations' },
-  { href: '/use-cases/', label: 'Use Cases' },
-  { href: '/vs/', label: 'Comparisons' },
-  { href: '/blog/', label: 'Blog' },
-  { href: '/changelog/', label: 'Changelog' },
-  { href: '/docs/migration/', label: 'Migration Guides' },
-  { href: '/docs/', label: 'Documentation' },
-  { href: '/contact/', label: 'Contact' },
-  { href: 'https://app.logtide.dev/status/logtide/overview', label: 'Status', external: true },
+const contacts = [
+  { label: 'support', email: 'support@logtide.dev' },
+  { label: 'security', email: 'security@logtide.dev' },
+  { label: 'sales', email: 'hello@logtide.dev' },
 ];
 
-const openSourceLinks = [
-  { href: 'https://github.com/logtide-dev/logtide', label: 'GitHub', external: true },
-  { href: 'https://github.com/logtide-dev/logtide/blob/main/LICENSE', label: 'AGPLv3 License', external: true },
-  { href: 'https://github.com/logtide-dev/logtide/issues', label: 'Report Issue', external: true },
-  { href: '/docs/contributing/', label: 'Contributing' },
+const themes = [
+  { value: 'system', label: 'System' },
+  { value: 'dark', label: 'Dark' },
+  { value: 'light', label: 'Light' },
 ];
 
-const legalLinks = [
-  { href: '/legal/privacy/', label: 'Privacy Policy' },
-  { href: '/legal/terms/', label: 'Terms of Service' },
-  { href: '/legal/dpa/', label: 'Data Processing Agreement' },
-  { href: '/legal/subprocessors/', label: 'Subprocessors' },
-  { href: '/legal/cookies/', label: 'Cookie Policy' },
-  { href: '/legal/acceptable-use/', label: 'Acceptable Use' },
-];
-
-const socialLinks = [
-  { href: 'https://x.com/Logtide_dev', label: 'X (Twitter)' },
-  { href: 'https://bsky.app/profile/logtide.bsky.social', label: 'Bluesky' },
-];
+const statusUrl = 'https://app.logtide.dev/status/logtide/overview';
+const iconLink =
+  'grid h-9 w-9 place-items-center rounded-[9px] border border-foreground/15 text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground';
 ---
 
-<footer class="border-t border-border bg-card/30 py-12">
-  <div class="footer-container">
-    <div class="mb-8 grid gap-8 md:grid-cols-6">
-      <div class="md:col-span-2">
-        <img src="/logo/white.svg" alt="LogTide" class="mb-4 hidden h-8 w-auto dark:block" width="120" height="32" />
-        <img src="/logo/dark.svg" alt="LogTide" class="mb-4 block h-8 w-auto dark:hidden" width="120" height="32" />
-        <p class="max-w-xs text-sm text-muted-foreground">
-          Privacy-first log management. Open source, GDPR compliant, built in Europe.
-        </p>
-        <ul class="mt-3 space-y-1">
-          <li class="text-sm text-muted-foreground">Support: <a href="mailto:support@logtide.dev" class="transition-colors hover:text-foreground">support@logtide.dev</a></li>
-          <li class="text-sm text-muted-foreground">Security: <a href="mailto:security@logtide.dev" class="transition-colors hover:text-foreground">security@logtide.dev</a></li>
-          <li class="text-sm text-muted-foreground">Sales: <a href="mailto:hello@logtide.dev" class="transition-colors hover:text-foreground">hello@logtide.dev</a></li>
-        </ul>
+<footer class="overflow-hidden border-t border-foreground/[0.08]">
+  <div class="mx-auto flex max-w-[77.5rem] flex-wrap gap-x-10 gap-y-12 px-4 pb-10 pt-16 sm:px-6 lg:px-10">
+    <div class="flex min-w-0 flex-[1.6_1_16rem] flex-col gap-[18px]">
+      <a href="/" class="self-start rounded-lg" aria-label="LogTide home">
+        <img src="/logo/white.svg" alt="LogTide" class="hidden h-7 w-auto dark:block" width="102" height="28" loading="lazy" />
+        <img src="/logo/dark.svg" alt="LogTide" class="block h-7 w-auto dark:hidden" width="102" height="28" loading="lazy" />
+      </a>
+      <p class="max-w-[32ch] text-[15px] text-muted-foreground">
+        Open-source observability. Self-hosted or EU cloud, built in Europe.
+      </p>
 
-        <ul class="mt-4 flex items-center gap-3" aria-label="Social media">
-          {socialLinks.map((link) => (
-            <li>
-              <a
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={link.label}
-                class="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
-              >
-                {link.label.startsWith('X') && (
-                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                  </svg>
-                )}
-                {link.label === 'Bluesky' && (
-                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479.815 2.736 3.713 3.66 6.383 3.364.136-.02.275-.039.415-.056-.138.022-.276.04-.415.056-3.912.58-7.387 2.005-2.83 7.078 5.013 5.19 6.87-1.113 7.823-4.308.953 3.195 2.05 9.271 7.733 4.308 4.267-4.308 1.172-6.498-2.74-7.078-.139-.017-.279-.036-.415-.056.14.017.279.036.415.056 2.67.297 5.568-.628 6.383-3.364.246-.828.624-5.79.624-6.478 0-.69-.139-1.861-.902-2.206-.659-.298-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8Z"/>
-                  </svg>
-                )}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <!-- Live status from the public status page; the label and dot colour
+           are replaced by the badge API below, this is the fallback. -->
+      <a
+        id="logtide-status-badge"
+        href={statusUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex h-9 items-center gap-2.5 self-start rounded-[9px] border border-foreground/15 bg-success/[0.06] pl-3 pr-3.5 text-[13px] text-foreground/85 transition-colors hover:border-foreground/30 hover:text-foreground"
+      >
+        <span id="logtide-status-dot" class="ping relative h-[7px] w-[7px] rounded-full bg-success" aria-hidden="true"></span>
+        <span id="logtide-status-label" role="status">All systems operational</span>
+        <span class="text-muted-foreground" aria-hidden="true">→</span>
+      </a>
 
-      <nav aria-label="Product links">
-        <h4 class="mb-4 font-semibold text-foreground">Product</h4>
-        <ul class="space-y-2">
-          {productLinks.map((link) => (
-            <li>
-              <a
-                href={link.href}
-                class="text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      <dl class="m-0 mt-1.5 grid grid-cols-[auto_1fr] gap-x-3.5 gap-y-1 text-[13.5px]">
+        {contacts.map((c) => (
+          <>
+            <dt class="pt-px font-mono text-xs text-muted-foreground">{c.label}</dt>
+            <dd class="m-0"><a href={`mailto:${c.email}`} class="text-foreground/75 transition-colors hover:text-foreground">{c.email}</a></dd>
+          </>
+        ))}
+      </dl>
 
-      <nav aria-label="Resource links">
-        <h4 class="mb-4 font-semibold text-foreground">Resources</h4>
-        <ul class="space-y-2">
-          {resourceLinks.map((link) => (
-            <li>
-              <a
-                href={link.href}
-                class="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                target={'external' in link ? '_blank' : undefined}
-                rel={'external' in link ? 'noopener noreferrer' : undefined}
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      <nav aria-label="Open source links">
-        <h4 class="mb-4 font-semibold text-foreground">Open Source</h4>
-        <ul class="space-y-2">
-          {openSourceLinks.map((link) => (
-            <li>
-              <a
-                href={link.href}
-                class="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                target={'external' in link ? '_blank' : undefined}
-                rel={'external' in link ? 'noopener noreferrer' : undefined}
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      <nav aria-label="Legal links">
-        <h4 class="mb-4 font-semibold text-foreground">Legal</h4>
-        <ul class="space-y-2">
-          {legalLinks.map((link) => (
-            <li>
-              <a
-                href={link.href}
-                class="text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      <ul class="m-0 flex list-none gap-2 p-0" aria-label="Social media">
+        <li>
+          <a href="https://x.com/Logtide_dev" target="_blank" rel="noopener noreferrer" aria-label="LogTide on X" class={iconLink}>
+            <svg class="h-[15px] w-[15px]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
+        </li>
+        <li>
+          <a href="https://bsky.app/profile/logtide.bsky.social" target="_blank" rel="noopener noreferrer" aria-label="LogTide on Bluesky" class={iconLink}>
+            <svg class="h-[15px] w-[15px]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479.815 2.736 3.713 3.66 6.383 3.364.136-.02.275-.039.415-.056-.138.022-.276.04-.415.056-3.912.58-7.387 2.005-2.83 7.078 5.013 5.19 6.87-1.113 7.823-4.308.953 3.195 2.05 9.271 7.733 4.308 4.267-4.308 1.172-6.498-2.74-7.078-.139-.017-.279-.036-.415-.056.14.017.279.036.415.056 2.67.297 5.568-.628 6.383-3.364.246-.828.624-5.79.624-6.478 0-.69-.139-1.861-.902-2.206-.659-.298-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8Z"/>
+            </svg>
+          </a>
+        </li>
+        <li>
+          <a href="https://github.com/logtide-dev/logtide" target="_blank" rel="noopener noreferrer" aria-label="LogTide on GitHub" class={iconLink}>
+            <GitHubIcon class="h-[15px] w-[15px]" />
+          </a>
+        </li>
+      </ul>
     </div>
 
-    <div class="flex flex-col items-center justify-between gap-4 border-t border-border pt-8 md:flex-row">
-      <p class="text-sm text-muted-foreground">
-        &copy; {new Date().getFullYear()} Solture S.R.L. - LogTide. Built with care in Europe.
-      </p>
-      <div class="flex items-center gap-2 text-sm text-muted-foreground">
-        <a
-          id="logtide-status-badge"
-          href="https://app.logtide.dev/status/logtide/overview"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="flex items-center gap-1 transition-colors hover:text-foreground"
-        >
-          <span
-            id="logtide-status-dot"
-            class="h-2 w-2 rounded-full bg-green-500"
-            style="background-color: #16a34a;"
-            aria-hidden="true"
-          ></span>
-          <span id="logtide-status-label" role="status">All systems operational</span>
-        </a>
-      </div>
+    {columns.map((column) => (
+      <nav aria-label={`Footer: ${column.title}`} class="min-w-0 flex-[1_1_8.25rem]">
+        <h2 class="font-mono text-xs font-normal tracking-normal text-muted-foreground">{column.title}</h2>
+        <ul class="m-0 mt-4 flex list-none flex-col gap-2.5 p-0 text-sm">
+          {column.links.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="text-foreground/75 transition-colors hover:text-foreground"
+                target={link.external ? '_blank' : undefined}
+                rel={link.external ? 'noopener noreferrer' : undefined}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    ))}
+  </div>
 
-      <script>
-        (async () => {
-          const label = document.getElementById('logtide-status-label');
-          const dot = document.getElementById('logtide-status-dot');
-          if (!label || !dot) return;
-          try {
-            const res = await fetch('https://api.logtide.dev/api/v1/status/logtide/overview/badge.json', {
-              headers: { Accept: 'application/json' },
-            });
-            if (!res.ok) return;
-            const data = await res.json();
-            if (typeof data.label === 'string' && data.label.length > 0) {
-              label.textContent = data.label.charAt(0).toUpperCase() + data.label.slice(1);
-            }
-            if (typeof data.color === 'string' && data.color.length > 0) {
-              dot.style.backgroundColor = data.color;
-            }
-          } catch {
-            /* keep fallback */
-          }
-        })();
-      </script>
+  <div class="mx-auto max-w-[77.5rem] px-4 sm:px-6 lg:px-10">
+    <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3.5 border-t border-foreground/[0.08] pb-7 pt-[22px] text-[13px] text-muted-foreground">
+      <p class="m-0">&copy; {new Date().getFullYear()} Solture S.R.L. · Built in Europe</p>
+      <div class="inline-flex rounded-[9px] border border-border bg-card p-[3px]" role="radiogroup" aria-label="Theme" data-theme-picker>
+        {themes.map((theme) => (
+          <button
+            type="button"
+            role="radio"
+            aria-checked="false"
+            tabindex="-1"
+            data-theme-value={theme.value}
+            class="h-7 rounded-md px-[11px] text-[12.5px] text-muted-foreground transition-colors hover:text-foreground aria-checked:bg-nav-active aria-checked:text-nav-active-foreground"
+          >
+            {theme.label}
+          </button>
+        ))}
+      </div>
     </div>
   </div>
+
+  <!-- Closing wordmark, decorative. -->
+  <div class="mx-auto h-[clamp(5.5rem,15vw,13rem)] max-w-[77.5rem] overflow-hidden px-4 sm:px-6 lg:px-10" aria-hidden="true">
+    <span class="block select-none whitespace-nowrap bg-gradient-to-b from-foreground/[0.09] to-foreground/[0.01] to-85% bg-clip-text font-display text-[clamp(7.5rem,21vw,19rem)] font-bold leading-[0.82] tracking-[-0.05em] text-transparent">
+      logtide
+    </span>
+  </div>
 </footer>
+
+<script>
+  // Status badge: replace the fallback with the live state.
+  (async () => {
+    const label = document.getElementById('logtide-status-label');
+    const dot = document.getElementById('logtide-status-dot');
+    if (!label || !dot) return;
+    try {
+      const res = await fetch('https://api.logtide.dev/api/v1/status/logtide/overview/badge.json', {
+        headers: { Accept: 'application/json' },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (typeof data.label === 'string' && data.label.length > 0) {
+        label.textContent = data.label.charAt(0).toUpperCase() + data.label.slice(1);
+      }
+      if (typeof data.color === 'string' && data.color.length > 0) {
+        dot.style.backgroundColor = data.color;
+      }
+    } catch {
+      /* keep fallback */
+    }
+  })();
+
+  // Theme picker. The stored value is 'dark' (default), 'light' or 'system';
+  // the inline script in each layout resolves it before first paint. The
+  // header toggle writes the same key, so the picker re-syncs on class change.
+  const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  const storedTheme = () => localStorage.getItem('theme') || 'dark';
+
+  function applyTheme(choice: string) {
+    const dark = choice === 'system' ? darkQuery.matches : choice === 'dark';
+    document.documentElement.classList.toggle('dark', dark);
+  }
+
+  function setupThemePicker() {
+    const picker = document.querySelector<HTMLElement>('[data-theme-picker]');
+    if (!picker || picker.dataset.bound) return;
+    picker.dataset.bound = 'true';
+    const radios = [...picker.querySelectorAll<HTMLButtonElement>('[data-theme-value]')];
+
+    const sync = () => {
+      const current = storedTheme();
+      radios.forEach((r) => {
+        const on = r.dataset.themeValue === current;
+        r.setAttribute('aria-checked', String(on));
+        r.tabIndex = on ? 0 : -1;
+      });
+    };
+
+    const choose = (radio: HTMLButtonElement) => {
+      const value = radio.dataset.themeValue ?? 'dark';
+      const root = document.documentElement;
+      root.classList.add('theme-switching');
+      window.setTimeout(() => root.classList.remove('theme-switching'), 260);
+      localStorage.setItem('theme', value);
+      applyTheme(value);
+      sync();
+    };
+
+    radios.forEach((radio, i) => {
+      radio.addEventListener('click', () => choose(radio));
+      radio.addEventListener('keydown', (event) => {
+        const dir = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 0;
+        if (!dir) return;
+        event.preventDefault();
+        const next = radios[(i + dir + radios.length) % radios.length];
+        choose(next);
+        next.focus();
+      });
+    });
+
+    new MutationObserver(sync).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    sync();
+  }
+
+  darkQuery.addEventListener('change', () => {
+    if (storedTheme() === 'system') applyTheme('system');
+  });
+
+  setupThemePicker();
+  document.addEventListener('astro:after-swap', setupThemePicker);
+</script>

@@ -2,35 +2,36 @@
 import GitHubIcon from '../ui/GitHubIcon.astro';
 ---
 
-<section class="border-t border-border px-6 py-24" aria-labelledby="cta-heading">
-  <div class="mx-auto max-w-6xl">
-    <div class="rounded-xl border border-border bg-card px-8 py-16 text-center md:px-16 md:py-20" data-reveal>
-      <h2 id="cta-heading" class="mx-auto max-w-3xl text-section font-bold">Ready to own your logs?</h2>
-      <p class="mx-auto mt-5 max-w-prose text-lg text-muted-foreground">
-        Start on the free LogTide Cloud plan or deploy on your own infrastructure. No vendor lock-in. Export anytime.
-      </p>
-
-      <div class="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <a
-          href="https://app.logtide.dev/register"
-          class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-primary px-7 py-3.5 text-base font-medium text-primary-foreground transition-all hover:bg-primary-600 active:translate-y-px"
-        >
-          Start for free
-          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </a>
-        <a
-          href="https://github.com/logtide-dev/logtide"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-border bg-background px-7 py-3.5 text-base font-medium text-foreground transition-all hover:bg-muted active:translate-y-px"
-          aria-label="Star LogTide on GitHub (opens in new tab)"
-        >
-          <GitHubIcon class="h-5 w-5" />
-          Star on GitHub
-        </a>
-      </div>
+<section class="relative mt-28 border-t border-foreground/[0.08] md:mt-48" aria-labelledby="cta-heading">
+  <!-- The clip keeps the drifting glow inside the section; the gradient is
+       centred above the bottom edge so it fades out before the footer. -->
+  <div class="pointer-events-none absolute inset-0 overflow-hidden opacity-60 dark:opacity-100" aria-hidden="true">
+    <div class="glow-drift absolute inset-0 bg-[radial-gradient(50%_60%_at_50%_75%,hsl(var(--primary)/0.22),transparent_70%)]"></div>
+  </div>
+  <div class="relative mx-auto flex max-w-[77.5rem] flex-col items-center gap-7 px-4 py-24 text-center sm:px-6 md:py-40 lg:px-10" data-reveal>
+    <h2 id="cta-heading" class="text-[clamp(3.5rem,2rem+6vw,8.5rem)] font-bold leading-[0.9] tracking-[-0.035em]">
+      Own your logs.
+    </h2>
+    <p class="max-w-[48ch] text-lg text-muted-foreground">
+      Start on the free EU cloud plan or deploy on your own infrastructure. Export anytime.
+    </p>
+    <div class="flex flex-wrap justify-center gap-2.5">
+      <a
+        href="https://app.logtide.dev/register"
+        class="btn-primary inline-flex h-[50px] items-center rounded-[10px] bg-primary px-6 font-medium text-primary-foreground"
+      >
+        Start free on EU cloud
+      </a>
+      <a
+        href="https://github.com/logtide-dev/logtide"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn-ghost inline-flex h-[50px] items-center gap-2 rounded-[10px] border border-foreground/15 px-5 font-medium"
+        aria-label="Star LogTide on GitHub (opens in new tab)"
+      >
+        <GitHubIcon class="h-5 w-5" />
+        Star on GitHub
+      </a>
     </div>
   </div>
 </section>

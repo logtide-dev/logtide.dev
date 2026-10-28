@@ -1,175 +1,487 @@
 ---
-const seedLogs = [
-  { time: '14:23:45', service: 'api-gateway', level: 'info', message: 'Request processed successfully' },
-  { time: '14:23:44', service: 'auth-service', level: 'warn', message: 'Rate limit approaching threshold' },
-  { time: '14:23:42', service: 'payment-svc', level: 'error', message: 'Connection timeout to payment provider' },
-  { time: '14:23:41', service: 'api-gateway', level: 'info', message: 'Health check passed' },
-  { time: '14:23:40', service: 'user-service', level: 'debug', message: 'Cache hit for user profile' },
-  { time: '14:23:38', service: 'ingest-worker', level: 'info', message: 'Batch of 512 logs flushed' },
+// The product window mirrors the 1.6.0 app shell (sidebar from nav-items.ts,
+// org/project breadcrumb, facets, SeverityBadge pills, query syntax) and is a
+// small working demo: the query types itself, new logs stream in while Live
+// is on, level facets filter the rows and a row opens on click. The server
+// markup is the complete final state, so without JS it is a static mock.
+
+type Level = 'warn' | 'error' | 'critical';
+
+// Same tones as packages/frontend/src/lib/utils/severity.ts.
+const levelTone: Record<Level, { badge: string; dot: string; label: string }> = {
+  warn: { badge: 'border-warning/30 bg-warning/15 text-warning-text', dot: 'bg-warning', label: 'Warn' },
+  error: { badge: 'border-destructive/30 bg-destructive/15 text-destructive-text', dot: 'bg-destructive', label: 'Error' },
+  critical: { badge: 'border-critical/30 bg-critical/15 text-critical-text', dot: 'bg-critical', label: 'Critical' },
+};
+const levels = Object.keys(levelTone) as Level[];
+
+const appNav = [
+  { label: '', items: [['Dashboards', 'g d']] },
+  { label: 'Explore', items: [['Logs', 'g l'], ['Traces', 'g t'], ['Metrics', 'g m'], ['Errors', 'g e'], ['Sessions', 'g s']] },
+  { label: 'Monitor', items: [['Incidents', 'g i'], ['Alerts', 'g a'], ['Uptime', 'g u']] },
+  { label: 'Security', items: [['Overview', ''], ['Rules', '']] },
 ];
 
-function levelClass(level: string): string {
-  switch (level) {
-    case 'error': return 'bg-red-500/10 text-red-700 dark:bg-red-500/15 dark:text-red-300';
-    case 'warn': return 'bg-amber-500/10 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300';
-    case 'info': return 'bg-sky-500/10 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300';
-    default: return 'bg-muted text-muted-foreground';
-  }
-}
+const levelFacet: { level: Level; n: number; on: boolean }[] = [
+  { level: 'error', n: 318, on: true },
+  { level: 'critical', n: 94, on: true },
+  { level: 'warn', n: 1206, on: false },
+];
+const hostFacet = [
+  { k: 'pay-7c9f-2', n: '171' },
+  { k: 'pay-7c9f-3', n: '139' },
+  { k: 'pay-7c9f-1', n: '102' },
+];
+
+type Row = { time: string; level: Level; host: string; message: string; trace: string; open?: boolean };
+const rows: Row[] = [
+  { time: '14:52:07.412', level: 'critical', host: 'pay-7c9f-2', message: 'Ledger write failed: db-primary unreachable, payments paused', trace: '9e1c04b7d2a34f0e8b6a51c3f27d9e40' },
+  { time: '14:52:07.198', level: 'error', host: 'pay-7c9f-2', message: 'Connection timeout to db-primary after 5000ms', trace: '4bf92f3577b34da6a3ce929d0e0e4736', open: true },
+  { time: '14:52:06.944', level: 'error', host: 'pay-7c9f-3', message: 'Pool exhausted: 20/20 connections in use', trace: '1a7e33c9b05d4f6aa2d8e914c6b0f357' },
+  { time: '14:52:06.301', level: 'warn', host: 'pay-7c9f-1', message: 'Retrying charge ch_3PqL after 502 from provider (attempt 2/3)', trace: '7c2d91e04ab64f1c9e35b0d8a6f2c714' },
+  { time: '14:52:04.877', level: 'error', host: 'pay-7c9f-3', message: 'Charge ch_3PqL failed after 3 attempts: upstream 502', trace: '7c2d91e04ab64f1c9e35b0d8a6f2c714' },
+  { time: '14:52:03.021', level: 'error', host: 'pay-7c9f-2', message: 'Idempotency key reused with different payload: idk_91af', trace: 'c48f0a2e9d1b47c3a8e56f20b9d4e713' },
+  { time: '14:52:01.588', level: 'warn', host: 'pay-7c9f-2', message: 'Slow query 1840ms: SELECT * FROM ledger_entries WHERE …', trace: '3f6b1d84e2c94a07b5d9e1f3a0c6b528' },
+  { time: '14:51:59.733', level: 'critical', host: 'pay-7c9f-1', message: 'Health check failing for 60s, removed from load balancer', trace: 'e05a7c3b91d24f68a4c0b2e7d9f13a56' },
+];
+const visibleLevels = new Set(levelFacet.filter((f) => f.on).map((f) => f.level));
+const total = levelFacet.filter((f) => f.on).reduce((sum, f) => sum + f.n, 0);
+
+// Error histogram with a spike, deterministic so the build is stable.
+const bars = Array.from({ length: 60 }, (_, i) => {
+  const spike = i >= 41 && i <= 45;
+  return { h: spike ? 34 + ((i * 11) % 20) : 4 + ((i * 37) % 9) + ((i * 13) % 5), spike };
+});
+
+const facts = [
+  { k: 'deploy', v: 'One docker compose to self-host' },
+  { k: 'ingest', v: 'OTLP logs, traces, metrics' },
+  { k: 'security', v: 'Sigma detection built in' },
+  { k: 'license', v: 'Open source, AGPLv3' },
+];
 ---
 
-<section class="px-6 pb-20 pt-16 md:pb-28 md:pt-24" aria-labelledby="hero-heading">
-  <div class="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-12 lg:gap-16">
-    <div class="lg:col-span-7" data-reveal>
-      <p class="mb-6 inline-flex items-center rounded-full border border-border bg-card px-3 py-1 font-mono text-xs font-medium uppercase tracking-[0.14em] text-primary-readable">
-        Free plan, no credit card
-      </p>
+<section class="relative" aria-labelledby="hero-heading">
+  <div class="pointer-events-none absolute inset-x-0 -top-16 h-[900px] overflow-hidden" aria-hidden="true">
+    <div class="hero-glow glow-drift absolute inset-0"></div>
+  </div>
+  <div class="dot-grid pointer-events-none absolute inset-x-0 -top-16 h-[760px]" aria-hidden="true"></div>
 
-      <h1 id="hero-heading" class="text-display font-bold">
-        Privacy-first log management.
-        <span class="text-primary-readable">Open source.</span>
+  <div class="relative mx-auto max-w-[77.5rem] px-4 pt-16 sm:px-6 md:pt-28 lg:px-10">
+    <div data-reveal>
+      <a
+        href="/changelog/v1-6-0/"
+        class="inline-flex max-w-full items-center gap-2.5 rounded-lg border border-foreground/15 bg-foreground/[0.03] py-1 pl-1 pr-3 text-sm text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <span class="shrink-0 rounded-[5px] bg-nav-active px-2 py-0.5 font-mono text-[11px] text-nav-active-foreground">v1.6.0</span>
+        <span>Query language, uptime monitors and status pages</span>
+        <span aria-hidden="true">→</span>
+      </a>
+
+      <h1 id="hero-heading" class="mt-7 max-w-[13ch] text-hero font-bold">
+        Your logs stay <span class="text-brand">where you put them.</span>
       </h1>
+    </div>
 
-      <p class="mt-6 max-w-prose text-lg text-muted-foreground md:text-xl">
-        The open source alternative to Datadog and Splunk. GDPR compliant, self-hosted or EU cloud.
-        No ElasticSearch complexity.
+    <div class="mt-9 flex flex-wrap items-end justify-between gap-x-16 gap-y-8" data-reveal style="--reveal-delay: 80ms">
+      <p class="max-w-[56ch] flex-[1_1_28rem] text-lg text-muted-foreground md:text-xl">
+        Open-source observability for teams that need to own their data. Logs, traces, uptime and
+        Sigma threat detection, on your servers or in our EU cloud. No Elasticsearch cluster to babysit.
       </p>
 
-      <div class="mt-9 flex flex-col gap-3 sm:flex-row">
-        <a
-          href="https://app.logtide.dev/register"
-          class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-primary px-6 py-3 text-base font-medium text-primary-foreground transition-all hover:bg-primary-600 active:translate-y-px"
-        >
-          Start for free
-          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </a>
-        <a
-          href="/docs/getting-started/"
-          class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-border bg-card px-6 py-3 text-base font-medium text-foreground transition-all hover:bg-muted active:translate-y-px"
-        >
-          Self-host with Docker
-        </a>
+      <div class="flex min-w-0 flex-col gap-3">
+        <div class="flex flex-wrap gap-2.5">
+          <a
+            href="https://app.logtide.dev/register"
+            class="btn-primary inline-flex h-12 items-center gap-2.5 whitespace-nowrap rounded-[10px] bg-primary px-5 font-medium text-primary-foreground"
+          >
+            Start free on EU cloud
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+          </a>
+          <a
+            href="/docs/"
+            class="btn-ghost inline-flex h-12 items-center whitespace-nowrap rounded-[10px] border border-foreground/15 px-5 font-medium"
+          >
+            Read the docs
+          </a>
+        </div>
+        <div class="flex h-11 max-w-full items-center gap-3 rounded-[10px] border border-border bg-card/85 pl-3.5 pr-1.5 font-mono text-[13px]">
+          <span class="text-primary-readable" aria-hidden="true">$</span>
+          <code class="truncate text-foreground/85">docker compose up -d</code>
+          <button
+            type="button"
+            class="js-copy ml-auto grid h-8 w-8 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            data-copy="docker compose up -d"
+            aria-label="Copy command"
+          >
+            <svg class="copy-icon h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2" /><path d="M5 15V5a2 2 0 0 1 2-2h10" /></svg>
+            <svg class="check-icon hidden h-4 w-4 text-success-text" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7" /></svg>
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Live ingest panel. A working in-page component, not a screenshot: the
-         rows below are streamed by the script at the bottom of this file. -->
-    <div class="lg:col-span-5" data-reveal style="--reveal-delay: 120ms">
-      <figure class="overflow-hidden rounded-xl border border-border bg-card shadow-panel-lg">
-        <figcaption class="flex items-center justify-between gap-4 border-b border-border px-4 py-3">
-          <span class="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">Live ingest</span>
-          <span class="font-mono text-xs text-muted-foreground">
-            <span data-throughput class="text-foreground">846</span> events/s
-          </span>
-        </figcaption>
-
-        <div id="hero-log-stream" class="divide-y divide-border">
-          {seedLogs.map((log) => (
-            <div class="flex items-center gap-3 px-4 py-2.5">
-              <span class="w-14 shrink-0 font-mono text-xs text-muted-foreground">{log.time}</span>
-              <span class="hidden w-24 shrink-0 truncate font-mono text-xs text-foreground sm:block">{log.service}</span>
-              <span class={`w-14 shrink-0 rounded-sm px-1.5 py-0.5 text-center font-mono text-[10px] font-medium uppercase ${levelClass(log.level)}`}>
-                {log.level}
-              </span>
-              <span class="flex-1 truncate font-mono text-xs text-muted-foreground">{log.message}</span>
+    <!-- Product window. Pinned to the dark tokens (`dark` class) in both
+         themes: it is the app as a screenshot, and the focal point of the page. -->
+    <div class="relative mt-16 md:mt-20" data-reveal style="--reveal-delay: 160ms">
+      <div class="glow-line absolute inset-x-[10%] -top-px z-10 h-px" aria-hidden="true"></div>
+      <figure
+        id="hero-demo"
+        class="dark m-0 flex overflow-hidden rounded-2xl border border-foreground/15 bg-background text-[13px] text-foreground shadow-glow"
+        aria-label="Interactive demo of the LogTide logs explorer, filtering payment errors"
+      >
+        <!-- App sidebar -->
+        <div class="hidden w-[212px] shrink-0 flex-col gap-3.5 border-r border-border bg-card px-3 py-3.5 lg:flex" aria-hidden="true">
+          <img src="/logo/white.svg" alt="" class="ml-2 mt-0.5 hidden h-5 w-auto self-start dark:block" width="73" height="20" />
+          <img src="/logo/dark.svg" alt="" class="ml-2 mt-0.5 block h-5 w-auto self-start dark:hidden" width="73" height="20" />
+          {appNav.map((section) => (
+            <div class="flex flex-col gap-px">
+              {section.label && <span class="px-2 pb-1 text-[11px] font-medium text-muted-foreground">{section.label}</span>}
+              {section.items.map(([label, key]) => (
+                <span
+                  class:list={[
+                    'flex h-[30px] items-center justify-between rounded-md px-2',
+                    label === 'Logs' ? 'bg-nav-active font-medium text-nav-active-foreground' : 'text-foreground/85',
+                  ]}
+                >
+                  {label}
+                  <span class="font-mono text-[10px] text-muted-foreground/70">{key}</span>
+                </span>
+              ))}
             </div>
           ))}
         </div>
 
-        <p class="border-t border-border px-4 py-2.5 font-mono text-[11px] text-muted-foreground">
-          Sample stream. Your own logs look like this within a minute of the first SDK call.
-        </p>
+        <!-- App main -->
+        <div class="flex min-w-0 flex-1 flex-col">
+          <div class="flex h-12 items-center gap-2.5 border-b border-border px-4">
+            <span class="text-muted-foreground">Solture</span>
+            <span class="text-muted-foreground/60" aria-hidden="true">/</span>
+            <span class="font-medium">checkout</span>
+            <span class="ml-auto hidden h-[30px] w-56 items-center gap-2 rounded-md border border-border bg-popover px-2.5 text-muted-foreground sm:flex" aria-hidden="true">
+              <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+              Search or jump to…
+              <kbd class="ml-auto rounded border border-border px-1.5 font-mono text-[10px]">⌘K</kbd>
+            </span>
+          </div>
+
+          <div class="flex flex-wrap gap-2 border-b border-border px-4 py-3">
+            <div class="flex h-9 min-w-0 flex-[1_1_22rem] items-center gap-1 overflow-hidden whitespace-nowrap rounded-md border border-input bg-popover px-3 font-mono text-[12.5px]" data-typed-query>
+              <span class="text-primary-readable" data-q>service:</span><span data-q>payment-svc</span>
+              <span class="ml-2 text-primary-readable" data-q>level:</span><span class="text-muted-foreground" data-q>(</span><span data-q>error</span><span class="text-info-text" data-q>&nbsp;OR&nbsp;</span><span data-q>critical</span><span class="text-muted-foreground" data-q>)</span>
+              <span class="ml-2 text-destructive-text" data-q>-host:</span><span data-q>web-1</span>
+              <span class="hero-caret ml-px h-[15px] w-[7px] shrink-0 bg-primary-readable/80" aria-hidden="true"></span>
+            </div>
+            <span class="flex h-9 items-center whitespace-nowrap rounded-md border border-border px-3 text-foreground/85">Last 1 hour</span>
+            <button
+              type="button"
+              class="flex h-9 items-center gap-2 whitespace-nowrap rounded-md border border-border px-3 text-foreground/85 transition-colors hover:bg-muted aria-pressed:border-success/40"
+              aria-pressed="true"
+              data-live
+            >
+              <span class="live-dot ping relative h-1.5 w-1.5 rounded-full bg-success" aria-hidden="true"></span>
+              <span data-live-label>Live</span>
+            </button>
+          </div>
+
+          <div class="border-b border-border px-4 pb-2 pt-3">
+            <div class="mb-2 flex justify-between font-mono text-[11px] text-muted-foreground">
+              <span><span data-count>{total.toLocaleString('en-US')}</span> logs</span><span>14:00 — 15:00 UTC</span>
+            </div>
+            <div class="flex h-14 items-end gap-[3px]" aria-hidden="true">
+              {bars.map((bar, i) => (
+                <span
+                  class:list={['grow-y flex-1 rounded-t-[2px]', bar.spike ? 'bg-destructive' : 'bg-destructive/35']}
+                  style={`height: ${bar.h}px; --i: ${i}`}
+                ></span>
+              ))}
+            </div>
+          </div>
+
+          <div class="flex min-h-0 flex-1">
+            <div class="hidden w-44 shrink-0 flex-col gap-4 border-r border-border p-3.5 sm:flex">
+              <div class="flex flex-col gap-1" role="group" aria-label="Filter by level">
+                <span class="text-[11px] font-medium text-muted-foreground">Level</span>
+                {levelFacet.map((f) => (
+                  <button
+                    type="button"
+                    role="checkbox"
+                    aria-checked={f.on ? 'true' : 'false'}
+                    data-level-toggle={f.level}
+                    data-n={f.n}
+                    class="group flex items-center gap-2 rounded px-0.5 py-0.5 text-left text-xs transition-colors hover:bg-muted"
+                  >
+                    <span class="grid h-3 w-3 shrink-0 place-items-center rounded-[3px] border border-input group-aria-checked:border-primary group-aria-checked:bg-primary" aria-hidden="true">
+                      <svg class="hidden h-2.5 w-2.5 text-primary-foreground group-aria-checked:block" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="m5 12 5 5L20 7" /></svg>
+                    </span>
+                    <span class="min-w-0 flex-1 truncate">{levelTone[f.level].label}</span>
+                    <span class="font-mono text-[11px] text-muted-foreground">{f.n.toLocaleString('en-US')}</span>
+                  </button>
+                ))}
+              </div>
+              <div class="flex flex-col gap-1.5" aria-hidden="true">
+                <span class="text-[11px] font-medium text-muted-foreground">Host</span>
+                {hostFacet.map((row) => (
+                  <span class="flex items-center gap-2 text-xs">
+                    <span class="h-3 w-3 shrink-0 rounded-[3px] border border-input"></span>
+                    <span class="min-w-0 flex-1 truncate">{row.k}</span>
+                    <span class="font-mono text-[11px] text-muted-foreground">{row.n}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <!-- Fixed height so streamed rows never push the page around. -->
+            <div class="h-[23.5rem] min-w-0 flex-1 overflow-hidden" data-rows>
+              {rows.map((row) => (
+                <div data-row data-level={row.level} hidden={!visibleLevels.has(row.level)}>
+                  <button
+                    type="button"
+                    class="row-head flex h-[38px] w-full items-center gap-3 whitespace-nowrap border-b border-foreground/5 px-4 text-left transition-colors hover:bg-foreground/[0.03] aria-expanded:bg-primary/10 aria-expanded:shadow-[inset_2px_0_0_hsl(var(--primary))]"
+                    aria-expanded={row.open ? 'true' : 'false'}
+                  >
+                    <span class="shrink-0 font-mono text-xs text-muted-foreground">{row.time}</span>
+                    <span class="w-[76px] shrink-0">
+                      <span class={`inline-flex items-center gap-1.5 rounded-full border px-2 py-px text-[11.5px] font-medium ${levelTone[row.level].badge}`}>
+                        <span class={`h-1.5 w-1.5 rounded-full ${levelTone[row.level].dot}`} aria-hidden="true"></span>
+                        {levelTone[row.level].label}
+                      </span>
+                    </span>
+                    <span class="hidden w-24 shrink-0 truncate text-foreground/85 md:block">{row.host}</span>
+                    <span class="min-w-0 flex-1 truncate font-mono text-[12.5px]">{row.message}</span>
+                  </button>
+                  <div class="row-detail flex [&[hidden]]:hidden flex-wrap items-start gap-x-7 gap-y-3.5 border-b border-border bg-card px-4 py-3" hidden={!row.open}>
+                    <dl class="m-0 min-w-0 flex-[1_1_16rem] font-mono text-xs leading-[1.8]">
+                      <div class="flex gap-3"><dt class="w-24 shrink-0 text-muted-foreground">trace</dt><dd class="m-0 truncate text-nav-active-foreground">{row.trace}</dd></div>
+                      <div class="flex gap-3"><dt class="w-24 shrink-0 text-muted-foreground">host</dt><dd class="m-0 truncate">{row.host}</dd></div>
+                      <div class="flex gap-3"><dt class="w-24 shrink-0 text-muted-foreground">service</dt><dd class="m-0 truncate">payment-svc</dd></div>
+                      <div class="flex gap-3"><dt class="w-24 shrink-0 text-muted-foreground">environment</dt><dd class="m-0 truncate text-success-text">production</dd></div>
+                    </dl>
+                    <div class="flex flex-wrap gap-2 text-xs" aria-hidden="true">
+                      <span class="flex h-[30px] items-center rounded-md bg-nav-active px-2.5 font-medium text-nav-active-foreground">Open trace →</span>
+                      <span class="flex h-[30px] items-center rounded-md border border-border px-2.5">Filter by session</span>
+                      <span class="flex h-[30px] items-center rounded-md border border-border px-2.5">Create alert</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </figure>
+
+      <!-- One row template per level for the live stream; cloned by the script. -->
+      {levels.map((level) => (
+        <template data-row-tpl={level}>
+          <div data-row data-level={level} class="row-in">
+            <button
+              type="button"
+              class="row-head flex h-[38px] w-full items-center gap-3 whitespace-nowrap border-b border-foreground/5 px-4 text-left transition-colors hover:bg-foreground/[0.03] aria-expanded:bg-primary/10 aria-expanded:shadow-[inset_2px_0_0_hsl(var(--primary))]"
+              aria-expanded="false"
+            >
+              <span class="shrink-0 font-mono text-xs text-muted-foreground" data-slot="time"></span>
+              <span class="w-[76px] shrink-0">
+                <span class={`inline-flex items-center gap-1.5 rounded-full border px-2 py-px text-[11.5px] font-medium ${levelTone[level].badge}`}>
+                  <span class={`h-1.5 w-1.5 rounded-full ${levelTone[level].dot}`} aria-hidden="true"></span>
+                  {levelTone[level].label}
+                </span>
+              </span>
+              <span class="hidden w-24 shrink-0 truncate text-foreground/85 md:block" data-slot="host"></span>
+              <span class="min-w-0 flex-1 truncate font-mono text-[12.5px]" data-slot="message"></span>
+            </button>
+            <div class="row-detail flex [&[hidden]]:hidden flex-wrap items-start gap-x-7 gap-y-3.5 border-b border-border bg-card px-4 py-3" hidden>
+              <dl class="m-0 min-w-0 flex-[1_1_16rem] font-mono text-xs leading-[1.8]">
+                <div class="flex gap-3"><dt class="w-24 shrink-0 text-muted-foreground">trace</dt><dd class="m-0 truncate text-nav-active-foreground" data-slot="trace"></dd></div>
+                <div class="flex gap-3"><dt class="w-24 shrink-0 text-muted-foreground">host</dt><dd class="m-0 truncate" data-slot="host"></dd></div>
+                <div class="flex gap-3"><dt class="w-24 shrink-0 text-muted-foreground">service</dt><dd class="m-0 truncate">payment-svc</dd></div>
+                <div class="flex gap-3"><dt class="w-24 shrink-0 text-muted-foreground">environment</dt><dd class="m-0 truncate text-success-text">production</dd></div>
+              </dl>
+            </div>
+          </div>
+        </template>
+      ))}
     </div>
+
+    <dl class="elevate m-0 mt-14 grid gap-px overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-foreground/[0.08] sm:grid-cols-2 lg:grid-cols-4" data-reveal>
+      {facts.map((fact) => (
+        <div class="bg-card px-6 py-5 dark:bg-background">
+          <dt class="font-mono text-xs text-muted-foreground">{fact.k}</dt>
+          <dd class="m-0 mt-1.5 font-medium">{fact.v}</dd>
+        </div>
+      ))}
+    </dl>
   </div>
 </section>
 
 <style>
-  @keyframes hero-log-in {
-    from { opacity: 0; transform: translateY(-6px); }
-    to { opacity: 1; transform: none; }
+  @keyframes caret-blink {
+    50% { opacity: 0; }
   }
 
-  :global(.hero-log-enter) {
-    animation: hero-log-in 350ms cubic-bezier(0.16, 1, 0.3, 1);
+  .hero-caret {
+    animation: caret-blink 1.1s steps(1) infinite;
+  }
+
+  [aria-pressed='false'] .live-dot {
+    background-color: hsl(var(--muted-foreground));
+  }
+
+  [aria-pressed='false'] .live-dot::after {
+    animation: none;
+    opacity: 0;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    :global(.hero-log-enter) { animation: none; }
+    .hero-caret { animation: none; }
   }
 </style>
 
 <script>
-  // Streams sample log lines so the real-time claim is shown, not told.
-  // Skipped entirely under prefers-reduced-motion.
-  const LEVEL_CLASSES: Record<string, string> = {
-    error: 'bg-red-500/10 text-red-700 dark:bg-red-500/15 dark:text-red-300',
-    warn: 'bg-amber-500/10 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
-    info: 'bg-sky-500/10 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300',
-    debug: 'bg-muted text-muted-foreground',
-  };
+  const STREAM_POOL = [
+    { level: 'error', host: 'pay-7c9f-3', message: 'Connection timeout to db-primary after 5000ms' },
+    { level: 'warn', host: 'pay-7c9f-1', message: 'Pool at 18/20 connections, queueing requests' },
+    { level: 'error', host: 'pay-7c9f-2', message: 'Charge ch_9Lx2 failed: upstream 502 from provider' },
+    { level: 'critical', host: 'pay-7c9f-3', message: 'Circuit breaker open for db-primary after 12 failures' },
+    { level: 'warn', host: 'pay-7c9f-2', message: 'Webhook invoice.paid retried (attempt 2/5)' },
+    { level: 'error', host: 'pay-7c9f-1', message: 'Refund re_8Ka2 rejected: ledger locked' },
+    { level: 'error', host: 'pay-7c9f-2', message: 'TLS handshake to provider timed out after 3000ms' },
+  ] as const;
 
-  const LOG_POOL = [
-    { service: 'api-gateway', level: 'info', message: 'Request processed successfully' },
-    { service: 'auth-service', level: 'info', message: 'Token refreshed for session' },
-    { service: 'payment-svc', level: 'warn', message: 'Retrying provider webhook (attempt 2)' },
-    { service: 'user-service', level: 'debug', message: 'Cache hit for user profile' },
-    { service: 'api-gateway', level: 'info', message: 'Health check passed' },
-    { service: 'ingest-worker', level: 'info', message: 'Batch of 512 logs flushed' },
-    { service: 'auth-service', level: 'warn', message: 'Rate limit approaching threshold' },
-    { service: 'search-svc', level: 'info', message: 'Query completed in 38ms' },
-    { service: 'payment-svc', level: 'error', message: 'Connection timeout to payment provider' },
-    { service: 'alerting', level: 'info', message: 'Sigma rule evaluated: no match' },
-    { service: 'user-service', level: 'info', message: 'Profile updated' },
-    { service: 'ingest-worker', level: 'debug', message: 'Backpressure normal, buffer at 12%' },
-  ];
+  const MAX_ROWS = 8;
+  const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  function buildRow(entry: (typeof LOG_POOL)[number]): HTMLDivElement {
-    const row = document.createElement('div');
-    row.className = 'hero-log-enter flex items-center gap-3 px-4 py-2.5';
-
-    const time = document.createElement('span');
-    time.className = 'w-14 shrink-0 font-mono text-xs text-muted-foreground';
-    time.textContent = new Date().toTimeString().slice(0, 8);
-
-    const service = document.createElement('span');
-    service.className = 'hidden w-24 shrink-0 truncate font-mono text-xs text-foreground sm:block';
-    service.textContent = entry.service;
-
-    const level = document.createElement('span');
-    level.className = `w-14 shrink-0 rounded-sm px-1.5 py-0.5 text-center font-mono text-[10px] font-medium uppercase ${LEVEL_CLASSES[entry.level]}`;
-    level.textContent = entry.level;
-
-    const message = document.createElement('span');
-    message.className = 'flex-1 truncate font-mono text-xs text-muted-foreground';
-    message.textContent = entry.message;
-
-    row.append(time, service, level, message);
-    return row;
+  function hex(length: number): string {
+    let out = '';
+    for (let i = 0; i < length; i++) out += Math.floor(Math.random() * 16).toString(16);
+    return out;
   }
 
-  function startHeroStream() {
-    const list = document.getElementById('hero-log-stream');
-    if (!list || list.dataset.streaming === 'true') return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    list.dataset.streaming = 'true';
+  function setupHeroDemo() {
+    const demo = document.getElementById('hero-demo');
+    if (!demo || demo.dataset.bound) return;
+    demo.dataset.bound = 'true';
 
-    const throughput = document.querySelector<HTMLElement>('[data-throughput]');
-    let poolIndex = Math.floor(Math.random() * LOG_POOL.length);
+    const rowsEl = demo.querySelector<HTMLElement>('[data-rows]');
+    const countEl = demo.querySelector<HTMLElement>('[data-count]');
+    const liveBtn = demo.querySelector<HTMLButtonElement>('[data-live]');
+    const liveLabel = demo.querySelector<HTMLElement>('[data-live-label]');
+    const toggles = [...demo.querySelectorAll<HTMLButtonElement>('[data-level-toggle]')];
+    if (!rowsEl || !countEl || !liveBtn || !liveLabel) return;
 
-    setInterval(() => {
-      if (document.hidden) return;
+    const enabled = () =>
+      new Set(toggles.filter((t) => t.getAttribute('aria-checked') === 'true').map((t) => t.dataset.levelToggle));
 
-      list.prepend(buildRow(LOG_POOL[poolIndex]));
-      poolIndex = (poolIndex + 1) % LOG_POOL.length;
-      while (list.children.length > 6) list.lastElementChild?.remove();
+    let count = Number(countEl.textContent?.replace(/,/g, '')) || 0;
+    const renderCount = () => (countEl.textContent = count.toLocaleString('en-US'));
 
-      if (throughput) throughput.textContent = String(830 + Math.round(Math.random() * 45));
-    }, 2500);
+    function applyFilter() {
+      const on = enabled();
+      rowsEl!.querySelectorAll<HTMLElement>('[data-row]').forEach((row) => {
+        row.hidden = !on.has(row.dataset.level);
+      });
+      count = toggles.reduce((sum, t) => sum + (t.getAttribute('aria-checked') === 'true' ? Number(t.dataset.n) : 0), 0);
+      renderCount();
+    }
+
+    toggles.forEach((t) =>
+      t.addEventListener('click', () => {
+        t.setAttribute('aria-checked', t.getAttribute('aria-checked') === 'true' ? 'false' : 'true');
+        applyFilter();
+      }),
+    );
+
+    // One open row at a time; clicking the open row closes it.
+    rowsEl.addEventListener('click', (event) => {
+      const head = (event.target as HTMLElement).closest<HTMLButtonElement>('.row-head');
+      if (!head) return;
+      const wasOpen = head.getAttribute('aria-expanded') === 'true';
+      rowsEl.querySelectorAll<HTMLButtonElement>('.row-head[aria-expanded="true"]').forEach((open) => {
+        open.setAttribute('aria-expanded', 'false');
+        const detail = open.nextElementSibling as HTMLElement | null;
+        if (detail) detail.hidden = true;
+      });
+      if (!wasOpen) {
+        head.setAttribute('aria-expanded', 'true');
+        const detail = head.nextElementSibling as HTMLElement | null;
+        if (detail) detail.hidden = false;
+      }
+    });
+
+    liveBtn.addEventListener('click', () => {
+      const live = liveBtn.getAttribute('aria-pressed') !== 'true';
+      liveBtn.setAttribute('aria-pressed', String(live));
+      liveLabel.textContent = live ? 'Live' : 'Paused';
+    });
+
+    // Typing effect on the query, once, when the demo scrolls into view.
+    function typeQuery() {
+      const parts = [...demo!.querySelectorAll<HTMLElement>('[data-q]')];
+      const texts = parts.map((p) => p.textContent ?? '');
+      parts.forEach((p) => (p.textContent = ''));
+      let part = 0;
+      let char = 0;
+      const step = () => {
+        if (part >= parts.length) return;
+        char++;
+        parts[part].textContent = texts[part].slice(0, char);
+        if (char >= texts[part].length) {
+          part++;
+          char = 0;
+        }
+        window.setTimeout(step, 28 + Math.random() * 40);
+      };
+      step();
+    }
+
+    let pool = 0;
+    function streamOne() {
+      if (document.hidden || liveBtn!.getAttribute('aria-pressed') !== 'true') return;
+      const entry = STREAM_POOL[pool];
+      pool = (pool + 1) % STREAM_POOL.length;
+      const tpl = demo!.parentElement?.querySelector<HTMLTemplateElement>(`template[data-row-tpl="${entry.level}"]`);
+      if (!tpl) return;
+      const row = tpl.content.firstElementChild!.cloneNode(true) as HTMLElement;
+      const now = new Date();
+      const time = `${now.toTimeString().slice(0, 8)}.${String(now.getMilliseconds()).padStart(3, '0')}`;
+      row.querySelectorAll<HTMLElement>('[data-slot="time"]').forEach((el) => (el.textContent = time));
+      row.querySelectorAll<HTMLElement>('[data-slot="host"]').forEach((el) => (el.textContent = entry.host));
+      row.querySelectorAll<HTMLElement>('[data-slot="message"]').forEach((el) => (el.textContent = entry.message));
+      row.querySelectorAll<HTMLElement>('[data-slot="trace"]').forEach((el) => (el.textContent = hex(32)));
+      row.hidden = !enabled().has(entry.level);
+      rowsEl!.prepend(row);
+      if (!row.hidden) {
+        count++;
+        renderCount();
+      }
+      const all = rowsEl!.querySelectorAll('[data-row]');
+      for (let i = all.length - 1; i >= MAX_ROWS; i--) all[i].remove();
+    }
+
+    let timer: number | undefined;
+    let typed = false;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (reduceMotion()) return;
+        if (entry.isIntersecting) {
+          if (!typed) {
+            typed = true;
+            typeQuery();
+          }
+          timer ??= window.setInterval(streamOne, 3200);
+        } else if (timer !== undefined) {
+          window.clearInterval(timer);
+          timer = undefined;
+        }
+      },
+      { threshold: 0.35 },
+    );
+    observer.observe(demo);
+    document.addEventListener('astro:before-swap', () => {
+      observer.disconnect();
+      if (timer !== undefined) window.clearInterval(timer);
+    }, { once: true });
   }
 
-  startHeroStream();
-  document.addEventListener('astro:after-swap', startHeroStream);
+  setupHeroDemo();
+  document.addEventListener('astro:after-swap', setupHeroDemo);
 </script>

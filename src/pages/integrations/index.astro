@@ -3,13 +3,7 @@ import { getCollection } from 'astro:content';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import SEO from '../../components/SEO.astro';
-import Card from '../../components/ui/Card.astro';
-import CardHeader from '../../components/ui/CardHeader.astro';
-import CardTitle from '../../components/ui/CardTitle.astro';
-import CardDescription from '../../components/ui/CardDescription.astro';
-import CardContent from '../../components/ui/CardContent.astro';
 import DifficultyBadge from '../../components/content/DifficultyBadge.astro';
-import ArrowRight from '../../components/ui/ArrowRight.astro';
 import { ClientRouter } from 'astro:transitions';
 import { Icon } from 'astro-icon/components';
 
@@ -61,14 +55,19 @@ const description = 'Step-by-step guides to integrate LogTide with your infrastr
     />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter-tight-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
     <title>{title}</title>
     <ClientRouter />
     <script is:inline>
       (function() {
         function applyTheme() {
-          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          const theme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
+          // Dark by default; the header toggle and the footer picker store
+          // 'dark', 'light' or 'system' (follow the OS).
+          const stored = localStorage.getItem('theme') || 'dark';
+          const theme = stored === 'system'
+            ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+            : stored;
           if (theme === 'dark') {
             document.documentElement.classList.add('dark');
           } else {
@@ -83,118 +82,114 @@ const description = 'Step-by-step guides to integrate LogTide with your infrastr
   <body class="min-h-screen bg-background text-foreground antialiased">
     <Header />
 
-    <main class="mx-auto max-w-6xl px-6 py-16">
-      <!-- Hero Section -->
-      <div class="text-center mb-16">
-        <h1 class="text-4xl font-bold mb-4 text-foreground">
-          Integration Guides
-        </h1>
-        <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Step-by-step guides to integrate LogTide with your infrastructure.
-          Each guide includes complete configuration examples, Docker setup, and troubleshooting tips.
-        </p>
-      </div>
+    <main>
+      <section class="relative" aria-labelledby="integrations-heading">
+        <div class="pointer-events-none absolute inset-x-0 -top-16 hidden h-[640px] bg-[radial-gradient(45%_50%_at_25%_0%,hsl(var(--primary)/0.2),transparent_70%)] dark:block" aria-hidden="true"></div>
+        <div class="dot-grid pointer-events-none absolute inset-x-0 -top-16 h-[520px]" aria-hidden="true"></div>
+        <div class="relative mx-auto max-w-[77.5rem] px-4 pt-16 sm:px-6 md:pt-28 lg:px-10">
+          <p class="font-mono text-xs text-primary-readable">integrations</p>
+          <h1 id="integrations-heading" class="mt-4 text-[clamp(2.75rem,1.6rem+4.4vw,5.25rem)] font-bold leading-[0.95] tracking-[-0.032em]">
+            Integration Guides
+          </h1>
+          <p class="mt-6 max-w-[58ch] text-lg text-muted-foreground">
+            Step-by-step guides to integrate LogTide with your infrastructure.
+            Each guide includes complete configuration examples, Docker setup, and troubleshooting tips.
+          </p>
+        </div>
+      </section>
 
-      <!-- Stats -->
-      <div class="mb-16 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border md:grid-cols-4">
-        <div class="bg-card p-6">
-          <div class="font-mono text-3xl font-bold text-foreground">{allIntegrations.length}</div>
-          <div class="mt-1 text-sm text-muted-foreground">Integrations</div>
-        </div>
-        <div class="bg-card p-6">
-          <div class="font-mono text-3xl font-bold text-foreground">{populatedCategories.length}</div>
-          <div class="mt-1 text-sm text-muted-foreground">Categories</div>
-        </div>
-        <div class="bg-card p-6">
-          <div class="font-mono text-3xl font-bold text-foreground">Free</div>
-          <div class="mt-1 text-sm text-muted-foreground">Open Source</div>
-        </div>
-        <div class="bg-card p-6">
-          <div class="font-mono text-3xl font-bold text-foreground">EU</div>
-          <div class="mt-1 text-sm text-muted-foreground">Data Residency</div>
-        </div>
-      </div>
-
-      <!-- Categories -->
-      {populatedCategories.map(([key, category]) => (
-        <section class="mb-12">
-          <h2 id={key} class="mb-6 flex items-center gap-3 text-2xl font-semibold">
-            <Icon name={category.icon} class="h-6 w-6 text-primary-readable" aria-hidden="true" />
-            {category.label}
-          </h2>
-
-          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {category.items.map((integration) => (
-              <a href={`/integrations/${integration.id}`} class="block group">
-                <Card class="h-full transition-all hover:border-primary/50 hover:shadow-lg">
-                  <CardHeader class="pb-2">
-                    <div class="flex items-center justify-between mb-2">
-                      {integration.data.brandIcon && (
-                        <Icon name={integration.data.brandIcon} class="w-8 h-8 text-muted-foreground group-hover:text-primary-readable transition-colors" />
-                      )}
-                      <DifficultyBadge difficulty={integration.data.difficulty} showIcon={false} />
-                    </div>
-                    <CardTitle class="text-lg group-hover:text-primary-readable transition-colors flex items-center gap-2">
-                      {integration.data.title.replace(' Integration', '')}
-                      <ArrowRight class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </CardTitle>
-                    <CardDescription class="line-clamp-2">{integration.data.description}</CardDescription>
-                  </CardHeader>
-                  {integration.data.highlights.length > 0 && (
-                    <CardContent class="pt-0">
-                      <div class="flex flex-wrap gap-2">
-                        {integration.data.highlights.slice(0, 2).map((highlight) => (
-                          <span class="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                            <Icon name="lucide:check" class="w-3 h-3 text-green-500" />
-                            {highlight}
-                          </span>
-                        ))}
-                      </div>
-                    </CardContent>
-                  )}
-                </Card>
-              </a>
-            ))}
+      <div class="mx-auto max-w-[77.5rem] px-4 pb-24 sm:px-6 md:pb-36 lg:px-10">
+        <dl class="m-0 mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-foreground/[0.08] cell-grid md:grid-cols-4">
+          <div class="bg-background px-6 py-5">
+            <dt class="font-mono text-xs text-muted-foreground">integrations</dt>
+            <dd class="m-0 mt-1 font-mono text-2xl font-semibold">{allIntegrations.length}</dd>
           </div>
-        </section>
-      ))}
+          <div class="bg-background px-6 py-5">
+            <dt class="font-mono text-xs text-muted-foreground">categories</dt>
+            <dd class="m-0 mt-1 font-mono text-2xl font-semibold">{populatedCategories.length}</dd>
+          </div>
+          <div class="bg-background px-6 py-5">
+            <dt class="font-mono text-xs text-muted-foreground">open source</dt>
+            <dd class="m-0 mt-1 font-mono text-2xl font-semibold">Free</dd>
+          </div>
+          <div class="bg-background px-6 py-5">
+            <dt class="font-mono text-xs text-muted-foreground">data residency</dt>
+            <dd class="m-0 mt-1 font-mono text-2xl font-semibold">EU</dd>
+          </div>
+        </dl>
 
-      {populatedCategories.length === 0 && (
-        <Card class="text-center py-16">
-          <CardContent>
-            <Icon name="lucide:package-open" class="w-16 h-16 mx-auto text-muted-foreground mb-6" />
-            <h2 class="text-xl font-semibold mb-2">Integration guides coming soon</h2>
-            <p class="text-muted-foreground mb-6">
+        {populatedCategories.map(([key, category]) => (
+          <section class="pt-20 md:pt-28" aria-labelledby={key}>
+            <div class="mb-8 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+              <h2 id={key} class="flex items-center gap-3 text-[clamp(1.75rem,1.3rem+1.6vw,2.5rem)] font-bold leading-[1.05] tracking-[-0.03em]">
+                <Icon name={category.icon} class="h-6 w-6 text-primary-readable" aria-hidden="true" />
+                {category.label}
+              </h2>
+              <p class="font-mono text-xs text-muted-foreground">{category.items.length} {category.items.length === 1 ? 'guide' : 'guides'}</p>
+            </div>
+
+            <div class="grid gap-px overflow-hidden rounded-2xl border border-foreground/[0.08] cell-grid md:grid-cols-2 lg:grid-cols-3">
+              {category.items.map((integration) => (
+                <a href={`/integrations/${integration.id}`} class="group flex flex-col bg-background p-6 transition-colors hover:bg-card">
+                  <div class="flex items-center justify-between gap-3">
+                    {integration.data.brandIcon ? (
+                      <Icon name={integration.data.brandIcon} class="h-7 w-7 text-muted-foreground transition-colors group-hover:text-primary-readable" aria-hidden="true" />
+                    ) : <span></span>}
+                    <DifficultyBadge difficulty={integration.data.difficulty} />
+                  </div>
+                  <h3 class="mt-5 text-lg font-semibold tracking-[-0.015em] group-hover:text-primary-readable">
+                    {integration.data.title.replace(' Integration', '')}
+                  </h3>
+                  <p class="mt-1.5 line-clamp-2 text-sm text-muted-foreground">{integration.data.description}</p>
+                  {integration.data.highlights.length > 0 && (
+                    <ul class="m-0 mt-4 flex list-none flex-wrap gap-x-4 gap-y-1 p-0">
+                      {integration.data.highlights.slice(0, 2).map((highlight) => (
+                        <li class="font-mono text-xs text-muted-foreground">{highlight}</li>
+                      ))}
+                    </ul>
+                  )}
+                </a>
+              ))}
+            </div>
+          </section>
+        ))}
+
+        {populatedCategories.length === 0 && (
+          <div class="mt-20 rounded-2xl border border-foreground/15 px-6 py-16 text-center">
+            <Icon name="lucide:package-open" class="mx-auto mb-6 h-12 w-12 text-muted-foreground" aria-hidden="true" />
+            <h2 class="text-2xl font-bold tracking-[-0.025em]">Integration guides coming soon</h2>
+            <p class="mx-auto mt-3 max-w-[58ch] text-muted-foreground">
               We're working on adding integration guides. Check back later or
             </p>
             <a
               href="https://github.com/logtide-dev/logtide"
               target="_blank"
               rel="noopener"
-              class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors"
+              class="btn-primary mt-6 inline-flex h-12 items-center gap-2 rounded-[10px] bg-primary px-5 font-medium text-primary-foreground"
             >
-              <Icon name="simple-icons:github" class="w-4 h-4" />
+              <Icon name="simple-icons:github" class="h-4 w-4" aria-hidden="true" />
               Contribute on GitHub
             </a>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        )}
 
-      <!-- CTA -->
-      <div class="mt-16 text-center p-8 rounded-2xl bg-card border border-border">
-        <h2 class="text-2xl font-semibold mb-4">Can't find what you need?</h2>
-        <p class="text-muted-foreground mb-6 max-w-xl mx-auto">
-          We're always adding new integrations. Let us know what you need and we'll prioritize it.
-        </p>
-        <a
-          href="https://github.com/logtide-dev/logtide/issues"
-          target="_blank"
-          rel="noopener"
-          class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors font-medium"
-        >
-          Request an Integration
-          <Icon name="lucide:arrow-right" class="w-4 h-4" />
-        </a>
+        <section class="mt-20 flex flex-wrap items-center justify-between gap-x-12 gap-y-6 rounded-2xl border border-foreground/15 bg-card p-8 md:mt-28 md:p-10">
+          <div class="flex-[1_1_24rem]">
+            <h2 class="text-[clamp(1.5rem,1.2rem+1vw,2rem)] font-bold leading-[1.1] tracking-[-0.025em]">Can't find what you need?</h2>
+            <p class="mt-3 max-w-[58ch] text-muted-foreground">
+              We're always adding new integrations. Let us know what you need and we'll prioritize it.
+            </p>
+          </div>
+          <a
+            href="https://github.com/logtide-dev/logtide/issues"
+            target="_blank"
+            rel="noopener"
+            class="btn-primary inline-flex h-12 items-center gap-2 rounded-[10px] bg-primary px-5 font-medium text-primary-foreground"
+          >
+            Request an Integration
+            <Icon name="lucide:arrow-right" class="h-4 w-4" aria-hidden="true" />
+          </a>
+        </section>
       </div>
     </main>
 

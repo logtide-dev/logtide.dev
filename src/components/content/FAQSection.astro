@@ -10,12 +10,12 @@ const { faqs = [], title = 'Frequently Asked Questions' } = Astro.props;
 ---
 
 {faqs.length > 0 && (
-  <section class="mt-16 pt-8 border-t border-border" aria-labelledby="faq-heading">
-    <h2 id="faq-heading" class="text-2xl font-semibold mb-6">{title}</h2>
-    <div class="space-y-3">
+  <section class="mt-14 border-t border-foreground/[0.08] pt-8" aria-labelledby="faq-heading">
+    <h2 id="faq-heading" class="!mb-6 !mt-0 !border-0 !pt-0 text-[clamp(1.5rem,1.2rem+1vw,2rem)] font-bold leading-[1.1] tracking-[-0.025em]">{title}</h2>
+    <div class="overflow-hidden rounded-2xl border border-foreground/[0.08]">
       {faqs.map((faq) => (
-        <details class="group rounded-lg border border-border bg-card px-5 py-4">
-          <summary class="flex cursor-pointer items-center justify-between gap-4 text-base font-medium text-foreground list-none">
+        <details class="group border-t border-foreground/[0.08] bg-background px-5 py-4 first:border-t-0 open:bg-card">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-medium text-foreground">
             <span>{faq.question}</span>
             <Icon
               name="lucide:chevron-down"

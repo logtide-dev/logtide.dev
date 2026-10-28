@@ -324,11 +324,11 @@ function getIconName(item: NavItem): string {
     color: hsl(var(--foreground));
   }
 
+  /* Same active state as the app sidebar (--nav-active). */
   .nav-link.active {
-    background: transparent;
-    color: hsl(var(--foreground));
+    background: hsl(var(--nav-active));
+    color: hsl(var(--nav-active-foreground));
     font-weight: 500;
-    border-left-color: hsl(var(--primary));
   }
 
   .nav-link [data-icon] {
@@ -338,7 +338,7 @@ function getIconName(item: NavItem): string {
 
   .nav-link.active [data-icon] {
     opacity: 0.9;
-    color: hsl(var(--primary));
+    color: currentColor;
   }
 
   /* Scrollbar styling */

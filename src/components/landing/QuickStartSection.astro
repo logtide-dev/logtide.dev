@@ -1,67 +1,245 @@
 ---
-import CodeBlock from '../docs/CodeBlock.astro';
+import { Code } from 'astro:components';
 
-const code = `// Install: npm install @logtide/core
+// Snippets follow the Quick Start of each SDK page under /docs/sdks/, trimmed
+// to init + one log line. Keep them in sync when an SDK's API changes.
+const tabs = [
+  {
+    id: 'node',
+    label: 'Node.js',
+    lang: 'typescript',
+    href: '/docs/sdks/nodejs/',
+    code: `// npm install @logtide/core
 import { hub } from '@logtide/core'
 
 hub.init({
   dsn: process.env.LOGTIDE_DSN,
-  service: 'my-api',
+  service: 'checkout-api',
   environment: 'production',
 })
 
-hub.captureLog('info', 'User signed up', {
-  userId: 'usr_123',
-  plan: 'pro',
-})`;
+hub.captureLog('info', 'Order placed', {
+  orderId: 'ord_7Q2k',
+  totalCents: 4890,
+})`,
+  },
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    href: '/docs/sdks/python/',
+    code: `from logtide_sdk import LogTideClient, ClientOptions
+
+client = LogTideClient(
+    ClientOptions(
+        api_url='http://localhost:8080',
+        api_key='lp_your_api_key_here',
+    )
+)
+
+client.info('api-gateway', 'Server started', {'port': 3000})
+client.error('database', 'Connection failed', Exception('Timeout'))`,
+  },
+  {
+    id: 'go',
+    label: 'Go',
+    lang: 'go',
+    href: '/docs/sdks/go/',
+    code: `flush := logtide.Init(logtide.ClientOptions{
+    DSN:         "https://lp_your_api_key@api.logtide.dev",
+    Service:     "my-service",
+    Environment: "production",
+})
+defer flush()
+
+ctx := context.Background()
+logtide.Info(ctx, "Server started", map[string]any{"port": 8080})`,
+  },
+  {
+    id: 'ruby',
+    label: 'Ruby',
+    lang: 'ruby',
+    href: '/docs/sdks/ruby/',
+    code: `require "logtide"
+
+Logtide.init(
+  dsn: "https://lp_your_key@logs.example.com",
+  service: "checkout",
+  environment: "production"
+)
+
+Logtide.info("order placed", { order_id: 42 })`,
+  },
+  {
+    id: 'php',
+    label: 'PHP',
+    lang: 'php',
+    href: '/docs/sdks/php/',
+    code: `<?php
+
+use function LogTide\\init;
+use function LogTide\\info;
+
+init([
+    'dsn' => 'https://lp_abc123@api.logtide.dev',
+    'service' => 'api-server',
+    'environment' => 'production',
+]);
+
+info('Server started', ['port' => 8080]);`,
+  },
+];
+
+const moreSdks = [
+  { label: 'Browser', href: '/docs/sdks/browser/' },
+  { label: 'Kotlin', href: '/docs/sdks/kotlin/' },
+  { label: '.NET', href: '/docs/sdks/csharp/' },
+  { label: 'OTLP', href: '/docs/opentelemetry/' },
+];
 
 const steps = [
-  {
-    title: 'Deploy in 5 minutes',
-    description: 'Self-host with Docker Compose or start on the LogTide Cloud free plan. No complex infrastructure required.',
-  },
-  {
-    title: 'Get your API key',
-    description: 'Create an organization and project. Generate a scoped API key for your application.',
-  },
-  {
-    title: 'Send your logs',
-    description: 'Use our SDKs (Node.js, Python, PHP, Kotlin), OpenTelemetry, or the HTTP API directly.',
-  },
-  {
-    title: 'Search & Alert',
-    description: 'Full-text search, real-time streaming, and alerts via Email, Slack, or Discord webhooks.',
-  },
+  { title: 'Deploy', description: 'docker compose up on your server, or create a free EU cloud project.' },
+  { title: 'Connect', description: 'Copy the snippet for your stack, built from your real API address.' },
+  { title: 'See the first event', description: 'LogTide waits for it and shows tips if nothing arrives within a minute.' },
+  { title: 'Search and alert', description: 'Query, save searches, route alerts, monitors and Sigma detections.' },
 ];
 ---
 
-<section class="border-t border-border bg-muted/40 px-6 py-24" aria-labelledby="quickstart-heading">
-  <div class="mx-auto grid max-w-6xl gap-14 lg:grid-cols-12 lg:gap-16">
-    <div class="lg:col-span-5" data-reveal>
-      <h2 id="quickstart-heading" class="text-section font-bold">Get started in minutes</h2>
-      <p class="mt-4 text-lg text-muted-foreground">
-        From zero to production-ready log management.
-      </p>
-
-      <ol class="m-0 mt-10 list-none space-y-7 p-0">
+<section class="mx-auto max-w-[77.5rem] px-4 pt-24 sm:px-6 md:pt-40 lg:px-10" aria-labelledby="quickstart-heading">
+  <div class="flex flex-wrap gap-x-[4.5rem] gap-y-12">
+    <div class="min-w-0 flex-[1_1_22rem]" data-reveal>
+      <h2 id="quickstart-heading" class="text-section font-bold">First log in five minutes.</h2>
+      <ol class="m-0 mt-10 list-none p-0">
         {steps.map((step, i) => (
-          <li class="flex items-start gap-4">
-            <span class="mt-0.5 shrink-0 font-mono text-sm text-primary-readable" aria-hidden="true">
+          <li class="fade-up flex gap-5 border-t border-foreground/[0.08] py-[18px]" style={`--i: ${i * 6}`}>
+            <span class="pt-0.5 font-mono text-[13px] text-primary-readable" aria-hidden="true">
               {String(i + 1).padStart(2, '0')}
             </span>
             <div>
-              <h3 class="font-semibold">{step.title}</h3>
-              <p class="mt-1 text-sm text-muted-foreground">{step.description}</p>
+              <h3 class="text-[17px] font-semibold">{step.title}</h3>
+              <p class="mt-0.5 text-muted-foreground">{step.description}</p>
             </div>
           </li>
         ))}
       </ol>
     </div>
 
-    <figure class="lg:col-span-7" aria-label="Code example showing how to use the LogTide SDK" data-reveal style="--reveal-delay: 120ms">
-      <div class="overflow-hidden rounded-xl shadow-panel-lg">
-        <CodeBlock code={code} lang="typescript" title="app.ts" />
+    <!-- `dark` on the figure pins the code panel to the dark tokens in both
+         themes, matching the one-dark-pro highlighting. -->
+    <figure
+      id="quickstart-code"
+      class="dark m-0 min-w-0 flex-[1.3_1_30rem] self-start overflow-hidden rounded-2xl border border-foreground/15 bg-card text-foreground shadow-glow-sm"
+      aria-label="Sending a first log with a LogTide SDK"
+      data-reveal
+      style="--reveal-delay: 90ms"
+    >
+      <div class="flex items-center gap-0.5 overflow-x-auto border-b border-border p-2">
+        <div class="flex gap-0.5" role="tablist" aria-label="SDK">
+          {tabs.map((tab, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`qs-tab-${tab.id}`}
+              aria-controls={`qs-panel-${tab.id}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+              class="flex h-8 shrink-0 items-center rounded-md px-3 text-[13px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground aria-selected:bg-nav-active aria-selected:text-nav-active-foreground"
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <span class="mx-1.5 h-4 w-px shrink-0 bg-border" aria-hidden="true"></span>
+        {moreSdks.map((sdk) => (
+          <a href={sdk.href} class="flex h-8 shrink-0 items-center rounded-md px-2.5 text-[13px] text-muted-foreground/80 transition-colors hover:bg-muted hover:text-foreground">
+            {sdk.label}
+          </a>
+        ))}
+        <button
+          type="button"
+          class="js-copy ml-auto grid h-8 w-8 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          data-copy={tabs[0].code}
+          aria-label="Copy code"
+        >
+          <svg class="copy-icon h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2" /><path d="M5 15V5a2 2 0 0 1 2-2h10" /></svg>
+          <svg class="check-icon hidden h-4 w-4 text-success-text" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7" /></svg>
+        </button>
       </div>
+      {tabs.map((tab, i) => (
+        <div
+          id={`qs-panel-${tab.id}`}
+          role="tabpanel"
+          aria-labelledby={`qs-tab-${tab.id}`}
+          class="qs-panel"
+          hidden={i !== 0}
+          data-code={tab.code}
+        >
+          <div class="qs-code min-h-[19rem] overflow-x-auto px-6 py-5 text-sm leading-[1.8]">
+            <Code code={tab.code} lang={tab.lang as any} theme="one-dark-pro" />
+          </div>
+          <a href={tab.href} class="block border-t border-border px-6 py-3 text-[13px] text-muted-foreground transition-colors hover:text-foreground">
+            Full {tab.label} guide →
+          </a>
+        </div>
+      ))}
     </figure>
   </div>
 </section>
+
+<style>
+  .qs-code :global(pre) {
+    margin: 0 !important;
+    padding: 0 !important;
+    background-color: transparent !important;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  @keyframes qs-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+
+  .qs-panel:not([hidden]) .qs-code {
+    animation: qs-in 260ms ease-out;
+  }
+</style>
+
+<script>
+  function setupQuickstartTabs() {
+    const root = document.getElementById('quickstart-code');
+    if (!root || root.dataset.bound) return;
+    root.dataset.bound = 'true';
+
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const copy = root.querySelector<HTMLButtonElement>('.js-copy');
+
+    function select(tab: HTMLButtonElement) {
+      tabs.forEach((t) => {
+        const selected = t === tab;
+        t.setAttribute('aria-selected', String(selected));
+        t.tabIndex = selected ? 0 : -1;
+        const panel = document.getElementById(t.getAttribute('aria-controls') ?? '');
+        if (!panel) return;
+        panel.hidden = !selected;
+        if (selected && copy) copy.dataset.copy = panel.dataset.code ?? '';
+      });
+    }
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab));
+      tab.addEventListener('keydown', (event) => {
+        const dir = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+        if (!dir) return;
+        event.preventDefault();
+        const next = tabs[(i + dir + tabs.length) % tabs.length];
+        select(next);
+        next.focus();
+      });
+    });
+  }
+
+  setupQuickstartTabs();
+  document.addEventListener('astro:after-swap', setupQuickstartTabs);
+</script>

@@ -3,9 +3,6 @@ import { getCollection } from 'astro:content';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import SEO from '../../components/SEO.astro';
-import Badge from '../../components/ui/Badge.astro';
-import TimelineNode from '../../components/changelog/TimelineNode.astro';
-import YearGroup from '../../components/changelog/YearGroup.astro';
 import { ClientRouter } from 'astro:transitions';
 import { Icon } from 'astro-icon/components';
 
@@ -35,15 +32,8 @@ const sorted = allEntries.sort((a, b) => {
 // Keeping ~50 releases' worth of markdown on this page made it a 20k+ word
 // long-tail impression magnet in search with a near-zero CTR.
 
-// Group entries: Roadmap (planned + in-progress) and years (released)
-type Group = {
-  label: string;
-  isRoadmap: boolean;
-  entries: typeof sorted;
-};
-
-const groups: Group[] = [];
-
+// Roadmap (planned + in-progress) goes in the sidebar; released entries are
+// grouped by year.
 const roadmapEntries = sorted.filter(
   (entry) => entry.data.status === 'planned' || entry.data.status === 'in-progress'
 );
@@ -51,11 +41,6 @@ const releasedEntries = sorted.filter(
   (entry) => entry.data.status === 'released'
 );
 
-if (roadmapEntries.length > 0) {
-  groups.push({ label: 'Roadmap', isRoadmap: true, entries: roadmapEntries });
-}
-
-// Group released by year
 const byYear = new Map<string, typeof sorted>();
 for (const entry of releasedEntries) {
   const year = entry.data.date
@@ -66,9 +51,25 @@ for (const entry of releasedEntries) {
 }
 
 const sortedYears = [...byYear.keys()].sort((a, b) => Number(b) - Number(a));
-for (const year of sortedYears) {
-  groups.push({ label: year, isRoadmap: false, entries: byYear.get(year)! });
-}
+
+// The two newest releases get the full card with highlights; the rest are
+// compact rows grouped by year.
+const featured = releasedEntries.slice(0, 2);
+const olderByYear = sortedYears
+  .map((year) => ({ year, entries: byYear.get(year)!.filter((e) => !featured.includes(e)) }))
+  .filter((group) => group.entries.length > 0);
+
+// Pill tones follow the app's SeverityBadge.
+const typeTone: Record<string, { badge: string; dot: string; label: string }> = {
+  feature: { badge: 'border-primary-readable/35 bg-nav-active text-nav-active-foreground', dot: 'bg-primary-readable', label: 'Feature' },
+  improvement: { badge: 'border-info/30 bg-info/15 text-info-text', dot: 'bg-info', label: 'Improvement' },
+  fix: { badge: 'border-warning/30 bg-warning/15 text-warning-text', dot: 'bg-warning', label: 'Fix' },
+  security: { badge: 'border-destructive/30 bg-destructive/15 text-destructive-text', dot: 'bg-destructive', label: 'Security' },
+  breaking: { badge: 'border-critical/30 bg-critical/15 text-critical-text', dot: 'bg-critical', label: 'Breaking' },
+};
+
+const formatDate = (date: Date) =>
+  date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
 
 const totalReleased = releasedEntries.length;
 const totalPlanned = roadmapEntries.length;
@@ -102,8 +103,12 @@ const description = "What's new in LogTide, the self-hosted log management platf
     <script is:inline>
       (function() {
         function applyTheme() {
-          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          const theme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
+          // Dark by default; the header toggle and the footer picker store
+          // 'dark', 'light' or 'system' (follow the OS).
+          const stored = localStorage.getItem('theme') || 'dark';
+          const theme = stored === 'system'
+            ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+            : stored;
           if (theme === 'dark') {
             document.documentElement.classList.add('dark');
           } else {
@@ -118,96 +123,154 @@ const description = "What's new in LogTide, the self-hosted log management platf
   <body class="min-h-screen bg-background text-foreground antialiased">
     <Header />
 
-    <main class="mx-auto max-w-3xl px-6 py-16">
-      <!-- Hero Section -->
-      <div class="text-center mb-12">
-        <h1 class="text-4xl font-bold mb-4 text-foreground">
-          Changelog & Roadmap
-        </h1>
-        <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
-          What we've shipped and what's coming next.
-        </p>
-      </div>
-
-      <!-- Stats -->
-      <div class="mb-12 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-border bg-border">
-        <div class="bg-card p-5">
-          <div class="font-mono text-2xl font-bold text-foreground">{totalReleased}</div>
-          <div class="mt-1 text-xs text-muted-foreground">Releases</div>
-        </div>
-        <div class="bg-card p-5">
-          <div class="font-mono text-2xl font-bold text-foreground">{latestVersion ?? '-'}</div>
-          <div class="mt-1 text-xs text-muted-foreground">Latest</div>
-        </div>
-        <div class="bg-card p-5">
-          <div class="font-mono text-2xl font-bold text-foreground">{totalPlanned}</div>
-          <div class="mt-1 text-xs text-muted-foreground">Planned</div>
-        </div>
-      </div>
-
-      <!-- Status Legend -->
-      <div class="flex flex-wrap gap-3 mb-10">
-        <Badge variant="outline" class="bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20">
-          <Icon name="lucide:check-circle" class="w-3 h-3 mr-1" />
-          Released
-        </Badge>
-        <Badge variant="outline" class="bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20">
-          <Icon name="lucide:loader" class="w-3 h-3 mr-1" />
-          In Progress
-        </Badge>
-        <Badge variant="outline" class="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20">
-          <Icon name="lucide:clock" class="w-3 h-3 mr-1" />
-          Planned
-        </Badge>
-      </div>
-
-      <!-- Timeline -->
-      <div class="relative">
-        {groups.map((group, groupIndex) => {
-          const isLastGroup = groupIndex === groups.length - 1;
-
-          return (
-            <>
-              <YearGroup label={group.label} isRoadmap={group.isRoadmap} />
-              {group.entries.map((entry, entryIndex) => {
-                const isLastEntry = isLastGroup && entryIndex === group.entries.length - 1;
-                return (
-                  <TimelineNode
-                    entry={entry}
-                    isLast={isLastEntry}
-                    detailUrl={hasDetailPage(entry) ? `/changelog/${entry.id}/` : undefined}
-                  />
-                );
-              })}
-            </>
-          );
-        })}
-
-        {sorted.length === 0 && (
-          <div class="text-center py-16 text-muted-foreground">
-            <Icon name="lucide:scroll-text" class="w-12 h-12 mx-auto mb-4 opacity-40" />
-            <p>No changelog entries yet.</p>
+    <main>
+      <section class="relative" aria-labelledby="changelog-heading">
+        <div class="pointer-events-none absolute inset-x-0 -top-16 hidden h-[640px] bg-[radial-gradient(45%_50%_at_25%_0%,hsl(var(--primary)/0.2),transparent_70%)] dark:block" aria-hidden="true"></div>
+        <div class="dot-grid pointer-events-none absolute inset-x-0 -top-16 h-[520px]" aria-hidden="true"></div>
+        <div class="relative mx-auto flex max-w-[77.5rem] flex-wrap items-end justify-between gap-x-16 gap-y-6 px-4 pt-16 sm:px-6 md:pt-28 lg:px-10">
+          <div class="flex-[1_1_32rem]">
+            <p class="font-mono text-xs text-primary-readable">changelog</p>
+            <h1 id="changelog-heading" class="mt-4 text-[clamp(2.75rem,1.6rem+4.4vw,5.25rem)] font-bold leading-[0.95] tracking-[-0.032em]">
+              What shipped, and when.
+            </h1>
           </div>
-        )}
-      </div>
+          <a
+            href="https://github.com/logtide-dev/logtide/releases"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-ghost inline-flex h-10 items-center gap-2 rounded-lg border border-foreground/15 px-4 text-sm"
+          >
+            <Icon name="simple-icons:github" class="h-4 w-4" aria-hidden="true" />
+            Releases on GitHub
+          </a>
+        </div>
+      </section>
 
-      <!-- CTA -->
-      <div class="mt-16 text-center p-8 rounded-2xl bg-card border border-border">
-        <h2 class="text-xl font-semibold mb-3">Have a feature request?</h2>
-        <p class="text-muted-foreground mb-5 text-sm max-w-sm mx-auto">
-          Open a discussion on GitHub or vote on existing proposals to help shape the roadmap.
-        </p>
-        <a
-          href="https://github.com/logtide-dev/logtide/discussions"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors text-sm font-medium"
-        >
-          <Icon name="lucide:message-circle" class="w-4 h-4" />
-          Open a Discussion
-        </a>
-      </div>
+      <section class="mx-auto flex max-w-[77.5rem] flex-wrap gap-x-14 gap-y-10 px-4 pb-24 pt-12 sm:px-6 md:pb-36 lg:px-10">
+        <aside class="flex flex-[1_1_15rem] flex-col gap-6 md:max-w-[19rem]">
+          <dl class="m-0 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-foreground/[0.08] cell-grid md:grid-cols-1">
+            <div class="bg-background px-4 py-3.5">
+              <dt class="font-mono text-xs text-muted-foreground">latest</dt>
+              <dd class="m-0 mt-1 font-mono text-lg font-semibold">{latestVersion ?? '-'}</dd>
+            </div>
+            <div class="bg-background px-4 py-3.5">
+              <dt class="font-mono text-xs text-muted-foreground">releases</dt>
+              <dd class="m-0 mt-1 font-mono text-lg font-semibold">{totalReleased}</dd>
+            </div>
+            <div class="bg-background px-4 py-3.5">
+              <dt class="font-mono text-xs text-muted-foreground">planned</dt>
+              <dd class="m-0 mt-1 font-mono text-lg font-semibold">{totalPlanned}</dd>
+            </div>
+          </dl>
+
+          {roadmapEntries.map((entry) => (
+            <div class="rounded-[14px] border border-dashed border-primary-readable/45 bg-primary/[0.06] p-5">
+              <p class="font-mono text-xs text-nav-active-foreground">
+                {entry.data.status === 'in-progress' ? 'in progress' : 'next'} · {entry.data.version}{entry.data.targetDate ? ` · ${entry.data.targetDate}` : ''}
+              </p>
+              <p class="mt-2 font-semibold">{entry.data.title}</p>
+              {entry.data.highlights.length > 0 && (
+                <ul class="m-0 mt-3 flex list-none flex-col gap-1.5 p-0 text-sm text-foreground/85">
+                  {entry.data.highlights.map((h) => <li>— {h}</li>)}
+                </ul>
+              )}
+            </div>
+          ))}
+
+          <div class="rounded-[14px] border border-foreground/[0.08] p-5">
+            <p class="font-semibold">Have a feature request?</p>
+            <p class="mt-1.5 text-sm text-muted-foreground">Open a discussion on GitHub or vote on existing proposals.</p>
+            <a
+              href="https://github.com/logtide-dev/logtide/discussions"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-3 inline-block text-sm font-medium text-primary-readable hover:underline"
+            >Open a discussion →</a>
+          </div>
+        </aside>
+
+        <div class="min-w-0 flex-[3_1_36rem]">
+          {releasedEntries.length === 0 && (
+            <p class="py-16 text-center text-muted-foreground">No changelog entries yet.</p>
+          )}
+
+          {featured.map((entry, i) => (
+            <article class="flex flex-wrap gap-x-10 gap-y-3 border-t border-foreground/[0.08] py-8">
+              <div class="flex-[0_0_9.5rem]">
+                <p class="font-mono text-[15px] font-semibold">{entry.data.version}</p>
+                {entry.data.date && (
+                  <time class="mt-1 block text-[13px] text-muted-foreground" datetime={entry.data.date.toISOString()}>{formatDate(entry.data.date)}</time>
+                )}
+              </div>
+              <div class="min-w-0 flex-[1_1_26rem]">
+                <div class="flex items-center gap-2">
+                  <span class={`inline-flex items-center gap-1.5 rounded-full border px-2 py-px text-[11.5px] font-medium ${typeTone[entry.data.type].badge}`}>
+                    <span class={`h-1.5 w-1.5 rounded-full ${typeTone[entry.data.type].dot}`} aria-hidden="true"></span>
+                    {typeTone[entry.data.type].label}
+                  </span>
+                  {i === 0 && <span class="font-mono text-[11px] text-nav-active-foreground">latest</span>}
+                </div>
+                <h2 class="mt-3 text-[clamp(1.5rem,1.2rem+1vw,2rem)] font-bold leading-[1.1] tracking-[-0.025em]">
+                  {hasDetailPage(entry) ? <a href={`/changelog/${entry.id}/`} class="hover:text-primary-readable">{entry.data.title}</a> : entry.data.title}
+                </h2>
+                <p class="mt-2.5 max-w-[64ch] text-muted-foreground">{entry.data.description}</p>
+                {entry.data.highlights.length > 0 && (
+                  <ul class="m-0 mt-5 grid list-none gap-px overflow-hidden rounded-xl border border-foreground/[0.08] cell-grid p-0 sm:grid-cols-2">
+                    {entry.data.highlights.map((h) => (
+                      <li class="bg-background px-4 py-3.5 text-[14.5px] text-foreground/85">{h}</li>
+                    ))}
+                  </ul>
+                )}
+                {hasDetailPage(entry) && (
+                  <a href={`/changelog/${entry.id}/`} class="mt-4 inline-block text-sm font-medium text-primary-readable hover:underline">
+                    Read the full release notes →
+                  </a>
+                )}
+              </div>
+            </article>
+          ))}
+
+          {olderByYear.map((group) => (
+            <section aria-label={`Releases in ${group.year}`}>
+              <h2 class="border-t border-foreground/[0.08] pb-2 pt-8 font-mono text-xs font-normal tracking-normal text-muted-foreground">{group.year}</h2>
+              {group.entries.map((entry) =>
+                hasDetailPage(entry) ? (
+                  <a href={`/changelog/${entry.id}/`} class="group flex flex-wrap items-center gap-x-10 gap-y-2 border-t border-foreground/[0.05] py-4 transition-colors hover:bg-foreground/[0.02]">
+                    <span class="flex flex-[0_0_9.5rem] flex-col">
+                      <span class="font-mono text-sm font-semibold">{entry.data.version}</span>
+                      {entry.data.date && <time class="text-[13px] text-muted-foreground" datetime={entry.data.date.toISOString()}>{formatDate(entry.data.date)}</time>}
+                    </span>
+                    <span class="flex min-w-0 flex-[1_1_22rem] items-center gap-3">
+                      <span class={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-px text-[11.5px] font-medium ${typeTone[entry.data.type].badge}`}>
+                        <span class={`h-1.5 w-1.5 rounded-full ${typeTone[entry.data.type].dot}`} aria-hidden="true"></span>
+                        {typeTone[entry.data.type].label}
+                      </span>
+                      <span class="font-medium">{entry.data.title}</span>
+                    </span>
+                    <span class="text-muted-foreground transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
+                  </a>
+                ) : (
+                  <div class="flex flex-wrap items-center gap-x-10 gap-y-2 border-t border-foreground/[0.05] py-4">
+                    <span class="flex flex-[0_0_9.5rem] flex-col">
+                      <span class="font-mono text-sm font-semibold">{entry.data.version}</span>
+                      {entry.data.date && <time class="text-[13px] text-muted-foreground" datetime={entry.data.date.toISOString()}>{formatDate(entry.data.date)}</time>}
+                    </span>
+                    <span class="flex min-w-0 flex-[1_1_22rem] items-center gap-3">
+                      <span class={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-px text-[11.5px] font-medium ${typeTone[entry.data.type].badge}`}>
+                        <span class={`h-1.5 w-1.5 rounded-full ${typeTone[entry.data.type].dot}`} aria-hidden="true"></span>
+                        {typeTone[entry.data.type].label}
+                      </span>
+                      <span class="font-medium">{entry.data.title}</span>
+                    </span>
+                  </div>
+                ),
+              )}
+            </section>
+          ))}
+        </div>
+      </section>
     </main>
+
 
     <Footer />
   </body>

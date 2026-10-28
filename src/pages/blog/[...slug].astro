@@ -73,14 +73,14 @@ try {
   faqs={entry.data.faqs}
 >
   <!-- Navigation breadcrumb -->
-  <nav class="mb-6" aria-label="Breadcrumb">
-    <ol class="flex items-center gap-2 text-sm text-muted-foreground">
+  <nav class="mb-8" aria-label="Breadcrumb">
+    <ol class="m-0 flex list-none flex-wrap items-center gap-x-2 gap-y-1 p-0 font-mono text-xs text-muted-foreground">
       <li>
-        <a href="/" class="hover:text-foreground transition-colors">Home</a>
+        <a href="/" class="transition-colors hover:text-foreground">Home</a>
       </li>
       <li class="text-muted-foreground/50">/</li>
       <li>
-        <a href="/blog/" class="hover:text-foreground transition-colors">Blog</a>
+        <a href="/blog/" class="transition-colors hover:text-foreground">Blog</a>
       </li>
       <li class="text-muted-foreground/50">/</li>
       <li class="text-foreground line-clamp-1">{title}</li>
@@ -88,19 +88,10 @@ try {
   </nav>
 
   <!-- Page Header -->
-  <header class="mb-8">
-    <div class="flex flex-wrap items-center gap-3 mb-4">
-      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary-readable">
-        <Icon name="lucide:newspaper" class="w-4 h-4" />
-        Blog
-      </span>
-      <time datetime={pubDate.toISOString()} class="text-sm text-muted-foreground">
-        {pubDateFormatted}
-      </time>
-      <span class="text-sm text-muted-foreground">· {entry.data.author}</span>
-    </div>
+  <header class="mb-10">
+    <p class="font-mono text-xs text-primary-readable">blog</p>
 
-    <h1 class="text-4xl font-bold mb-4 text-foreground leading-tight">
+    <h1 class="mt-4">
       {title}
     </h1>
 
@@ -108,14 +99,16 @@ try {
       {description}
     </p>
 
+    <p class="mt-5 font-mono text-xs text-muted-foreground">
+      <time datetime={pubDate.toISOString()}>{pubDateFormatted}</time> · {entry.data.author}
+    </p>
+
     {entry.data.tags.length > 0 && (
-      <div class="flex flex-wrap gap-2 mt-4">
+      <ul class="m-0 mt-3 flex list-none flex-wrap gap-x-3 gap-y-1 p-0">
         {entry.data.tags.map((tag) => (
-          <span class="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-            {tag}
-          </span>
+          <li class="font-mono text-xs text-muted-foreground">#{tag}</li>
         ))}
-      </div>
+      </ul>
     )}
   </header>
 
@@ -125,10 +118,10 @@ try {
   </div>
 
   <!-- Edit Link -->
-  <div class="mt-16 pt-8 border-t border-border">
+  <div class="mt-16 border-t border-foreground/[0.08] pt-8">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       {lastUpdated && (
-        <span class="text-sm text-muted-foreground">
+        <span class="font-mono text-xs text-muted-foreground">
           Last updated: {lastUpdated}
         </span>
       )}
@@ -136,7 +129,7 @@ try {
         href={editUrl}
         target="_blank"
         rel="noopener noreferrer"
-        class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors no-underline"
+        class="inline-flex items-center gap-2 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground"
       >
         <Icon name="lucide:pencil" class="w-4 h-4" />
         Edit this page on GitHub
@@ -144,78 +137,3 @@ try {
     </div>
   </div>
 </ContentPage>
-
-<style>
-  .prose-content > * + * {
-    margin-top: 1.5em;
-  }
-
-  .prose-content :global(h2) {
-    @apply text-2xl font-semibold mt-12 mb-6 pb-2 border-b border-border scroll-mt-24;
-  }
-
-  .prose-content :global(h3) {
-    @apply text-xl font-semibold mt-8 mb-4 scroll-mt-24;
-  }
-
-  .prose-content :global(h4) {
-    @apply text-lg font-semibold mt-6 mb-2;
-  }
-
-  .prose-content :global(p) {
-    @apply leading-7;
-  }
-
-  .prose-content :global(ul) {
-    @apply list-disc list-inside space-y-2 mb-4;
-  }
-
-  .prose-content :global(ol) {
-    @apply list-decimal list-inside space-y-2 mb-4;
-  }
-
-  .prose-content :global(li > p) {
-    @apply my-0 inline;
-  }
-
-  .prose-content :global(a) {
-    @apply font-medium text-primary-readable underline underline-offset-4 decoration-primary/20 hover:decoration-primary transition-all cursor-pointer;
-  }
-
-  .prose-content :global(blockquote) {
-    @apply pl-6 py-1 my-6 border-l-4 border-primary/20 italic text-muted-foreground bg-primary/5 rounded-r-lg;
-  }
-
-  .prose-content :global(:not(pre) > code) {
-    @apply relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-normal text-foreground;
-  }
-
-  .prose-content :global(table) {
-    @apply w-full text-left border-collapse;
-  }
-
-  .prose-content :global(thead) {
-    @apply bg-muted/50 text-foreground;
-  }
-
-  .prose-content :global(th) {
-    @apply p-4 font-semibold border-b border-border;
-  }
-
-  .prose-content :global(td) {
-    @apply p-4 border-b border-border text-muted-foreground;
-  }
-
-  .prose-content :global(tr:last-child td) {
-    @apply border-0;
-  }
-
-  .prose-content :global(pre) {
-    @apply p-4 rounded-lg overflow-x-auto border border-border my-6 font-normal;
-  }
-
-  .prose-content :global(pre code) {
-    @apply font-normal;
-    background-color: transparent !important;
-  }
-</style>

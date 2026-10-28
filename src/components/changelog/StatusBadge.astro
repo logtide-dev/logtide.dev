@@ -1,37 +1,21 @@
 ---
-import Badge from '../ui/Badge.astro';
-import { Icon } from 'astro-icon/components';
-
 interface Props {
   status: 'released' | 'in-progress' | 'planned';
-  showIcon?: boolean;
-  class?: string;
 }
 
-const { status, showIcon = true, class: className = '' } = Astro.props;
+const { status } = Astro.props;
 
+// Pill tones follow the app's SeverityBadge.
 const config = {
-  released: {
-    label: 'Released',
-    colorClass: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20',
-    icon: 'lucide:check-circle',
-  },
-  'in-progress': {
-    label: 'In Progress',
-    colorClass: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20',
-    icon: 'lucide:loader',
-  },
-  planned: {
-    label: 'Planned',
-    colorClass: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
-    icon: 'lucide:clock',
-  },
+  released: { label: 'Released', badge: 'border-success/30 bg-success/15 text-success-text', dot: 'bg-success' },
+  'in-progress': { label: 'In Progress', badge: 'border-warning/30 bg-warning/15 text-warning-text', dot: 'bg-warning' },
+  planned: { label: 'Planned', badge: 'border-info/30 bg-info/15 text-info-text', dot: 'bg-info' },
 };
 
-const { label, colorClass, icon } = config[status];
+const { label, badge, dot } = config[status];
 ---
 
-<Badge variant="outline" class={`${colorClass} ${className}`}>
-  {showIcon && <Icon name={icon} class="w-3 h-3 mr-1" />}
+<span class={`inline-flex items-center gap-1.5 rounded-full border px-2 py-px text-[11.5px] font-medium ${badge}`}>
+  <span class={`h-1.5 w-1.5 rounded-full ${dot}`} aria-hidden="true"></span>
   {label}
-</Badge>
+</span>

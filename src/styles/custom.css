@@ -1,39 +1,58 @@
 @import './fonts.css';
 
-/* Design tokens. One neutral family (hue 240), one accent (brand purple).
-   Purple as a surface = --primary; purple as text = --primary-readable,
-   tuned per mode because #7c3aed is only 3.4:1 on the dark background. */
+/* Design tokens. The dark theme is copied from the app
+   (packages/frontend/src/app.css, 1.6.0) so the site and the product read as
+   one thing; keep the two in sync. The light theme keeps the app's hues but
+   is tuned for marketing pages: white ground, zinc greys, softer borders.
+   Purple as a surface = --primary; purple as text = --primary-readable
+   (the app calls it --primary-text). Status colours follow utils/severity.ts:
+   a solid tone, its foreground, and a readable text shade. */
 
 @layer base {
   :root {
-    --background: 240 20% 98%;
-    --foreground: 240 24% 8%;
+    /* Off-white ground, pure white raised surfaces: depth in the light theme
+       comes from surfaces and soft shadows (.elevate) rather than glow. */
+    --background: 240 14% 98%;
+    --foreground: 240 10% 4%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 24% 8%;
+    --card-foreground: 240 10% 4%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 24% 8%;
+    --popover-foreground: 240 10% 4%;
 
     --primary: 262 83% 58%;
     --primary-foreground: 0 0% 100%;
-    --primary-readable: 262 83% 48%; /* AA as text on --background (~6.9:1) */
+    --primary-readable: 263 70% 50%; /* 6.2:1 on white */
 
-    --secondary: 240 12% 93%;
-    --secondary-foreground: 240 24% 8%;
+    --secondary: 240 5% 95%;
+    --secondary-foreground: 240 10% 4%;
 
-    --muted: 240 12% 94%;
-    --muted-foreground: 240 6% 42%;
+    --muted: 240 5% 95%;
+    --muted-foreground: 240 4% 40%; /* 6.8:1 on white */
 
-    --accent: 0 0% 100%;
-    --accent-foreground: 240 24% 8%;
+    --accent: 240 5% 95%;
+    --accent-foreground: 240 10% 4%;
 
-    --destructive: 0 72% 46%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
+    --destructive-text: 0 72% 40%;
 
-    --border: 240 9% 87%;
-    --input: 240 9% 84%;
+    --border: 240 7% 89%;
+    --input: 240 6% 84%;
     --ring: 262 83% 58%;
+
+    --nav-active: 262 85% 96.5%;
+    --nav-active-foreground: 263 70% 42%;
+
+    --success: 142 71% 29%;
+    --success-text: 142 72% 26%;
+    --warning: 38 92% 44%;
+    --warning-text: 32 95% 28%;
+    --info: 217 91% 52%;
+    --info-text: 217 85% 40%;
+    --critical: 271 81% 52%;
+    --critical-text: 271 75% 42%;
 
     /* Controls use --radius, panels --radius + 4px. Nothing else. */
     --radius: 0.5rem;
@@ -43,31 +62,44 @@
     --background: 240 10% 4%;
     --foreground: 0 0% 98%;
 
-    --card: 240 8% 7%; /* lifted off --background so panels read as elevated */
+    --card: 240 8% 7%;
     --card-foreground: 0 0% 98%;
 
     --popover: 240 8% 8%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 262 83% 62%;
+    --primary: 262 83% 58%;
     --primary-foreground: 0 0% 100%;
-    --primary-readable: 265 95% 78%; /* AA as text on --background (~9:1) */
+    --primary-readable: 265 95% 78%;
 
     --secondary: 240 6% 14%;
     --secondary-foreground: 0 0% 98%;
 
     --muted: 240 6% 13%;
-    --muted-foreground: 240 5% 66%;
+    --muted-foreground: 240 5% 64.9%;
 
     --accent: 240 6% 17%;
     --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 72% 58%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --destructive-text: 0 90% 72%;
 
     --border: 240 6% 16%;
     --input: 240 6% 20%;
-    --ring: 265 95% 78%;
+    --ring: 262 83% 58%;
+
+    --nav-active: 262 40% 17%;
+    --nav-active-foreground: 265 95% 80%;
+
+    --success: 142 65% 45%;
+    --success-text: 142 70% 60%;
+    --warning: 38 92% 55%;
+    --warning-text: 40 95% 62%;
+    --info: 217 91% 62%;
+    --info-text: 213 95% 72%;
+    --critical: 271 91% 68%;
+    --critical-text: 270 95% 78%;
   }
 }
 
@@ -80,10 +112,13 @@
     @apply bg-background text-foreground;
   }
 
+  /* Headlines use Inter Tight, the display cut of the app's Inter. */
   h1,
   h2 {
-    letter-spacing: -0.022em;
-    line-height: 1.08;
+    font-family: theme('fontFamily.display');
+    letter-spacing: -0.028em;
+    line-height: 1.04;
+    text-wrap: balance;
   }
 
   h3,
@@ -171,17 +206,215 @@ html {
   }
 }
 
+/* Homepage motion, played once when a [data-reveal] block enters the view.
+   Like the reveal above, the no-JS and reduced-motion state is the final
+   frame, so nothing depends on the animation to be readable. */
+@media (prefers-reduced-motion: no-preference) {
+  html.js [data-reveal] .grow-y {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+  html.js [data-reveal] .grow-x {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  html.js [data-reveal] .pop-in {
+    opacity: 0;
+    transform: scaleY(0.4);
+  }
+  html.js [data-reveal] .fade-up {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  /* The stagger delay applies to the entrance only, so hover colour changes on
+     the same element stay immediate. */
+  html.js [data-reveal].is-revealed :is(.grow-y, .grow-x, .pop-in, .fade-up) {
+    --enter-delay: calc(var(--i, 0) * 18ms + 200ms);
+    opacity: 1;
+    transform: none;
+    transition:
+      transform 700ms cubic-bezier(0.16, 1, 0.3, 1) var(--enter-delay),
+      opacity 400ms ease var(--enter-delay),
+      background-color 200ms ease,
+      color 200ms ease;
+  }
+
+  .ping::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: inherit;
+    animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
+  .glow-drift {
+    animation: glow-drift 14s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes ping {
+  75%,
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@keyframes glow-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-4%, 3%, 0) scale(1.08);
+  }
+}
+
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+    background-color: hsl(var(--primary) / 0.18);
+  }
+}
+
+.row-in {
+  animation: row-in 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* The header is full-bleed on every page, so the logo never shifts between
-   marketing and docs. The footer stays centred on the same 72rem measure as
-   the page sections (max-width carries the padding: 72rem + 2 x 1.5rem). */
+   marketing and docs. */
 .header-container {
   padding-inline: 1.5rem;
 }
 
-.footer-container {
-  max-width: 75rem;
-  margin-inline: auto;
-  padding-inline: 1.5rem;
+/* Shared marketing surfaces. Buttons lift on hover and press down on click;
+   the violet glow and dot texture are dark-theme only, the light theme stays
+   flat. */
+@layer components {
+  .btn-primary {
+    transition: transform 150ms ease, box-shadow 200ms ease, background-color 200ms ease;
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 4px hsl(var(--primary) / 0.22), 0 10px 30px -10px hsl(var(--primary));
+  }
+  .btn-ghost {
+    transition: transform 150ms ease, border-color 200ms ease, background-color 200ms ease;
+  }
+  .btn-ghost:hover {
+    transform: translateY(-1px);
+    border-color: hsl(var(--foreground) / 0.3);
+    background-color: hsl(var(--foreground) / 0.04);
+  }
+  .btn-primary:active,
+  .btn-ghost:active {
+    transform: translateY(1px);
+  }
+
+  .dot-grid {
+    background-image: radial-gradient(hsl(var(--foreground) / 0.09) 1px, transparent 1px);
+    background-size: 22px 22px;
+    -webkit-mask-image: radial-gradient(70% 60% at 50% 0%, #000 30%, transparent 75%);
+    mask-image: radial-gradient(70% 60% at 50% 0%, #000 30%, transparent 75%);
+  }
+
+  .hero-glow {
+    background:
+      radial-gradient(55% 45% at 72% 8%, hsl(var(--primary) / 0.26), transparent 70%),
+      radial-gradient(40% 35% at 15% 0%, hsl(var(--primary) / 0.1), transparent 70%);
+  }
+
+  .glow-line {
+    background: linear-gradient(90deg, transparent, hsl(var(--primary-readable)), transparent);
+  }
+
+  /* Featured panel (Pro plan, Cloud option): violet wash from the top edge in
+     the dark theme, plain card in the light one. */
+  .panel-featured {
+    background-color: hsl(var(--card));
+  }
+  .dark .panel-featured {
+    background-image: radial-gradient(90% 60% at 50% 0%, hsl(var(--primary) / 0.22), transparent 70%);
+  }
+
+  /* Generated blog covers: always dark, like the release cards. */
+  .cover-dots {
+    background-image: radial-gradient(hsl(0 0% 100% / 0.1) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+  .post .cover {
+    transition: transform 350ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .post:hover .cover {
+    transform: scale(1.02);
+  }
+  .post:hover .post-title {
+    text-decoration: underline;
+    text-decoration-color: hsl(var(--primary-readable) / 0.6);
+    text-underline-offset: 4px;
+  }
+
+  /* Shared-border grid for a variable number of cells: each cell draws its
+     own 1px ring into the 1px gap, so an unfilled last row stays empty
+     instead of showing the container colour. Use with `grid gap-px`. */
+  .cell-grid > * {
+    box-shadow: 0 0 0 1px hsl(var(--foreground) / 0.08);
+  }
+
+  /* Spotlight grid: the 1px gaps of a shared-border grid are the container's
+     background, so a radial gradient that follows the cursor lights up the
+     lines near it. --mx/--my are set by the pointermove handler in
+     Landing.astro; without it (touch, no JS) the grid stays plain. */
+  .spotlight {
+    background-image: radial-gradient(
+      260px circle at var(--mx, -999px) var(--my, -999px),
+      hsl(var(--primary-readable) / 0.55),
+      transparent 70%
+    );
+  }
+
+  /* Raised surfaces in the light theme: a hairline plus a long soft shadow,
+     tinted with the neutral hue. In the dark theme the glow does this job. */
+  html:not(.dark) .elevate {
+    box-shadow:
+      0 1px 2px hsl(240 20% 10% / 0.04),
+      0 14px 36px -18px hsl(240 20% 10% / 0.14);
+  }
+
+
+  /* Brand line of the headlines: solid lilac on dark, a violet sweep on
+     light, where the solid purple read too loud. */
+  .text-brand {
+    color: hsl(var(--primary-readable));
+  }
+  html:not(.dark) .text-brand {
+    background-image: linear-gradient(100deg, hsl(263 72% 50%), hsl(276 70% 56%) 60%, hsl(256 75% 60%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Light theme: the same surfaces, much quieter. */
+  html:not(.dark) .dot-grid {
+    background-image: radial-gradient(hsl(var(--foreground) / 0.11) 1px, transparent 1px);
+  }
+  html:not(.dark) .hero-glow {
+    background:
+      radial-gradient(55% 45% at 72% 8%, hsl(var(--primary) / 0.16), transparent 70%),
+      radial-gradient(40% 35% at 15% 0%, hsl(var(--primary) / 0.08), transparent 70%),
+      radial-gradient(60% 50% at 50% 95%, hsl(var(--primary) / 0.1), transparent 70%);
+  }
+  html:not(.dark) .panel-featured {
+    background-image: radial-gradient(90% 60% at 50% 0%, hsl(var(--primary) / 0.07), transparent 70%);
+  }
+  html:not(.dark) .spotlight {
+    background-image: radial-gradient(
+      260px circle at var(--mx, -999px) var(--my, -999px),
+      hsl(var(--primary) / 0.45),
+      transparent 70%
+    );
+  }
 }
 
 /* Better focus styles */

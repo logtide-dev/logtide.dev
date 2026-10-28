@@ -3,12 +3,6 @@ import { getCollection } from 'astro:content';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import SEO from '../../components/SEO.astro';
-import Card from '../../components/ui/Card.astro';
-import CardHeader from '../../components/ui/CardHeader.astro';
-import CardTitle from '../../components/ui/CardTitle.astro';
-import CardDescription from '../../components/ui/CardDescription.astro';
-import CardContent from '../../components/ui/CardContent.astro';
-import ArrowRight from '../../components/ui/ArrowRight.astro';
 import { ClientRouter } from 'astro:transitions';
 import { Icon } from 'astro-icon/components';
 
@@ -37,14 +31,19 @@ const description = 'Honest feature, cost, and architecture comparisons between 
     />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter-tight-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
     <title>{title}</title>
     <ClientRouter />
     <script is:inline>
       (function() {
         function applyTheme() {
-          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          const theme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
+          // Dark by default; the header toggle and the footer picker store
+          // 'dark', 'light' or 'system' (follow the OS).
+          const stored = localStorage.getItem('theme') || 'dark';
+          const theme = stored === 'system'
+            ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+            : stored;
           if (theme === 'dark') {
             document.documentElement.classList.add('dark');
           } else {
@@ -59,141 +58,137 @@ const description = 'Honest feature, cost, and architecture comparisons between 
   <body class="min-h-screen bg-background text-foreground antialiased">
     <Header />
 
-    <main class="mx-auto max-w-6xl px-6 py-16">
-      <!-- Hero Section -->
-      <div class="text-center mb-16">
-        <h1 class="text-4xl font-bold mb-4 text-foreground">
-          LogTide vs Competitors
-        </h1>
-        <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Honest comparisons between LogTide and popular log management platforms.
-          We compare features, pricing, architecture, and migration paths.
-        </p>
-      </div>
-
-      <div class="mb-16 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-3">
-        <div class="bg-card p-6">
-          <Icon name="lucide:dollar-sign" class="h-6 w-6 text-primary-readable" aria-hidden="true" />
-          <h3 class="mt-4 font-semibold">Zero Per-GB Fees</h3>
-          <p class="mt-1.5 text-sm text-muted-foreground">
-            Self-hosted with no ingestion costs. Pay only for your infrastructure, not per gigabyte.
+    <main>
+      <section class="relative" aria-labelledby="vs-heading">
+        <div class="pointer-events-none absolute inset-x-0 -top-16 hidden h-[640px] bg-[radial-gradient(45%_50%_at_25%_0%,hsl(var(--primary)/0.2),transparent_70%)] dark:block" aria-hidden="true"></div>
+        <div class="dot-grid pointer-events-none absolute inset-x-0 -top-16 h-[520px]" aria-hidden="true"></div>
+        <div class="relative mx-auto max-w-[77.5rem] px-4 pt-16 sm:px-6 md:pt-28 lg:px-10">
+          <p class="font-mono text-xs text-primary-readable">compare</p>
+          <h1 id="vs-heading" class="mt-4 text-[clamp(2.75rem,1.6rem+4.4vw,5.25rem)] font-bold leading-[0.95] tracking-[-0.032em]">
+            LogTide vs Competitors
+          </h1>
+          <p class="mt-6 max-w-[58ch] text-lg text-muted-foreground">
+            Honest comparisons between LogTide and popular log management platforms.
+            We compare features, pricing, architecture, and migration paths.
           </p>
-        </div>
-        <div class="bg-card p-6">
-          <Icon name="lucide:shield-check" class="h-6 w-6 text-primary-readable" aria-hidden="true" />
-          <h3 class="mt-4 font-semibold">Built-in SIEM</h3>
-          <p class="mt-1.5 text-sm text-muted-foreground">
-            Sigma detection rules, MITRE ATT&CK mapping, and incident management included at no extra cost.
-          </p>
-        </div>
-        <div class="bg-card p-6">
-          <Icon name="lucide:lock" class="h-6 w-6 text-primary-readable" aria-hidden="true" />
-          <h3 class="mt-4 font-semibold">Full Data Ownership</h3>
-          <p class="mt-1.5 text-sm text-muted-foreground">
-            Your logs never leave your infrastructure. Complete GDPR compliance with EU data sovereignty.
-          </p>
-        </div>
-      </div>
-
-      <!-- Comparison Cards -->
-      <section class="mb-12">
-        <h2 class="mb-6 text-2xl font-semibold">Comparisons</h2>
-
-        <div class="grid gap-4 md:grid-cols-2">
-          {allComparisons.map((comparison) => (
-            <div class="flex flex-col">
-              <a href={`/vs/${comparison.id}/`} class="block group">
-                <Card class="h-full transition-all hover:border-primary/50 hover:shadow-lg">
-                  <CardHeader class="pb-2">
-                    <div class="flex items-center justify-between mb-2">
-                      <span class="text-sm font-medium text-primary-readable">
-                        LogTide vs {comparison.data.competitor}
-                      </span>
-                      <span class="text-xs text-muted-foreground">
-                        {comparison.data.competitorPricing}
-                      </span>
-                    </div>
-                    <CardTitle class="text-lg group-hover:text-primary-readable transition-colors flex items-center gap-2">
-                      {comparison.data.title}
-                      <ArrowRight class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </CardTitle>
-                    <CardDescription class="line-clamp-2">{comparison.data.description}</CardDescription>
-                  </CardHeader>
-                  {comparison.data.highlights.length > 0 && (
-                    <CardContent class="pt-0">
-                      <div class="flex flex-wrap gap-2">
-                        {comparison.data.highlights.slice(0, 3).map((highlight) => (
-                          <span class="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                            <Icon name="lucide:check" class="w-3 h-3 text-muted-foreground" />
-                            {highlight}
-                          </span>
-                        ))}
-                      </div>
-                    </CardContent>
-                  )}
-                </Card>
-              </a>
-              {comparison.data.migrationDoc && (
-                <a
-                  href={comparison.data.migrationDoc}
-                  class="mt-2 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-primary-readable"
-                >
-                  <Icon name="lucide:arrow-right-left" class="w-3.5 h-3.5" />
-                  Migration guide: {comparison.data.competitor} to LogTide
-                </a>
-              )}
-            </div>
-          ))}
         </div>
       </section>
 
-      {allComparisons.length === 0 && (
-        <Card class="text-center py-16">
-          <CardContent>
-            <Icon name="lucide:scale" class="w-16 h-16 mx-auto text-muted-foreground mb-6" />
-            <h2 class="text-xl font-semibold mb-2">Comparison guides coming soon</h2>
-            <p class="text-muted-foreground mb-6">
+      <div class="mx-auto max-w-[77.5rem] px-4 pb-24 sm:px-6 md:pb-36 lg:px-10">
+        <div class="mt-12 grid gap-px overflow-hidden rounded-2xl border border-foreground/[0.08] cell-grid sm:grid-cols-3">
+          <div class="bg-background p-6">
+            <Icon name="lucide:dollar-sign" class="h-6 w-6 text-primary-readable" aria-hidden="true" />
+            <h3 class="mt-4 font-semibold">Zero Per-GB Fees</h3>
+            <p class="mt-1.5 text-sm text-muted-foreground">
+              Self-hosted with no ingestion costs. Pay only for your infrastructure, not per gigabyte.
+            </p>
+          </div>
+          <div class="bg-background p-6">
+            <Icon name="lucide:shield-check" class="h-6 w-6 text-primary-readable" aria-hidden="true" />
+            <h3 class="mt-4 font-semibold">Built-in SIEM</h3>
+            <p class="mt-1.5 text-sm text-muted-foreground">
+              Sigma detection rules, MITRE ATT&CK mapping, and incident management included at no extra cost.
+            </p>
+          </div>
+          <div class="bg-background p-6">
+            <Icon name="lucide:lock" class="h-6 w-6 text-primary-readable" aria-hidden="true" />
+            <h3 class="mt-4 font-semibold">Full Data Ownership</h3>
+            <p class="mt-1.5 text-sm text-muted-foreground">
+              Your logs never leave your infrastructure. Complete GDPR compliance with EU data sovereignty.
+            </p>
+          </div>
+        </div>
+
+        <section class="pt-20 md:pt-28" aria-labelledby="comparisons-heading">
+          <div class="mb-8 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+            <h2 id="comparisons-heading" class="text-[clamp(1.75rem,1.3rem+1.6vw,2.5rem)] font-bold leading-[1.05] tracking-[-0.03em]">Comparisons</h2>
+            <p class="font-mono text-xs text-muted-foreground">{allComparisons.length} {allComparisons.length === 1 ? 'comparison' : 'comparisons'}</p>
+          </div>
+
+          <div class="grid gap-px overflow-hidden rounded-2xl border border-foreground/[0.08] cell-grid md:grid-cols-2">
+            {allComparisons.map((comparison) => (
+              <div class="flex flex-col bg-background transition-colors hover:bg-card">
+                <a href={`/vs/${comparison.id}/`} class="group flex flex-1 flex-col p-6">
+                  <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+                    <span class="font-mono text-xs text-primary-readable">
+                      LogTide vs {comparison.data.competitor}
+                    </span>
+                    <span class="font-mono text-xs text-muted-foreground">
+                      {comparison.data.competitorPricing}
+                    </span>
+                  </div>
+                  <h3 class="mt-4 text-lg font-semibold tracking-[-0.015em] group-hover:text-primary-readable">
+                    {comparison.data.title}
+                  </h3>
+                  <p class="mt-1.5 line-clamp-2 text-sm text-muted-foreground">{comparison.data.description}</p>
+                  {comparison.data.highlights.length > 0 && (
+                    <ul class="m-0 mt-4 flex list-none flex-wrap gap-x-4 gap-y-1 p-0">
+                      {comparison.data.highlights.slice(0, 3).map((highlight) => (
+                        <li class="font-mono text-xs text-muted-foreground">{highlight}</li>
+                      ))}
+                    </ul>
+                  )}
+                </a>
+                {comparison.data.migrationDoc && (
+                  <a
+                    href={comparison.data.migrationDoc}
+                    class="inline-flex items-center gap-1.5 px-6 pb-6 text-sm font-medium text-primary-readable hover:underline"
+                  >
+                    Migration guide: {comparison.data.competitor} to LogTide →
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {allComparisons.length === 0 && (
+          <div class="mt-20 rounded-2xl border border-foreground/15 px-6 py-16 text-center">
+            <Icon name="lucide:scale" class="mx-auto mb-6 h-12 w-12 text-muted-foreground" aria-hidden="true" />
+            <h2 class="text-2xl font-bold tracking-[-0.025em]">Comparison guides coming soon</h2>
+            <p class="mx-auto mt-3 max-w-[58ch] text-muted-foreground">
               We're working on adding detailed comparison guides. Check back later, or help write one.
             </p>
             <a
               href="https://github.com/logtide-dev/logtide"
               target="_blank"
               rel="noopener"
-              class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors"
+              class="btn-primary mt-6 inline-flex h-12 items-center gap-2 rounded-[10px] bg-primary px-5 font-medium text-primary-foreground"
             >
-              <Icon name="simple-icons:github" class="w-4 h-4" />
+              <Icon name="simple-icons:github" class="h-4 w-4" aria-hidden="true" />
               Contribute on GitHub
             </a>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        )}
 
-      <!-- CTA -->
-      <div class="mt-16 text-center p-8 rounded-2xl bg-card border border-border">
-        <h2 class="text-2xl font-semibold mb-4">Ready to switch?</h2>
-        <p class="text-muted-foreground mb-6 max-w-xl mx-auto">
-          LogTide is free, open-source, and self-hosted. Deploy in minutes and start saving on log management costs.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-3 justify-center">
-          <a
-            href="https://github.com/logtide-dev/logtide"
-            target="_blank"
-            rel="noopener"
-            class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors font-medium"
-          >
-            <Icon name="simple-icons:github" class="w-4 h-4" />
-            Deploy LogTide
-          </a>
-          <a
-            href="https://github.com/logtide-dev/logtide/discussions"
-            target="_blank"
-            rel="noopener"
-            class="inline-flex items-center gap-2 px-6 py-3 bg-card border border-border text-foreground rounded-lg hover:bg-muted transition-colors font-medium"
-          >
-            <Icon name="lucide:message-circle" class="w-4 h-4" />
-            Ask a Question
-          </a>
-        </div>
+        <section class="mt-20 flex flex-wrap items-center justify-between gap-x-12 gap-y-6 rounded-2xl border border-foreground/15 bg-card p-8 md:mt-28 md:p-10">
+          <div class="flex-[1_1_24rem]">
+            <h2 class="text-[clamp(1.5rem,1.2rem+1vw,2rem)] font-bold leading-[1.1] tracking-[-0.025em]">Ready to switch?</h2>
+            <p class="mt-3 max-w-[58ch] text-muted-foreground">
+              LogTide is free, open-source, and self-hosted. Deploy in minutes and start saving on log management costs.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <a
+              href="https://github.com/logtide-dev/logtide"
+              target="_blank"
+              rel="noopener"
+              class="btn-primary inline-flex h-12 items-center gap-2 rounded-[10px] bg-primary px-5 font-medium text-primary-foreground"
+            >
+              <Icon name="simple-icons:github" class="h-4 w-4" aria-hidden="true" />
+              Deploy LogTide
+            </a>
+            <a
+              href="https://github.com/logtide-dev/logtide/discussions"
+              target="_blank"
+              rel="noopener"
+              class="btn-ghost inline-flex h-12 items-center gap-2 rounded-[10px] border border-foreground/15 px-5 font-medium"
+            >
+              <Icon name="lucide:message-circle" class="h-4 w-4" aria-hidden="true" />
+              Ask a Question
+            </a>
+          </div>
+        </section>
       </div>
     </main>
 

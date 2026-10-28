@@ -1,0 +1,64 @@
+---
+const options = [
+  {
+    eyebrow: 'self-hosted',
+    title: 'Free, on your hardware.',
+    points: [
+      'AGPLv3, every feature included',
+      'Fonts and assets bundled: works offline and air-gapped',
+      'Docker Compose or the Helm chart for Kubernetes',
+    ],
+    cta: { label: 'Self-hosting guide', href: '/docs/deployment/' },
+    featured: false,
+  },
+  {
+    eyebrow: 'logtide cloud',
+    title: 'Managed, hosted in the EU.',
+    points: [
+      'Free plan: 10 GB / month, no credit card',
+      'Pro from $24 / month: 100 GB, 30-day retention',
+      'SIEM and unlimited users in every plan',
+    ],
+    cta: { label: 'See pricing', href: '/pricing/' },
+    featured: true,
+  },
+];
+---
+
+<section class="mx-auto max-w-[77.5rem] px-4 pt-24 sm:px-6 md:pt-40 lg:px-10" aria-labelledby="deploy-heading">
+  <h2 id="deploy-heading" class="max-w-[18ch] text-section font-bold" data-reveal>
+    Run it yourself, or let us run it in the EU.
+  </h2>
+
+  <div class="mt-12 grid gap-4 md:grid-cols-2">
+    {options.map((option, i) => (
+      <div
+        class:list={[
+          'elevate flex flex-col gap-5 rounded-2xl border p-7 transition-[transform,border-color] duration-300 hover:-translate-y-1 md:p-11',
+          option.featured
+            ? 'panel-featured border-primary-readable/45'
+            : 'border-foreground/15 bg-card',
+        ]}
+        data-reveal
+        style={`--reveal-delay: ${i * 90}ms`}
+      >
+        <p class:list={['font-mono text-xs', option.featured ? 'text-nav-active-foreground' : 'text-muted-foreground']}>
+          {option.eyebrow}
+        </p>
+        <h3 class="font-display text-[34px] font-bold leading-[1.05] tracking-[-0.03em]">{option.title}</h3>
+        <ul class="m-0 flex list-none flex-col gap-2.5 p-0 text-foreground/85">
+          {option.points.map((point) => <li>— {point}</li>)}
+        </ul>
+        <a
+          href={option.cta.href}
+          class:list={[
+            'mt-auto inline-flex h-12 items-center self-start rounded-[10px] px-5 font-medium',
+            option.featured ? 'btn-primary bg-primary text-primary-foreground' : 'btn-ghost border border-foreground/15',
+          ]}
+        >
+          {option.cta.label}
+        </a>
+      </div>
+    ))}
+  </div>
+</section>

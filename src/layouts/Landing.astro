@@ -29,14 +29,19 @@ const { title, description, keywords = [] } = Astro.props;
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter-tight-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
     <title>{title}</title>
     <script is:inline>
       // Theme detection (runs before page renders to prevent flash)
       (function() {
         function applyTheme() {
-          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          const theme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
+          // Dark by default; the header toggle and the footer picker store
+          // 'dark', 'light' or 'system' (follow the OS).
+          const stored = localStorage.getItem('theme') || 'dark';
+          const theme = stored === 'system'
+            ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+            : stored;
           if (theme === 'dark') {
             document.documentElement.classList.add('dark');
           } else {
@@ -50,6 +55,49 @@ const { title, description, keywords = [] } = Astro.props;
   </head>
   <body class="min-h-screen bg-background text-foreground antialiased">
     <slot />
+
+    <script>
+      // Copy buttons: <button class="js-copy" data-copy="…"> with .copy-icon
+      // and .check-icon children.
+      document.addEventListener('click', async (event) => {
+        const btn = (event.target as HTMLElement).closest<HTMLButtonElement>('.js-copy');
+        const text = btn?.dataset.copy;
+        if (!btn || !text) return;
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          return;
+        }
+        const label = btn.getAttribute('aria-label');
+        btn.querySelector('.copy-icon')?.classList.add('hidden');
+        btn.querySelector('.check-icon')?.classList.remove('hidden');
+        btn.setAttribute('aria-label', 'Copied');
+        window.setTimeout(() => {
+          btn.querySelector('.copy-icon')?.classList.remove('hidden');
+          btn.querySelector('.check-icon')?.classList.add('hidden');
+          if (label) btn.setAttribute('aria-label', label);
+        }, 2000);
+      });
+
+      // Spotlight grids: feed the cursor position to .spotlight as --mx/--my.
+      // Fine pointers only; touch screens keep the plain grid.
+      if (window.matchMedia('(pointer: fine)').matches) {
+        document.addEventListener('pointermove', (event) => {
+          const grid = (event.target as HTMLElement).closest<HTMLElement>('.spotlight');
+          if (!grid) return;
+          const rect = grid.getBoundingClientRect();
+          grid.style.setProperty('--mx', `${event.clientX - rect.left}px`);
+          grid.style.setProperty('--my', `${event.clientY - rect.top}px`);
+        });
+        document.addEventListener('pointerout', (event) => {
+          const grid = (event.target as HTMLElement).closest<HTMLElement>('.spotlight');
+          if (grid && !grid.contains(event.relatedTarget as Node | null)) {
+            grid.style.removeProperty('--mx');
+            grid.style.removeProperty('--my');
+          }
+        });
+      }
+    </script>
   </body>
 </html>
 
