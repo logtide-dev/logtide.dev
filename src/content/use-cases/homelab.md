@@ -175,7 +175,7 @@ Anything public-facing attracts scanners within hours. Ship your reverse proxy l
 - **Web scanning**: bursts of 404s and probes for `/wp-admin`, `/.env`, `/phpmyadmin` against a site that has none of them
 - **AdGuard DNS anomalies**: ship AdGuard Home's query log and alert on lookups to known-bad domains from your own LAN - the cheapest malware tripwire there is
 
-Set up [real-time alerts](/use-cases/real-time-alerting/) to Telegram, Discord or email, and the homelab tells *you* when something's wrong - instead of you finding out three weeks later in a forgotten log file.
+Set up [real-time alerts](/use-cases/real-time-alerting/) to Discord, Slack, a webhook or email, and the homelab tells *you* when something's wrong - instead of you finding out three weeks later in a forgotten log file.
 
 ## Why not ELK / Loki / a SaaS free tier?
 

@@ -34,7 +34,7 @@ faqs:
   - question: "How does LogTide provide observability across microservices?"
     answer: "LogTide centralises logs from every service into a single destination and propagates a trace ID across all service-to-service HTTP calls. This lets you search trace_id:any-value to see the complete request timeline across your entire distributed system, regardless of how many services or programming languages are involved."
   - question: "Does LogTide support distributed tracing without a separate tracing backend?"
-    answer: "Yes. LogTide implements distributed tracing through correlation IDs in structured log events rather than requiring a separate tool like Jaeger or Zipkin. Each service attaches trace_id, span_id, and parent_span_id to every log, giving you parent-child relationships and service dependency maps from log data alone."
+    answer: "Yes. LogTide has its own traces view and ingests OpenTelemetry (OTLP) traces natively, so no separate Jaeger or Zipkin is needed. You can also correlate plain logs through trace_id: each service attaches trace_id (and span_id / parent_span_id if you want parent-child relationships) to every log, and you can jump from a log line to its trace."
   - question: "Can LogTide detect cascading failures across multiple microservices?"
     answer: "Yes. You can configure cross-service alert rules that detect when multiple services begin erroring simultaneously or when downstream call failures spike above a threshold. Because all services log to a single LogTide instance with consistent schemas, queries like grouping errors by service across a five-minute window work out of the box."
   - question: "How does LogTide handle microservices written in different languages?"

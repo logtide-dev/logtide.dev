@@ -30,7 +30,7 @@ const headings = [
       <h1 class="text-3xl font-bold">Browser SDK</h1>
       <div class="flex items-center gap-2">
           <a
-              href="https://github.com/logtide-dev/logtide-js"
+              href="https://github.com/logtide-dev/logtide-javascript"
               target="_blank"
               rel="noopener noreferrer"
           >
@@ -116,7 +116,7 @@ initLogtide({
       <Code
           lang="typescript"
           theme="one-dark-pro"
-          code={`import { initLogtide, WebVitalsIntegration, ClickIntegration, NetworkIntegration } from '@logtide/browser';
+          code={`import { initLogtide } from '@logtide/browser';
 
 initLogtide({
   dsn: 'https://lp_abc123@api.logtide.dev',
@@ -124,12 +124,13 @@ initLogtide({
   environment: 'production',
   release: 'v1.2.3',
 
-  // Integrations (enabled by default)
-  integrations: [
-    new WebVitalsIntegration(),
-    new ClickIntegration(),
-    new NetworkIntegration(),
-  ],
+  // Browser features
+  browser: {
+    webVitals: true,          // opt-in, requires the optional web-vitals peer dependency
+    clickBreadcrumbs: true,   // default: true
+    networkBreadcrumbs: true, // default: true
+    offlineResilience: true,  // default: true
+  },
 
   // Sampling
   tracesSampleRate: 0.1,  // Capture 10% of traces
@@ -163,10 +164,8 @@ initLogtide({
 
   <ul class="list-none ml-6 text-muted-foreground space-y-2 mb-8">
       <li>✅ <strong>LCP</strong> (Largest Contentful Paint)</li>
-      <li>✅ <strong>FID</strong> (First Input Delay)</li>
       <li>✅ <strong>CLS</strong> (Cumulative Layout Shift)</li>
       <li>✅ <strong>INP</strong> (Interaction to Next Paint)</li>
-      <li>✅ <strong>TTFB</strong> (Time to First Byte)</li>
   </ul>
 
   <h2
@@ -222,7 +221,7 @@ initLogtide({
 npm install -g @logtide/cli
 
 # Upload source maps
-logtide sourcemaps upload --path ./dist --release 1.0.0 --apiKey YOUR_API_KEY`}
+logtide sourcemaps upload --path ./dist --release 1.0.0 --api-key YOUR_API_KEY`}
       />
   </div>
 

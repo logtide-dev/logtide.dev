@@ -144,7 +144,7 @@ const headings = [
                   <tr>
                       <td class="px-4 py-2 border-b border-border font-mono text-xs">traceId</td>
                       <td class="px-4 py-2 border-b border-border font-mono text-xs">trace_id</td>
-                      <td class="px-4 py-2 border-b border-border text-muted-foreground">Converted to UUID format</td>
+                      <td class="px-4 py-2 border-b border-border text-muted-foreground">Stored as the 32-character hex string (all-zero IDs are dropped)</td>
                   </tr>
                   <tr>
                       <td class="px-4 py-2 border-b border-border font-mono text-xs">spanId</td>
@@ -448,9 +448,10 @@ processors:
 
 exporters:
   otlphttp/logtide:
-    # Self-hosted: http://your-server:8080
-    # Cloud: https://api.logtide.dev
-    endpoint: http://your-server:8080
+    # Self-hosted: http://your-server:8080/v1/otlp/logs
+    # Cloud: https://api.logtide.dev/v1/otlp/logs
+    # Use logs_endpoint, not endpoint: endpoint gets /v1/logs appended
+    logs_endpoint: http://your-server:8080/v1/otlp/logs
     headers:
       X-API-Key: your-api-key-here
     tls:
@@ -660,7 +661,7 @@ span.end();`}
                       <li>Check that your API key is valid and has ingestion permissions</li>
                       <li>Verify you're sending to <code class="bg-muted px-1 rounded">/v1/otlp/logs</code></li>
                       <li>Both <code class="bg-muted px-1 rounded">application/json</code> and <code class="bg-muted px-1 rounded">application/x-protobuf</code> are supported</li>
-                      <li>Check rate limits (default: 200 req/min per API key)</li>
+                      <li>Check rate limits (default: 1000 req/min per API key, set with <code>RATE_LIMIT_MAX</code> and <code>RATE_LIMIT_WINDOW</code>)</li>
                   </ul>
               </CardContent>
           </Card>

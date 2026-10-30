@@ -22,9 +22,9 @@ keywords:
   - "angular error handler"
 faqs:
   - question: "How do I add LogTide logging to an Angular application?"
-    answer: "Install the @logtide/angular package and call provideLogtide() in your bootstrapApplication providers (Angular 17+ standalone) or spread getLogtideProviders() inside your NgModule providers array. Both approaches require only your DSN, service name, and environment."
+    answer: "Install the @logtide/angular package and call provideLogtide() in your bootstrapApplication providers (standalone, together with provideHttpClient(withInterceptorsFromDi())) or spread getLogtideProviders() inside your NgModule providers array. Both approaches require only your DSN, service name, and environment."
   - question: "Do I need to manually wrap every component to capture errors?"
-    answer: "No. The logtide plugin registers a custom Angular ErrorHandler that automatically captures all uncaught errors across components, services, and templates, including the component name and lifecycle hook where the error occurred."
+    answer: "No. provideLogtide() registers a custom Angular ErrorHandler that automatically captures all uncaught errors across components, services, and templates, tagging each one with whether it happened inside or outside the Angular zone."
   - question: "Does LogTide trace outgoing HTTP requests made with Angular HttpClient?"
     answer: "Yes. The included HttpInterceptor automatically adds a W3C traceparent header to every outgoing HttpClient request and captures failed requests as errors, with no changes needed to your service code."
   - question: "Can I send manual log events alongside the automatic error capture?"
@@ -37,13 +37,13 @@ LogTide's Angular SDK provides a custom ErrorHandler for automatic error capture
 
 - **Automatic error capture**: Custom ErrorHandler catches all uncaught errors
 - **HTTP tracing**: HttpInterceptor adds traceparent headers to outgoing requests
-- **Component context**: Errors include component name and lifecycle hook
+- **Zone context**: Errors are tagged with whether they happened inside or outside NgZone
 - **Single setup**: `provideLogtide()` registers everything in one call
 - **Both styles**: Supports standalone and NgModule-based apps
 
 ## Prerequisites
 
-- Angular 17+ (standalone) or Angular 14+ (NgModule)
+- Angular 17+ (standalone or NgModule)
 - LogTide instance with a DSN
 
 ## Installation
@@ -57,11 +57,14 @@ npm install @logtide/angular
 ```typescript
 // main.ts
 import { bootstrapApplication } from '@angular/platform-browser';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { provideLogtide } from '@logtide/angular';
 import { AppComponent } from './app/app.component';
 
 bootstrapApplication(AppComponent, {
   providers: [
+    // required so the class-based LogtideHttpInterceptor is picked up
+    provideHttpClient(withInterceptorsFromDi()),
     provideLogtide({
       dsn: 'https://lp_abc123@api.logtide.dev',
       service: 'angular-app',
@@ -94,16 +97,14 @@ export class AppModule {}
 
 ## Automatic Error Capture
 
-Uncaught errors in components, services, and templates are captured automatically with context:
+Uncaught errors in components, services, and templates are captured automatically:
 
 ```typescript
 @Component({ selector: 'app-dashboard', template: '...' })
 export class DashboardComponent implements OnInit {
   ngOnInit() {
-    // If this throws, LogTide captures it with:
-    // - component: 'DashboardComponent'
-    // - hook: 'ngOnInit'
-    // - route information
+    // If this throws, LogTide captures it via the custom ErrorHandler,
+    // tagged with the mechanism and whether it ran inside NgZone
     this.loadData();
   }
 }
@@ -111,7 +112,7 @@ export class DashboardComponent implements OnInit {
 
 ## HTTP Interceptor
 
-Outgoing HttpClient requests automatically include tracing:
+Outgoing HttpClient requests automatically include tracing (a `traceparent` header, a span and breadcrumbs per request):
 
 ```typescript
 @Injectable()

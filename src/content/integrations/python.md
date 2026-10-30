@@ -43,11 +43,11 @@ The LogTide Python SDK provides structured logging with automatic batching, sync
 - **Circuit breaker**: Prevents app crashes if LogTide is unreachable - logs are silently dropped, never blocking
 - **Payload limits**: Truncate oversized fields, remove base64 blobs, exclude sensitive fields
 - **Trace correlation**: Context managers for request-scoped trace IDs
-- **Type hints**: Full typing support for Python 3.8+
+- **Type hints**: Full typing support for Python 3.10+
 
 ## Prerequisites
 
-- Python 3.8+
+- Python 3.10+
 - pip or poetry
 - LogTide instance with API key
 

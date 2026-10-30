@@ -3,7 +3,7 @@ title: "LogTide vs Splunk for Log Management"
 description: "Compare LogTide and Splunk for log management. Open-source vs enterprise licensing, features, and migration path."
 competitor: "Splunk"
 competitorUrl: "https://www.splunk.com"
-competitorPricing: "$150-$1,800/GB/day indexed"
+competitorPricing: "~$1,500-$1,800/GB/day/year (list estimate)"
 logtidePricing: "Free (self-hosted)"
 migrationDoc: "/docs/migration/splunk/"
 highlights:
@@ -51,7 +51,7 @@ Splunk charges based on daily ingestion volume:
 
 | Tier | Cost |
 |------|------|
-| Splunk Enterprise (1-10 GB/day) | ~$150/GB/day/year |
+| Splunk Enterprise (1-10 GB/day) | ~$1,500-1,800/GB/day/year (list estimate, not published by Splunk) |
 | Splunk Enterprise (100+ GB/day) | Negotiated (typically $500-1,800/GB/day/year) |
 | Splunk Cloud | Higher than Enterprise |
 | Splunk Enterprise Security | Additional license |

@@ -12,8 +12,8 @@ highlights:
   - "Source maps with Vite"
 relatedIntegrations:
   - "nodejs"
-  - "browser"
-  - "vercel"
+  - "sveltekit"
+  - "nuxt"
 relatedUseCases: []
 keywords:
   - "astro error tracking"
@@ -27,7 +27,7 @@ faqs:
   - question: "Does LogTide require changes to individual Astro page files?"
     answer: "No changes are required for automatic request logging. The onRequest middleware in src/middleware.ts intercepts every server-rendered request and logs its method, path, status, and duration automatically. You can optionally call hub.captureLog directly in any .astro file frontmatter for page-level events like missing resources."
   - question: "Can LogTide track Core Web Vitals for Astro sites?"
-    answer: "Yes. Adding the @logtide/browser initialization script in your shared layout means the SDK automatically collects LCP, FID, and CLS on every page. Results appear in the LogTide Dashboard under the Metrics tab without any per-page configuration."
+    answer: "Yes. Adding the @logtide/browser initialization script in your shared layout means and enabling `browser: { webVitals: true }` (also install the optional `web-vitals` package), the SDK collects LCP, INP, and CLS on every page and sends them as info-level log entries you can search in the LogTide Dashboard."
   - question: "How do I connect frontend errors to backend server logs in Astro?"
     answer: "The Astro middleware setup logs server-side requests and errors with the astro-server service name, while the client-side SDK logs with astro-frontend. Both share the same LogTide instance, so you can filter or correlate them in the dashboard. For deeper linking, the middleware example captures request URL and method alongside each error for end-to-end traceability."
 ---
@@ -38,19 +38,19 @@ LogTide's Astro integration provides professional-grade observability for both s
 
 - **Hybrid monitoring**: Track errors in server-side `Astro.js` components and client-side interactive islands.
 - **Middleware logging**: Capture every request's status, duration, and potential errors automatically.
-- **Core Web Vitals**: Monitor your app's performance (LCP, FID, CLS) as perceived by real users.
+- **Core Web Vitals**: Monitor your app's performance (LCP, INP, CLS) as perceived by real users.
 - **Breadcrumbs**: Automatically track clicks and network requests in the browser.
 - **Distributed Tracing**: Connect frontend requests to backend logs for end-to-end visibility.
 
 ## Prerequisites
 
-- Astro 3.0+ or 4.0+
+- Astro 3.0+
 - LogTide instance with a DSN
 
 ## Installation
 
 ```bash
-npm install @logtide/core @logtide/browser
+npm install @logtide/core @logtide/browser web-vitals
 ```
 
 ## Client-Side Setup
@@ -69,6 +69,7 @@ Initialize LogTide as early as possible in your layout or on specific pages usin
     service: 'astro-frontend',
     environment: import.meta.env.MODE,
     release: '1.0.0',
+    browser: { webVitals: true },
   });
 </script>
 
@@ -137,19 +138,18 @@ if (!post) {
 
 ## Core Web Vitals
 
-The `@logtide/browser` package automatically tracks performance metrics on the client. View these in your LogTide Dashboard under the **Metrics** tab.
+With `browser: { webVitals: true }` (and the optional `web-vitals` package installed), `@logtide/browser` reports LCP, INP, and CLS as info-level log entries with `performance.metric`, `performance.value`, and `performance.rating` metadata. Search for them in the LogTide log viewer.
 
 ## Source Map Uploads
 
 To get readable stack traces in production, upload your source maps during your build:
 
 ```bash
-# Using @logtide/cli
-logtide sourcemaps upload --path ./dist --release 1.0.0 --apiKey YOUR_API_KEY
+# Using @logtide/cli (npm install -D @logtide/cli)
+npx logtide sourcemaps upload --path ./dist --release 1.0.0 --api-key YOUR_API_KEY
 ```
 
 ## Next Steps
 
 - [Browser SDK Docs](/docs/sdks/browser/) - Full browser SDK reference
 - [Node.js Integration](/integrations/nodejs/) - For SSR and API routes
-- [Vite Setup](/integrations/vite/) - Best practices for Vite builds

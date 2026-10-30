@@ -356,7 +356,7 @@ STORAGE_ENGINE=mongodb`}
           </thead>
           <tbody>
             <tr><td class="p-3 border-b border-border font-mono text-xs">MONGODB_URI</td><td class="p-3 border-b border-border font-mono text-xs">mongodb://localhost:27017/logtide</td></tr>
-            <tr><td class="p-3 border-b border-border font-mono text-xs">MONGODB_DB</td><td class="p-3 border-b border-border font-mono text-xs">logtide</td></tr>
+            <tr><td class="p-3 border-b border-border font-mono text-xs">MONGODB_DATABASE</td><td class="p-3 border-b border-border font-mono text-xs">logtide</td></tr>
           </tbody>
         </table>
       </div>
@@ -424,23 +424,11 @@ docker compose --profile mongodb up -d`}
           Changing the <code class="bg-muted px-1 rounded">STORAGE_ENGINE</code> variable only changes where
           <strong>new</strong> logs are written. Existing data stays in the previous engine.
           The <a href="#data-migration" class="text-primary-readable hover:underline">migration script</a> supports
-          <strong>TimescaleDB</strong>, <strong>ClickHouse</strong>, and <strong>MongoDB</strong>.
+          <strong>TimescaleDB</strong> and <strong>ClickHouse</strong> (in either direction). Migrating to or from MongoDB is not supported by the script.
         </p>
       </CardContent>
     </Card>
 
-    <div>
-      <h4 class="text-base font-semibold mb-3">Example Usage with MongoDB</h4>
-      <Code
-        lang="bash"
-        theme="one-dark-pro"
-        code={`# Migrate from TimescaleDB to MongoDB
-pnpm migrate:storage -- --from timescale --to mongodb
-
-# Migrate from MongoDB to ClickHouse
-pnpm migrate:storage -- --from mongodb --to clickhouse`}
-      />
-    </div>
 
     <h3 id="data-migration" class="text-lg font-semibold mb-3 scroll-mt-24">Data Migration</h3>
 

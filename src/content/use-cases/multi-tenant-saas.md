@@ -26,9 +26,9 @@ keywords:
   - "tenant context"
 faqs:
   - question: "How does LogTide enforce per-tenant log isolation in a multi-tenant SaaS?"
-    answer: "LogTide stores a tenant_id field on every log entry, which is injected automatically by tenant-aware middleware using AsyncLocalStorage. This means every query, dashboard, and API endpoint can be scoped to a single tenant, and tenants accessing their own log data through your admin API will only ever see their own records."
+    answer: "In this guide your application adds a tenant_id field to every log entry, injected automatically by tenant-aware middleware using AsyncLocalStorage (the SDK does not do this for you). Every LogTide query, dashboard and API call can then be filtered on that field. LogTide itself does not enforce per-tenant visibility inside a project, so when tenants must never see each other's data, filter in your own API layer or use separate LogTide projects or organizations."
   - question: "Can individual tenants access their own logs through LogTide?"
-    answer: "Yes. You can expose a tenant-facing API endpoint that queries LogTide filtered by the authenticated tenant_id, strips internal fields before returning results, and gives enterprise customers full visibility into their own activity without exposing other tenants data."
+    answer: "Yes, through your own backend. Expose a tenant-facing API endpoint that queries LogTide filtered by the authenticated tenant_id, strips internal fields before returning results, and gives enterprise customers visibility into their own activity without exposing other tenants' data. Tenants do not get LogTide accounts or direct access."
   - question: "Does LogTide support cross-tenant analytics for platform operators?"
     answer: "Yes. Because every log entry carries tenant_id and tenant_plan, platform operators can aggregate across all tenants to find the highest error rates, heaviest API consumers, and slowest tenants. This same data supports cost allocation and chargeback reporting per tenant plan."
   - question: "How should background jobs be handled in a multi-tenant logging setup?"

@@ -205,7 +205,7 @@ Logtide::captureException($exception);
 
 // Add breadcrumbs
 Logtide::addBreadcrumb(new Breadcrumb(
-    BreadcrumbType::DEFAULT,
+    BreadcrumbType::CUSTOM,
     'Custom event happened',
     category: 'app',
 ));

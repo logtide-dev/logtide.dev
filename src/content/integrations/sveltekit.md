@@ -22,7 +22,7 @@ keywords:
   - "svelte server logging"
 faqs:
   - question: "How do I add LogTide to a SvelteKit application?"
-    answer: "Install @logtide/sveltekit, then export logtideHandle and logtideHandleError from src/hooks.server.ts, passing your DSN, service name, and environment. For client-side error capture, export logtideHandleError from src/hooks.client.ts as well."
+    answer: "Install @logtide/sveltekit, then export logtideHandle and logtideHandleError from src/hooks.server.ts, passing your DSN, service name, and environment. For client-side error capture, call initLogtide from @logtide/sveltekit/client in src/hooks.client.ts and export logtideHandleError there as well."
   - question: "Can I use LogTide alongside my existing SvelteKit hooks?"
     answer: "Yes. Use SvelteKit's built-in sequence helper from @sveltejs/kit/hooks to compose logtideHandle with your other handle functions. The LogTide handle can be placed first in the sequence so it captures request context before your custom logic runs."
   - question: "Does LogTide capture errors from SvelteKit form actions?"
@@ -59,10 +59,11 @@ npm install @logtide/sveltekit
 
 ```typescript
 // src/hooks.server.ts
-import { logtideHandle, logtideHandleError } from '@logtide/sveltekit';
+import { env } from '$env/dynamic/private';
+import { logtideHandle, logtideHandleError } from '@logtide/sveltekit/server';
 
 export const handle = logtideHandle({
-  dsn: import.meta.env.LOGTIDE_DSN,
+  dsn: env.LOGTIDE_DSN,
   service: 'sveltekit-app',
   environment: import.meta.env.MODE,
 });
@@ -71,9 +72,17 @@ export const handleError = logtideHandleError();
 
 ### Client Hooks
 
+The browser needs its own initialization, otherwise `handleError` has no client to report to. Use a `VITE_`-prefixed variable (or `$env/static/public`), since only those are exposed to client code:
+
 ```typescript
 // src/hooks.client.ts
-import { logtideHandleError } from '@logtide/sveltekit';
+import { initLogtide } from '@logtide/sveltekit/client';
+import { logtideHandleError } from '@logtide/sveltekit/server';
+
+initLogtide({
+  dsn: import.meta.env.VITE_LOGTIDE_DSN,
+  service: 'sveltekit-app',
+});
 
 export const handleError = logtideHandleError();
 ```
@@ -82,11 +91,12 @@ export const handleError = logtideHandleError();
 
 ```typescript
 import { sequence } from '@sveltejs/kit/hooks';
-import { logtideHandle } from '@logtide/sveltekit';
+import { env } from '$env/dynamic/private';
+import { logtideHandle } from '@logtide/sveltekit/server';
 
 export const handle = sequence(
   logtideHandle({
-    dsn: import.meta.env.LOGTIDE_DSN,
+    dsn: env.LOGTIDE_DSN,
     service: 'sveltekit-app',
     environment: import.meta.env.MODE,
   }),
@@ -101,7 +111,7 @@ export const handle = sequence(
 
 ```typescript
 // src/hooks.server.ts
-import { logtideHandleFetch } from '@logtide/sveltekit';
+import { logtideHandleFetch } from '@logtide/sveltekit/server';
 
 export const handleFetch = logtideHandleFetch();
 // Outgoing fetches from load functions include traceparent headers
@@ -111,6 +121,7 @@ export const handleFetch = logtideHandleFetch();
 
 ```typescript
 // src/routes/users/[id]/+page.server.ts
+import { error } from '@sveltejs/kit';
 import { hub } from '@logtide/core';
 
 export async function load({ params, fetch }) {
@@ -130,6 +141,7 @@ export async function load({ params, fetch }) {
 
 ```typescript
 // src/routes/settings/+page.server.ts
+import { fail } from '@sveltejs/kit';
 import { hub } from '@logtide/core';
 
 export const actions = {

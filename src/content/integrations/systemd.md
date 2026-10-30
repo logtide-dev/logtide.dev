@@ -103,7 +103,7 @@ Create `/etc/fluent-bit/fluent-bit.conf`:
     Host          api.logtide.dev
     Port          443
     URI           /api/v1/ingest/single
-    Format        json
+    Format        json_lines
     Header        X-API-Key ${LOGTIDE_API_KEY}
     Header        Content-Type application/json
     tls           On
@@ -194,11 +194,11 @@ sudo systemctl status fluent-bit
     Rename        PRIORITY priority
     Rename        MESSAGE message
     Rename        SYSLOG_IDENTIFIER service
-    Rename        _PID pid
-    Rename        _UID uid
-    Rename        _GID gid
-    Rename        _CMDLINE cmdline
-    Rename        _EXE exe
+    Rename        PID pid
+    Rename        UID uid
+    Rename        GID gid
+    Rename        CMDLINE cmdline
+    Rename        EXE exe
 
 # Convert priority to level
 [FILTER]
@@ -214,7 +214,7 @@ sudo systemctl status fluent-bit
     Host                  api.logtide.dev
     Port                  443
     URI                   /api/v1/ingest/single
-    Format                json
+    Format                json_lines
     Header                X-API-Key ${LOGTIDE_API_KEY}
     Header                Content-Type application/json
     tls                   On
@@ -230,18 +230,16 @@ Create the Lua script for converting syslog priorities to log levels:
 ```bash
 # Create the Lua script
 sudo tee /etc/fluent-bit/priority_to_level.lua << 'LUAEOF'
-
-```lua
 -- Map syslog priority to log level
 local priority_map = {
-    ["0"] = "critical",  - EMERG
-    ["1"] = "critical",  - ALERT
-    ["2"] = "critical",  - CRIT
-    ["3"] = "error",     - ERR
-    ["4"] = "warning",   - WARNING
-    ["5"] = "info",      - NOTICE
-    ["6"] = "info",      - INFO
-    ["7"] = "debug"      - DEBUG
+    ["0"] = "critical",  -- EMERG
+    ["1"] = "critical",  -- ALERT
+    ["2"] = "critical",  -- CRIT
+    ["3"] = "error",     -- ERR
+    ["4"] = "warning",   -- WARNING
+    ["5"] = "info",      -- NOTICE
+    ["6"] = "info",      -- INFO
+    ["7"] = "debug"      -- DEBUG
 }
 
 function priority_to_level(tag, timestamp, record)
@@ -408,9 +406,14 @@ sudo systemctl restart docker
 [INPUT]
     Name                     systemd
     Tag                      docker.*
-    Systemd_Filter           CONTAINER_NAME=*
     Read_From_Tail           On
     Strip_Underscores        On
+
+# Keep only entries written by the Docker journald driver
+[FILTER]
+    Name          grep
+    Match         docker.*
+    Regex         CONTAINER_NAME .+
 
 [FILTER]
     Name          modify
@@ -571,8 +574,8 @@ Remove or hash sensitive information:
 [FILTER]
     Name          modify
     Match         *
-    Remove        _SELINUX_CONTEXT
-    Remove        _SOURCE_REALTIME_TIMESTAMP
+    Remove        SELINUX_CONTEXT
+    Remove        SOURCE_REALTIME_TIMESTAMP
 
 [FILTER]
     Name          lua
@@ -584,20 +587,20 @@ Remove or hash sensitive information:
 ```lua
 -- /etc/fluent-bit/sanitize.lua
 function sanitize_logs(tag, timestamp, record)
-    - Hash user IDs
+    -- Hash user IDs
     if record["uid"] then
         record["uid_hash"] = hash(record["uid"])
         record["uid"] = nil
     end
 
-    - Remove command line (may contain secrets)
+    -- Remove command line (may contain secrets)
     record["cmdline"] = nil
 
     return 1, timestamp, record
 end
 
 function hash(value)
-    - Simple hash for demonstration
+    -- Simple hash for demonstration
     local h = 0
     for i = 1, #value do
         h = (h * 31 + string.byte(value, i)) % 2147483647

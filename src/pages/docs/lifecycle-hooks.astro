@@ -90,7 +90,7 @@ const keywords = [
           </tr>
         </thead>
         <tbody class="text-muted-foreground">
-          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>beforeIngest</code></td><td class="py-2">After auth, PII masking and quota checks, immediately before the reservoir write. Covers both HTTP (<code>POST /api/v1/logs</code>) and OTLP log ingestion.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>beforeIngest</code></td><td class="py-2">After auth, PII masking and quota checks, immediately before the reservoir write. Covers both HTTP (<code>POST /api/v1/ingest</code>) and OTLP log ingestion.</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>beforeQuery</code></td><td class="py-2">At the top of the main log query path, before the cache key is built. (Stats, histogram, trace and context endpoints are not covered in v1.)</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>beforeAlertEvaluation</code></td><td class="py-2">Once per rule, inside the alert evaluation loop, before the rule is checked.</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>beforeWebhookDispatch</code></td><td class="py-2">Immediately before the outbound request, after headers and payload are assembled. Covers both the notification-channel and legacy alert-rule <code>webhook_url</code> paths.</td></tr>

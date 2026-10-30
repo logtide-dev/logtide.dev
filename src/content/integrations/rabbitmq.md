@@ -140,7 +140,7 @@ Create `/etc/fluent-bit/fluent-bit.conf`:
     Host          YOUR_LOGTIDE_HOST
     Port          443
     URI           /api/v1/ingest/single
-    Format        json
+    Format        json_lines
     Header        X-API-Key ${LOGTIDE_API_KEY}
     Header        Content-Type application/json
     tls           On
@@ -164,6 +164,10 @@ function map_level(tag, timestamp, record)
         debug = "debug",
     }
     record["level"] = level_map[level] or "info"
+    -- RabbitMQ JSON logs carry the text in "msg"; LogTide reads "message"
+    if record["msg"] and not record["message"] then
+        record["message"] = record["msg"]
+    end
     return 1, timestamp, record
 end
 ```
@@ -720,7 +724,7 @@ Create alerts for common RabbitMQ issues:
 ### Queue Backlog
 
 ```
-service:rabbitmq AND log_type:queue_metrics AND messages:>10000
+service:rabbitmq AND log_type:queue_metrics AND level:(warn OR error)
 ```
 
 Threshold: any occurrence indicates growing backlog.
@@ -728,7 +732,7 @@ Threshold: any occurrence indicates growing backlog.
 ### No Consumers
 
 ```
-service:rabbitmq AND log_type:queue_metrics AND consumers:0 AND messages:>0
+service:rabbitmq AND log_type:queue_metrics AND level:error AND consumers:0
 ```
 
 Queues with messages but no consumers.

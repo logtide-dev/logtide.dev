@@ -40,11 +40,11 @@ LogTide integrates with Spring Boot through the native Kotlin SDK, providing str
 ## Why use LogTide with Spring Boot?
 
 - **Native Kotlin SDK**: Full coroutines support with suspend functions
-- **Spring middleware**: Automatic HTTP request/response logging
+- **Spring middleware**: Automatic HTTP request/response logging with `LogTideInterceptor` (`logtide-spring`)
 - **Automatic batching**: Configurable batch size and flush intervals
-- **Actuator ready**: Health checks and metrics integration out of the box
+- **Actuator friendly**: Works alongside Spring Boot Actuator (health indicator example below)
 - **Kotlin-first**: Full Kotlin support with coroutines-aware logging
-- **Zero code changes**: Configure in XML, no application code modifications
+- **Logback appender**: Route existing SLF4J/Logback logs to LogTide from `logback-spring.xml` with `logtide-logback`, no application code changes
 
 ## Prerequisites
 
@@ -203,6 +203,48 @@ public class UserService {
         ));
 
         return user;
+    }
+}
+```
+
+## Forward SLF4J and Logback Logs
+
+The MDC examples below use the standard SLF4J `logger`. Those logs only reach LogTide if you add the Logback appender from the `logtide-logback` module:
+
+```kotlin
+// build.gradle.kts
+implementation("io.github.logtide-dev:logtide-logback:0.9.8")
+```
+
+```xml
+<!-- src/main/resources/logback-spring.xml -->
+<configuration>
+    <appender name="LOGTIDE" class="dev.logtide.sdk.logback.LogTideAppender">
+        <apiUrl>${LOGTIDE_API_URL:-https://api.logtide.dev}</apiUrl>
+        <apiKey>${LOGTIDE_API_KEY}</apiKey>
+        <serviceName>spring-app</serviceName>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="LOGTIDE"/>
+    </root>
+</configuration>
+```
+
+MDC values become entry metadata, and an MDC key named `trace_id` (or `traceId`) is promoted to the entry trace ID.
+
+## HTTP Request Logging
+
+For automatic request/response logging in Spring MVC, register `LogTideInterceptor` from the `logtide-spring` module (`io.github.logtide-dev:logtide-spring:0.9.8`):
+
+```kotlin
+// WebConfig.kt
+import dev.logtide.sdk.spring.LogTideInterceptor
+
+@Configuration
+class WebConfig(private val logtide: LogTideClient) : WebMvcConfigurer {
+    override fun addInterceptors(registry: InterceptorRegistry) {
+        registry.addInterceptor(LogTideInterceptor(logtide, "spring-app"))
     }
 }
 ```
@@ -663,6 +705,7 @@ val client = LogTideClient(
 2. **Test connectivity:**
 ```bash
 curl -H "X-API-Key: $LOGTIDE_API_KEY" \
+     -H "Content-Type: application/json" \
      https://api.logtide.dev/api/v1/ingest \
      -d '{"logs":[{"service":"test","level":"info","message":"test"}]}'
 ```

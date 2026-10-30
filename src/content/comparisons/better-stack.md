@@ -3,12 +3,12 @@ title: "LogTide vs Better Stack for Log Management"
 description: "Compare LogTide and Better Stack (Logtail) for log management. Self-hosted vs SaaS, pricing, SIEM, and migration path."
 competitor: "Better Stack"
 competitorUrl: "https://betterstack.com/"
-competitorPricing: "Free tier (1 GB/month) then from $0.25/GB"
+competitorPricing: "Free tier (3 GB/month) then from $0.10/GB"
 logtidePricing: "Free (self-hosted)"
 highlights:
   - "Self-hosted option"
   - "Built-in SIEM included"
-  - "No per-seat pricing"
+  - "No usage-based bills"
   - "Unlimited retention"
 relatedIntegrations:
   - "nodejs"
@@ -30,11 +30,11 @@ keywords:
   - "Logtail replacement"
 faqs:
   - question: "Is LogTide cheaper than Better Stack (Logtail)?"
-    answer: "For most teams, yes. A startup ingesting 50 GB/day with 8 users pays around $675/month on Better Stack ($375 data + $200 seats + $100 extended retention), versus roughly $250/month on LogTide infrastructure - saving about $5,100/year (63%). At 200 GB/day with 15 users the saving grows to around $21,300/year (82%), because LogTide has no per-user fees and no per-GB charges."
+    answer: "Not always. Better Stack is inexpensive: in the EU region logs cost $0.10/GB ingested plus $0.05/GB/month retention, and team members with telemetry access are free. A startup ingesting 50 GB/day pays around $293/month on Better Stack ($150 ingestion + $75 retention + $68 for 2 Responder seats), versus roughly $250/month on LogTide infrastructure - close to break-even. The gap opens at higher volume: at 200 GB/day it is about $1,000/month versus $400/month (around 60% saving), and US-region pricing ($0.15/GB) is higher still. LogTide's other advantages are self-hosting, built-in SIEM and unlimited retention rather than price alone."
   - question: "Does LogTide support self-hosting, unlike Better Stack?"
     answer: "Yes. Better Stack is a SaaS-only platform with no self-hosted option. LogTide is open-source (AGPLv3) and runs on your own infrastructure - on-premises, in your cloud VPC, or in an air-gapped environment - giving you full data sovereignty and GDPR compliance without relying on a third-party data processor."
   - question: "When is Better Stack the better choice over LogTide?"
-    answer: "Better Stack excels when you want zero infrastructure management, polished developer experience, and built-in uptime monitoring or status pages bundled with log management. It is particularly well-suited for small teams (under 5 users) with low log volume (under 5 GB/day) who value fast onboarding over cost savings."
+    answer: "Better Stack excels when you want zero infrastructure management, polished developer experience, and built-in uptime monitoring or status pages bundled with log management. It is particularly well-suited for small teams with low-to-moderate log volume (up to a few tens of GB/day) who value fast onboarding over self-hosting."
   - question: "How do I migrate from Better Stack to LogTide?"
     answer: "Run both platforms in parallel: add the LogTide SDK alongside your existing Better Stack (Logtail) SDK, or use Fluent Bit with two HTTP output blocks to fan logs to both destinations. After 1-2 weeks of validation - comparing search results, alert behavior, and SSE streaming - remove the Better Stack SDK and Fluent Bit output block, then cancel your subscription."
 ---
@@ -43,35 +43,37 @@ Better Stack (formerly Logtail) is a modern SaaS log management platform with up
 
 ## Cost Comparison
 
-Better Stack offers competitive SaaS pricing with a developer-friendly free tier, but costs still scale linearly with log volume and team size.
+Better Stack offers competitive SaaS pricing with a developer-friendly free tier, but costs still scale linearly with log volume and retention.
 
 ### Better Stack Pricing
 
-Better Stack charges based on data volume and team size:
+Better Stack charges based on data volume and retention (prices below are for the EU region, per the [Better Stack pricing page](https://betterstack.com/pricing); US is $0.15/GB ingestion and $0.08/GB/month retention):
 
 | Component | Cost |
 |-----------|------|
-| Free tier | 1 GB/month, 1 user, 3 days retention |
-| Team plan | From $0.25/GB/month |
-| Business plan | Custom pricing |
-| Per-user (Team) | $25/user/month |
-| Retention (Team, 30 days) | Included |
-| Extended retention (90 days) | Additional fees |
-| Uptime monitoring | Separate product (bundled in higher plans) |
-| Status pages | Included in paid plans |
+| Free tier | 3 GB/month of logs (3 days retention), 10 monitors, 1 status page |
+| Log ingestion (pay-as-you-go) | $0.10/GB (EU), $0.15/GB (US) |
+| Log retention | $0.05/GB/month (EU), $0.08/GB/month (US) |
+| Telemetry bundles | From $25/month (Nano, 40 GB each of logs, traces and metrics) with 30-day log retention |
+| Team members (telemetry access) | Free |
+| Responder seats (incident management) | $29/month billed yearly, $34 monthly |
+| Uptime monitors | 10 included, 50 more for $25/month |
+| Status pages | 1 included, extra pages $15/month each |
 
-**Real-world example:** A growing startup ingesting 50 GB/day:
+**Real-world example (EU region):** A growing startup ingesting 50 GB/day:
 
-- Monthly ingestion: 1,500 GB x $0.25 = $375/month
-- 8 team members: 8 x $25 = $200/month
-- Extended retention (90 days): ~$100/month
-- **Total: ~$675/month ($8,100/year)**
+- Monthly ingestion: 1,500 GB x $0.10 = $150/month
+- Retention (~1,500 GB stored, 30 days): 1,500 GB x $0.05 = $75/month
+- 2 Responder seats (incident management): 2 x $34 = $68/month
+- **Total: ~$293/month (~$3,500/year)**
 
-At 200 GB/day with 15 team members:
-- Monthly ingestion: 6,000 GB x $0.25 = $1,500/month
-- 15 team members: $375/month
-- Extended retention: ~$300/month
-- **Total: ~$2,175/month ($26,100/year)**
+At 200 GB/day with 3 Responder seats:
+- Monthly ingestion: 6,000 GB x $0.10 = $600/month
+- Retention (~6,000 GB stored, 30 days): $300/month
+- 3 Responder seats: $102/month
+- **Total: ~$1,000/month (~$12,000/year)**
+
+On US-region pricing the same two scenarios come to roughly $415/month and $1,480/month.
 
 ### LogTide Pricing
 
@@ -90,15 +92,15 @@ LogTide is free, open-source software. You pay only for infrastructure:
 - Infrastructure: ~$200-300/month
 - **Total: ~$250/month ($3,000/year)**
 
-**Savings: ~$5,100/year (63%)**
+**Savings: roughly break-even (~$500/year) vs the EU region, ~$2,000/year (~40%) vs the US region**
 
 At 200 GB/day:
 - Infrastructure (8 CPU, 32 GB RAM, 4 TB): ~$400/month
 - **Total: ~$400/month ($4,800/year)**
 
-**Savings at scale: ~$21,300/year (82%)**
+**Savings at scale: ~$7,200/year (60%) vs the EU region, ~$13,000/year (73%) vs the US region**
 
-The cost gap widens further as team size grows, since LogTide has zero per-user fees.
+At low and moderate volume Better Stack is price-competitive with self-hosting, because you do not pay for servers or operations time. LogTide's cost case builds from roughly 100+ GB/day; below that the reasons to pick LogTide are self-hosting, SIEM and retention control.
 
 ## Feature Comparison
 
@@ -112,16 +114,16 @@ The cost gap widens further as team size grows, since LogTide has zero per-user 
 | Alert rules | Yes | Yes |
 | Email/Slack/webhook notifications | Yes | Yes |
 | SQL querying | Yes | PostgreSQL (native) |
-| Uptime monitoring | Yes (bundled) | Roadmap |
+| Uptime monitoring | Yes (bundled) | Yes (HTTP, TCP, SSL, DNS, heartbeat) |
 | Incident management | Yes (StatusPage) | Yes (SIEM-focused) |
-| Status pages | Yes | N/A |
+| Status pages | Yes | Yes |
 | Sigma detection rules | No | Built-in |
 | MITRE ATT&CK mapping | No | Included |
 | Custom dashboards | Yes | SIEM dashboard |
 | Self-hosted option | No | Yes |
 | Open source | No | AGPLv3 |
-| Per-user pricing | Yes ($25/user/month) | No (unlimited) |
-| Retention limits | Plan-dependent (3-30 days) | Unlimited (storage-bound) |
+| Per-user pricing | Responder seats only ($29-34/month) | No (unlimited users) |
+| Retention limits | 3 days free, 30 days in bundles, longer billed per GB/month | Unlimited (storage-bound) |
 | Multi-org support | Yes | Yes (organizations/projects) |
 | Data sovereignty | No (SaaS-only) | Yes (self-hosted) |
 
@@ -129,7 +131,7 @@ The cost gap widens further as team size grows, since LogTide has zero per-user 
 
 **Developer experience.** Better Stack is designed for developer ergonomics. The UI is clean, modern, and thoughtfully designed. Onboarding is guided with interactive setup wizards, and the SDK integration experience is polished. For teams that value design and usability, Better Stack sets a high bar.
 
-**Uptime monitoring bundled.** Better Stack includes uptime monitoring, heartbeat checks, and status pages alongside log management. If you need logging, uptime monitoring, and incident management from one vendor with a unified interface, Better Stack packages them together seamlessly.
+**Uptime monitoring bundled.** Better Stack includes uptime monitoring, heartbeat checks, and status pages alongside log management, with a mature on-call and incident workflow. LogTide also ships uptime monitors and status pages, but Better Stack's alerting, escalation and on-call tooling is more developed.
 
 **Zero infrastructure management.** As a fully managed SaaS, there's nothing to deploy, patch, back up, or maintain. Your team focuses on using the platform rather than running it. This is especially valuable for small teams without dedicated DevOps resources.
 
@@ -145,34 +147,32 @@ The cost gap widens further as team size grows, since LogTide has zero per-user 
 
 **Built-in SIEM.** LogTide includes Sigma detection rules, MITRE ATT&CK mapping, and security incident management at no additional cost. Better Stack focuses on observability and uptime monitoring rather than security detection. If you need to detect threats, investigate incidents, and map attacks to the MITRE framework, LogTide provides these capabilities out of the box.
 
-**No per-seat pricing.** Better Stack charges $25/user/month on the Team plan. For a team of 20, that's $500/month ($6,000/year) in user fees alone, before any data costs. LogTide has unlimited users at no extra cost, encouraging broad access across engineering, security, DevOps, and support teams.
+**No per-seat pricing at all.** Better Stack keeps telemetry access free for team members, but charges $29-34/month per Responder seat for incident management. LogTide has unlimited users with every feature, including incidents, at no extra cost.
 
-**Unlimited retention.** Better Stack's retention is plan-dependent: 3 days on the free tier, 30 days on Team, and extended retention costs extra. LogTide retains logs for as long as your storage allows - months or years with no additional fees. This is critical for compliance audits, forensic investigations, and long-term trend analysis.
+**Unlimited retention.** Better Stack's free tier keeps logs for 3 days and its bundles for 30 days; longer retention is billed at $0.05-0.08/GB/month. LogTide retains logs for as long as your storage allows - months or years with no additional fees. This is critical for compliance audits, forensic investigations, and long-term trend analysis.
 
 **Data sovereignty.** Your logs never leave your infrastructure. No third-party data processing agreements needed. Full GDPR compliance with your choice of data residency. No concerns about sensitive data - PII, credentials, financial records - being processed outside your perimeter.
 
 **No vendor lock-in.** LogTide is AGPLv3 open-source. Your data lives in TimescaleDB or ClickHouse that you own and control. Your detection rules use the portable Sigma standard. You can inspect, fork, and modify every line of source code.
 
-**Cost advantage at scale.** Better Stack's per-GB pricing means costs grow linearly with data volume, and per-user fees add a second scaling dimension. At 200+ GB/day with a growing team, LogTide's infrastructure-only cost model saves 80%+ compared to Better Stack.
+**Cost advantage at scale.** Better Stack's per-GB pricing means costs grow linearly with data volume and retention. At 200+ GB/day, LogTide's infrastructure-only cost model saves roughly 60-70% compared to Better Stack, depending on region.
 
 **Real-time SSE streaming.** LogTide's Server-Sent Events streaming provides real-time log tailing with efficient, standards-based technology. No proprietary protocols, no WebSocket complexity - just HTTP streaming that works through any proxy or CDN.
 
 ## When to Choose Better Stack
 
 - You want the fastest possible onboarding with zero infrastructure management
-- Log volume is small (under 5 GB/day) where cost differences are minimal
+- Log volume is small to moderate (under ~50 GB/day) where cost differences are minimal
 - You need uptime monitoring and status pages bundled with log management
 - Your team values polished developer experience and modern UI design
 - You don't need SIEM or security detection capabilities
-- Your team is small (under 5 users, minimizing per-seat costs)
 - You prefer a fully managed SaaS with no operational overhead
 
 ## When to Choose LogTide
 
 - You need self-hosted log management for data sovereignty or compliance
-- Per-user pricing is limiting access across your growing team
 - You need SIEM capabilities (Sigma rules, MITRE ATT&CK mapping)
-- Log volume exceeds 20 GB/day (significant cost savings begin)
+- Log volume exceeds ~100 GB/day (significant cost savings begin)
 - You need unlimited log retention without extra fees
 - You prefer open-source with no vendor lock-in
 - You want to keep all your data on your own infrastructure
@@ -278,9 +278,9 @@ Compare LogTide and Better Stack results for 1-2 weeks:
 | SQL query | REST API + PostgreSQL | Query via API or direct SQL |
 | Metadata | metadata JSON | Structured fields in metadata |
 | N/A | Sigma Rules + SIEM | LogTide exclusive feature |
-| StatusPage | N/A | Use dedicated status page tool |
-| Uptime Monitor | N/A | Use dedicated uptime monitoring |
-| Heartbeat | N/A | Use health check endpoint |
+| Status page | Status page | Built-in public status page |
+| Uptime Monitor | Monitor | HTTP, TCP, SSL and DNS checks |
+| Heartbeat | Heartbeat monitor | Built-in |
 
 ---
 

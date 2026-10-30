@@ -45,20 +45,20 @@ AWS Lambda functions generate logs that end up in CloudWatch by default, but sea
 - **Structured queries**: Search Lambda logs with field-based queries instead of CloudWatch's limited filter syntax
 - **Cross-service correlation**: Link Lambda logs with API Gateway, ECS, and other service logs in one place
 - **Real-time alerting**: Get notified on errors, cold starts, and timeouts without CloudWatch Alarms
-- **Cold start tracking**: Automatically detect and measure cold start duration
+- **Cold start tracking**: Log cold starts from the handler (module-level flag) or from the `Init Duration` field of the Lambda REPORT line
 - **Retention control**: Keep logs as long as you need without escalating CloudWatch storage costs
 - **SIEM integration**: LogTide's built-in SIEM capabilities detect security anomalies in Lambda invocations
 
 ## Prerequisites
 
 - AWS account with Lambda functions
-- Node.js 18+ runtime (for SDK approach)
+- Node.js 20+ runtime (for SDK approach; use a currently supported Lambda runtime such as `nodejs22.x`)
 - LogTide instance with DSN or API key
 - AWS SAM CLI or CDK (optional, for deployment)
 
 ## Approach 1: LogTide SDK (Recommended)
 
-The LogTide JavaScript SDK provides the most structured approach with automatic batching, cold start detection, and context propagation.
+The LogTide JavaScript SDK provides the most structured approach with automatic batching, scopes, and breadcrumbs. Cold starts are tracked with a simple module-level flag, as shown below.
 
 ### Installation
 
@@ -244,7 +244,7 @@ Deploy the layer:
 aws lambda publish-layer-version \
   --layer-name logtide-sdk \
   --zip-file fileb://logtide-layer.zip \
-  --compatible-runtimes nodejs18.x nodejs20.x \
+  --compatible-runtimes nodejs22.x nodejs24.x \
   --description "LogTide JavaScript SDK for structured logging"
 ```
 
@@ -297,39 +297,52 @@ export const handler = async (event: CloudWatchLogsEvent) => {
   // Format: /aws/lambda/function-name
   const functionName = data.logGroup.replace('/aws/lambda/', '');
 
-  // Transform log events
-  const logs = data.logEvents.map((logEvent) => {
-    const parsed = parseLogMessage(logEvent.message);
-    return {
-      timestamp: new Date(logEvent.timestamp).toISOString(),
-      service: functionName,
-      level: parsed.level,
-      message: parsed.message,
-      requestId: parsed.requestId,
-      source: 'cloudwatch',
-      logGroup: data.logGroup,
-      logStream: data.logStream,
-      ...parsed.metadata,
-    };
-  });
+  // Transform log events (LogTide expects time, service, level, message, metadata)
+  const logs = data.logEvents
+    .map((logEvent) => {
+      const parsed = parseLogMessage(logEvent.message);
+      return {
+        time: new Date(logEvent.timestamp).toISOString(),
+        service: functionName,
+        level: normalizeLevel(parsed.level),
+        message: parsed.message,
+        metadata: {
+          requestId: parsed.requestId,
+          source: 'cloudwatch',
+          logGroup: data.logGroup,
+          logStream: data.logStream,
+          ...parsed.metadata,
+        },
+      };
+    })
+    .filter((log) => log.message); // LogTide rejects empty messages
 
-  // Ship to LogTide
-  const response = await fetch(`${LOGTIDE_API_URL}/api/v1/ingest`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-API-Key': LOGTIDE_API_KEY,
-    },
-    body: JSON.stringify({ logs }),
-  });
+  // Ship to LogTide (max 1000 logs per request)
+  for (let i = 0; i < logs.length; i += 1000) {
+    const response = await fetch(`${LOGTIDE_API_URL}/api/v1/ingest`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': LOGTIDE_API_KEY,
+      },
+      body: JSON.stringify({ logs: logs.slice(i, i + 1000) }),
+    });
 
-  if (!response.ok) {
-    console.error(`LogTide ingest failed: ${response.status} ${await response.text()}`);
-    throw new Error(`LogTide ingest failed: ${response.status}`);
+    if (!response.ok) {
+      console.error(`LogTide ingest failed: ${response.status} ${await response.text()}`);
+      throw new Error(`LogTide ingest failed: ${response.status}`);
+    }
   }
 
   return { processed: logs.length };
 };
+
+const LEVELS = ['debug', 'info', 'warn', 'error', 'critical'];
+
+function normalizeLevel(level: unknown): string {
+  const value = String(level).toLowerCase();
+  return LEVELS.includes(value) ? value : 'info';
+}
 
 function parseLogMessage(message: string) {
   // Parse Lambda platform messages
@@ -406,7 +419,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: cloudwatch-forwarder.handler
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       Timeout: 60
       MemorySize: 256
       Environment:
@@ -417,6 +430,7 @@ Resources:
   # Subscribe to a Lambda function's log group
   LogSubscription:
     Type: AWS::Logs::SubscriptionFilter
+    DependsOn: ForwarderPermission
     Properties:
       LogGroupName: /aws/lambda/my-function
       FilterPattern: ""
@@ -478,11 +492,11 @@ const logBuffer: any[] = [];
 
 export function log(level: string, message: string, metadata: Record<string, any> = {}) {
   logBuffer.push({
-    timestamp: new Date().toISOString(),
+    time: new Date().toISOString(),
     level,
     message,
     service: process.env.AWS_LAMBDA_FUNCTION_NAME,
-    ...metadata,
+    metadata,
   });
 }
 
@@ -542,14 +556,14 @@ export class LambdaStack extends cdk.Stack {
     // LogTide SDK Layer
     const logtideLayer = new lambda.LayerVersion(this, 'LogTideLayer', {
       code: lambda.Code.fromAsset('layers/logtide'),
-      compatibleRuntimes: [lambda.Runtime.NODEJS_20_X],
+      compatibleRuntimes: [lambda.Runtime.NODEJS_22_X],
       description: 'LogTide JavaScript SDK',
     });
 
     // Application function
     const orderProcessor = new nodejs.NodejsFunction(this, 'OrderProcessor', {
       entry: 'src/handlers/order-processor.ts',
-      runtime: lambda.Runtime.NODEJS_20_X,
+      runtime: lambda.Runtime.NODEJS_22_X,
       memorySize: 512,
       timeout: cdk.Duration.seconds(30),
       layers: [logtideLayer],
@@ -563,7 +577,7 @@ export class LambdaStack extends cdk.Stack {
     // Forwarder function (for functions you can't modify)
     const forwarder = new nodejs.NodejsFunction(this, 'LogTideForwarder', {
       entry: 'src/handlers/cloudwatch-forwarder.ts',
-      runtime: lambda.Runtime.NODEJS_20_X,
+      runtime: lambda.Runtime.NODEJS_22_X,
       memorySize: 256,
       timeout: cdk.Duration.seconds(60),
       environment: {
@@ -592,18 +606,20 @@ Track cold starts to understand Lambda performance:
 service:order-processor AND coldStart:true
 ```
 
-### Cold Start Dashboard Queries
+### More Cold Start Queries
 
 ```
-# Cold start count by function
-service:* AND coldStart:true | count by service
+# All cold starts, any function
+coldStart:true
 
-# Average init duration
-service:* AND initDuration:>0 | avg(initDuration) by service
+# Lambda REPORT lines that include an init duration (forwarder approach)
+initDuration:*
 
-# Cold start rate
-service:* AND coldStart:true | count / total_count * 100
+# Cold starts of one function, errors only
+service:order-processor coldStart:true level:error
 ```
+
+See [Query Syntax](/docs/query-syntax/) for the full search language.
 
 ### Reducing Cold Starts
 
@@ -639,7 +655,7 @@ Compute costs for a LogTide instance vary, but a single `t3.medium` ($30/mo) can
 When using LogTide, reduce CloudWatch retention to minimize storage costs:
 
 ```bash
-# Set retention to 1 day (minimum for subscription filters)
+# Set retention to 1 day (the shortest CloudWatch retention period)
 aws logs put-retention-policy \
   --log-group-name /aws/lambda/my-function \
   --retention-in-days 1

@@ -28,7 +28,7 @@ faqs:
   - question: "How do I log events from Vue components in a Nuxt application?"
     answer: "Import useLogtide from #imports inside your Vue component, then call methods like captureLog, captureError, and addBreadcrumb on the returned composable. This works in both client-side and universal rendering contexts."
   - question: "Can I override the LogTide DSN at deploy time without rebuilding my Nuxt app?"
-    answer: "Yes. The module injects configuration through Nuxt runtime config, so you can override the DSN by setting the LOGTIDE_DSN environment variable at deploy time without triggering a new build."
+    answer: "Yes. The module injects configuration through Nuxt runtime config, so you can override the DSN at deploy time with the NUXT_LOGTIDE_DSN (server) and NUXT_PUBLIC_LOGTIDE_DSN (client) environment variables without triggering a new build. A dsn (or apiUrl) must be set in nuxt.config.ts at build time, otherwise the module skips initialization."
 ---
 
 LogTide's Nuxt module provides zero-config structured logging for Nuxt applications with automatic server and client initialization, runtime config injection, and Vue composables.
@@ -139,10 +139,10 @@ async function handleSubmit() {
 
 ## Environment Variables
 
-Override configuration at deploy time:
+Nuxt maps `NUXT_`-prefixed environment variables onto runtime config, so you can override the DSN at deploy time without rebuilding. A `dsn` (or `apiUrl`) must still be set in `nuxt.config.ts` at build time, otherwise the module skips initialization:
 
 ```bash
-LOGTIDE_DSN=https://lp_abc123@api.logtide.dev
+NUXT_LOGTIDE_DSN=https://lp_abc123@api.logtide.dev
 NUXT_PUBLIC_LOGTIDE_DSN=https://lp_client456@api.logtide.dev
 ```
 

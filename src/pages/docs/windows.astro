@@ -184,13 +184,13 @@ processors:
 exporters:
   # Send to LogTide Cloud
   otlphttp/logtide:
-    endpoint: https://api.logtide.dev
+    logs_endpoint: https://api.logtide.dev/v1/otlp/logs
     headers:
       X-API-Key: "lp_your_api_key_here"
 
   # Or send to self-hosted LogTide
   # otlphttp/logtide:
-  #   endpoint: http://your-logtide-server:8080
+  #   logs_endpoint: http://your-logtide-server:8080/v1/otlp/logs
   #   headers:
   #     X-API-Key: "lp_your_api_key_here"
   #   tls:
@@ -776,7 +776,7 @@ service:
                   <Code
                       lang="text"
                       theme="one-dark-pro"
-                      code={`service:windows-eventlog AND metadata.EventID:4625`}
+                      code={`service:windows-eventlog AND EventID:4625`}
                   />
               </CardContent>
           </Card>
@@ -790,7 +790,7 @@ service:
                   <Code
                       lang="text"
                       theme="one-dark-pro"
-                      code={`service:windows-eventlog AND metadata.EventID:7045`}
+                      code={`service:windows-eventlog AND EventID:7045`}
                   />
               </CardContent>
           </Card>
@@ -804,7 +804,7 @@ service:
                   <Code
                       lang="text"
                       theme="one-dark-pro"
-                      code={`service:Sysmon AND metadata.EventID:1`}
+                      code={`service:Sysmon AND EventID:1`}
                   />
               </CardContent>
           </Card>

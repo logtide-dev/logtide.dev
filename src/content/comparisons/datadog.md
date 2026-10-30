@@ -1,9 +1,9 @@
 ---
 title: "LogTide vs Datadog for Log Management"
-description: "LogTide vs Datadog: open-source, self-hosted log management with built-in SIEM and unlimited users. Save up to 90% versus Datadog's per-GB + per-seat pricing."
+description: "LogTide vs Datadog: open-source, self-hosted log management with built-in SIEM. Save up to 90% versus Datadog's per-GB ingestion plus per-event indexing fees."
 competitor: "Datadog"
 competitorUrl: "https://www.datadoghq.com"
-competitorPricing: "$0.10-$1.70/GB ingestion + per-user"
+competitorPricing: "$0.10/GB ingest + $1.70 per million events indexed"
 logtidePricing: "Free (self-hosted)"
 migrationDoc: "/docs/migration/datadog/"
 highlights:
@@ -31,9 +31,9 @@ keywords:
   - "log management pricing"
 faqs:
   - question: "Is there a free, open-source alternative to Datadog logs?"
-    answer: "Yes - LogTide is open-source and free to self-host. You run it on your own infrastructure with unlimited users, instead of paying Datadog's per-GB ingestion plus per-seat fees."
+    answer: "Yes - LogTide is open-source and free to self-host. You run it on your own infrastructure with unlimited users, instead of paying Datadog's per-GB ingestion plus per-event indexing fees."
   - question: "How much cheaper is LogTide than Datadog?"
-    answer: "Datadog log management runs roughly $0.10-$1.70/GB ingested plus indexing and per-user charges. Self-hosting LogTide typically saves up to 90% at scale, since cost is driven by infrastructure rather than volume and seats."
+    answer: "Datadog log management charges $0.10/GB ingested plus $1.70 per million events indexed (15-day retention), with Cloud SIEM billed on top. Self-hosting LogTide typically saves up to 90% at scale, since cost is driven by infrastructure rather than volume."
   - question: "How do I migrate from Datadog to LogTide?"
     answer: "Follow the LogTide Datadog migration guide: point your existing log shippers (Agent, Vector, Fluent Bit) at LogTide's HTTP endpoint, run both in parallel to validate dashboards and alerts, then cut over and turn off Datadog ingestion."
   - question: "Does LogTide replace Datadog's security monitoring?"
@@ -48,21 +48,20 @@ Cost is the biggest difference between LogTide and Datadog.
 
 ### Datadog Pricing
 
-Datadog charges based on log volume plus per-user fees:
+Datadog charges per GB ingested and per million events indexed (annual-billing list prices from the [Datadog pricing page](https://www.datadoghq.com/pricing/?product=log-management); Datadog does not charge per user for log management):
 
 | Component | Cost |
 |-----------|------|
-| Log ingestion | $0.10/GB (with commitment) to $1.70/GB (on-demand) |
-| Log retention (15 days) | Included with ingestion |
-| Log retention (30+ days) | $0.05-$0.15/GB/month |
-| Per-user (Pro) | $23/user/month |
+| Log ingestion | $0.10/GB |
+| Log indexing (15-day retention) | $1.70 per million events ($2.55 on-demand) |
+| Flex Storage (long retention) | From $0.05 per million events stored per month |
 | Cloud SIEM | $0.20/GB additional |
 
-**Real-world example:** A mid-size SaaS company ingesting 100 GB/day:
-- Log ingestion: ~$3,000/month
-- 5 users (Pro): $115/month
+**Real-world example:** A mid-size SaaS company ingesting 100 GB/day (~3,000 GB/month, ~1.5 billion events at ~2 KB each, all indexed with 15-day retention):
+- Ingestion: 3,000 GB x $0.10 = $300/month
+- Indexing: 1,500 million events x $1.70 = ~$2,550/month
 - Cloud SIEM: $600/month
-- **Total: ~$3,715/month ($44,580/year)**
+- **Total: ~$3,450/month ($41,400/year)**
 
 ### LogTide Pricing
 
@@ -80,7 +79,7 @@ LogTide is free, open-source software. You pay only for infrastructure:
 - Infrastructure: ~$200-400/month
 - **Total: ~$300/month ($3,600/year)**
 
-**Savings: ~$41,000/year (92%)**
+**Savings: ~$37,800/year (91%)**
 
 ## Feature Comparison
 
@@ -122,7 +121,7 @@ LogTide is free, open-source software. You pay only for infrastructure:
 
 **No vendor lock-in.** LogTide is AGPLv3 open-source. You can inspect, modify, and extend the code. Your data lives in TimescaleDB or ClickHouse (your choice) that you control.
 
-**Unlimited users.** No per-seat pricing. Add your entire engineering, security, and support teams without cost concerns.
+**Unlimited users.** LogTide has no per-seat limits or paid roles, so your entire engineering, security, and support teams can have access.
 
 ## When to Choose Datadog
 
@@ -137,7 +136,6 @@ LogTide is free, open-source software. You pay only for infrastructure:
 - Log costs are a significant line item (50+ GB/day)
 - Data sovereignty or GDPR compliance is required
 - You need SIEM capabilities without additional licensing
-- You want to avoid per-user pricing
 - You prefer open-source with no vendor lock-in
 - You're comfortable managing a Docker/Kubernetes deployment
 

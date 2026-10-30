@@ -30,7 +30,7 @@ faqs:
   - question: "What is the performance overhead of using the LogTide JavaScript SDK?"
     answer: "According to this guide, the SDK adds approximately 5 MB of memory, less than 1 ms of latency per log call (due to batching), and under 0.1% CPU impact. A single network call is made per batch of up to 100 logs."
   - question: "Can I automatically capture console.log calls without changing all my existing code?"
-    answer: "Yes. Pass new ConsoleIntegration() in the integrations array when calling hub.init, and the SDK will intercept console.warn and console.error calls and forward them to LogTide automatically."
+    answer: "Partly. Pass new ConsoleIntegration() in the integrations array when calling hub.init, and the SDK will intercept console.log, info, warn, error, and debug calls and record them as breadcrumbs that are attached to the logs you send with hub.captureLog and hub.captureError. They are not sent to LogTide as standalone log entries."
 ---
 
 The LogTide JavaScript SDK (`@logtide/core`) provides structured logging with DSN-based configuration, automatic batching, distributed tracing (W3C Trace Context), breadcrumbs, and scopes.
@@ -41,7 +41,7 @@ The LogTide JavaScript SDK (`@logtide/core`) provides structured logging with DS
 - **Distributed tracing**: W3C Trace Context propagation across services
 - **Breadcrumbs**: Trail of events leading up to errors
 - **Scopes**: Per-request context isolation
-- **Console interception**: Capture `console.log()` calls automatically
+- **Console interception**: Record `console.*` calls as breadcrumbs attached to later logs
 - **TypeScript**: Full type definitions included
 
 ## Prerequisites
@@ -115,6 +115,8 @@ LOGTIDE_DSN=https://lp_abc123@api.logtide.dev
 ## Configuration Options
 
 ```typescript
+import { hub, ConsoleIntegration, GlobalErrorIntegration } from '@logtide/core';
+
 hub.init({
   // Required
   dsn: process.env.LOGTIDE_DSN,
@@ -235,7 +237,7 @@ hub.init({
   ],
 });
 
-// Automatically captured:
+// Recorded as breadcrumbs (attached to subsequent captured logs and errors):
 console.warn('Disk space low');
 console.error('Connection timeout');
 ```

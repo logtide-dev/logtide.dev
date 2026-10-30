@@ -44,7 +44,7 @@ Deno supports npm packages via `npm:` specifiers, making the LogTide JavaScript 
 ## Prerequisites
 
 - Deno 1.38+ (2.x recommended for improved npm compatibility)
-- LogTide instance with a DSN or API key
+- LogTide instance with an API URL and API key (`lp_...`)
 
 ## Quick Start
 
@@ -75,7 +75,7 @@ deno run --allow-net --allow-env main.ts
 
 ### Environment Variables
 
-Create a `.env` file and load it:
+Create a `.env` file and load it with `--env-file`:
 
 ```bash
 # .env
@@ -85,10 +85,10 @@ DENO_ENV=development
 ```
 
 ```bash
-deno run --allow-net --allow-env --allow-read=.env main.ts
+deno run --env-file=.env --allow-net --allow-env main.ts
 ```
 
-Or with Deno 2.x, `.env` files load automatically with `--allow-env`.
+Deno does not load `.env` files unless you pass `--env-file`.
 
 ## Deno.serve with Structured Logging
 
@@ -319,10 +319,10 @@ Deno.serve(async (req) => {
 Deno requires explicit permissions. For LogTide:
 
 ```bash
-# Minimum permissions
+# Minimum permissions: network to LogTide, plus the env variables you read
 deno run \
-  --allow-net=your-logtide-host:8080 \                # Network to LogTide
-  --allow-env=LOGTIDE_API_URL,LOGTIDE_API_KEY,DENO_ENV \  # Environment variables
+  --allow-net=your-logtide-host:8080 \
+  --allow-env=LOGTIDE_API_URL,LOGTIDE_API_KEY,DENO_ENV \
   main.ts
 
 # Development (more permissive)
@@ -390,6 +390,6 @@ Deno downloads and caches npm packages on first run. Subsequent runs are fast. I
 
 ## Next Steps
 
-- [Node.js SDK Reference](/integrations/nodejs/) - Full SDK documentation
+- [Node.js SDK Reference](/docs/sdks/nodejs/) - Full SDK documentation
 - [Docker Integration](/integrations/docker/) - Container deployments
 - [Bun Integration](/integrations/bun/) - Alternative JS runtime

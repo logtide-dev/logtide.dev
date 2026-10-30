@@ -134,7 +134,7 @@ const description = 'Real-world logging scenarios and how to solve them with Log
 
             <div class="grid gap-px overflow-hidden rounded-2xl border border-foreground/[0.08] cell-grid md:grid-cols-2">
               {category.items.map((useCase) => (
-                <a href={`/use-cases/${useCase.id}`} class="group flex flex-col bg-background p-6 transition-colors hover:bg-card">
+                <a href={`/use-cases/${useCase.id}/`} class="group flex flex-col bg-background p-6 transition-colors hover:bg-card">
                   <div class="flex items-center justify-between gap-3">
                     <DifficultyBadge difficulty={useCase.data.difficulty} />
                     {useCase.data.industries.length > 0 && (

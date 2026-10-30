@@ -23,16 +23,16 @@ keywords:
   - "fastify log management"
 faqs:
   - question: "How do I integrate LogTide with a Fastify application?"
-    answer: "Install @logtide/fastify and register the plugin with await fastify.register(logtide, { dsn, service, environment }). The plugin follows Fastify plugin conventions and hooks into the lifecycle automatically - no extra configuration is required to start capturing request logs."
+    answer: "Install @logtide/fastify and register the plugin with await fastify.register(logtide, { dsn, service, environment }). The plugin follows Fastify plugin conventions and hooks into the lifecycle automatically - no extra configuration is required to start tracing requests."
   - question: "Which Fastify lifecycle hooks does LogTide use?"
-    answer: "The plugin hooks into onRequest to create a scoped context and extract the traceparent header, onSend to optionally capture the response body, onResponse to log the completed request with duration and status code, and onError to capture exceptions with full request context."
+    answer: "The plugin hooks into onRequest to create a scoped context and extract the traceparent header, onSend to optionally capture the response body, onResponse to finish the request span with duration and status code (5xx responses are also logged as errors), and onError to capture exceptions with full request context."
   - question: "Does LogTide replace Fastify built-in pino logging?"
     answer: "LogTide operates alongside Fastify's built-in pino logger rather than replacing it. You can keep pino for local development output while LogTide ships structured logs to your self-hosted LogTide instance for centralised search and alerting."
   - question: "How does per-request scoping work in the Fastify plugin?"
-    answer: "Each request receives an isolated scope accessible via request.logtideScope. You can call setTag() and setExtra() on it inside routes or hooks, and those values are included only on log events produced during that request - they do not leak into other concurrent requests."
+    answer: "Each request receives an isolated scope accessible via request.logtideScope. You can call setTag() and setExtra() on it inside routes or hooks, and those values are attached to the events LogTide captures with that request's scope (such as 5xx error logs and errors from the onError hook) - they do not leak into other concurrent requests."
 ---
 
-LogTide's Fastify SDK provides a native plugin that hooks into Fastify's lifecycle for automatic request logging, per-request scoping, and distributed tracing.
+LogTide's Fastify SDK provides a native plugin that hooks into Fastify's lifecycle for automatic request tracing, per-request scoping, and distributed tracing.
 
 ## Why use LogTide with Fastify?
 
@@ -70,7 +70,7 @@ await fastify.register(logtide, {
 });
 
 fastify.get('/users/:id', async (request) => {
-  request.logtideScope.setTag('userId', request.params.id);
+  request.logtideScope?.setTag('userId', request.params.id);
 
   hub.captureLog('info', 'Fetching user', {
     userId: request.params.id,
@@ -100,8 +100,8 @@ Each request gets an isolated scope:
 
 ```typescript
 fastify.addHook('onRequest', async (request) => {
-  request.logtideScope.setExtra('userId', request.user?.id);
-  request.logtideScope.setTag('tenant', request.headers['x-tenant-id']);
+  request.logtideScope?.setExtra('userId', request.user?.id);
+  request.logtideScope?.setTag('tenant', String(request.headers['x-tenant-id']));
 });
 ```
 
@@ -113,7 +113,7 @@ The plugin hooks into Fastify's lifecycle automatically:
 |------|----------|
 | `onRequest` | Creates scope, extracts traceparent, starts span |
 | `onSend` | Optionally captures the response body |
-| `onResponse` | Logs completion with duration and status |
+| `onResponse` | Finishes the span with duration and status, logs 5xx responses as errors |
 | `onError` | Captures errors with request context |
 
 ## Error Handling

@@ -1,13 +1,13 @@
 ---
 title: "LogTide vs New Relic for Log Management"
-description: "LogTide vs New Relic: self-hosted, open-source log management with built-in SIEM and no per-user pricing. Save 90%+ beyond New Relic's 100 GB free tier."
+description: "LogTide vs New Relic: self-hosted, open-source log management with built-in SIEM and no per-user pricing. Save 80%+ beyond New Relic's 100 GB free tier."
 competitor: "New Relic"
 competitorUrl: "https://newrelic.com/"
 brandIcon: "simple-icons:newrelic"
-competitorPricing: "Free tier (100 GB/month) then $0.35/GB ingestion"
+competitorPricing: "Free tier (100 GB/month) then $0.40/GB ingestion"
 logtidePricing: "Free (self-hosted)"
 highlights:
-  - "90%+ cost savings at scale"
+  - "80%+ cost savings at scale"
   - "Built-in SIEM included"
   - "Full data sovereignty"
   - "No per-user pricing"
@@ -31,7 +31,7 @@ keywords:
   - "New Relic pricing alternative"
 faqs:
   - question: "Is LogTide cheaper than New Relic for logs?"
-    answer: "New Relic includes 100 GB/month free, then charges about $0.35/GB ingested. Beyond the free tier, self-hosting LogTide saves 90%+ at scale because you pay for infrastructure rather than per-GB ingestion and per-user seats."
+    answer: "New Relic includes 100 GB/month free, then charges about $0.40/GB ingested ($0.60/GB with Data Plus). Beyond the free tier, self-hosting LogTide saves 80%+ at scale because you pay for infrastructure rather than per-GB ingestion and per-user seats."
   - question: "Does LogTide have per-user pricing like New Relic?"
     answer: "No. LogTide is self-hosted and free with unlimited users. There are no full-platform or core-user seat charges - a frequent source of surprise costs on New Relic."
   - question: "Can LogTide replace New Relic's log security features?"
@@ -53,25 +53,28 @@ New Relic charges based on data ingest volume plus per-user fees:
 | Component | Cost |
 |-----------|------|
 | Free tier | 100 GB/month included |
-| Additional data ingestion | $0.35/GB |
-| Full Platform user | $49/user/month (Standard) to $99/user/month (Pro) |
-| Core users | $0.35/user/hour |
-| Data retention (8 days) | Included |
-| Extended retention (30 days) | $0.05/GB/month |
-| Data Plus (90 days retention) | $0.50/GB |
+| Additional data ingestion (Original data) | $0.40/GB |
+| Additional data ingestion (Data Plus) | $0.60/GB |
+| Basic users | Free |
+| Core user | $49/user/month |
+| Full Platform user (Standard) | $10 for the first user, then $99/user/month (max 5 users) |
+| Full Platform user (Pro) | $349/user/month (annual commitment) |
+| Default log retention | 30 days (Original data), 120 days (Data Plus) |
+| Extended retention | $0.05/GB ingested per month for each additional 30 days |
 
-**Real-world example:** A mid-size team ingesting 50 GB/day of logs:
-
+**Real-world example:** A mid-size team ingesting 50 GB/day of logs on the Standard edition:
 - Monthly ingestion: 1,500 GB - 100 GB free = 1,400 GB
-- Data cost: 1,400 GB x $0.35 = $490/month
-- 10 Full Platform users (Pro): $990/month
-- Extended retention (30 days): ~$75/month
-- **Total: ~$1,555/month ($18,660/year)**
+- Data cost: 1,400 GB x $0.40 = $560/month
+- 5 Full Platform users (Standard): $10 + 4 x $99 = $406/month
+- 30-day log retention: included
+- **Total: ~$966/month ($11,592/year)**
 
-At 200 GB/day with 15 users:
-- Data cost: (6,000 - 100) x $0.35 = $2,065/month
-- 15 Pro users: $1,485/month
-- **Total: ~$3,700/month ($44,400/year)**
+At 200 GB/day with the same 5 users:
+- Data cost: (6,000 - 100) x $0.40 = $2,360/month
+- 5 Full Platform users: $406/month
+- **Total: ~$2,766/month ($33,192/year)**
+
+Teams that need more than 5 Full Platform users move to the Pro edition at $349/user/month, which widens the gap further.
 
 ### LogTide Pricing
 
@@ -90,13 +93,13 @@ LogTide is free, open-source software. You pay only for infrastructure:
 - Infrastructure: ~$200-300/month
 - **Total: ~$250/month ($3,000/year)**
 
-**Savings: ~$15,660/year (84%)**
+**Savings: ~$8,600/year (74%)**
 
 At 200 GB/day:
 - Infrastructure (8 CPU, 32 GB RAM, 4 TB): ~$400/month
 - **Total: ~$400/month ($4,800/year)**
 
-**Savings at scale: ~$39,600/year (89%)**
+**Savings at scale: ~$28,400/year (86%)**
 
 ## Feature Comparison
 
@@ -110,7 +113,7 @@ At 200 GB/day:
 | Alert rules | Yes | Yes |
 | Email/webhook notifications | Yes | Yes |
 | APM / traces | Yes | Logs + OTLP traces |
-| Infrastructure metrics | Yes | Roadmap |
+| Infrastructure metrics | Yes | Yes (basic) |
 | Browser monitoring | Yes | No |
 | Mobile monitoring | Yes | No |
 | Sigma detection rules | No | Built-in |
@@ -119,8 +122,8 @@ At 200 GB/day:
 | Self-hosted option | No | Yes |
 | Open source | No (proprietary) | AGPLv3 |
 | Custom dashboards | Yes (extensive) | SIEM dashboard |
-| Per-user pricing | Yes ($49-99/user/month) | No (unlimited) |
-| Data retention (default) | 8 days | Unlimited (storage-bound) |
+| Per-user pricing | Yes ($49-349/user/month) | No (unlimited) |
+| Data retention (default) | 30 days (logs) | Unlimited (storage-bound) |
 | Multi-org support | Yes (sub-accounts) | Yes (organizations/projects) |
 
 ## Where New Relic Wins
@@ -139,9 +142,9 @@ At 200 GB/day:
 
 ## Where LogTide Wins
 
-**Cost at scale.** Once you exceed the 100 GB/month free tier, New Relic's per-GB pricing adds up quickly. LogTide's self-hosted model saves 80-90%+ for log-heavy workloads. The more logs you generate, the bigger the savings.
+**Cost at scale.** Once you exceed the 100 GB/month free tier, New Relic's per-GB pricing adds up quickly. LogTide's self-hosted model saves 75-85%+ for log-heavy workloads. The more logs you generate, the bigger the savings.
 
-**No per-user fees.** New Relic's per-user pricing ($49-99/user/month) discourages broad access. Organizations often limit who can access the platform, creating knowledge silos. LogTide has unlimited users, so your entire engineering, security, DevOps, and support teams can access logs without cost concerns.
+**No per-user fees.** New Relic's per-user pricing ($49-349/user/month) discourages broad access. Organizations often limit who can access the platform, creating knowledge silos. LogTide has unlimited users, so your entire engineering, security, DevOps, and support teams can access logs without cost concerns.
 
 **Data sovereignty.** Your logs never leave your infrastructure. No third-party data processing agreements needed. Full GDPR compliance with EU data residency. No concerns about sensitive data - PII, credentials, healthcare records - being processed by a third party.
 
@@ -149,7 +152,7 @@ At 200 GB/day:
 
 **No vendor lock-in.** LogTide is AGPLv3 open-source. Your data lives in TimescaleDB or ClickHouse (your choice) that you control. Your detection rules use the portable Sigma standard. You can inspect, modify, and extend every line of code.
 
-**Unlimited retention.** New Relic's default retention is 8 days. Extended retention to 30 days costs $0.05/GB/month; 90 days requires the expensive Data Plus plan at $0.50/GB. LogTide retains logs as long as your storage allows, with no additional fees. Keep a year of logs for forensic analysis at just the cost of disk space.
+**Unlimited retention.** New Relic's default log retention is 30 days (120 days with Data Plus at $0.60/GB). Each additional 30 days costs $0.05/GB ingested per month. LogTide retains logs as long as your storage allows, with no additional fees. Keep a year of logs for forensic analysis at just the cost of disk space.
 
 **Real-time SSE streaming.** LogTide's Server-Sent Events streaming provides real-time log tailing with no per-minute charges. New Relic's Live Tail is available but with limitations on the free tier.
 

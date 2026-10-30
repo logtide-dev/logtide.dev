@@ -27,7 +27,8 @@ faqs:
   - question: "How does LogTide integrate with SolidJS ErrorBoundary?"
     answer: "Use SolidJS native ErrorBoundary from solid-js and call hub.captureError inside the fallback function, passing the caught error and any relevant tags. This lets Solid handle the UI recovery while LogTide records the full error context for your LogTide Dashboard."
   - question: "Does LogTide collect Core Web Vitals for SolidJS apps?"
-    answer: "Yes. The @logtide/browser SDK automatically tracks LCP, FID, CLS, and INP with no additional configuration. Because SolidJS compiles to fine-grained DOM updates without a virtual DOM, the overhead of the Web Vitals instrumentation is minimal."
+    answer: "Yes, once enabled. Web Vitals are opt-in. Enable them with browser: { webVitals: true } in initLogtide and install the web-vitals package as a peer dependency. LCP, INP, and CLS are then sent as info logs (message 'Web Vital: LCP = ...') with a performance.metric field, so you can find them in the log search. They do not appear in a dedicated Metrics tab."
+
   - question: "Can I manually log custom events and breadcrumbs in SolidJS?"
     answer: "Yes. Import hub from @logtide/core and call hub.addBreadcrumb to record user interactions, or hub.captureLog to send structured log entries at any level. You can also capture try/catch errors with hub.captureError and attach extra metadata such as tags or a cart ID."
 ---
@@ -38,7 +39,7 @@ LogTide's SolidJS integration provides professional-grade error tracking and per
 
 - **Automatic error capture**: Catches all unhandled exceptions and promise rejections.
 - **Error Boundaries**: Component-level error catching with Solid's native `ErrorBoundary`.
-- **Core Web Vitals**: Monitor your app's performance metrics (LCP, FID, CLS, INP) in the real world.
+- **Core Web Vitals**: Monitor your app's performance metrics (LCP, INP, CLS) in the real world.
 - **Breadcrumbs**: Track clicks and network requests leading up to an error.
 - **Fine-grained Tracing**: Correlate all logs and errors for a single user session.
 
@@ -136,7 +137,21 @@ function CheckoutButton() {
 
 ## Core Web Vitals
 
-LogTide automatically tracks performance metrics. View the results in your LogTide Dashboard under the **Metrics** tab.
+Web Vitals are opt-in. Enable them in `initLogtide`, and install the `web-vitals` package (an optional peer dependency of `@logtide/browser`):
+
+```bash
+npm install web-vitals
+```
+
+```typescript
+initLogtide({
+  dsn: 'https://lp_abc123@api.logtide.dev',
+  service: 'solid-frontend',
+  browser: { webVitals: true },
+});
+```
+
+LCP, INP, and CLS are sent as `info` logs (message `Web Vital: LCP = ...`) with a `performance.metric` field, so you can filter for them in the log search.
 
 ## Source Map Uploads
 

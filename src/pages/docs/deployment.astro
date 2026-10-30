@@ -272,8 +272,8 @@ FLUENT_BIT_IMAGE=myregistry/fluent-bit-arm64:latest`}
                   lang="bash"
                   theme="one-dark-pro"
                   code={`# In your .env file
-LOGTIDE_BACKEND_IMAGE=logtide/backend:0.9.7
-LOGTIDE_FRONTEND_IMAGE=logtide/frontend:0.9.7`}
+LOGTIDE_BACKEND_IMAGE=logtide/backend:1.6.0
+LOGTIDE_FRONTEND_IMAGE=logtide/frontend:1.6.0`}
               />
           </CardContent>
       </Card>
@@ -870,7 +870,13 @@ helm install logtide logtide/logtide \
 --set ingress.hosts[0].host=logtide.example.com \
 --set ingress.hosts[0].paths[0].path=/ \
 --set ingress.hosts[0].paths[0].pathType=Prefix \
---set ingress.hosts[0].paths[0].service=frontend`}
+--set ingress.hosts[0].paths[0].service=frontend \
+--set ingress.hosts[0].paths[1].path=/api \
+--set ingress.hosts[0].paths[1].pathType=Prefix \
+--set ingress.hosts[0].paths[1].service=backend \
+--set ingress.hosts[0].paths[2].path=/v1 \
+--set ingress.hosts[0].paths[2].pathType=Prefix \
+--set ingress.hosts[0].paths[2].service=backend`}
           />
       </div>
 
@@ -999,7 +1005,7 @@ cp ../.env.example .env
 nano .env
 
 # Build and start all services
-docker compose up -d --build`}
+docker compose -f docker-compose.build.yml up -d --build`}
           />
       </div>
 

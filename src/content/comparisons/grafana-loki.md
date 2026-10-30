@@ -36,7 +36,7 @@ faqs:
   - question: "When is Grafana Loki the better choice over LogTide?"
     answer: "Loki is the better fit when you already run Grafana for metrics (Prometheus, Mimir) and want logs in the same familiar interface, when you primarily filter by labels and rarely need content search, or when you need Kubernetes-native pod log collection with minimal overhead. Its label-only indexing also makes it extremely cost-efficient for very high volumes where content search is not required."
   - question: "How do I migrate from Grafana Loki to LogTide?"
-    answer: "Because both Loki and LogTide support Fluent Bit and OpenTelemetry, migration is straightforward: reconfigure your Promtail or Fluent Bit outputs to point at the LogTide HTTP ingest endpoint, translate your LogQL label selectors and regex filters to LogTide REST API parameters (see the query mapping table on this page), and recreate your Grafana alerting rules as LogTide native alert rules. A full migration guide is at /docs/migration/loki/."
+    answer: "Because both Loki and LogTide support Fluent Bit and OpenTelemetry, migration is straightforward: reconfigure your Grafana Alloy (or legacy Promtail) or Fluent Bit outputs to point at the LogTide HTTP ingest endpoint, translate your LogQL label selectors and regex filters to LogTide REST API parameters (see the query mapping table on this page), and recreate your Grafana alerting rules as LogTide native alert rules. A full migration guide is at /docs/migration/loki/."
 ---
 
 Grafana Loki and LogTide are both open-source log management tools. Loki excels at lightweight label-based indexing within the Grafana ecosystem. LogTide provides an all-in-one solution with full-text search, built-in alerting, and SIEM capabilities. Here's how they compare.
@@ -47,7 +47,7 @@ Grafana Loki and LogTide are both open-source log management tools. Loki excels 
 
 Loki takes a unique approach: it indexes only labels (metadata), not log content. This keeps storage costs low but limits search capabilities. Loki is designed as one piece of the Grafana observability stack.
 
-**Required components:** Loki + Promtail + Grafana + AlertManager (for alerts)
+**Required components:** Loki + Grafana Alloy (Promtail reached end of life in March 2026) + Grafana + AlertManager (for alerts)
 
 ### LogTide
 
@@ -59,7 +59,7 @@ LogTide indexes both labels and content, providing fast full-text search. It's a
 
 | Feature | Grafana Loki | LogTide |
 |---------|-------------|---------|
-| Log ingestion | Promtail, Fluent Bit | HTTP API, SDKs, OTLP |
+| Log ingestion | Grafana Alloy, Fluent Bit (Promtail is EOL) | HTTP API, SDKs, OTLP |
 | Query language | LogQL | REST API + Full-text |
 | Full-text search | Limited (regex only) | Indexed full-text |
 | Indexing strategy | Labels only | Labels + Content |
@@ -78,7 +78,7 @@ LogTide indexes both labels and content, providing fast full-text search. It's a
 
 **Grafana ecosystem.** If you already use Grafana for metrics dashboards (Prometheus, Mimir), adding Loki gives you logs in the same familiar interface alongside your metrics.
 
-**Kubernetes-native.** Loki with Promtail is specifically designed for Kubernetes log collection. The integration is seamless with auto-discovery of pod labels.
+**Kubernetes-native.** Loki with Grafana Alloy is specifically designed for Kubernetes log collection. The integration is seamless with auto-discovery of pod labels.
 
 **Mature scaling model.** Loki's microservices mode (distributor, ingester, querier, compactor) allows independent scaling of each component for very large deployments.
 
@@ -86,11 +86,11 @@ LogTide indexes both labels and content, providing fast full-text search. It's a
 
 **True full-text search.** Loki only indexes labels, so searching log content requires regex scanning across chunks. LogTide indexes everything, making content search fast and efficient.
 
-**All-in-one solution.** Loki requires Grafana for UI, AlertManager for alerts, and Promtail for collection. LogTide includes UI, alerting, SDKs, and SIEM in a single deployment.
+**All-in-one solution.** Loki requires Grafana for UI, AlertManager for alerts, and Grafana Alloy for collection. LogTide includes UI, alerting, SDKs, and SIEM in a single deployment.
 
 **Security detection.** Loki is purely a log aggregation tool. LogTide includes Sigma rules, MITRE ATT&CK mapping, and incident management for security teams.
 
-**Simpler operations.** Instead of managing 3-4 separate services (Loki, Promtail, Grafana, AlertManager), LogTide runs as one Docker Compose stack.
+**Simpler operations.** Instead of managing 3-4 separate services (Loki, Alloy, Grafana, AlertManager), LogTide runs as one Docker Compose stack.
 
 **No label cardinality concerns.** Loki has strict limits on label cardinality. High-cardinality labels (user IDs, request IDs) can cause performance issues. LogTide stores these in metadata JSON without cardinality constraints.
 
@@ -129,7 +129,7 @@ LogTide indexes both labels and content, providing fast full-text search. It's a
 | Tenant | Organization / Project | Multi-tenancy via projects |
 | Labels | service + metadata | service is indexed, extra fields in metadata |
 | Stream | Service | One label set = one service |
-| Promtail | Fluent Bit / SDK | Use Fluent Bit or application SDK |
+| Promtail / Grafana Alloy | Fluent Bit / SDK | Use Fluent Bit or application SDK |
 | LogQL | REST API params | Simpler query syntax |
 | Grafana | LogTide UI | Built-in web interface |
 | Grafana Alerting | Alert Rules | Native alerting, no external tools |

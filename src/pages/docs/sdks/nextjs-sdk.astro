@@ -64,7 +64,9 @@ const headings = [
           lang="typescript"
           theme="one-dark-pro"
           code={`// instrumentation.ts
-import { registerLogtide } from '@logtide/nextjs/server';
+import { registerLogtide, captureRequestError } from '@logtide/nextjs/server';
+
+export const onRequestError = captureRequestError;
 
 export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
@@ -103,8 +105,8 @@ export default nextConfig;`}
   </h2>
 
   <p class="text-muted-foreground mb-4">
-      Initialize LogTide on the client in your root layout. This automatically enables
-      Core Web Vitals collection, click breadcrumbs, and session tracking.
+      Initialize LogTide on the client in your root layout. This enables
+      click and network breadcrumbs, offline buffering, and session tracking (Core Web Vitals are opt-in, see below).
   </p>
 
   <div class="mb-8">
@@ -149,7 +151,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 npm install -g @logtide/cli
 
 # Upload source maps after build
-logtide sourcemaps upload --path ./.next/static/chunks --release 1.0.0 --apiKey YOUR_API_KEY`}
+logtide sourcemaps upload --path ./.next/static/chunks --release 1.0.0 --api-key YOUR_API_KEY`}
       />
   </div>
 
@@ -158,9 +160,7 @@ logtide sourcemaps upload --path ./.next/static/chunks --release 1.0.0 --apiKey 
   </h2>
 
   <p class="text-muted-foreground mb-4">
-      LogTide automatically monitors Google's Core Web Vitals (LCP, FID, CLS, INP, TTFB)
-      through the client-side initialization. You can view these metrics in the
-      <strong>Metrics</strong> section of your dashboard.
+      Core Web Vitals (LCP, INP, CLS) are opt-in: set <code class="bg-muted px-1 rounded">browser.webVitals</code> to <code class="bg-muted px-1 rounded">true</code> and install the optional <code class="bg-muted px-1 rounded">web-vitals</code> package. They are sent as info-level log events.
   </p>
 
   <h2 id="session-tracking" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
@@ -186,12 +186,12 @@ logtide sourcemaps upload --path ./.next/static/chunks --release 1.0.0 --apiKey 
       <Code
           lang="typescript"
           theme="one-dark-pro"
-          code={`// This is handled automatically by registerLogtide().
+          code={`// Export captureRequestError as onRequestError in instrumentation.ts (see above).
 // Server-side errors in API routes, Server Components, and Server Actions
-// are captured with full request context including:
-// - URL, method, headers
-// - Route parameters
-// - User context (if configured)
+// are then captured with request context including:
+// - URL and method
+// - Route path, kind, and type
+// - Mechanism (e.g. react.server-component)
 // - Breadcrumbs leading to the error`}
       />
   </div>
@@ -209,24 +209,15 @@ logtide sourcemaps upload --path ./.next/static/chunks --release 1.0.0 --apiKey 
       <Code
           lang="tsx"
           theme="one-dark-pro"
-          code={`// app/error.tsx
+          code={`// app/error-boundary.tsx
 'use client';
 
 import { LogtideErrorBoundary } from '@logtide/nextjs/client';
 
-export default function ErrorPage({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
+export function AppErrorBoundary({ children }: { children: React.ReactNode }) {
   return (
-    <LogtideErrorBoundary error={error}>
-      <div>
-        <h2>Something went wrong</h2>
-        <button onClick={reset}>Try again</button>
-      </div>
+    <LogtideErrorBoundary fallback={<div>Something went wrong</div>}>
+      {children}
     </LogtideErrorBoundary>
   );
 }`}
@@ -249,15 +240,10 @@ export default function ErrorPage({
 'use client';
 
 import { trackNavigation } from '@logtide/nextjs/client';
-import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
 export function LogtideNavigationTracker() {
-  const pathname = usePathname();
-
-  useEffect(() => {
-    trackNavigation(pathname);
-  }, [pathname]);
+  useEffect(() => trackNavigation(), []);
 
   return null;
 }
@@ -320,7 +306,7 @@ NEXT_PUBLIC_APP_VERSION=1.0.0`}
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">registerLogtide(options)</code></td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">/server</code></td><td class="p-3 border-b border-border">Initialize in instrumentation.ts, sets up captureRequestError</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">initLogtide(options)</code></td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">/client</code></td><td class="p-3 border-b border-border">Initialize on the client side</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">LogtideErrorBoundary</code></td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">/client</code></td><td class="p-3 border-b border-border">React error boundary that captures errors</td></tr>
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">trackNavigation(pathname)</code></td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">/client</code></td><td class="p-3 border-b border-border">Track route changes as breadcrumbs</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">trackNavigation()</code></td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">/client</code></td><td class="p-3 border-b border-border">Track route changes as breadcrumbs</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">captureRequestError</code></td><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">/server</code></td><td class="p-3 border-b border-border">Automatic server error capture (set up by registerLogtide)</td></tr>
           </tbody>
       </table>

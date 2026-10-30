@@ -28,7 +28,7 @@ faqs:
   - question: "How do I add structured logging to a FastAPI application?"
     answer: "Install logtide-sdk[fastapi], create a LogTideClient with your API URL and key, then call app.add_middleware(LogTideFastAPIMiddleware, client=client, service_name=...) after creating the FastAPI instance. Every request is automatically logged with method, path, status code, duration in milliseconds, and a trace ID."
   - question: "Does the LogTide FastAPI middleware support async and high-throughput workloads?"
-    answer: "Yes. The middleware is built for async use and adds less than 0.5ms overhead per request by batching log shipment in the background. For maximum throughput you can install logtide-sdk[fastapi,async] and use AsyncLogTideClient, which is fully compatible with uvloop."
+    answer: "Yes. The middleware is built for async use and adds less than 0.5ms overhead per request by batching log shipment in the background. The built-in middleware uses the synchronous LogTideClient, which only buffers entries in memory and ships them in the background. In your own async code you can install logtide-sdk[fastapi,async] and use AsyncLogTideClient (its log methods are awaited)."
   - question: "Can I inject a request-scoped logger into FastAPI route handlers?"
     answer: "Yes. The guide shows a RequestLogger class wired via FastAPI dependency injection using Depends(get_logger). Each injected logger automatically includes the trace ID from the X-Trace-ID request header, so all log lines from a single request are correlated without manual plumbing."
   - question: "Does LogTide support logging for FastAPI WebSocket connections?"
@@ -40,7 +40,7 @@ LogTide's Python SDK ships a built-in FastAPI/Starlette middleware for automatic
 ## Why use LogTide with FastAPI?
 
 - **Built-in async middleware**: `LogTideFastAPIMiddleware` handles request/response logging automatically
-- **Async-native**: Uses `AsyncLogTideClient` for non-blocking log shipping
+- **Non-blocking**: The middleware buffers entries and ships them in the background; `AsyncLogTideClient` is available for your own async code
 - **Dependency injection**: Inject a request-scoped logger into any endpoint via `Depends()`
 - **WebSocket support**: Log WebSocket connection lifecycle and message events
 - **Background tasks**: Trace background task execution back to the originating request
@@ -48,7 +48,7 @@ LogTide's Python SDK ships a built-in FastAPI/Starlette middleware for automatic
 
 ## Prerequisites
 
-- Python 3.8+ (3.11+ recommended for performance)
+- Python 3.10+ (3.11+ recommended for performance)
 - FastAPI 0.100+
 - LogTide instance with API key
 
@@ -143,19 +143,19 @@ app.add_middleware(
 
 ## Request Logging Output
 
-Each request automatically generates a structured log:
+Each request generates a structured request log and a response log like this one:
 
 ```json
 {
   "level": "info",
-  "message": "GET /api/users/42 200",
+  "message": "GET /api/users/42 200 (12ms)",
   "service": "fastapi-app",
+  "trace_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   "metadata": {
     "method": "GET",
     "path": "/api/users/42",
-    "status_code": 200,
-    "duration_ms": 12.4,
-    "trace_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    "status": 200,
+    "duration_ms": 12.4
   }
 }
 ```
@@ -335,30 +335,34 @@ def register_exception_handlers(app: FastAPI):
         )
 ```
 
-## Async Client (High-Throughput)
+## Async Client
 
-For maximum async performance, use `AsyncLogTideClient`:
+`LogTideFastAPIMiddleware` calls the client synchronously, so it must be given a `LogTideClient`. Use `AsyncLogTideClient` for your own logging in async code, and `await` its log methods:
 
 ```python
 import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from logtide_sdk import AsyncLogTideClient, ClientOptions
+from logtide_sdk import AsyncLogTideClient, LogTideClient, ClientOptions
 from logtide_sdk.middleware import LogTideFastAPIMiddleware
+
+options = ClientOptions(
+    api_url=os.environ["LOGTIDE_API_URL"],
+    api_key=os.environ["LOGTIDE_API_KEY"],
+)
+sync_client = LogTideClient(options)  # used by the middleware
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    async with AsyncLogTideClient(ClientOptions(
-        api_url=os.environ["LOGTIDE_API_URL"],
-        api_key=os.environ["LOGTIDE_API_KEY"],
-    )) as client:
-        app.state.logtide = client
+    async with AsyncLogTideClient(options) as client:
+        app.state.logtide_async = client  # await client.info("api", "message")
         yield
+    sync_client.close()
 
 
 app = FastAPI(lifespan=lifespan)
-app.add_middleware(LogTideFastAPIMiddleware, client=..., service_name="fastapi-app")
+app.add_middleware(LogTideFastAPIMiddleware, client=sync_client, service_name="fastapi-app")
 ```
 
 ## Uvicorn Deployment

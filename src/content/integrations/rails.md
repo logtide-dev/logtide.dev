@@ -111,7 +111,7 @@ class OrdersController < ApplicationController
     @order = Order.create!(order_params)
     charge_card!(@order)
   rescue Stripe::CardError => e
-    Logtide.capture_exception(e, { order_id: @order&.id })
+    Logtide.capture_exception(e, metadata: { order_id: @order&.id })
     redirect_to new_order_path, alert: "Payment failed"
   end
 end

@@ -46,7 +46,7 @@ Bun is a fast JavaScript runtime that is Node.js API compatible. The LogTide Jav
 ## Prerequisites
 
 - Bun 1.0+ (1.1+ recommended)
-- LogTide instance with a DSN or API key
+- LogTide instance with an API URL and API key (`lp_...`)
 
 ## Installation
 
@@ -299,7 +299,7 @@ FROM oven/bun:1-alpine
 WORKDIR /app
 
 # Install dependencies
-COPY package.json bun.lockb ./
+COPY package.json bun.lock* bun.lockb* ./
 RUN bun install --frozen-lockfile --production
 
 # Copy application
@@ -363,7 +363,7 @@ LogTide re-initializes cleanly on file changes.
 
 ## Next Steps
 
-- [Node.js SDK Reference](/integrations/nodejs/) - Full SDK documentation
+- [Node.js SDK Reference](/docs/sdks/nodejs/) - Full SDK documentation
 - [Hono Integration](/integrations/hono/) - Hono-specific guide
 - [Elysia Integration](/integrations/elysia/) - Elysia-specific guide
 - [Docker Integration](/integrations/docker/) - Container deployments

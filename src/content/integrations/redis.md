@@ -73,10 +73,6 @@ slowlog-log-slower-than 10000
 
 # Keep last 1024 slow queries
 slowlog-max-len 1024
-
-# Log client connections/disconnections
-# Available in Redis 7.0+
-# set-tcp-keepalive 300
 ```
 
 Restart Redis:
@@ -119,7 +115,7 @@ redis-cli SLOWLOG GET 10
 [INPUT]
     Name          exec
     Tag           redis.slowlog
-    Command       redis-cli SLOWLOG GET 10 RESET
+    Command       python3 /opt/redis-slowlog/collect.py
     Interval_Sec  60
     Parser        redis_slowlog
 
@@ -138,7 +134,7 @@ redis-cli SLOWLOG GET 10
     Host          api.logtide.dev
     Port          443
     URI           /api/v1/ingest/single
-    Format        json
+    Format        json_lines
     Header        X-API-Key ${LOGTIDE_API_KEY}
     Header        Content-Type application/json
     tls           On
@@ -398,57 +394,32 @@ spec:
             storage: 10Gi
 ```
 
-## Monitoring Queries
+## Search Queries
+
+Search in the LogTide logs explorer (or the API) with the [query syntax](/docs/query-syntax/). Numeric comparisons such as `duration_ms > 100` are not part of the query language, so filter on `log_type` and read the numeric fields in the results.
 
 ### Slow Query Detection
 
-In LogTide, create alerts for slow queries:
-
-```sql
--- Find queries slower than 100ms
-SELECT * FROM logs
-WHERE service = 'redis'
-  AND log_type = 'slowlog'
-  AND duration_ms > 100
-ORDER BY timestamp DESC
-LIMIT 100
+```
+service:redis log_type:slowlog
 ```
 
 ### Connection Issues
 
-```sql
--- Find connection-related events
-SELECT * FROM logs
-WHERE service = 'redis'
-  AND (message LIKE '%Connection%'
-       OR message LIKE '%Client closed%'
-       OR message LIKE '%Accepted%')
-ORDER BY timestamp DESC
+```
+Connection OR "Client closed" OR Accepted service:redis
 ```
 
 ### Memory Warnings
 
-```sql
--- Find memory-related warnings
-SELECT * FROM logs
-WHERE service = 'redis'
-  AND level IN ('warning', 'error')
-  AND (message LIKE '%memory%'
-       OR message LIKE '%OOM%'
-       OR message LIKE '%maxmemory%')
-ORDER BY timestamp DESC
+```
+memory OR OOM OR maxmemory service:redis
 ```
 
 ### Replication Status
 
-```sql
--- Monitor replica sync events
-SELECT * FROM logs
-WHERE service = 'redis'
-  AND (message LIKE '%MASTER%'
-       OR message LIKE '%replica%'
-       OR message LIKE '%sync%')
-ORDER BY timestamp DESC
+```
+MASTER OR replica OR sync service:redis
 ```
 
 ## Redis Sentinel Monitoring
@@ -487,15 +458,8 @@ Monitor these events:
 
 ### Failover Alert Query
 
-```sql
--- Detect failover events
-SELECT * FROM logs
-WHERE service = 'redis'
-  AND log_type = 'sentinel'
-  AND (message LIKE '%+failover%'
-       OR message LIKE '%+switch-master%'
-       OR message LIKE '%+odown%')
-ORDER BY timestamp DESC
+```
+"+failover" OR "+switch-master" OR "+odown" service:redis log_type:sentinel
 ```
 
 ## Redis Cluster Monitoring
@@ -655,33 +619,27 @@ Create LogTide alerts for:
 
 ### Slow Query Alert
 
-```sql
--- Alert: Queries over 100ms
-WHERE service = 'redis'
-  AND log_type = 'slowlog'
-  AND duration_ms > 100
--- Threshold: 10 in 5 minutes
 ```
+service:redis log_type:slowlog
+```
+
+Threshold: 10 in 5 minutes. The query language has no numeric comparison, so apply the 100 ms cutoff in the collector script before shipping.
 
 ### Memory Warning
 
-```sql
--- Alert: Memory pressure
-WHERE service = 'redis'
-  AND level = 'warning'
-  AND message LIKE '%memory%'
--- Threshold: Any occurrence
 ```
+memory service:redis
+```
+
+Threshold: any occurrence
 
 ### Cluster Failover
 
-```sql
--- Alert: Cluster failover started
-WHERE service = 'redis'
-  AND (message LIKE '%+failover%'
-       OR message LIKE '%+switch-master%')
--- Threshold: Any occurrence
 ```
+"+failover" OR "+switch-master" service:redis
+```
+
+Threshold: any occurrence
 
 ## Next Steps
 

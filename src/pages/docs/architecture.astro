@@ -64,7 +64,7 @@ User → Organizations (1:N) → Projects (1:N) → API Keys → Logs
           </li>
           <li>
               <strong>Logs</strong> - Time-series data stored via the <a href="/docs/storage-engines/" class="text-primary-readable hover:underline">Reservoir storage abstraction</a>,
-              supporting both TimescaleDB and ClickHouse with automatic compression and retention policies.
+              supporting TimescaleDB, ClickHouse, and MongoDB with automatic compression and retention policies.
           </li>
       </ul>
   </div>
@@ -113,6 +113,7 @@ User → Organizations (1:N) → Projects (1:N) → API Keys → Logs
               <p><strong>Abstraction:</strong> <a href="/docs/storage-engines/" class="text-primary-readable hover:underline">Reservoir</a> (pluggable engine)</p>
               <p><strong>Engine A:</strong> TimescaleDB (PostgreSQL extension)</p>
               <p><strong>Engine B:</strong> ClickHouse (columnar OLAP)</p>
+              <p><strong>Engine C:</strong> MongoDB (document store)</p>
               <p><strong>Compression:</strong> Automatic (both engines)</p>
               <p><strong>Retention:</strong> Configurable policies</p>
           </CardContent>
@@ -181,11 +182,12 @@ User → Organizations (1:N) → Projects (1:N) → API Keys → Logs
           <h3 id="storage-engines" class="text-lg font-semibold mb-2 scroll-mt-24">Storage Engines (Reservoir)</h3>
           <p class="text-muted-foreground mb-3">
               Log and span storage is managed by the <a href="/docs/storage-engines/" class="text-primary-readable hover:underline">Reservoir abstraction layer</a>,
-              which provides a unified API over two pluggable engines:
+              which provides a unified API over three pluggable engines:
           </p>
           <ul class="ml-6 space-y-1 text-sm text-muted-foreground list-none">
               <li><strong>TimescaleDB</strong> (default) - PostgreSQL extension with hypertables, continuous aggregates, and native compression. Best for deployments that already run PostgreSQL.</li>
               <li><strong>ClickHouse</strong> - Columnar OLAP database optimized for high-volume analytical queries. Best for very high ingestion rates or large-scale deployments.</li>
+              <li><strong>MongoDB</strong> - Document database for teams that already operate MongoDB.</li>
           </ul>
       </div>
   </div>
@@ -206,7 +208,7 @@ User → Organizations (1:N) → Projects (1:N) → API Keys → Logs
           </li>
           <li>Backend validates API key and extracts project ID</li>
           <li>Logs are validated against Zod schema</li>
-          <li>Batch insert via Reservoir (TimescaleDB or ClickHouse)</li>
+          <li>Batch insert via Reservoir (TimescaleDB, ClickHouse, or MongoDB)</li>
           <li>Alert evaluator job is triggered (BullMQ)</li>
           <li>Logs are broadcast to active SSE streams</li>
       </ol>
@@ -333,8 +335,8 @@ User → Organizations (1:N) → Projects (1:N) → API Keys → Logs
               <CardTitle class="text-base">Why SvelteKit 5?</CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              Modern reactivity with Runes, excellent performance, built-in
-              SSR, file-based routing, and minimal bundle size provide the
+              Modern reactivity with Runes, excellent performance,
+              file-based routing, and minimal bundle size provide the
               best developer and user experience.
           </CardContent>
       </Card>

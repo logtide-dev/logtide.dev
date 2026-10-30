@@ -167,7 +167,7 @@ MongoDB 4.4+ structured log format:
     Host          api.logtide.dev
     Port          443
     URI           /api/v1/ingest/single
-    Format        json
+    Format        json_lines
     Header        X-API-Key ${LOGTIDE_API_KEY}
     Header        Content-Type application/json
     tls           On
@@ -192,6 +192,10 @@ function map_severity(tag, timestamp, record)
         record["level"] = severity_map[s]
     else
         record["level"] = "info"
+    end
+    -- LogTide expects "message"; MongoDB structured logs use "msg"
+    if record["msg"] and not record["message"] then
+        record["message"] = record["msg"]
     end
     return 1, timestamp, record
 end
@@ -280,6 +284,8 @@ services:
       mongod
       --profile 1
       --slowms 100
+      --logpath /var/log/mongodb/mongod.log
+      --logappend
     ports:
       - "27017:27017"
     volumes:
@@ -305,49 +311,32 @@ volumes:
   mongo_logs:
 ```
 
-## Monitoring Queries
+## Search Queries
 
-### Slow Operations
+Search in the LogTide logs explorer (or the API) with the [query syntax](/docs/query-syntax/). Numeric comparisons such as `duration_ms > 500` are not part of the query language, so filter on `log_type` or a flag field and read the numeric fields in the results.
 
-```sql
-SELECT * FROM logs
-WHERE service = 'mongodb'
-  AND log_type = 'profiler'
-  AND duration_ms > 500
-ORDER BY duration_ms DESC
-LIMIT 50
+### Profiler Operations
+
+```
+service:mongodb log_type:profiler
 ```
 
 ### Collection Scans (Missing Indexes)
 
-```sql
-SELECT * FROM logs
-WHERE service = 'mongodb'
-  AND warning = 'collection_scan'
-ORDER BY docs_examined DESC
-LIMIT 50
+```
+service:mongodb warning:collection_scan
 ```
 
 ### Replica Set Events
 
-```sql
-SELECT * FROM logs
-WHERE service = 'mongodb'
-  AND (message LIKE '%election%'
-       OR message LIKE '%stepDown%'
-       OR message LIKE '%replSetReconfig%')
-ORDER BY timestamp DESC
+```
+election OR stepDown OR replSetReconfig service:mongodb
 ```
 
 ### Authentication Failures
 
-```sql
-SELECT * FROM logs
-WHERE service = 'mongodb'
-  AND level = 'warning'
-  AND (message LIKE '%authentication%'
-       OR message LIKE '%auth%')
-ORDER BY timestamp DESC
+```
+authentication OR auth service:mongodb level:warn
 ```
 
 ## Detection Rules
@@ -355,17 +344,17 @@ ORDER BY timestamp DESC
 ### Sustained Slow Operations
 
 ```
-service:mongodb AND log_type:profiler AND duration_ms > 1000
-| window 5m
-| count > 10
+service:mongodb log_type:profiler
 ```
+
+Alert threshold: more than 10 matches in 5 minutes. Numeric filters such as `duration_ms > 1000` are not supported by the query language, so apply that cutoff in the collector script (only emit profiler entries slower than 1000 ms).
 
 Alert: "MongoDB experiencing sustained slow operations"
 
 ### Collection Scan on Large Collection
 
 ```
-service:mongodb AND warning:collection_scan AND docs_examined > 10000
+service:mongodb warning:collection_scan
 ```
 
 Alert: "Collection scan on large collection - missing index?"
@@ -373,7 +362,7 @@ Alert: "Collection scan on large collection - missing index?"
 ### Replica Set Election
 
 ```
-service:mongodb AND message:"election"
+service:mongodb election
 ```
 
 Alert: "MongoDB replica set election triggered"
@@ -381,10 +370,10 @@ Alert: "MongoDB replica set election triggered"
 ### Connection Spike
 
 ```
-service:mongodb AND message:"connection accepted"
-| window 1m
-| count > 100
+service:mongodb "connection accepted"
 ```
+
+Alert threshold: more than 100 matches in 1 minute
 
 Alert: "MongoDB connection spike detected"
 

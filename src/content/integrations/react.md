@@ -27,7 +27,8 @@ faqs:
   - question: "Do I need to change my existing React component code to use LogTide?"
     answer: "Not for automatic error capture. Wrapping your app or specific subtrees with LogtideErrorBoundary catches rendering errors at the component level without modifying individual components. For manual logging or breadcrumbs inside business logic, you can optionally call hub.captureError or hub.captureLog where needed."
   - question: "Does LogTide support Core Web Vitals monitoring for React apps?"
-    answer: "Yes. The @logtide/browser SDK automatically collects LCP, FID, CLS, and INP metrics with no additional configuration. Results are visible in the LogTide Dashboard under the Metrics tab."
+    answer: "Yes, once enabled. Web Vitals are opt-in. Enable them with browser: { webVitals: true } in initLogtide and install the web-vitals package as a peer dependency. LCP, INP, and CLS are then sent as info logs (message 'Web Vital: LCP = ...') with a performance.metric field, so you can find them in the log search. They do not appear in a dedicated Metrics tab."
+
   - question: "How do I get readable stack traces instead of minified production code?"
     answer: "Upload your source maps during the build step using the @logtide/cli tool with the logtide sourcemaps upload command, providing the output directory, release version, and your API key. LogTide will then map production errors back to the original source lines."
 ---
@@ -38,7 +39,7 @@ LogTide's React integration provides professional-grade error tracking and perfo
 
 - **Automatic error capture**: Catches all unhandled exceptions and promise rejections.
 - **Error Boundaries**: Component-level error catching with full stack traces.
-- **Core Web Vitals**: Monitor LCP, FID, CLS, and INP to ensure a smooth UX.
+- **Core Web Vitals**: Monitor LCP, INP, and CLS to ensure a smooth UX.
 - **Breadcrumbs**: Automatically track user clicks and network requests leading up to an error.
 - **Source Maps**: See the original source code in your stack traces instead of minified production code.
 
@@ -77,7 +78,7 @@ Wrap your application or specific components with an Error Boundary to capture r
 
 ```tsx
 import React from 'react';
-import { LogtideErrorBoundary } from '@logtide/browser';
+import { LogtideErrorBoundary } from '@logtide/browser/react';
 
 function MyErrorPage({ error }: { error: Error }) {
   return (
@@ -130,7 +131,21 @@ function CheckoutButton() {
 
 ## Core Web Vitals
 
-LogTide automatically tracks performance metrics. You can view these in your LogTide Dashboard under the **Metrics** tab to monitor your app's health in the real world.
+Web Vitals are opt-in. Enable them in `initLogtide`, and install the `web-vitals` package (an optional peer dependency of `@logtide/browser`):
+
+```bash
+npm install web-vitals
+```
+
+```typescript
+initLogtide({
+  dsn: 'https://lp_abc123@api.logtide.dev',
+  service: 'react-frontend',
+  browser: { webVitals: true },
+});
+```
+
+LCP, INP, and CLS are sent as `info` logs (message `Web Vital: LCP = ...`) with a `performance.metric` field, so you can filter for them in the log search.
 
 ## Source Map Uploads
 

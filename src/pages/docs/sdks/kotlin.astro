@@ -249,7 +249,7 @@ runBlocking {
   maxRetries = 3,               // Max retry attempts (default: 3)
   retryDelay = 1.seconds,       // Initial retry delay (default: 1s)
   circuitBreakerThreshold = 5,  // Failures before circuit opens (default: 5)
-  circuitBreakerTimeout = 60.seconds, // Circuit reset timeout (default: 60s)
+  circuitBreakerReset = 30.seconds, // Circuit reset timeout (default: 30s)
   
   // Optional - Metadata
   globalMetadata = mapOf(       // Added to all logs
@@ -320,16 +320,16 @@ client.withTraceId("order-processing-\${orderId}") {
   client.info("inventory", "Stock reserved")
 }
 
-// Scoped trace ID (propagates to child coroutines automatically)
+// Coroutine-safe trace ID (propagates to child coroutines automatically)
 coroutineScope {
-  client.withTraceId("my-trace-id") {
+  client.withTraceIdSuspend("my-trace-id") {
       launch { client.info("worker-1", "Task started") }
       launch { client.info("worker-2", "Task started") }
   }
 }
 
 // Auto-generated trace ID
-client.withTraceId { // generates UUID
+client.withNewTraceId { // generates UUID
   client.info("api", "Request processing")
 }`}
           />
@@ -353,13 +353,12 @@ client.withTraceId { // generates UUID
           <Code
               lang="kotlin"
               theme="one-dark-pro"
-              code={`import dev.logtide.sdk.middleware.LogTidePlugin
+              code={`import dev.logtide.sdk.ktor.LogTidePlugin
+import dev.logtide.sdk.ktor.LogTideClientKey
 import io.ktor.server.application.*
 
 fun Application.module() {
   install(LogTidePlugin) {
-      apiUrl = "http://localhost:8080"
-      apiKey = "lp_your_api_key_here"
       serviceName = "ktor-app"
 
       // Optional configuration
@@ -370,10 +369,12 @@ fun Application.module() {
       skipPaths = setOf("/metrics", "/internal")
 
       // Client options
-      batchSize = 100
-      flushInterval = 5.seconds
-      enableMetrics = true
-      globalMetadata = mapOf("env" to "production")
+      logtideClientOptions("http://localhost:8080", "lp_your_api_key_here") {
+          batchSize = 100
+          flushInterval = 5.seconds
+          enableMetrics = true
+          globalMetadata = mapOf("env" to "production")
+      }
   }
 }
 
@@ -399,7 +400,7 @@ routing {
               lang="kotlin"
               theme="one-dark-pro"
               code={`import dev.logtide.sdk.LogTideClient
-import dev.logtide.sdk.middleware.LogTideInterceptor
+import dev.logtide.sdk.spring.LogTideInterceptor
 import dev.logtide.sdk.models.LogTideClientOptions
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -443,7 +444,7 @@ class LogTideConfig : WebMvcConfigurer {
               lang="kotlin"
               theme="one-dark-pro"
               code={`import dev.logtide.sdk.LogTideClient
-import dev.logtide.sdk.middleware.LogTideFilter
+import dev.logtide.sdk.jakarta.LogTideFilter
 import dev.logtide.sdk.models.LogTideClientOptions
 
 // Create client
@@ -482,14 +483,18 @@ servletContext.addFilter("logTide", filter)`}
           <Code
               lang="kotlin"
               theme="one-dark-pro"
-              code={`// Search logs
-val result = client.query(
+              code={`import dev.logtide.sdk.enums.LogLevel
+import dev.logtide.sdk.models.QueryOptions
+import java.time.Instant
+
+// Search logs (query() is a suspend function)
+val result = client.query(QueryOptions(
   service = "api-gateway",
-  level = "error",
-  from = "2025-01-15T00:00:00Z",
-  to = "2025-01-15T23:59:59Z",
+  level = LogLevel.ERROR,
+  from = Instant.parse("2025-01-15T00:00:00Z"),
+  to = Instant.parse("2025-01-15T23:59:59Z"),
   limit = 100
-)
+))
 
 println("Found \${result.total} error logs")
 result.logs.forEach { log ->
@@ -503,11 +508,11 @@ result.logs.forEach { log ->
           <Code
               lang="kotlin"
               theme="one-dark-pro"
-              code={`val result = client.query(
+              code={`val result = client.query(QueryOptions(
   q = "timeout OR connection",  // Full-text search
-  level = "error",
+  level = LogLevel.ERROR,
   limit = 50
-)`}
+))`}
           />
       </div>
 
@@ -516,7 +521,7 @@ result.logs.forEach { log ->
           <Code
               lang="kotlin"
               theme="one-dark-pro"
-              code={`val logs = client.getLogsByTraceId(
+              code={`val logs = client.getByTraceId(
   traceId = "550e8400-e29b-41d4-a716-446655440000"
 )
 
@@ -540,15 +545,17 @@ logs.forEach { log ->
           lang="kotlin"
           theme="one-dark-pro"
           code={`// Stream logs in real-time
-client.liveTail(
-  service = "api-gateway",
-  level = "error"
-) { log ->
-  // Called for each new log
-  println("[\${log.time}] \${log.message}")
-}
+val stop = client.stream(
+  onLog = { log ->
+      // Called for each new log
+      println("[\${log.time}] \${log.message}")
+  },
+  onError = { e -> println("Stream error: \${e.message}") },
+  filters = mapOf("service" to "api-gateway", "level" to "error")
+)
 
-// Stream will automatically reconnect on connection loss`}
+// Later: stop streaming
+stop()`}
       />
   </div>
 
@@ -567,9 +574,9 @@ client.liveTail(
 val metrics = client.getMetrics()
 
 println("Logs sent: \${metrics.logsSent}")
-println("Logs failed: \${metrics.logsFailed}")
+println("Logs dropped: \${metrics.logsDropped}")
 println("Avg latency: \${metrics.avgLatencyMs}ms")
-println("Circuit breaker state: \${metrics.circuitBreakerState}")`}
+println("Circuit breaker state: \${client.getCircuitBreakerState()}")`}
       />
   </div>
 

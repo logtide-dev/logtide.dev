@@ -19,7 +19,7 @@ faqs:
   - question: "Does Azure Sentinel replace Azure Monitor?"
     answer: "No. They are complementary, not alternatives. Sentinel consumes data from the same Log Analytics workspaces that Azure Monitor populates, then layers security detection on top. Most organizations running Sentinel still use Azure Monitor for operational alerting and application performance."
   - question: "How much does Microsoft Sentinel cost on top of Log Analytics?"
-    answer: "Sentinel adds roughly $2.46/GB analyzed on top of Log Analytics ingestion (about $2.76/GB pay-as-you-go). Security-relevant data therefore costs around $5.22/GB ingested - before retention fees. Commitment tiers reduce both rates at volume."
+    answer: "Sentinel adds roughly $2.00/GB analyzed on top of Log Analytics ingestion (about $2.30/GB pay-as-you-go, US East list prices). Security-relevant data therefore costs around $4.30/GB ingested - the same figure the simplified pricing tier bills as one combined rate - before retention fees. Commitment tiers reduce both rates at volume."
   - question: "Is there a cheaper alternative to running Sentinel for log-based detection?"
     answer: "For log-based threat detection, self-hosted platforms like LogTide include SIEM capabilities - Sigma detection rules, MITRE ATT&CK mapping, incident management - without per-GB security surcharges. You pay infrastructure costs only, which at meaningful volume is typically 85-95% less than the Log Analytics + Sentinel combination."
 ---
@@ -85,20 +85,20 @@ Same data, two lenses. Which is exactly why the pricing model stings.
 
 Both products bill per GB on the **same ingested data**:
 
-| Component | Cost (pay-as-you-go) |
+| Component | Cost (pay-as-you-go, US East) |
 |-----------|---------------------|
-| Log Analytics ingestion | ~$2.76/GB |
-| Microsoft Sentinel surcharge | ~$2.46/GB analyzed |
-| **Security-relevant data, combined** | **~$5.22/GB** |
+| Log Analytics ingestion | ~$2.30/GB |
+| Microsoft Sentinel surcharge | ~$2.00/GB analyzed |
+| **Security-relevant data, combined** | **~$4.30/GB** |
 | Extra retention (beyond included) | ~$0.10/GB/month |
 
-Commitment tiers discount both meters at volume (e.g. ~$1.96/GB for Log Analytics at 100 GB/day), but the structure stays the same: **security data is billed twice** - once to land in the workspace, once for Sentinel to analyze it.
+Prices vary by region. Commitment tiers discount both meters from 100 GB/day (e.g. ~$1.96/GB for Log Analytics at 100 GB/day), and the simplified pricing tier shows them as a single line, but the structure stays the same: **security data is billed twice** - once to land in the workspace, once for Sentinel to analyze it.
 
 A concrete example at 50 GB/day of security-relevant logs:
 
-- Log Analytics: 1,500 GB × $1.96 (commitment) ≈ **$2,940/month**
-- Sentinel: 1,500 GB × $2.46 ≈ **$3,690/month**
-- **Total: ~$6,930/month (~$83,000/year)** before retention
+- Log Analytics: 1,500 GB × $2.30 ≈ **$3,450/month** (commitment tiers start at 100 GB/day, so pay-as-you-go applies)
+- Sentinel: 1,500 GB × $2.00 ≈ **$3,000/month**
+- **Total: ~$6,450/month (~$77,400/year)** before retention
 
 For the full breakdown including the self-hosted comparison, see [LogTide vs Azure Monitor](/vs/azure-monitor/).
 
@@ -116,7 +116,7 @@ For the full breakdown including the self-hosted comparison, see [LogTide vs Azu
 
 - Nobody would own the incident queue - an unwatched SIEM is an expensive log archive
 - Your detection needs are log-based and rule-driven rather than UEBA/ML-driven
-- The $2.46/GB surcharge forces you to *exclude* data sources from security analysis to control cost - which defeats the purpose
+- The ~$2.00/GB surcharge forces you to *exclude* data sources from security analysis to control cost - which defeats the purpose
 
 That last failure mode is common: teams route only a fraction of their logs into the Sentinel-enabled workspace to cap the bill, and attackers live in the logs that didn't make the cut.
 
@@ -136,7 +136,7 @@ It's not a full Sentinel replacement - there's no UEBA, no Logic Apps SOAR, no M
 | Primary question | Is it healthy? | Is it under attack? | Both, log-based |
 | Data layer | Log Analytics | Log Analytics (same) | Your TimescaleDB/ClickHouse |
 | Detection rules | KQL alerts (ops) | Analytics rules, UEBA, TI | Sigma rules, MITRE ATT&CK |
-| Pricing | ~$2.76/GB | +$2.46/GB on top | Infrastructure only |
+| Pricing | ~$2.30/GB | +~$2.00/GB on top | Infrastructure only |
 | Best for | Every Azure workload | Microsoft-centric SOCs | Cost-conscious, sovereignty-first teams |
 
 Azure Monitor and Sentinel aren't an either/or - one is the data and ops layer, the other a security product on top of it. The decision that actually affects your budget is whether per-GB security pricing fits how much log data you want eyes on. If it doesn't, [self-hosted log management with built-in SIEM](/self-hosted-log-management/) is the lever that changes the equation.

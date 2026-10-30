@@ -120,11 +120,11 @@ Install Vector:
 
 ```bash
 # Ubuntu/Debian
-curl -1sLf 'https://repositories.timber.io/public/vector/cfg/setup/bash.deb.sh' | sudo bash
+bash -c "$(curl -L https://setup.vector.dev)"
 sudo apt-get install vector
 
 # RHEL/CentOS
-curl -1sLf 'https://repositories.timber.io/public/vector/cfg/setup/bash.rpm.sh' | sudo bash
+bash -c "$(curl -L https://setup.vector.dev)"
 sudo yum install vector
 ```
 
@@ -186,7 +186,7 @@ timeout_secs = 5
 
 [sinks.logtide.buffer]
 type = "disk"
-max_size = 268435456
+max_size = 268435488
 when_full = "block"
 ```
 
@@ -406,7 +406,7 @@ data:
         Host          YOUR_LOGTIDE_HOST
         Port          443
         URI           /api/v1/ingest/single
-        Format        json
+        Format        json_lines
         Header        X-API-Key ${LOGTIDE_API_KEY}
         Header        Content-Type application/json
         tls           On
@@ -504,7 +504,7 @@ Create alerts for common Traefik issues:
 ### High Error Rate
 
 ```
-service:traefik AND DownstreamStatus:>=500
+service:traefik DownstreamStatus:(500 OR 502 OR 503 OR 504)
 ```
 
 Threshold: >20 errors in 5 minutes.
@@ -588,7 +588,7 @@ If you prefer Fluent Bit over Vector:
     Host          YOUR_LOGTIDE_HOST
     Port          443
     URI           /api/v1/ingest/single
-    Format        json
+    Format        json_lines
     Header        X-API-Key ${LOGTIDE_API_KEY}
     Header        Content-Type application/json
     tls           On

@@ -1,10 +1,10 @@
 ---
 title: "LogTide vs Azure Monitor Logs"
-description: "LogTide vs Azure Monitor: self-hosted, open-source log management with built-in SIEM. Azure Log Analytics charges $2.76/GB - LogTide saves 85-95% at scale."
+description: "LogTide vs Azure Monitor: self-hosted, open-source log management with built-in SIEM. Azure Log Analytics charges $2.30/GB - LogTide saves 85-95% at scale."
 competitor: "Azure Monitor"
 competitorUrl: "https://azure.microsoft.com/en-us/products/monitor"
 brandIcon: "simple-icons:microsoftazure"
-competitorPricing: "$2.76/GB ingestion (Log Analytics)"
+competitorPricing: "$2.30/GB ingestion (Log Analytics)"
 logtidePricing: "Free (self-hosted)"
 highlights:
   - "85-95% cost savings"
@@ -31,7 +31,7 @@ keywords:
   - "Azure SIEM alternative"
 faqs:
   - question: "How much can LogTide save versus Azure Monitor Log Analytics?"
-    answer: "Azure Log Analytics charges about $2.76/GB for ingestion. At meaningful volume, self-hosting LogTide typically cuts log management costs by 85-95%, since you pay for infrastructure instead of per-GB ingestion."
+    answer: "Azure Log Analytics charges about $2.30/GB for ingestion (pay-as-you-go, US East). At meaningful volume, self-hosting LogTide typically cuts log management costs by 85-95%, since you pay for infrastructure instead of per-GB ingestion."
   - question: "Is LogTide a drop-in replacement for Azure Sentinel's SIEM?"
     answer: "LogTide includes built-in SIEM with Sigma detection rules and MITRE ATT&CK mapping at no extra cost. It covers core log-based threat detection that would otherwise require Microsoft Sentinel, which is billed on top of Log Analytics."
   - question: "Can I run LogTide inside Azure?"
@@ -50,22 +50,22 @@ Azure Monitor is one of the most expensive log management options in the cloud.
 
 | Component | Cost |
 |-----------|------|
-| Log Analytics ingestion (pay-as-you-go) | $2.76/GB |
+| Log Analytics ingestion (pay-as-you-go) | $2.30/GB |
 | Log Analytics ingestion (commitment tier, 100 GB/day) | $1.96/GB |
 | Data retention (first 31 days) | Included |
 | Data retention (additional) | $0.10/GB/month |
-| Basic Logs ingestion | $0.55/GB |
+| Basic Logs ingestion | $0.50/GB |
 | Basic Logs queries | $0.006/GB scanned |
-| Microsoft Sentinel (SIEM add-on) | $2.46/GB |
+| Microsoft Sentinel (SIEM add-on, pay-as-you-go) | +$2.00/GB ($4.30/GB combined with Log Analytics on the simplified tier) |
 
-**Real-world example:** An Azure SaaS company ingesting 50 GB/day:
-- Log Analytics (commitment tier): 1,500 GB × $1.96 = $2,940/month
+**Real-world example:** An Azure SaaS company ingesting 50 GB/day (US East list prices; the 100 GB/day commitment tier does not apply below 100 GB/day, so pay-as-you-go is used):
+- Log Analytics (pay-as-you-go): 1,500 GB × $2.30 = $3,450/month
 - Extra retention (90 days): ~$300/month
-- **Total: ~$3,240/month ($38,880/year)**
+- **Total: ~$3,750/month ($45,000/year)**
 
 With Sentinel SIEM added:
-- Sentinel: 1,500 GB × $2.46 = $3,690/month
-- **Total with SIEM: ~$6,930/month ($83,160/year)**
+- Sentinel (pay-as-you-go): 1,500 GB × $2.00 = $3,000/month (the simplified tier bills $4.30/GB for Log Analytics + Sentinel together)
+- **Total with SIEM: ~$6,750/month ($81,000/year)**
 
 ### LogTide Pricing
 
@@ -81,9 +81,9 @@ With Sentinel SIEM added:
 - VM + storage: ~$400/month
 - **Total: ~$400/month ($4,800/year)**
 
-**Savings: ~$34,080/year (88%)**
+**Savings: ~$40,200/year (89%)**
 
-With SIEM comparison: **Savings: ~$78,360/year (94%)**
+With SIEM comparison: **Savings: ~$76,200/year (94%)**
 
 ## Feature Comparison
 
@@ -95,7 +95,7 @@ With SIEM comparison: **Savings: ~$78,360/year (94%)**
 | Real-time streaming | Limited | SSE (included) |
 | Alert rules | Yes (complex conditions) | Built-in |
 | Dashboards | Azure Workbooks | SIEM dashboard |
-| SIEM | Sentinel ($2.46/GB extra) | Built-in (included) |
+| SIEM | Sentinel (~$2.00/GB extra) | Built-in (included) |
 | Sigma detection rules | Sentinel only | Built-in |
 | MITRE ATT&CK mapping | Sentinel only | Included |
 | Playbooks/automation | Logic Apps (extra cost) | Webhooks |
@@ -116,9 +116,9 @@ With SIEM comparison: **Savings: ~$78,360/year (94%)**
 
 ## Where LogTide Wins
 
-**Cost.** Azure Monitor's $2.76/GB ingestion is the highest among major cloud providers. LogTide saves 85-95% at typical volumes. Even with commitment tiers, the savings are dramatic.
+**Cost.** Azure Monitor's $2.30/GB ingestion is the highest among major cloud providers. LogTide saves 85-95% at typical volumes. Even with commitment tiers, the savings are dramatic.
 
-**SIEM included.** Sentinel adds $2.46/GB on top of Log Analytics costs. LogTide includes Sigma detection rules, MITRE ATT&CK mapping, and incident management at zero additional cost.
+**SIEM included.** Sentinel adds about $2.00/GB (pay-as-you-go) on top of Log Analytics, for $4.30/GB combined. LogTide includes Sigma detection rules, MITRE ATT&CK mapping, and incident management at zero additional cost.
 
 **No vendor lock-in.** Azure Monitor uses KQL and proprietary data formats. LogTide stores data in PostgreSQL - standard SQL, exportable, portable.
 

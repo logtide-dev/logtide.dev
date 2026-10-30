@@ -253,10 +253,10 @@ curl http://localhost:8080/health`}
                       theme="one-dark-pro"
                       code={`# promtail-config.yaml
 server:
-http_listen_port: 9080
+  http_listen_port: 9080
 
 positions:
-filename: /tmp/positions.yaml
+  filename: /tmp/positions.yaml
 
 clients:
 - url: http://loki:3100/loki/api/v1/push
@@ -311,15 +311,15 @@ scrape_configs:
           theme="one-dark-pro"
           code={`# docker-compose.yml
 services:
-fluent-bit:
-  image: fluent/fluent-bit:4.2.2  # For ARM64: cr.fluentbit.io/fluent/fluent-bit:4.2.2
-  volumes:
-    - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
-    - /var/log:/var/log:ro
-  environment:
-    - LOGTIDE_API_KEY=lp_your_api_key
-  depends_on:
-    - logtide`}
+  fluent-bit:
+    image: fluent/fluent-bit:4.2.2  # For ARM64: cr.fluentbit.io/fluent/fluent-bit:4.2.2
+    volumes:
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+      - /var/log:/var/log:ro
+    environment:
+      - LOGTIDE_API_KEY=lp_your_api_key
+    depends_on:
+      - logtide`}
       />
   </div>
 
@@ -350,7 +350,7 @@ fluent-bit:
                   </tr>
                   <tr>
                       <td class="px-4 py-2 border-b border-border font-mono text-xs"><code class="bg-muted px-1 rounded">{'{job="api"} |= "error"'}</code></td>
-                      <td class="px-4 py-2 border-b border-border font-mono text-xs">GET /api/v1/logs?service=api&level=error</td>
+                      <td class="px-4 py-2 border-b border-border font-mono text-xs">GET /api/v1/logs?service=api&q=error</td>
                   </tr>
                   <tr>
                       <td class="px-4 py-2 border-b border-border font-mono text-xs"><code class="bg-muted px-1 rounded">{'{job="api"} |~ "timeout|connection"'}</code></td>
@@ -576,12 +576,12 @@ groups:
           <CardHeader>
               <CardTitle class="text-base flex items-center gap-2">
                   <Icon name="lucide:alert-circle" class="w-4 h-4 text-yellow-500" />
-                  Missing Grafana dashboards
+                  Recreating Grafana dashboards
               </CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              LogTide doesn't have Grafana-style custom dashboards yet.
-              Use the SIEM dashboard for security metrics. For custom visualizations,
+              Rebuild Grafana dashboards with LogTide <a href="/docs/dashboards/" class="text-primary-readable hover:underline">Custom Dashboards</a>
+              (drag-and-drop panels over logs, traces, and metrics). Use the SIEM dashboard for security metrics. For other visualizations,
               you can query the LogTide API from external tools.
           </CardContent>
       </Card>

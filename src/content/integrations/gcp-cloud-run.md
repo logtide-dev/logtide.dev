@@ -42,7 +42,7 @@ This guide ships Cloud Run logs to LogTide for field-based search, real-time ale
 
 - **Cost beyond the free tier**: $0.50/GiB adds up for chatty services; LogTide is flat-cost infrastructure ([full comparison](/vs/gcp-cloud-logging/))
 - **Structured metadata queries**: filter by `tenant`, `endpoint` or `revision` directly instead of writing Log Analytics SQL
-- **Real-time alerting**: SSE-backed alerts on error patterns without log-based metric + alerting policy plumbing
+- **Real-time alerting**: alerts on error patterns without log-based metric + alerting policy plumbing
 - **Unified view**: Cloud Run, GKE, on-prem and other clouds in one searchable timeline
 - **Retention control**: keep everything searchable without per-GiB retention fees
 
@@ -149,7 +149,7 @@ spec:
             - name: logs
               mountPath: /var/log/app
         - name: fluentbit
-          image: cr.fluentbit.io/fluent/fluent-bit:3.0
+          image: fluent/fluent-bit:3.0
           volumeMounts:
             - name: logs
               mountPath: /var/log/app

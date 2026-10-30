@@ -1,6 +1,6 @@
 ---
 title: "High-Volume Log Management"
-description: "Handle millions of log events per second with LogTide using batching, partitioning, and retention strategies at scale."
+description: "Handle high log volume with LogTide using SDK batching, buffering, partitioning, and retention strategies at scale."
 category: "performance"
 difficulty: "advanced"
 icon: "lucide:gauge"
@@ -10,9 +10,9 @@ industries:
   - "Gaming"
   - "IoT"
 highlights:
-  - "1M+ events/sec ingestion"
+  - "Capacity planning at scale"
   - "Intelligent batching"
-  - "Tiered retention"
+  - "Retention planning"
   - "Backpressure handling"
 relatedIntegrations:
   - "kafka"
@@ -30,16 +30,16 @@ keywords:
   - "log retention strategy"
 faqs:
   - question: "Can LogTide handle high log volume at scale?"
-    answer: "Yes. LogTide supports sustained ingestion of 1 million or more events per second using a Kafka buffer layer, horizontally scaled ingestion workers, and TimescaleDB hypertables for storage. A real-world gaming platform example in the documentation demonstrates 500,000 events per second with a p99 ingestion latency of 200ms."
+    answer: "LogTide batches writes and can run on TimescaleDB, ClickHouse (columnar, recommended for high volume) or MongoDB. There is no published throughput benchmark, so size and load-test your own deployment. The Kafka buffer, ingestion worker and gaming platform examples in this guide are illustrative design patterns and scenarios, not measured results or a customer case study."
   - question: "How does LogTide prevent log loss during traffic bursts?"
     answer: "LogTide recommends placing Apache Kafka between your application SDKs and the LogTide ingesters. Kafka absorbs burst traffic so that temporary slowdowns in ingestion do not cause backpressure or dropped events in your application. The SDK also provides a configurable in-memory buffer with a maxBufferSize limit and drop policy to protect application memory."
   - question: "How do I reduce storage costs at high log volume with LogTide?"
-    answer: "LogTide supports tiered retention: recent data (hot tier) stays in TimescaleDB on fast SSD, older data moves to compressed chunks (warm tier), and archival data is offloaded to object storage such as S3 (cold tier). At 100 GB/day this tiered approach costs roughly $123 per month in storage versus approximately $1,000 per month for keeping everything in hot storage."
+    answer: "LogTide retention is a single per-organization period from 1 to 365 days, after which logs are deleted. There is no built-in hot/warm/cold tiering or S3 archive: keep the retention period as short as your needs allow, and export or archive older data yourself if you must keep it. The tiering model and costs shown in this guide are an illustrative design, not a LogTide feature."
   - question: "What SDK settings should I tune for high-throughput logging?"
     answer: "For high-volume workloads, increase batchSize to 500 or more, reduce flushInterval to 1-2 seconds, and raise maxBufferSize to accommodate burst traffic. Filtering out debug logs in production and sampling high-frequency successful requests at a low rate (such as 1%) are also strongly recommended to control storage growth."
 ---
 
-When your systems generate millions of log events per second, naive logging approaches fail. Buffers overflow, disks fill up, and your observability pipeline becomes a liability. This guide covers the architecture and configuration patterns for handling high-volume log workloads with LogTide.
+When your systems generate very large volumes of log events, naive logging approaches fail. Buffers overflow, disks fill up, and your observability pipeline becomes a liability. This guide covers the architecture and configuration patterns for handling high-volume log workloads with LogTide.
 
 ## The Problem with High-Volume Logging
 
@@ -231,7 +231,8 @@ See the [Kafka Integration Guide](/integrations/kafka/) for full setup.
 Not all logs need the same retention:
 
 ```yaml
-# LogTide retention configuration
+# Illustrative design only: LogTide itself has one per-organization retention (1-365 days)
+# and no built-in tiering or S3 archive
 retention:
   # Hot tier: fast queries, expensive storage
   hot:
@@ -266,7 +267,7 @@ vs. keeping everything in hot storage: ~$1,000/month.
 Scale LogTide ingestion horizontally:
 
 ```yaml
-# Kubernetes: Scale ingestion workers
+# Kubernetes: illustrative example of scaling the ingestion path (the image/name is a placeholder)
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -319,7 +320,7 @@ spec:
 
 ## Real-World Example: Gaming Platform
 
-A real-time multiplayer platform generating 500,000 events/sec during peak hours.
+An illustrative scenario (not a customer case study or a measured benchmark): a real-time multiplayer platform generating 500,000 events/sec during peak hours.
 
 **Requirements:**
 - Game server events (player actions, match state)
@@ -375,7 +376,7 @@ client.info('game-server', 'match_started', {
 });
 ```
 
-**Results:**
+**Targets for this scenario:**
 - Sustained 500k events/sec during peak
 - P99 ingestion latency: 200ms
 - Storage: 2.1 TB/day → 350 GB/day compressed

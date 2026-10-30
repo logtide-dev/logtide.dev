@@ -136,7 +136,9 @@ exporters:
 # After (LogTide)
 exporters:
   otlphttp/logtide:
-    endpoint: http://logtide:8080
+    logs_endpoint: http://logtide:8080/v1/otlp/logs
+    traces_endpoint: http://logtide:8080/v1/otlp/traces
+    metrics_endpoint: http://logtide:8080/v1/otlp/metrics
     headers:
       X-API-Key: lp_your_api_key
 ```

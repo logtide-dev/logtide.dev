@@ -182,6 +182,7 @@ $logger->error('Payment failed', ['order_id' => 456]);   // → LogTide event
 <?php
 
 use Monolog\Logger;
+use Monolog\Level;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\RotatingFileHandler;
 use LogTide\Monolog\LogtideHandler;

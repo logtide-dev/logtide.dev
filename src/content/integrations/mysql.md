@@ -146,7 +146,7 @@ SHOW VARIABLES LIKE 'log_error%';
     Host          api.logtide.dev
     Port          443
     URI           /api/v1/ingest/single
-    Format        json
+    Format        json_lines
     Header        X-API-Key ${LOGTIDE_API_KEY}
     Header        Content-Type application/json
     tls           On
@@ -358,49 +358,32 @@ spec:
             storage: 50Gi
 ```
 
-## Monitoring Queries
+## Search Queries
 
-### Slow Queries Over Time
+Search in the LogTide logs explorer (or the API) with the [query syntax](/docs/query-syntax/). Numeric comparisons such as `avg_ms > 100` are not part of the query language, so filter on `log_type` and sort or inspect the numeric fields in the results.
 
-```sql
-SELECT * FROM logs
-WHERE service = 'mysql'
-  AND log_type = 'slow_query_digest'
-  AND avg_ms > 100
-ORDER BY avg_ms DESC
-LIMIT 50
+### Slow Query Digests
+
+```
+service:mysql log_type:slow_query_digest
 ```
 
 ### Error Log Analysis
 
-```sql
-SELECT * FROM logs
-WHERE service = 'mysql'
-  AND level IN ('error', 'warning')
-ORDER BY timestamp DESC
-LIMIT 100
+```
+service:mysql level:(error OR warn)
 ```
 
 ### Connection Tracking
 
-```sql
-SELECT * FROM logs
-WHERE service = 'mysql'
-  AND (message LIKE '%Access denied%'
-       OR message LIKE '%Too many connections%'
-       OR message LIKE '%Aborted connection%')
-ORDER BY timestamp DESC
+```
+"Access denied" OR "Too many connections" OR "Aborted connection" service:mysql
 ```
 
-### Replication Lag
+### Replication Issues
 
-```sql
-SELECT * FROM logs
-WHERE service = 'mysql'
-  AND (message LIKE '%Slave%'
-       OR message LIKE '%Replica%'
-       OR message LIKE '%replication%')
-ORDER BY timestamp DESC
+```
+Slave OR Replica OR replication service:mysql
 ```
 
 ## Detection Rules
@@ -408,25 +391,25 @@ ORDER BY timestamp DESC
 ### Slow Query Spike
 
 ```
-service:mysql AND log_type:slow_query_digest AND avg_ms > 5000
+service:mysql log_type:slow_query_digest
 ```
 
-Alert: "MySQL query averaging over 5 seconds"
+Alert: "MySQL slow query digest reported" (numeric thresholds such as `avg_ms > 5000` cannot be expressed in the query language, so apply the threshold in the collector script, for example by only emitting digests above 5000 ms)
 
 ### Access Denied Burst
 
 ```
-service:mysql AND message:"Access denied"
-| window 5m
-| count > 10
+service:mysql "Access denied"
 ```
+
+Alert threshold: more than 10 matches in 5 minutes
 
 Alert: "Multiple failed MySQL login attempts"
 
 ### Replication Failure
 
 ```
-service:mysql AND level:error AND message:"replication"
+service:mysql level:error replication
 ```
 
 Alert: "MySQL replication error detected"
@@ -434,7 +417,7 @@ Alert: "MySQL replication error detected"
 ### Connection Pool Exhaustion
 
 ```
-service:mysql AND message:"Too many connections"
+service:mysql "Too many connections"
 ```
 
 Alert: "MySQL connection limit reached"

@@ -90,7 +90,7 @@ app.listen(3000);`}
   </h2>
 
   <p class="text-muted-foreground mb-4">
-      The middleware accepts all <a href="/docs/sdks/nodejs#configuration"><code class="bg-muted px-1 rounded">ClientOptions</code></a> from <code class="bg-muted px-1 rounded">@logtide/core</code>:
+      The middleware accepts all <a href="/docs/sdks/nodejs/#configuration"><code class="bg-muted px-1 rounded">ClientOptions</code></a> from <code class="bg-muted px-1 rounded">@logtide/core</code>:
   </p>
 
   <div class="mb-8">
@@ -135,8 +135,8 @@ app.use((req, res, next) => {
 });
 
 app.get('/orders', (req, res) => {
-  // This log automatically includes the user and tenant tag
-  hub.captureLog('info', 'Fetching orders');
+  // Pass the request scope so the log includes the user and tenant tag
+  hub.getClient()?.captureLog('info', 'Fetching orders', {}, req.logtideScope);
   res.json([]);
 });`}
       />
@@ -155,14 +155,17 @@ app.get('/orders', (req, res) => {
       <Code
           lang="typescript"
           theme="one-dark-pro"
-          code={`app.get('/api/data', (req, res) => {
+          code={`import { createTraceparent } from '@logtide/core';
+
+app.get('/api/data', async (req, res) => {
   // Access the trace ID for the current request
   const traceId = req.logtideTraceId;
 
   // Pass it to downstream services
   const response = await fetch('https://service-b.internal/data', {
     headers: {
-      // traceparent is automatically injected if tracePropagationTargets match
+      // Propagate the trace to the downstream service
+      traceparent: createTraceparent(req.logtideTraceId, req.logtideScope.spanId, true),
     },
   });
 

@@ -398,13 +398,12 @@ const headings = [
               lang="json"
               theme="one-dark-pro"
               code={`{
-"serverUrl": "ldap://ldap.example.com:389",
+"url": "ldap://ldap.example.com:389",
 "bindDn": "cn=admin,dc=example,dc=com",
 "bindPassword": "admin-password",
 "searchBase": "ou=users,dc=example,dc=com",
 "searchFilter": "(uid={{username}})",
-"emailAttribute": "mail",
-"nameAttribute": "cn"
+"userAttributes": { "email": "mail", "name": "cn" }
 }`}
           />
       </div>
@@ -415,13 +414,12 @@ const headings = [
               lang="json"
               theme="one-dark-pro"
               code={`{
-"serverUrl": "ldaps://ad.example.com:636",
+"url": "ldaps://ad.example.com:636",
 "bindDn": "CN=Service Account,OU=Service Accounts,DC=example,DC=com",
 "bindPassword": "service-account-password",
 "searchBase": "OU=Users,DC=example,DC=com",
 "searchFilter": "(sAMAccountName={{username}})",
-"emailAttribute": "mail",
-"nameAttribute": "displayName"
+"userAttributes": { "email": "mail", "name": "displayName" }
 }`}
           />
           <p class="text-sm text-muted-foreground mt-3">

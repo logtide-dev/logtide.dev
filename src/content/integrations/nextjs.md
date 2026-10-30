@@ -22,13 +22,13 @@ keywords:
   - "nextjs error tracking"
 faqs:
   - question: "How do I add LogTide logging to my Next.js application?"
-    answer: "Install @logtide/nextjs, create an instrumentation.ts file that calls registerLogtide with your DSN, and enable the instrumentationHook in next.config.ts. Server-side errors in API routes, Server Components, and Server Actions are then captured automatically."
+    answer: "Install @logtide/nextjs, create an instrumentation.ts file that calls registerLogtide with your DSN and exports captureRequestError as onRequestError (on Next.js 14, also enable experimental.instrumentationHook in next.config.ts). Server-side errors in API routes, Server Components, and Server Actions are then captured automatically."
   - question: "Does @logtide/nextjs support both server-side and client-side logging?"
     answer: "Yes. You initialize the server side in instrumentation.ts using registerLogtide from @logtide/nextjs/server, and the client side in app/layout.tsx using initLogtide from @logtide/nextjs/client. You can use separate DSNs for each via LOGTIDE_DSN and NEXT_PUBLIC_LOGTIDE_DSN environment variables."
   - question: "How do I capture client-side React errors in Next.js with LogTide?"
     answer: "Wrap your component tree with the LogtideErrorBoundary component from @logtide/nextjs/client (for example in a client component rendered from app/layout.tsx). It automatically captures and forwards React rendering errors to LogTide, and accepts an optional fallback to render in place of the crashed subtree."
   - question: "Can I track page navigation as breadcrumbs in a Next.js App Router application?"
-    answer: "Yes. Import trackNavigation from @logtide/nextjs/client and call it inside a useEffect that watches the pathname from usePathname. Place this LogtideNavigationTracker component in your providers or layout to record every client-side route change."
+    answer: "Yes. Import trackNavigation from @logtide/nextjs/client and call it once inside a useEffect with an empty dependency array (it returns a cleanup function). It listens to history pushState, replaceState, and popstate and records each URL change as a breadcrumb. Place this LogtideNavigationTracker component in your providers or layout to record every client-side route change."
 ---
 
 LogTide's Next.js SDK (`@logtide/nextjs`) provides server-side instrumentation, client-side error boundaries, and navigation tracking for Next.js App Router applications.
@@ -59,19 +59,22 @@ Initialize LogTide via the instrumentation hook:
 
 ```typescript
 // instrumentation.ts
-import { registerLogtide } from '@logtide/nextjs/server';
+import { registerLogtide, captureRequestError } from '@logtide/nextjs/server';
 
 export async function register() {
-  registerLogtide({
+  await registerLogtide({
     dsn: process.env.LOGTIDE_DSN!,
     service: 'nextjs-app',
     environment: process.env.NODE_ENV,
     release: process.env.NEXT_PUBLIC_APP_VERSION,
   });
 }
+
+// Reports errors from Server Components, route handlers and Server Actions
+export const onRequestError = captureRequestError;
 ```
 
-Enable the hook in `next.config.ts`:
+On Next.js 14 you also need to enable the hook in `next.config.ts` (Next.js 15 and later load `instrumentation.ts` by default, and the flag is no longer needed):
 
 ```typescript
 const nextConfig = {
@@ -116,7 +119,7 @@ NEXT_PUBLIC_APP_VERSION=1.0.0
 
 ## Error Capture
 
-Server-side errors in API routes, Server Components, and Server Actions are captured automatically via `captureRequestError`.
+Server-side errors in API routes, Server Components, and Server Actions are captured automatically once you export `captureRequestError` as `onRequestError` from `instrumentation.ts` (see above).
 
 ## Error Boundary
 
@@ -167,14 +170,12 @@ Track client-side navigation as breadcrumbs:
 'use client';
 
 import { trackNavigation } from '@logtide/nextjs/client';
-import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
 export function LogtideNavigationTracker() {
-  const pathname = usePathname();
-  useEffect(() => {
-    trackNavigation(pathname);
-  }, [pathname]);
+  // trackNavigation() hooks into history.pushState/replaceState and popstate,
+  // and returns a cleanup function
+  useEffect(() => trackNavigation(), []);
   return null;
 }
 ```

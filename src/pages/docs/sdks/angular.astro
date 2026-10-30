@@ -135,7 +135,7 @@ export class AppModule {}`}
 npm install -g @logtide/cli
 
 # Upload source maps
-logtide sourcemaps upload --path ./dist/browser --release 1.0.0 --apiKey YOUR_API_KEY`}
+logtide sourcemaps upload --path ./dist/browser --release 1.0.0 --api-key YOUR_API_KEY`}
       />
   </div>
 
@@ -144,9 +144,7 @@ logtide sourcemaps upload --path ./dist/browser --release 1.0.0 --apiKey YOUR_AP
   </h2>
 
   <p class="text-muted-foreground mb-4">
-      LogTide automatically monitors performance metrics (LCP, FID, CLS, INP, TTFB)
-      through the Angular providers. You can view these metrics in the
-      <strong>Metrics</strong> section of your dashboard.
+      Core Web Vitals (LCP, INP, CLS) are opt-in: set <code class="bg-muted px-1 rounded">browser.webVitals</code> to <code class="bg-muted px-1 rounded">true</code> and install the optional <code class="bg-muted px-1 rounded">web-vitals</code> package. They are sent as info-level log events.
   </p>
 
   <h2 id="session-tracking" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
@@ -174,17 +172,15 @@ logtide sourcemaps upload --path ./dist/browser --release 1.0.0 --apiKey YOUR_AP
           theme="one-dark-pro"
           code={`// Errors thrown in components, services, or templates
 // are automatically captured with:
-// - Component name and lifecycle hook
-// - Route information
-// - User context (if configured)
+// - mechanism: 'angular.errorHandler'
+// - angular.zone: 'inside' or 'outside' NgZone
 // - Breadcrumbs trail
 
 // Example: an error in a component
 @Component({ selector: 'app-dashboard', template: '...' })
 export class DashboardComponent implements OnInit {
   ngOnInit() {
-    // If this throws, LogTide captures it with
-    // component: 'DashboardComponent', hook: 'ngOnInit'
+    // If this throws, LogTide captures it via the ErrorHandler
     this.loadData();
   }
 }`}
@@ -245,7 +241,7 @@ import { hub } from '@logtide/core';
 export class CheckoutComponent {
   purchase() {
     hub.addBreadcrumb({
-      type: 'default',
+      type: 'custom',
       category: 'ui',
       message: 'Purchase button clicked',
       timestamp: Date.now(),

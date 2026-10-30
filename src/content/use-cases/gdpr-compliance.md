@@ -26,11 +26,11 @@ keywords:
   - "EU data residency"
 faqs:
   - question: "Is LogTide GDPR-compliant?"
-    answer: "LogTide is designed with privacy-first principles including pseudonymization helpers, configurable retention with automatic deletion, and a self-hosted deployment model that lets you keep all log data within your own EU infrastructure. This makes it significantly easier to meet GDPR obligations than using SaaS logging platforms where data leaves your control."
+    answer: "LogTide is designed with privacy-first principles including built-in PII masking rules (email, credit card, SSN, IP address, API key and sensitive field names), configurable per-organization retention with automatic deletion, and a self-hosted deployment model that lets you keep all log data within your own EU infrastructure. This makes it significantly easier to meet GDPR obligations than using SaaS logging platforms where data leaves your control."
   - question: "How does LogTide handle EU data residency for logs?"
     answer: "Because LogTide is self-hosted, you choose where it runs. Deploying on EU infrastructure means log data never leaves your jurisdiction, removing the need for Standard Contractual Clauses or other data-transfer mechanisms required when sending logs to non-EU SaaS providers."
   - question: "How does LogTide support the GDPR right to erasure?"
-    answer: "LogTide recommends pseudonymizing personal identifiers such as user IDs and email addresses with one-way HMAC hashes at log time. For complete erasure requests, pseudonymized identifiers can be searched and deleted via the LogTide deletion API, and the deletion event itself is logged as an audit trail."
+    answer: "LogTide recommends pseudonymizing personal identifiers such as user IDs and email addresses with one-way HMAC hashes at log time. LogTide has no per-record log deletion API: logs are removed when the organization retention period expires, so keep the retention window short enough for your erasure obligations and keep raw identifiers out of logs in the first place. The erasure request itself can be logged as an audit trail event."
   - question: "How do I avoid logging personal data by accident with LogTide?"
     answer: "The guide provides a PrivacyLogger wrapper that automatically sanitizes known PII fields before they reach LogTide: emails are replaced with HMAC hashes, IP addresses are truncated to remove the last octet, user IDs are pseudonymized, and sensitive fields like passwords and tokens are dropped entirely."
 ---
@@ -240,19 +240,18 @@ app.post('/login', async (req, res) => {
 
 ### 5. Retention Policies
 
-Configure LogTide retention policies in your organization settings:
+LogTide retention is set per organization, from 1 to 365 days, and expired logs are deleted automatically. There are no per-service or per-level retention rules, so use separate organizations if two log types need different periods. The audit log of LogTide itself has its own retention (1 to 3650 days, or keep forever). Example periods:
 
 | Log Type | Retention | Justification |
 |----------|-----------|---------------|
 | Access logs | 90 days | Security monitoring |
 | Error logs | 30 days | Debugging |
-| Audit logs | 7 years | Legal requirement |
 | Debug logs | 7 days | Development only |
 
-In LogTide dashboard:
-1. Go to **Organization Settings** → **Data Retention**
-2. Set default retention period
-3. Create rules for specific services or log levels
+Where to set it:
+1. Self-hosted: retention is configured by your system administrator in the admin panel (organization page)
+2. LogTide Cloud: retention follows your plan (7, 30 or 90 days)
+3. Anything that must be kept longer than 365 days (for example tax records) belongs in a system designed for that, not in the log store
 
 ### 6. Right to Erasure (Article 17)
 
@@ -266,7 +265,7 @@ async function handleDeletionRequest(userId: string) {
   await db.users.delete({ where: { id: userId } });
 
   // 2. The pseudonymized logs don't directly identify the user
-  // But if you need complete erasure, use LogTide's deletion API
+  // LogTide has no per-record delete: they are removed when retention expires
 
   // 3. Log the deletion (audit trail)
   logger.info('GDPR deletion request processed', {
@@ -278,7 +277,7 @@ async function handleDeletionRequest(userId: string) {
   // 4. Return confirmation
   return {
     deleted: true,
-    retentionNote: 'Pseudonymized logs retained for 90 days per security policy',
+    retentionNote: 'Pseudonymized logs expire with the 90-day retention period',
   };
 }
 ```
@@ -291,12 +290,12 @@ Let's say you're building an e-commerce platform in the EU.
 - Log user activity for fraud detection
 - Meet GDPR data minimization
 - Support right to erasure
-- Retain order logs for 7 years (tax compliance)
+- Keep order records for 7 years (tax compliance) in your database, since log retention is capped at 365 days
 
 **Implementation:**
 
 ```typescript
-// Order logging (long retention for tax)
+// Order logging (the tax record itself lives in your database)
 logger.info('Order placed', {
   orderId: order.id,           // Business identifier
   amount: order.total,         // Financial data
@@ -308,7 +307,7 @@ logger.info('Order placed', {
   ip: req.ip,
 });
 
-// Fraud detection (short retention)
+// Fraud detection
 logger.info('Payment attempt', {
   orderId: order.id,
   paymentMethod: 'card',       // Type only, no card numbers
@@ -354,7 +353,7 @@ Use this for your audit:
 
 - [ ] **Right to Erasure**
     - [ ] Process for handling deletion requests
-    - [ ] Mechanism to delete or anonymize user logs
+    - [ ] Mechanism to keep user identifiers out of logs (pseudonymization, PII masking), since logs are removed by retention expiry
     - [ ] Document what can/cannot be deleted (legal holds)
 
 - [ ] **Documentation**
@@ -394,9 +393,9 @@ IP addresses, user agents, and session IDs can all be personal data under GDPR i
 
 ### 3. "We'll delete logs when requested"
 
-If you can't efficiently find and delete a user's logs, you can't fulfill deletion requests.
+If you can't efficiently find a user's logs or let them expire in time, you can't fulfill deletion requests.
 
-**Correct approach:** Use consistent user identifiers (pseudonymized) that can be searched and deleted.
+**Correct approach:** Use consistent user identifiers (pseudonymized) that you can search for, and a retention period short enough that logs expire in time.
 
 ## Legal Disclaimer
 

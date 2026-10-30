@@ -8,7 +8,7 @@ brandIcon: "simple-icons:bun"
 highlights:
   - "Bun-optimized"
   - "Lifecycle hook integration"
-  - "Plugin with .as('global')"
+  - "Globally scoped plugin"
   - "Trace propagation"
 relatedIntegrations:
   - "nodejs"
@@ -22,9 +22,9 @@ keywords:
   - "elysia error tracking"
 faqs:
   - question: "How do I add LogTide logging to an Elysia application?"
-    answer: "Install @logtide/elysia with bun add @logtide/elysia, then call app.use(logtide({ dsn, service, environment })) in your Elysia setup. Use .as('global') on the plugin to ensure all routes, including those registered after the plugin, are covered."
+    answer: "Install @logtide/elysia with bun add @logtide/elysia, then call app.use(logtide({ dsn, service, environment })) in your Elysia setup. The plugin is already registered as global internally, so it covers all routes in the app."
   - question: "Does the LogTide Elysia plugin automatically log every request?"
-    answer: "Yes. The plugin hooks into Elysia's onRequest lifecycle to start a span and extract any incoming traceparent header, and into onAfterHandle to log the completed request with its duration, with no per-route code required."
+    answer: "Yes. The plugin hooks into Elysia's onRequest lifecycle to start a span and extract any incoming traceparent header, and into onAfterHandle to finish the span with the response status and duration, with no per-route code required."
   - question: "How does LogTide handle Elysia errors and exceptions?"
     answer: "The plugin registers an onError lifecycle hook that captures errors with full request context automatically. You can still add your own onError handler to return a custom response; the error is already recorded by LogTide before your handler runs."
   - question: "Does LogTide flush pending logs when the Elysia server stops?"
@@ -36,9 +36,9 @@ LogTide's Elysia SDK provides a Bun-optimized plugin for automatic request loggi
 ## Why use LogTide with Elysia?
 
 - **Bun-optimized**: Takes advantage of Bun's performance
-- **Plugin architecture**: Use `.as('global')` for app-wide coverage
+- **Plugin architecture**: Registered globally, so it covers the whole app
 - **Lifecycle hooks**: onRequest, onAfterHandle, onError
-- **Scoped context**: Per-request scope via store decorators
+- **Per-request scope**: Each request gets its own scope and trace
 
 ## Prerequisites
 
@@ -72,7 +72,7 @@ const app = new Elysia()
   .listen(3000);
 ```
 
-Use `.as('global')` to apply the plugin to all routes, including those registered after.
+The plugin is already registered with `.as('global')` internally, so it applies to all routes.
 
 ## Plugin Options
 
@@ -86,7 +86,7 @@ app.use(logtide({
 }));
 ```
 
-## Scoped Context
+## Per-Request Tracing
 
 ```typescript
 app
@@ -105,7 +105,7 @@ app
 | Hook | Behavior |
 |------|----------|
 | `onRequest` | Creates scope, extracts traceparent, starts span |
-| `onAfterHandle` | Logs completion with duration |
+| `onAfterHandle` | Finishes the span with status and duration, sets traceparent response header |
 | `onError` | Captures errors with request context |
 
 ## Error Handling

@@ -32,7 +32,7 @@ faqs:
   - question: "Does LogTide use fewer resources than the ELK Stack?"
     answer: "Yes, substantially. A production ELK deployment requires 22-44 GB of RAM across Elasticsearch, Logstash, and Kibana, while LogTide runs on 6-12 GB total - a reduction of 60-75%. This directly translates to lower infrastructure costs and makes LogTide viable on smaller servers."
   - question: "Does LogTide include SIEM without extra licensing, unlike ELK?"
-    answer: "Yes. Elastic's SIEM and endpoint-security features require paid licenses. LogTide includes Sigma detection rules, MITRE ATT&CK mapping, and incident management as part of the free, open-source release with no additional licensing fees."
+    answer: "Core Elastic Security detections are available in the free tier, but advanced capabilities (such as machine learning anomaly detection and parts of endpoint protection) require paid subscriptions. LogTide includes Sigma detection rules, MITRE ATT&CK mapping, and incident management as part of the free, open-source release with no additional licensing fees."
   - question: "When is the ELK Stack the better choice over LogTide?"
     answer: "ELK is the better fit when you need Elasticsearch advanced query DSL for highly complex aggregations, Kibana's extensive dashboard and visualization library, existing Beats agents already deployed at scale, or petabyte-scale distributed search across hundreds of nodes. Teams with deep Elasticsearch expertise also benefit from staying in that ecosystem."
   - question: "How do I migrate from the ELK Stack to LogTide?"
@@ -54,7 +54,7 @@ The ELK Stack consists of three (or more) components that must work together:
 Additional components often needed:
 - **Filebeat/Metricbeat** - Data shippers
 - **Elastic Agent** - Unified data shipper
-- **Elastic SIEM** - Security features (paid)
+- **Elastic Security** - SIEM features (core free, advanced features paid)
 - **ElastAlert** - Alerting (third-party)
 
 ### LogTide
@@ -91,7 +91,7 @@ LogTide uses **60-75% less memory** for equivalent workloads.
 | Full-text search | Yes | Yes |
 | Real-time streaming | Kibana Discover | SSE |
 | Alerting | Watcher / ElastAlert | Built-in |
-| Security detection | Elastic SIEM (paid) | Sigma (included) |
+| Security detection | Elastic Security (core free, advanced paid) | Sigma (included) |
 | OpenTelemetry | APM Server | Native OTLP |
 | Cluster management | Complex (shards, replicas) | Simple (TimescaleDB or ClickHouse) |
 | Version compatibility | Must match all components | Single versioned release |
@@ -115,7 +115,7 @@ LogTide uses **60-75% less memory** for equivalent workloads.
 
 **No version headaches.** ELK components must be version-matched. Upgrading Elasticsearch without matching Kibana and Logstash causes compatibility issues. LogTide is a single versioned release.
 
-**Built-in SIEM.** Elastic's security features (SIEM, endpoint security) require paid licenses. LogTide includes Sigma detection rules, MITRE ATT&CK mapping, and incident management for free.
+**Built-in SIEM.** Elastic's advanced security features (machine learning detection, parts of endpoint protection) require paid subscriptions. LogTide includes Sigma detection rules, MITRE ATT&CK mapping, and incident management for free.
 
 **Better compression.** Both TimescaleDB's columnar compression and ClickHouse's native compression are highly efficient for time-series log data, often achieving 10-20x compression ratios.
 

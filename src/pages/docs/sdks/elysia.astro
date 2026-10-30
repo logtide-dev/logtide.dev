@@ -84,7 +84,7 @@ const app = new Elysia()
   </h2>
 
   <p class="text-muted-foreground mb-4">
-      The plugin accepts all <a href="/docs/sdks/nodejs#configuration"><code class="bg-muted px-1 rounded">ClientOptions</code></a> from <code class="bg-muted px-1 rounded">@logtide/core</code>:
+      The plugin accepts all <a href="/docs/sdks/nodejs/#configuration"><code class="bg-muted px-1 rounded">ClientOptions</code></a> from <code class="bg-muted px-1 rounded">@logtide/core</code>:
   </p>
 
   <div class="mb-8">
@@ -120,9 +120,8 @@ const app = new Elysia()
           </thead>
           <tbody class="text-muted-foreground">
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">onRequest</code></td><td class="p-3 border-b border-border">Creates scope, extracts traceparent, starts span</td></tr>
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">afterResponse</code></td><td class="p-3 border-b border-border">Logs request completion with duration, finishes span</td></tr>
+              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">onAfterHandle</code></td><td class="p-3 border-b border-border">Logs request completion with duration, finishes span</td></tr>
               <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">onError</code></td><td class="p-3 border-b border-border">Captures errors with full request context</td></tr>
-              <tr><td class="p-3 border-b border-border"><code class="bg-muted px-1 rounded text-xs">onStop</code></td><td class="p-3 border-b border-border">Flushes pending events on server shutdown</td></tr>
           </tbody>
       </table>
   </div>

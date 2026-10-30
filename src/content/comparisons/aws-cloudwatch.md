@@ -55,7 +55,6 @@ AWS CloudWatch pricing scales linearly with volume - costs can grow faster than 
 | Log storage | $0.03/GB/month |
 | Log Insights queries | $0.005/GB scanned |
 | CloudWatch Logs subscription filter | $0.00 (but Lambda costs) |
-| Cross-account log delivery | $0.10/GB |
 | Live Tail | $0.01/minute |
 
 **Real-world example:** A mid-size SaaS running on AWS with 50 GB/day log ingestion:
@@ -94,7 +93,7 @@ At higher volumes (200+ GB/day), savings exceed 80%.
 | Structured queries | Log Insights (SQL-like) | SQL + Sigma rules |
 | Sigma detection rules | No | Built-in |
 | MITRE ATT&CK mapping | No | Included |
-| Cross-account logs | Yes ($0.10/GB) | Multi-org (included) |
+| Cross-account logs | Yes (cross-account observability, no extra charge) | Multi-org (included) |
 | Retention control | 1 day to indefinite | Configurable |
 | S3 export | Yes (async) | Roadmap |
 | Self-hosted | No (AWS only) | Yes |

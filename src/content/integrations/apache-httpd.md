@@ -147,9 +147,9 @@ Create `/etc/fluent-bit/fluent-bit.conf`:
     Host          YOUR_LOGTIDE_HOST
     Port          443
     URI           /api/v1/ingest/single
-    Format        json
+    Format        json_lines
     Header        X-API-Key YOUR_API_KEY
-    Header        Content-Type application/json
+    Header        Content-Type application/x-ndjson
     tls           On
     tls.verify    On
 ```
@@ -193,7 +193,7 @@ Create `/etc/fluent-bit/parsers.conf`:
 [PARSER]
     Name        apache_error
     Format      regex
-    Regex       ^\[(?<time>[^\]]+)\] \[(?<module>[^\]]*)\] \[pid (?<pid>\d+)\] (?:\[client (?<client>[^\]]+)\] )?(?<message>.*)$
+    Regex       ^\[(?<time>[^\]]+)\] \[(?<module>[^\]]*)\] \[pid (?<pid>\d+)(?::tid \d+)?\] (?:\[client (?<client>[^\]]+)\] )?(?<message>.*)$
     Time_Key    time
     Time_Format %a %b %d %H:%M:%S.%L %Y
 ```
@@ -310,7 +310,7 @@ SecAuditLogParts ABCDEFHZ
 SecAuditLogType Serial
 SecAuditLog /var/log/apache2/modsec_audit.log
 
-# JSON audit log (mod_security 3.x)
+# JSON audit log (mod_security 2.9.1+ and 3.x)
 SecAuditLogFormat JSON
 ```
 
@@ -456,8 +456,9 @@ source = '''
 . = parse_json!(.message)
 .service = "apache"
 .log_type = "access"
-.request_time_ms = to_float(.request_time_us) / 1000.0 ?? 0.0
-.level = if .status >= 500 { "error" } else if .status >= 400 { "warn" } else { "info" }
+.request_time_ms = (to_float(.request_time_us) ?? 0.0) / 1000.0
+.status_code = to_int(.status) ?? 0
+.level = if .status_code >= 500 { "error" } else if .status_code >= 400 { "warn" } else { "info" }
 .message = join!([.request_method, .request_uri, to_string!(.status)], separator: " ")
 '''
 

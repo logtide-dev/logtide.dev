@@ -10,7 +10,7 @@ industries:
   - "Healthcare"
   - "Enterprise"
 highlights:
-  - "SOC2 Type II ready"
+  - "SOC2 audit evidence"
   - "ISO27001 Annex A"
   - "Tamper-evident logs"
   - "Automated retention"
@@ -29,13 +29,13 @@ keywords:
   - "compliance evidence"
 faqs:
   - question: "How does LogTide support SOC2 audit trail requirements?"
-    answer: "LogTide captures structured audit events covering authentication, authorization changes, data access, and configuration modifications - the evidence categories that SOC2 Type II auditors specifically request. Logs are stored in append-only TimescaleDB storage, and retention can be configured per log type to meet the 1-year minimum for most SOC2 controls."
+    answer: "LogTide captures structured audit events covering authentication, authorization changes, data access, and configuration modifications - the evidence categories that SOC2 Type II auditors specifically request. Logs are stored in your database (TimescaleDB, ClickHouse or MongoDB), and organization retention can be set up to 365 days, which covers the 1-year minimum for most SOC2 controls. Anything that must be kept longer needs a separate archive."
   - question: "Can LogTide satisfy ISO27001 Annex A logging controls?"
-    answer: "Yes. LogTide addresses ISO27001 controls A.8.15 (event logging), A.8.16 (anomaly monitoring via Sigma rules), A.5.33 (record protection via immutable TimescaleDB storage), and A.5.23 (cloud-service access logging) through its self-hosted, structured audit logging capabilities."
+    answer: "LogTide can support evidence for ISO27001 controls A.8.15 (logging), A.8.16 (monitoring activities, via Sigma rules and alert rules) and A.5.33 (protection of records, together with your own database access controls and backups). LogTide is not itself certified, and whether the controls are met is decided in your audit."
   - question: "How do I respond to an auditor asking who accessed production systems in the last 90 days?"
-    answer: "With LogTide you can run a single query such as service:audit AND action:auth.* AND time:>90d to retrieve all authentication events within the window. The structured schema captures actor ID, email, role, IP address, and outcome for every event."
+    answer: "With LogTide you can run a single query such as service:audit action:auth.* with the time range set to 90 days to retrieve all authentication events within the window. The structured schema captures actor ID, email, role, IP address, and outcome for every event."
   - question: "Does LogTide prevent log tampering to satisfy integrity requirements?"
-    answer: "Log data is written to TimescaleDB in append-only hypertables, making retroactive modification difficult. Access to the log storage is restricted through role-based controls, and access to the logs themselves can be audited as a meta-audit layer."
+    answer: "LogTide's ingestion and query APIs offer no way to edit or delete individual log records, and logs are only removed by the retention policy. LogTide does not provide cryptographic tamper-evidence or WORM storage, so anyone with direct database admin access could still alter data: restrict database access and back up or forward audit logs to write-once storage if your auditor requires it. LogTide also keeps its own audit log of security-relevant actions in the organization."
 ---
 
 SOC2 and ISO27001 certifications require comprehensive audit trails. This guide shows how to implement compliant logging with LogTide that satisfies auditor requirements and makes evidence collection straightforward.
@@ -78,7 +78,7 @@ If you can't answer these with data, you fail the audit.
 LogTide provides the infrastructure for compliant audit trails:
 
 1. **Structured audit events** with consistent schema
-2. **Immutable storage** with TimescaleDB
+2. **No edit or delete API** for stored log records (removal only by retention)
 3. **Role-based access** to log data
 4. **Configurable retention** with automatic enforcement
 5. **Built-in SIEM** for anomaly detection (Sigma rules)
@@ -354,7 +354,7 @@ Configure retention to meet compliance requirements:
 | Security incidents | 3 years | Per risk assessment | 3 years |
 | Financial transactions | 7 years | Per risk assessment | 7 years |
 
-In LogTide, configure retention per-service or per-level through your organization settings.
+LogTide retention is set per organization (1 to 365 days), not per service or level. For periods longer than 365 days (2, 3 or 7 years), archive audit events to long-term storage outside the log store, or keep them in a dedicated system of record.
 
 ## Evidence Collection for Auditors
 
@@ -362,7 +362,7 @@ In LogTide, configure retention per-service or per-level through your organizati
 
 **"Show authentication events for the last 90 days"**
 ```
-service:audit AND action:auth.* AND time:>90d
+service:audit action:auth.*
 ```
 
 **"Show all permission changes"**
@@ -458,10 +458,10 @@ async function generateAuditReport(startDate: string, endDate: string) {
 | ISO27001 Control | LogTide Feature |
 |-----------------|----------------|
 | A.5.23 (Cloud Security) | Self-hosted, full data sovereignty |
-| A.5.33 (Record Protection) | Immutable TimescaleDB storage |
+| A.5.33 (Record Protection) | Retention enforcement, no edit API, role-based access (plus your own database controls) |
 | A.8.15 (Logging) | Structured audit events with consistent schema |
 | A.8.16 (Monitoring) | Sigma rules, alert rules, real-time streaming |
-| A.8.24 (Cryptography) | TLS for data in transit, encryption at rest via PostgreSQL |
+| A.8.24 (Cryptography) | TLS for data in transit (via your reverse proxy); encryption at rest through disk or volume encryption you configure |
 
 ## Compliance Audit Checklist
 
@@ -475,7 +475,7 @@ Use this before your audit:
     - [ ] Consistent audit event schema across all services
 
 - [ ] **Log Integrity**
-    - [ ] Logs stored in append-only storage (TimescaleDB)
+    - [ ] Direct database access to log storage restricted and audited
     - [ ] Access to log storage restricted to authorized personnel
     - [ ] Log deletion requires explicit admin action
 

@@ -31,7 +31,7 @@ const headings = [
       <h1 class="text-3xl font-bold">PHP SDK</h1>
       <div class="flex items-center gap-2">
           <a
-              href="https://github.com/logtide-dev/logtide-php-sdk"
+              href="https://github.com/logtide-dev/logtide-php"
               target="_blank"
               rel="noopener noreferrer"
           >
@@ -358,7 +358,7 @@ use LogTide\\Enum\\BreadcrumbType;
 
 // Add breadcrumbs manually
 addBreadcrumb(new Breadcrumb(
-    BreadcrumbType::DEFAULT,
+    BreadcrumbType::CUSTOM,
     'User authenticated',
     category: 'auth',
     data: ['method' => 'oauth', 'provider' => 'github'],

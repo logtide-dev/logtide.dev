@@ -115,8 +115,6 @@ For production, use Docker Compose to manage both Fluent Bit and your applicatio
 ### docker-compose.yml
 
 ```yaml
-version: "3.8"
-
 services:
   fluent-bit:
     image: fluent/fluent-bit:latest
@@ -338,7 +336,6 @@ Common issues:
 
 For high-volume environments (>10,000 logs/second), consider:
 - Running multiple Fluent Bit instances behind a load balancer
-- Enabling compression in the HTTP output
 - Using the batch endpoint (`/api/v1/ingest`) with buffering
 
 ## Detection Rules

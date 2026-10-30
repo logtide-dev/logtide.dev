@@ -207,7 +207,7 @@ client.Critical(ctx, "out of memory", nil)`}
       <Code
           lang="go"
           theme="one-dark-pro"
-          code={`logtide.ConfigureScope(func(s *logtide.Scope) {
+          code={`logtide.CurrentHub().ConfigureScope(func(s *logtide.Scope) {
     s.SetTag("region", "eu-west-1")
     s.SetUser(logtide.User{ID: "u123", Email: "alice@example.com"})
 })`}
@@ -219,10 +219,11 @@ client.Critical(ctx, "out of memory", nil)`}
       <Code
           lang="go"
           theme="one-dark-pro"
-          code={`logtide.PushScope()
-defer logtide.PopScope()
+          code={`hub := logtide.CurrentHub()
+hub.PushScope()
+defer hub.PopScope()
 
-logtide.ConfigureScope(func(s *logtide.Scope) {
+hub.ConfigureScope(func(s *logtide.Scope) {
     s.SetTag("request_id", requestID)
     s.AddBreadcrumb(&logtide.Breadcrumb{
         Category:  "auth",

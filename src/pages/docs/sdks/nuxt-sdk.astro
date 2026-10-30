@@ -37,8 +37,8 @@ const headings = [
 
   <p class="text-lg text-muted-foreground mb-8">
       <code class="bg-muted px-1 rounded">@logtide/nuxt</code> is a zero-config Nuxt module
-      that auto-initializes LogTide on both server and client. It includes automatic Core Web Vitals
-      collection, click breadcrumbs, and session tracking.
+      that auto-initializes LogTide on both server and client. It includes click and network
+      breadcrumbs, offline buffering, and session tracking.
   </p>
 
   <h2 id="installation" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
@@ -92,7 +92,7 @@ export default defineNuxtConfig({
 npm install -g @logtide/cli
 
 # Upload source maps
-logtide sourcemaps upload --path ./.nuxt/dist/client --release 1.0.0 --apiKey YOUR_API_KEY`}
+logtide sourcemaps upload --path ./.nuxt/dist/client --release 1.0.0 --api-key YOUR_API_KEY`}
       />
   </div>
 
@@ -101,8 +101,8 @@ logtide sourcemaps upload --path ./.nuxt/dist/client --release 1.0.0 --apiKey YO
   </h2>
 
   <p class="text-muted-foreground mb-4">
-      The Nuxt module automatically enables the <code class="bg-muted px-1 rounded">WebVitalsIntegration</code>
-      on the client side. Metrics like LCP, FID, and CLS are sent to LogTide automatically.
+      The Nuxt client plugin enables the <code class="bg-muted px-1 rounded">WebVitalsIntegration</code>
+      only when <code class="bg-muted px-1 rounded">browser.webVitals</code> is true in the public runtime config (opt-in, off by default; requires the optional <code class="bg-muted px-1 rounded">web-vitals</code> package). It reports LCP, INP, and CLS.
   </p>
 
   <h2 id="session-tracking" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
@@ -139,15 +139,6 @@ export default defineNuxtConfig({
     service: 'nuxt-app',
     environment: process.env.NODE_ENV,
     release: '1.0.0',
-
-    // Client-side DSN (if different from server)
-    clientDsn: process.env.NUXT_PUBLIC_LOGTIDE_DSN,
-
-    // Enable/disable client-side capture (default: true)
-    clientEnabled: true,
-
-    // Enable/disable server-side capture (default: true)
-    serverEnabled: true,
 
     // Tracing
     tracesSampleRate: 1.0,
@@ -199,8 +190,10 @@ const logtide = useLogtide();
 async function handleSubmit() {
   try {
     logtide.addBreadcrumb({
+      type: 'ui',
       category: 'ui',
       message: 'Form submitted',
+      timestamp: Date.now(),
     });
 
     await $fetch('/api/submit', { method: 'POST', body: formData });
@@ -227,7 +220,7 @@ async function handleSubmit() {
           lang="bash"
           theme="one-dark-pro"
           code={`# .env
-LOGTIDE_DSN=https://lp_abc123@api.logtide.dev
+NUXT_LOGTIDE_DSN=https://lp_abc123@api.logtide.dev
 NUXT_PUBLIC_LOGTIDE_DSN=https://lp_client456@api.logtide.dev`}
       />
   </div>

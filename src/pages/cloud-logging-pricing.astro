@@ -45,7 +45,7 @@ const providers = [
       ['First 50 GiB/month', 'Free'],
       ['Additional ingestion', '$0.50/GiB'],
       ['Storage (>30 days)', '$0.01/GiB/month'],
-      ['Log Analytics', 'BigQuery query costs'],
+      ['Log Analytics', 'No additional charge'],
     ],
     note: 'The free tier is generous for small projects, but beyond it costs scale linearly with volume.',
   },
@@ -53,10 +53,10 @@ const providers = [
     name: 'Azure Monitor (Log Analytics)',
     vsLink: '/vs/azure-monitor/',
     rows: [
-      ['Ingestion (pay-as-you-go)', '$2.76/GB'],
+      ['Ingestion (pay-as-you-go)', '$2.30/GB'],
       ['Ingestion (commitment, 100 GB/day)', '$1.96/GB'],
       ['Extra retention', '$0.10/GB/month'],
-      ['Sentinel SIEM add-on', '+$2.46/GB'],
+      ['Sentinel SIEM add-on', '+$2.00/GB ($4.30 combined)'],
     ],
     note: 'The highest per-GB price of the three - and security detection (Sentinel) nearly doubles it.',
   },
@@ -66,7 +66,7 @@ const faqs = [
   {
     question: 'How much does Google Cloud Logging cost?',
     answer:
-      'Google Cloud Logging includes 50 GiB of ingestion per project per month for free, then charges $0.50/GiB. Storage beyond the default 30-day retention costs $0.01/GiB/month, and querying logs through Log Analytics adds BigQuery costs. A workload ingesting 100 GiB/day runs roughly $1,675/month including analytics.',
+      'Google Cloud Logging includes 50 GiB of ingestion per project per month for free, then charges $0.50/GiB. Storage beyond the default 30-day retention costs $0.01/GiB/month, Log Analytics queries carry no extra charge; querying a linked dataset from BigQuery is billed as BigQuery usage. A workload ingesting 100 GiB/day runs roughly $1,475/month in ingestion.',
   },
   {
     question: 'How much do AWS CloudWatch Logs cost?',
@@ -76,7 +76,7 @@ const faqs = [
   {
     question: 'How much does Azure Monitor Log Analytics cost?',
     answer:
-      'Azure Log Analytics charges about $2.76/GB pay-as-you-go, dropping to roughly $1.96/GB on a 100 GB/day commitment tier. Retention beyond the included period adds $0.10/GB/month, and Microsoft Sentinel (the SIEM layer) adds another $2.46/GB on top.',
+      'Azure Log Analytics charges about $2.30/GB pay-as-you-go (US East), dropping to roughly $1.96/GB on a 100 GB/day commitment tier. Retention beyond the included period adds $0.10/GB/month, and Microsoft Sentinel (the SIEM layer) adds about $2.00/GB pay-as-you-go on top - $4.30/GB combined on the simplified pricing tier.',
   },
   {
     question: 'Why do cloud logging bills grow so fast?',
@@ -91,7 +91,7 @@ const faqs = [
   {
     question: 'Is self-hosted logging really cheaper than CloudWatch or GCP?',
     answer:
-      'Beyond moderate volume, yes. At 50 GB/day, CloudWatch costs ~$870/month versus ~$330/month for LogTide on equivalent AWS infrastructure. At 100 GiB/day on GCP, Cloud Logging runs ~$1,675/month versus ~$450/month self-hosted. Below ~50 GiB/month, cloud free tiers win and self-hosting is not worth the overhead.',
+      'Beyond moderate volume, yes. At 50 GB/day, CloudWatch costs ~$870/month versus ~$330/month for LogTide on equivalent AWS infrastructure. At 100 GiB/day on GCP, Cloud Logging runs ~$1,475/month versus ~$450/month self-hosted. Below ~50 GiB/month, cloud free tiers win and self-hosting is not worth the overhead.',
   },
 ];
 ---
@@ -218,13 +218,13 @@ const faqs = [
                 <td class="px-5 py-3">Google Cloud Logging</td>
                 <td class="px-5 py-3 font-medium">~$725</td>
                 <td class="px-5 py-3">~$8,700</td>
-                <td class="px-5 py-3 text-muted-foreground">$0.50/GiB beyond 50 GiB free + analytics</td>
+                <td class="px-5 py-3 text-muted-foreground">$0.50/GiB beyond 50 GiB free, 30 days storage included</td>
               </tr>
               <tr class="border-b border-foreground/[0.08]">
                 <td class="px-5 py-3">Azure Log Analytics</td>
-                <td class="px-5 py-3 font-medium">~$3,240</td>
-                <td class="px-5 py-3">~$38,880</td>
-                <td class="px-5 py-3 text-muted-foreground">$1.96/GB commitment tier + retention</td>
+                <td class="px-5 py-3 font-medium">~$3,750</td>
+                <td class="px-5 py-3">~$45,000</td>
+                <td class="px-5 py-3 text-muted-foreground">$2.30/GB pay-as-you-go + retention</td>
               </tr>
               <tr class="bg-nav-active">
                 <td class="px-5 py-3 font-semibold">LogTide (self-hosted)</td>
@@ -271,8 +271,8 @@ const faqs = [
             <Icon name="lucide:shield-alert" class="h-6 w-6 text-primary-readable" aria-hidden="true" />
             <h3 class="mt-4 font-semibold">SIEM add-ons</h3>
             <p class="mt-1.5 text-sm text-muted-foreground">
-              Security detection is never included: Microsoft Sentinel adds $2.46/GB on top of Log
-              Analytics. LogTide ships Sigma rules and MITRE ATT&CK mapping in the box.
+              Security detection is never included: Microsoft Sentinel adds about $2.00/GB on top of Log
+              Analytics ($4.30/GB combined). LogTide ships Sigma rules and MITRE ATT&CK mapping in the box.
             </p>
           </article>
           <article class="bg-background p-6">

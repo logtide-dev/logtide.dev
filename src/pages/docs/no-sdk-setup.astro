@@ -544,6 +544,7 @@ container_name: logtide-fluent-bit
 volumes:
   - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
   - ./parsers.conf:/fluent-bit/etc/parsers.conf:ro
+  - ./extract_container_id.lua:/fluent-bit/etc/extract_container_id.lua:ro
   - /var/lib/docker/containers:/var/lib/docker/containers:ro
   - /var/run/docker.sock:/var/run/docker.sock:ro
 environment:

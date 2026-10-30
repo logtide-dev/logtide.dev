@@ -336,8 +336,8 @@ filebeat.inputs:
     - /var/log/app/*.log
 
 output.elasticsearch:
-hosts: ["elasticsearch:9200"]
-index: "app-logs-%{+yyyy.MM.dd}"}`}
+  hosts: ["elasticsearch:9200"]
+  index: "app-logs-%{+yyyy.MM.dd}"`}
                   />
               </CardContent>
           </Card>
@@ -688,8 +688,8 @@ elasticsearch {
               </CardTitle>
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
-              LogTide doesn't have Kibana-style drag-and-drop dashboards yet.
-              Use the SIEM dashboard for security metrics, and the Query API
+              Rebuild Kibana dashboards with LogTide <a href="/docs/dashboards/" class="text-primary-readable hover:underline">Custom Dashboards</a>
+              (drag-and-drop panels over logs, traces, and metrics). Use the SIEM dashboard for security metrics, and the Query API
               for custom integrations with tools like Grafana.
           </CardContent>
       </Card>

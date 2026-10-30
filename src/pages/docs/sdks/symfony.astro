@@ -238,7 +238,7 @@ logtide:
 // Doctrine queries are automatically recorded as breadcrumbs:
 // {
 //   type: "query",
-//   category: "doctrine",
+//   category: "db.query",
 //   message: "SELECT u.* FROM users u WHERE u.id = ?",
 //   data: { duration_ms: 2.5, params: [123] }
 // }`}
@@ -309,7 +309,7 @@ use function LogTide\\{info, error, captureException, addBreadcrumb};
 use LogTide\\Breadcrumb\\Breadcrumb;
 use LogTide\\Enum\\BreadcrumbType;
 
-addBreadcrumb(new Breadcrumb(BreadcrumbType::DEFAULT, 'Processing order', category: 'app'));
+addBreadcrumb(new Breadcrumb(BreadcrumbType::CUSTOM, 'Processing order', category: 'app'));
 info('Order processed', ['order_id' => $orderId]);`}
       />
   </div>

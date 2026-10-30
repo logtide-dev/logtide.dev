@@ -107,7 +107,7 @@ receivers:
 
 exporters:
   otlphttp/logtide:
-    endpoint: http://<logtide-host>:8080
+    metrics_endpoint: http://<logtide-host>:8080/v1/otlp/metrics
     headers:
       X-API-Key: "lp_your_api_key_here"
 
@@ -132,6 +132,7 @@ otelcol.receiver.hostmetrics "default" {
 }
 
 otelcol.exporter.otlphttp "logtide" {
+  metrics_endpoint = "http://<logtide-host>:8080/v1/otlp/metrics"
   client {
     endpoint = "http://<logtide-host>:8080"
     headers  = { "X-API-Key" = "lp_your_api_key_here" }
@@ -200,7 +201,8 @@ Edit `fluent-bit-metrics.conf` to change how often metrics are collected:
 [INPUT]
     Name         cpu
     Tag          metrics.cpu
-    Interval_Sec 10   # Every 10 seconds instead of 30
+    # Every 10 seconds instead of 30
+    Interval_Sec 10
 ```
 
 ### Flush interval

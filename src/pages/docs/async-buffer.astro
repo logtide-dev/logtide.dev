@@ -223,7 +223,7 @@ const headings = [
           </tr>
           <tr class="border-b border-border/50">
             <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_TRANSPORT</code></td>
-            <td class="p-2"><code class="bg-muted px-1 rounded">memory</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">memory</code> (or <code class="bg-muted px-1 rounded">redis</code> when <code class="bg-muted px-1 rounded">REDIS_URL</code> is set)</td>
             <td class="p-2"><code class="bg-muted px-1 rounded">memory</code>, <code class="bg-muted px-1 rounded">redis</code>, or <code class="bg-muted px-1 rounded">passthrough</code> (tests only).</td>
           </tr>
           <tr class="border-b border-border/50">
@@ -233,7 +233,7 @@ const headings = [
           </tr>
           <tr class="border-b border-border/50">
             <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_MAX_BATCH_SIZE</code></td>
-            <td class="p-2"><code class="bg-muted px-1 rounded">500</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">5000</code></td>
             <td class="p-2">Max records a consumer claims per dequeue.</td>
           </tr>
           <tr class="border-b border-border/50">
@@ -242,32 +242,32 @@ const headings = [
             <td class="p-2">Longest a consumer waits for records before returning empty.</td>
           </tr>
           <tr class="border-b border-border/50">
-            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_GRACEFUL_SHUTDOWN_MS</code></td>
-            <td class="p-2"><code class="bg-muted px-1 rounded">10000</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_SHUTDOWN_TIMEOUT_MS</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">30000</code></td>
             <td class="p-2">Drain timeout on SIGTERM / SIGINT.</td>
           </tr>
           <tr class="border-b border-border/50">
             <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_PENDING_THRESHOLD</code></td>
-            <td class="p-2"><code class="bg-muted px-1 rounded">10000</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">50000</code></td>
             <td class="p-2">Open circuit breaker when pending record count crosses this.</td>
           </tr>
           <tr class="border-b border-border/50">
-            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_FAILURE_THRESHOLD</code></td>
-            <td class="p-2"><code class="bg-muted px-1 rounded">20</code></td>
-            <td class="p-2">Flush failures in the rolling window that open the breaker.</td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_ERROR_RATE_THRESHOLD</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">0.1</code></td>
+            <td class="p-2">Flush error rate (0-1) over a 60s rolling window (at least 5 samples) that opens the breaker.</td>
           </tr>
           <tr class="border-b border-border/50">
-            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_COOLDOWN_MS</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_BREAKER_COOLDOWN_MS</code></td>
             <td class="p-2"><code class="bg-muted px-1 rounded">30000</code></td>
             <td class="p-2">Time the breaker stays open before probing half-open.</td>
           </tr>
           <tr class="border-b border-border/50">
-            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_MAX_RETRY_ATTEMPTS</code></td>
-            <td class="p-2"><code class="bg-muted px-1 rounded">3</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_MAX_ATTEMPTS</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">5</code></td>
             <td class="p-2">Attempts before a batch is sent to the DLQ.</td>
           </tr>
           <tr class="border-b border-border/50">
-            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_BASE_DELAY_MS</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_RETRY_BASE_MS</code></td>
             <td class="p-2"><code class="bg-muted px-1 rounded">100</code></td>
             <td class="p-2">Base for jittered exponential backoff between retries.</td>
           </tr>
@@ -323,13 +323,13 @@ const headings = [
     </p>
     <ul class="text-muted-foreground space-y-1 list-disc list-inside ml-4">
       <li>Pending record count crosses <code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_PENDING_THRESHOLD</code>.</li>
-      <li>Consecutive flush failures within the rolling window cross <code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_FAILURE_THRESHOLD</code>.</li>
+      <li>The flush error rate within the rolling window crosses <code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_ERROR_RATE_THRESHOLD</code>.</li>
     </ul>
     <p class="text-muted-foreground">
       While open, new <code class="bg-muted px-1 rounded">ingest()</code> calls bypass the buffer and go straight
       to storage (synchronous path). This trades lower aggregate throughput for keeping the ingest API responsive
       and giving the consumer pool time to drain the backlog. After
-      <code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_COOLDOWN_MS</code> the breaker half-opens and the next
+      <code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_BREAKER_COOLDOWN_MS</code> the breaker half-opens and the next
       successful flush closes it.
     </p>
   </div>
@@ -346,7 +346,7 @@ const headings = [
       On SIGTERM / SIGINT the backend runs
       <code class="bg-muted px-1 rounded">shutdownReservoir()</code> after Fastify has stopped accepting new
       requests. The call stops the consumer pool and waits up to
-      <code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_GRACEFUL_SHUTDOWN_MS</code> for pending records to
+      <code class="bg-muted px-1 rounded">RESERVOIR_BUFFER_SHUTDOWN_TIMEOUT_MS</code> for pending records to
       drain. Any in-flight Redis client is explicitly
       <code class="bg-muted px-1 rounded">quit()</code>-ed so the connection closes cleanly instead of being
       torn down by the process exit.
@@ -446,11 +446,11 @@ const headings = [
             <td class="p-2">Records that bypassed the buffer (breaker open).</td>
           </tr>
           <tr class="border-b border-border/50">
-            <td class="p-2"><code class="bg-muted px-1 rounded">reservoir_buffer_flush_success_total</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">reservoir_buffer_flushed_total</code></td>
             <td class="p-2">Records successfully flushed to storage.</td>
           </tr>
           <tr class="border-b border-border/50">
-            <td class="p-2"><code class="bg-muted px-1 rounded">reservoir_buffer_flush_failure_total</code></td>
+            <td class="p-2"><code class="bg-muted px-1 rounded">reservoir_buffer_flush_failures_total</code></td>
             <td class="p-2">Flush attempts that raised an error.</td>
           </tr>
           <tr class="border-b border-border/50">

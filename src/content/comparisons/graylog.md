@@ -4,7 +4,7 @@ description: "Compare LogTide and Graylog for log management. Docker Compose vs 
 competitor: "Graylog"
 competitorUrl: "https://graylog.org/"
 brandIcon: "simple-icons:graylog"
-competitorPricing: "Open source (free) / Cloud from $1,250/month"
+competitorPricing: "Open (free, SSPL) / Enterprise from $15,000/year"
 logtidePricing: "Free (self-hosted)"
 highlights:
   - "Simpler setup (Docker Compose)"
@@ -31,9 +31,9 @@ keywords:
   - "self-hosted log management"
 faqs:
   - question: "Is LogTide cheaper to run than Graylog?"
-    answer: "Both tools are free open-source software, but infrastructure costs differ dramatically. Graylog requires Elasticsearch (3 nodes), MongoDB, and a JVM-based server, totalling 30-60 GB of RAM. LogTide runs on 6-12 GB total, saving roughly 60-80% on infrastructure. For a 50 GB/day workload, LogTide infrastructure costs around $250/month versus ~$700/month for Graylog Open - and if you need SIEM, Graylog Security adds $1,550+/month more."
+    answer: "Both tools are free open-source software, but infrastructure costs differ dramatically. Graylog requires Elasticsearch (3 nodes), MongoDB, and a JVM-based server, totalling 30-60 GB of RAM. LogTide runs on 6-12 GB total, saving roughly 60-80% on infrastructure. For a 50 GB/day workload, LogTide infrastructure costs around $250/month versus ~$700/month for Graylog Open - and if you need SIEM, Graylog Security starts at $18,000/year (about $1,500/month) on top of the infrastructure."
   - question: "Does LogTide include SIEM features that Graylog locks behind a paid tier?"
-    answer: "Yes. Sigma detection rules, MITRE ATT&CK mapping, and incident management are locked behind the paid Graylog Security tier (from $1,550/month). LogTide includes all of these capabilities in its free, open-source AGPLv3 release with no feature gating."
+    answer: "Yes. Sigma detection rules, MITRE ATT&CK mapping, and incident management are locked behind the paid Graylog Security tier (from $18,000/year). LogTide includes all of these capabilities in its free, open-source AGPLv3 release with no feature gating."
   - question: "How do I migrate from Graylog to LogTide?"
     answer: "Run both systems in parallel using Fluent Bit to fan out logs to both a LogTide HTTP output and your existing Graylog GELF output. For network devices sending native Syslog or GELF, add a Fluent Bit relay that receives those protocols and forwards to LogTide. After 1-2 weeks of validation, redirect all sources to LogTide and decommission the Graylog stack (Elasticsearch, MongoDB, and Graylog Server)."
   - question: "When is Graylog the better choice over LogTide?"
@@ -92,9 +92,10 @@ Both offer free self-hosted options, but operational costs differ significantly 
 | Tier | Cost |
 |------|------|
 | Graylog Open (self-hosted) | Free (limited features) |
-| Graylog Operations | From $1,250/month |
-| Graylog Security | From $1,550/month |
-| Graylog Cloud | From $1,250/month |
+| Graylog Enterprise | From $15,000/year (about $1,250/month), from 10 GB/day |
+| Graylog Security | From $18,000/year (about $1,500/month), from 10 GB/day |
+
+Graylog Cloud is a hosting option for the paid editions rather than a separate tier. Prices are the published starting prices from the [Graylog pricing page](https://www.graylog.org/pricing/) and scale with daily volume.
 
 **Real-world infrastructure cost for 50 GB/day (self-hosted open source):**
 
@@ -104,7 +105,7 @@ Both offer free self-hosted options, but operational costs differ significantly 
 - Storage (2 TB SSD across ES nodes): ~$100/month
 - **Infrastructure total: ~$700/month ($8,400/year)**
 
-To get SIEM features, you need Graylog Security at $1,550+/month, bringing the total to **$2,250/month ($27,000/year)**.
+To get SIEM features, you need Graylog Security at $1,500+/month, bringing the total to **$2,200/month ($26,400/year)**.
 
 ### LogTide Pricing
 
@@ -123,7 +124,7 @@ To get SIEM features, you need Graylog Security at $1,550+/month, bringing the t
 
 **Infrastructure savings vs Graylog Open: ~$5,400/year (64%)**
 
-**Savings vs Graylog Security: ~$24,000/year (89%)**
+**Savings vs Graylog Security: ~$23,400/year (89%)**
 
 ## Feature Comparison
 
@@ -143,7 +144,7 @@ To get SIEM features, you need Graylog Security at $1,550+/month, bringing the t
 | Incident management | No (Graylog Security only) | Included |
 | Multi-tenancy | Limited (streams) | Yes (organizations/projects) |
 | Self-hosted | Yes | Yes |
-| Open source | Yes (SSPL for some features) | AGPLv3 |
+| Open source | Source-available (SSPL) | AGPLv3 |
 | Architecture complexity | High (Java + MongoDB + ES) | Low (Docker Compose) |
 | Index management | Manual (rotation, retention) | Automatic |
 
@@ -165,13 +166,13 @@ To get SIEM features, you need Graylog Security at $1,550+/month, bringing the t
 
 **Lower resource footprint.** Graylog's Elasticsearch dependency alone needs 24-48 GB of RAM in production. Add MongoDB and the Graylog JVM, and you're looking at 30-60 GB minimum. LogTide runs on 6-12 GB total, saving 60-80% on infrastructure.
 
-**Built-in SIEM at no extra cost.** Graylog locks SIEM features (Sigma rules, MITRE ATT&CK mapping, incident management) behind the paid Graylog Security tier at $1,550+/month. LogTide includes all SIEM capabilities in the free open-source version.
+**Built-in SIEM at no extra cost.** Graylog locks SIEM features (Sigma rules, MITRE ATT&CK mapping, incident management) behind the paid Graylog Security tier at $18,000+/year. LogTide includes all SIEM capabilities in the free open-source version.
 
 **Native SDKs.** Graylog relies on GELF (Graylog Extended Log Format) libraries or Syslog for application logging. GELF is non-standard and Graylog-specific. LogTide provides native SDKs for Node.js, Python, and Go with structured logging, automatic batching, and retry support.
 
 **Flexible storage backends.** LogTide supports TimescaleDB (PostgreSQL-based, default) and ClickHouse via its Reservoir abstraction. Both are easier to manage than Elasticsearch. With TimescaleDB, standard SQL tooling, pg_dump, and pgAdmin all work out of the box. With ClickHouse, you get columnar storage optimized for high-volume analytical queries.
 
-**True open source.** Some Graylog features are now under the Server Side Public License (SSPL), which restricts usage in certain scenarios. LogTide is fully AGPLv3 with no feature gating between free and paid tiers.
+**True open source.** Graylog Open has been licensed under the Server Side Public License (SSPL) since version 4.0. The SSPL is source-available, not OSI-approved open source, and restricts offering the software as a service. LogTide is fully AGPLv3 with no feature gating between free and paid tiers.
 
 **No version compatibility headaches.** Graylog requires version-matching between Graylog Server, Elasticsearch/OpenSearch, and MongoDB. Upgrading one component without the others can cause breakage. LogTide is a single versioned release.
 

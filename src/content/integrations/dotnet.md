@@ -26,7 +26,7 @@ keywords:
   - "ilogger logtide"
 faqs:
   - question: "How do I add LogTide to an ASP.NET Core application?"
-    answer: "Install the LogTide.SDK NuGet package with dotnet add package LogTide.SDK, then call builder.Services.AddLogTide() and builder.Logging.AddLogTide() in Program.cs, and add app.UseLogTideMiddleware() to register request logging."
+    answer: "Install the LogTide.SDK NuGet package with dotnet add package LogTide.SDK, then call builder.Services.AddLogTide() and builder.Logging.AddLogTide() in Program.cs, and add app.UseLogTide() to register request logging."
   - question: "Do I need to rewrite my existing ILogger calls to use LogTide?"
     answer: "No. LogTide provides an ILogger provider that routes all standard ILogger<T> calls to LogTide automatically, preserving scopes and message templates. Your existing _logger.LogInformation() and _logger.LogError() calls work without modification."
   - question: "Can LogTide log slow Entity Framework queries in .NET?"
@@ -79,7 +79,8 @@ Or add directly to your `.csproj`:
 
 ```csharp
 // Program.cs
-using LogTide.SDK.Core;
+using LogTide.SDK.Logging;
+using LogTide.SDK.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -88,10 +89,10 @@ builder.Services.AddLogTide(options =>
 {
     options.ApiUrl = builder.Configuration["LogTide:ApiUrl"]!;
     options.ApiKey = builder.Configuration["LogTide:ApiKey"]!;
-    options.DefaultService = "dotnet-app";
+    options.ServiceName = "dotnet-app";
     options.BatchSize = 50;
     options.FlushIntervalMs = 5000;
-    options.GlobalMetadata = new Dictionary<string, object>
+    options.GlobalMetadata = new Dictionary<string, object?>
     {
         ["environment"] = builder.Environment.EnvironmentName,
         ["version"] = typeof(Program).Assembly.GetName().Version?.ToString() ?? "unknown"
@@ -104,7 +105,8 @@ builder.Logging.AddLogTide();
 builder.Services.AddControllers();
 var app = builder.Build();
 
-app.UseLogTideMiddleware();
+app.UseLogTideErrors("dotnet-app");
+app.UseLogTide(o => o.ServiceName = "dotnet-app");
 app.MapControllers();
 app.Run();
 ```
@@ -193,133 +195,40 @@ public class UsersController : ControllerBase
 
 ### Request Logging Middleware
 
-Create middleware that logs every request with timing, trace IDs, and user context:
+The SDK ships ready-made middleware in the `LogTide.SDK.Middleware` namespace. `UseLogTide()` logs every request and response, creates a `LogTideScope` per request with W3C `traceparent` support (falling back to the `X-Trace-Id` header), and filters sensitive headers such as `Authorization` and `Cookie`. `UseLogTideErrors()` logs unhandled exceptions and rethrows them:
 
 ```csharp
-// Middleware/LogTideRequestMiddleware.cs
-using System.Diagnostics;
-using LogTide.SDK.Core;
+// Program.cs
+using LogTide.SDK.Middleware;
 
-public class LogTideRequestMiddleware
+var app = builder.Build();
+
+app.UseLogTideErrors("dotnet-app");
+app.UseLogTide(o =>
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogTideClient _client;
-    private static readonly HashSet<string> SkipPaths = new()
-    {
-        "/health", "/ready", "/metrics", "/swagger"
-    };
-
-    public LogTideRequestMiddleware(RequestDelegate next, ILogTideClient client)
-    {
-        _next = next;
-        _client = client;
-    }
-
-    public async Task InvokeAsync(HttpContext context)
-    {
-        // Generate or extract trace ID
-        var traceId = context.Request.Headers["X-Trace-ID"].FirstOrDefault()
-            ?? Activity.Current?.TraceId.ToString()
-            ?? Guid.NewGuid().ToString();
-
-        context.Items["TraceId"] = traceId;
-        context.Response.Headers["X-Trace-Id"] = traceId;
-
-        var stopwatch = Stopwatch.StartNew();
-
-        try
-        {
-            await _next(context);
-        }
-        catch (Exception ex)
-        {
-            stopwatch.Stop();
-            LogRequest(context, stopwatch.ElapsedMilliseconds, traceId, ex);
-            throw;
-        }
-
-        stopwatch.Stop();
-
-        if (!ShouldSkip(context.Request.Path))
-        {
-            LogRequest(context, stopwatch.ElapsedMilliseconds, traceId);
-        }
-    }
-
-    private void LogRequest(HttpContext context, long durationMs, string traceId, Exception? exception = null)
-    {
-        var statusCode = exception != null ? 500 : context.Response.StatusCode;
-        var level = statusCode >= 500 ? "error" : statusCode >= 400 ? "warning" : "info";
-
-        var metadata = new Dictionary<string, object>
-        {
-            ["method"] = context.Request.Method,
-            ["path"] = context.Request.Path.ToString(),
-            ["statusCode"] = statusCode,
-            ["durationMs"] = durationMs,
-            ["traceId"] = traceId,
-            ["ip"] = GetClientIp(context),
-            ["userAgent"] = context.Request.Headers.UserAgent.ToString(),
-        };
-
-        if (context.User.Identity?.IsAuthenticated == true)
-        {
-            metadata["userId"] = context.User.FindFirst("sub")?.Value ?? "unknown";
-        }
-
-        if (exception != null)
-        {
-            metadata["error"] = exception.Message;
-            metadata["errorType"] = exception.GetType().Name;
-            metadata["stackTrace"] = exception.StackTrace?.Substring(0, Math.Min(exception.StackTrace.Length, 1000)) ?? "";
-        }
-
-        _client.Log(level, $"{context.Request.Method} {context.Request.Path} {statusCode}", metadata);
-    }
-
-    private static string GetClientIp(HttpContext context)
-    {
-        var forwarded = context.Request.Headers["X-Forwarded-For"].FirstOrDefault();
-        if (!string.IsNullOrEmpty(forwarded))
-            return forwarded.Split(',')[0].Trim();
-
-        return context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-    }
-
-    private static bool ShouldSkip(PathString path)
-    {
-        return SkipPaths.Any(p => path.StartsWithSegments(p));
-    }
-}
-
-// Extension method for clean registration
-public static class LogTideMiddlewareExtensions
-{
-    public static IApplicationBuilder UseLogTideMiddleware(this IApplicationBuilder builder)
-    {
-        return builder.UseMiddleware<LogTideRequestMiddleware>();
-    }
-}
+    o.ServiceName = "dotnet-app";
+    o.IncludeHeaders = false;                   // sensitive headers are always filtered
+    o.SkipPaths.Add("/metrics");                // health endpoints are skipped by default
+});
 ```
+
+`UseLogTide()` resolves the `ILogTideClient` registered by `AddLogTide()`, so register the client first.
 
 ### Request Logging Output
 
-Each request generates a structured log:
+Each request produces a request log (`GET /api/users/42`) and a response log like this one:
 
 ```json
 {
   "level": "info",
-  "message": "GET /api/users/42 200",
+  "message": "GET /api/users/42 200 (15ms)",
   "service": "dotnet-app",
+  "trace_id": "a1b2c3d4e5f67890abcdef1234567890",
   "metadata": {
     "method": "GET",
     "path": "/api/users/42",
-    "statusCode": 200,
-    "durationMs": 15,
-    "traceId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-    "ip": "192.168.1.1",
-    "userId": "42",
-    "environment": "Production"
+    "status_code": 200,
+    "duration_ms": 15
   }
 }
 ```
@@ -395,7 +304,7 @@ builder.Services.AddLogTide(options =>
 {
     options.ApiUrl = builder.Configuration["LogTide:ApiUrl"]!;
     options.ApiKey = builder.Configuration["LogTide:ApiKey"]!;
-    options.DefaultService = "dotnet-app";
+    options.ServiceName = "dotnet-app";
 });
 
 // Register application services
@@ -421,7 +330,7 @@ public class AuditService
 
     public void LogAdminAction(string action, string userId, string resourceType, string resourceId)
     {
-        _logtide.Log("info", $"Admin action: {action}", new Dictionary<string, object>
+        _logtide.Info("audit", $"Admin action: {action}", new Dictionary<string, object?>
         {
             ["action"] = action,
             ["userId"] = userId,
@@ -475,7 +384,7 @@ public class LogTideDbInterceptor : DbCommandInterceptor
 
     public override void CommandFailed(DbCommand command, CommandErrorEventData eventData)
     {
-        _client.Log("error", "Database query failed", new Dictionary<string, object>
+        _client.Error("database", "Database query failed", new Dictionary<string, object?>
         {
             ["query"] = command.CommandText[..Math.Min(command.CommandText.Length, 500)],
             ["durationMs"] = eventData.Duration.TotalMilliseconds,
@@ -492,7 +401,7 @@ public class LogTideDbInterceptor : DbCommandInterceptor
 
         if (durationMs >= _slowQueryThresholdMs)
         {
-            _client.Log("warning", "Slow SQL query detected", new Dictionary<string, object>
+            _client.Warn("database", "Slow SQL query detected", new Dictionary<string, object?>
             {
                 ["query"] = command.CommandText[..Math.Min(command.CommandText.Length, 500)],
                 ["durationMs"] = Math.Round(durationMs, 2),
@@ -623,6 +532,7 @@ Add a LogTide connectivity health check:
 // HealthChecks/LogTideHealthCheck.cs
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using LogTide.SDK.Core;
+using LogTide.SDK.Enums;
 
 public class LogTideHealthCheck : IHealthCheck
 {
@@ -636,11 +546,11 @@ public class LogTideHealthCheck : IHealthCheck
     public Task<HealthCheckResult> CheckHealthAsync(
         HealthCheckContext context, CancellationToken cancellationToken = default)
     {
-        var isHealthy = _client.IsConnected;
+        var isHealthy = _client.GetCircuitBreakerState() == CircuitState.Closed;
 
         return Task.FromResult(isHealthy
-            ? HealthCheckResult.Healthy("LogTide connection is active")
-            : HealthCheckResult.Degraded("LogTide connection is unavailable"));
+            ? HealthCheckResult.Healthy("LogTide circuit breaker is closed")
+            : HealthCheckResult.Degraded("LogTide circuit breaker is open"));
     }
 }
 ```
@@ -730,7 +640,7 @@ var app = builder.Build();
 app.Lifetime.ApplicationStopping.Register(() =>
 {
     var client = app.Services.GetRequiredService<ILogTideClient>();
-    client.Flush();
+    client.FlushAsync().GetAwaiter().GetResult();
 });
 ```
 

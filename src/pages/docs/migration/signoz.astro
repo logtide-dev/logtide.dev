@@ -354,7 +354,7 @@ pipelines:
                       theme="one-dark-pro"
                       code={`exporters:
 otlphttp/logtide:
-  endpoint: http://logtide:8080
+  logs_endpoint: http://logtide:8080/v1/otlp/logs
   headers:
     X-API-Key: lp_your_api_key
 
@@ -448,7 +448,7 @@ channels:
               <ol class="space-y-2 text-sm text-muted-foreground">
                   <li class="flex items-start gap-2">
                       <span class="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs">1</span>
-                      <span>Navigate to <code class="bg-muted px-1 rounded">/dashboard/security/sigma</code></span>
+                      <span>Navigate to <code class="bg-muted px-1 rounded">/dashboard/security/rules</code></span>
                   </li>
                   <li class="flex items-start gap-2">
                       <span class="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs">2</span>
@@ -532,8 +532,8 @@ tags:
               </tr>
               <tr>
                   <td class="px-4 py-2 border-b border-border">Dashboard</td>
-                  <td class="px-4 py-2 border-b border-border">SIEM Dashboard</td>
-                  <td class="px-4 py-2 border-b border-border">Security-focused</td>
+                  <td class="px-4 py-2 border-b border-border">Custom Dashboards / SIEM Dashboard</td>
+                  <td class="px-4 py-2 border-b border-border">Custom panels plus security-focused</td>
               </tr>
               <tr>
                   <td class="px-4 py-2 border-b border-border">N/A</td>

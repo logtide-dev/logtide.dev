@@ -234,7 +234,7 @@ Example log:
 ### Alert on Connection Failures
 
 ```
-service:postgresql AND level:error AND message:*connection*
+connection service:postgresql level:error
 ```
 
 ## Docker Setup
@@ -449,19 +449,19 @@ Alert on any query >10 seconds
 ### Connection Exhaustion
 
 ```
-service:postgresql AND message:"too many connections"
+"too many connections" service:postgresql
 ```
 
 ### Deadlocks
 
 ```
-service:postgresql AND message:*deadlock*
+deadlock service:postgresql
 ```
 
 ### Checkpoint Warnings
 
 ```
-service:postgresql AND message:"checkpoints are occurring too frequently"
+"checkpoints are occurring too frequently" service:postgresql
 ```
 
 ## Performance Impact

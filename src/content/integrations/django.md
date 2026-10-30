@@ -48,7 +48,7 @@ LogTide's Python SDK ships a built-in Django middleware that hooks into Django's
 
 ## Prerequisites
 
-- Python 3.8+ (3.11+ recommended)
+- Python 3.10+ (3.11+ recommended)
 - Django 3.2+
 - LogTide instance with API key
 
@@ -121,19 +121,19 @@ export LOGTIDE_API_KEY="lp_your_api_key_here"
 
 ## Request Logging Output
 
-Each request automatically generates a structured log:
+Each request generates a structured request log and a response log like this one:
 
 ```json
 {
   "level": "info",
-  "message": "GET /api/users/123 200",
+  "message": "GET /api/users/123 200 (35ms)",
   "service": "django-app",
+  "trace_id": "abc123-def456",
   "metadata": {
     "method": "GET",
     "path": "/api/users/123",
-    "status_code": 200,
-    "duration_ms": 34.5,
-    "trace_id": "abc123-def456"
+    "status": 200,
+    "duration_ms": 34.5
   }
 }
 ```

@@ -22,7 +22,7 @@ keywords:
   - "bun hono logging"
 faqs:
   - question: "How do I add LogTide logging to a Hono application?"
-    answer: "Install @logtide/hono (or use bun add @logtide/hono for Bun) and register the middleware with app.use('*', logtide({ dsn, service, environment })). Every request is logged automatically from that point, regardless of which runtime you deploy to."
+    answer: "Install @logtide/hono (or use bun add @logtide/hono for Bun) and register the middleware with app.use('*', logtide({ dsn, service, environment })). Every request is traced automatically from that point, regardless of which runtime you deploy to."
   - question: "Does LogTide work with Hono on Cloudflare Workers?"
     answer: "Yes. The Hono SDK is designed for multi-runtime support and works on Node.js, Bun, Deno, and Cloudflare Workers. The same middleware code runs across all targets - just export the app and LogTide uses a fetch-based transport suitable for each environment."
   - question: "How do I access per-request scope and trace ID in Hono routes?"
@@ -31,7 +31,7 @@ faqs:
     answer: "Yes. Log events captured via hub.captureLog() or the automatic request middleware are shipped as structured JSON including service name, level, message, and any custom metadata you attach through the scope - making them fully searchable in LogTide."
 ---
 
-LogTide's Hono SDK provides lightweight middleware for automatic request logging and distributed tracing across all Hono-supported runtimes: Node.js, Bun, Deno, and Cloudflare Workers.
+LogTide's Hono SDK provides lightweight middleware for automatic request tracing and distributed tracing across all Hono-supported runtimes: Node.js, Bun, Deno, and Cloudflare Workers.
 
 ## Why use LogTide with Hono?
 
@@ -39,7 +39,7 @@ LogTide's Hono SDK provides lightweight middleware for automatic request logging
 - **Lightweight**: Minimal overhead, fetch-based transport
 - **Context-based**: Uses Hono's `c.get()`/`c.set()` for scoping
 - **Trace propagation**: W3C traceparent headers across services
-- **Automatic**: Request logging without manual instrumentation
+- **Automatic**: Request tracing without manual instrumentation
 
 ## Prerequisites
 

@@ -66,7 +66,7 @@ const headings = [
                   <div>
                       <h3 class="font-semibold mb-1">Massive Cost Savings</h3>
                       <p class="text-sm text-muted-foreground">
-                          Datadog charges $0.10-$1.70/GB for log ingestion. A 500 GB/day deployment
+                          Datadog charges $0.10/GB for log ingestion plus $1.70 or more per million indexed events (15-day retention). A 500 GB/day deployment
                           can cost $15,000+/month. LogTide is self-hosted with zero per-GB fees.
                       </p>
                   </div>
@@ -199,7 +199,7 @@ const headings = [
               </tr>
               <tr>
                   <td class="px-4 py-3 font-medium">Pricing</td>
-                  <td class="px-4 py-3">$0.10-$1.70/GB + per-user</td>
+                  <td class="px-4 py-3">$0.10/GB ingested + $1.70/M indexed events</td>
                   <td class="px-4 py-3"><span class="text-green-600 font-medium">Infrastructure only</span></td>
               </tr>
           </tbody>
@@ -421,13 +421,13 @@ def process_request():
                   <Code
                       lang="python"
                       theme="one-dark-pro"
-                      code={`from logtide_sdk import LogTideClient
+                      code={`from logtide_sdk import LogTideClient, ClientOptions
 
-client = LogTideClient(
+client = LogTideClient(ClientOptions(
   api_url='http://logtide.internal:8080',
   api_key='lp_xxx',
   global_metadata={'env': 'production'}
-)
+))
 
 def process_request():
   client.info('api', 'Processing request')
@@ -695,8 +695,8 @@ log('info', 'api', 'Request processed', { userId: 123 });`}
               </tr>
               <tr>
                   <td class="px-4 py-2 border-b border-border">Dashboard</td>
-                  <td class="px-4 py-2 border-b border-border">SIEM Dashboard</td>
-                  <td class="px-4 py-2 border-b border-border">Security-focused dashboards</td>
+                  <td class="px-4 py-2 border-b border-border">Custom Dashboards / SIEM Dashboard</td>
+                  <td class="px-4 py-2 border-b border-border">Custom panels plus security-focused dashboards</td>
               </tr>
               <tr>
                   <td class="px-4 py-2 border-b border-border">API Key</td>
@@ -732,7 +732,7 @@ log('info', 'api', 'Request processed', { userId: 123 });`}
                   <li>Verify API key is valid and has write permissions</li>
                   <li>Check API URL is accessible from your application</li>
                   <li>Ensure Content-Type header is <code class="bg-muted px-1 rounded">application/json</code></li>
-                  <li>Check rate limits (default: 200 req/min per API key)</li>
+                  <li>Check rate limits (default: 1000 req/min per API key)</li>
               </ul>
           </CardContent>
       </Card>

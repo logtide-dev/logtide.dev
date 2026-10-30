@@ -120,7 +120,6 @@ Create `/etc/fluent-bit/fluent-bit.conf`:
     Name          modify
     Match         nginx.error
     Add           level error
-    Rename        message log_message
 
 # Create message field from request data (for access logs)
 [FILTER]
@@ -215,16 +214,10 @@ log_format json_production escape=json
 
 ### Request ID Generation
 
-Enable request ID generation for correlation with application logs:
+nginx generates a unique `$request_id` for every request out of the box (it is a built-in variable, so it cannot be redefined with `set`). Pass it to your upstream applications and back to clients for correlation with application logs:
 
 ```nginx
 server {
-    # Generate unique request ID
-    set $request_id $request_id;
-    if ($request_id = "") {
-        set $request_id $pid-$msec-$remote_addr-$connection;
-    }
-
     # Pass to upstream applications
     proxy_set_header X-Request-ID $request_id;
 
@@ -389,7 +382,7 @@ Create alerts for common nginx issues:
 ### High Error Rate
 
 ```
-service:nginx AND status:>=500
+service:nginx status:(500 OR 502 OR 503 OR 504)
 ```
 
 Set threshold: >10 errors in 5 minutes

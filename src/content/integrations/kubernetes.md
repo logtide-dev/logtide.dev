@@ -237,7 +237,6 @@ spec:
           volumeMounts:
             - name: varlog
               mountPath: /var/log
-              readOnly: true
             - name: varlibdockercontainers
               mountPath: /var/lib/docker/containers
               readOnly: true
@@ -516,7 +515,7 @@ metadata:
     logtide.dev/team: "payments"
 ```
 
-Then parse in Fluent Bit. Since the Kubernetes metadata is nested, you need to lift the annotations first:
+Then parse in Fluent Bit. Set `Annotations On` in the Kubernetes filter (the examples above use `Annotations Off`), and since the Kubernetes metadata is nested, lift the annotations first:
 
 ```ini
 # First, lift the kubernetes object (if not already done)
@@ -614,6 +613,7 @@ spec:
       app.kubernetes.io/name: fluent-bit
   endpoints:
     - port: metrics
+      path: /api/v1/metrics/prometheus
       interval: 30s
 ```
 
@@ -624,7 +624,7 @@ spec:
 | `fluentbit_input_records_total` | Records ingested | Sudden drops |
 | `fluentbit_output_retries_total` | Retry attempts | >10/min |
 | `fluentbit_output_errors_total` | Output errors | >0 |
-| `fluentbit_filter_records_total` | Records filtered | Compare with input |
+| `fluentbit_filter_drop_records_total` | Records dropped by filters | Compare with input |
 
 ## Troubleshooting
 
@@ -687,7 +687,7 @@ Reduce memory buffer limit:
 ```ini
 [INPUT]
     Name              tail
-    Mem_Buf_Limit     5MB  # Reduce from default
+    Mem_Buf_Limit     5MB
 ```
 
 ### Logs being dropped

@@ -90,7 +90,7 @@ export const handleError = logtideHandleError();`}
 import { logtideHandle } from '@logtide/sveltekit';
 
 export const handle = sequence(
-  logtideHandle(),
+  logtideHandle({ dsn: import.meta.env.LOGTIDE_DSN, service: 'sveltekit-app' }),
   ({ event, resolve }) => {
     // Your custom handle logic
     return resolve(event);
@@ -105,7 +105,7 @@ export const handle = sequence(
 
   <p class="text-muted-foreground mb-4">
     Initialize LogTide in your <code class="bg-muted px-1 rounded">src/hooks.client.ts</code>.
-    This enables Core Web Vitals and session tracking automatically.
+    This enables click and network breadcrumbs and session tracking (Core Web Vitals are opt-in, see below).
   </p>
 
   <div class="mb-8">
@@ -142,7 +142,7 @@ export const handleError = logtideHandleError();`}
 npm install -g @logtide/cli
 
 # Upload source maps
-logtide sourcemaps upload --path ./.svelte-kit/output/client --release 1.0.0 --apiKey YOUR_API_KEY`}
+logtide sourcemaps upload --path ./.svelte-kit/output/client --release 1.0.0 --api-key YOUR_API_KEY`}
       />
   </div>
 
@@ -151,9 +151,7 @@ logtide sourcemaps upload --path ./.svelte-kit/output/client --release 1.0.0 --a
   </h2>
 
   <p class="text-muted-foreground mb-4">
-      LogTide automatically monitors performance metrics (LCP, FID, CLS, INP, TTFB) through the
-      client-side initialization. You can view these metrics in the
-      <strong>Metrics</strong> section of your dashboard.
+      Core Web Vitals (LCP, INP, CLS) are opt-in: set <code class="bg-muted px-1 rounded">browser.webVitals</code> to <code class="bg-muted px-1 rounded">true</code> and install the optional <code class="bg-muted px-1 rounded">web-vitals</code> package. They are sent as info-level log events.
   </p>
 
   <h2 id="session-tracking" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
@@ -235,7 +233,7 @@ export const actions = {
     const name = data.get('name');
 
     hub.addBreadcrumb({
-      type: 'default',
+      type: 'custom',
       category: 'form',
       message: 'Settings form submitted',
       timestamp: Date.now(),

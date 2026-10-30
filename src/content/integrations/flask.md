@@ -47,7 +47,7 @@ LogTide's Python SDK ships a built-in Flask middleware that auto-logs every requ
 
 ## Prerequisites
 
-- Python 3.8+ (3.11+ recommended)
+- Python 3.10+ (3.11+ recommended)
 - Flask 2.0+
 - LogTide instance with API key
 
@@ -174,24 +174,24 @@ def get_config(name=None):
         "production": ProductionConfig,
         "development": DevelopmentConfig,
     }
-    return configs.get(name or os.environ.get("FLASK_ENV", "development"))
+    return configs.get(name or os.environ.get("APP_ENV", "development"))
 ```
 
 ## Request Logging Output
 
-Each request automatically generates a structured log:
+Each request generates a structured request log and a response log like this one:
 
 ```json
 {
   "level": "info",
-  "message": "GET /api/users/42 200",
+  "message": "GET /api/users/42 200 (18ms)",
   "service": "flask-app",
+  "trace_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   "metadata": {
     "method": "GET",
     "path": "/api/users/42",
-    "status_code": 200,
-    "duration_ms": 18.3,
-    "trace_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    "status": 200,
+    "duration_ms": 18.3
   }
 }
 ```
@@ -381,7 +381,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - FLASK_ENV=production
+      - APP_ENV=production
       - LOGTIDE_API_URL=${LOGTIDE_API_URL}
       - LOGTIDE_API_KEY=${LOGTIDE_API_KEY}
       - DATABASE_URL=postgresql://user:pass@db:5432/myapp

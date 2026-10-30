@@ -1,6 +1,6 @@
 ---
 title: "LogTide vs Google Cloud Logging"
-description: "LogTide vs Google Cloud Logging: self-hosted, open-source log management with built-in SIEM. Cut GCP logging costs ~73% beyond the 50 GiB free tier."
+description: "LogTide vs Google Cloud Logging: self-hosted, open-source log management with built-in SIEM. Cut GCP logging costs ~70% beyond the 50 GiB free tier."
 competitor: "Google Cloud Logging"
 competitorUrl: "https://cloud.google.com/logging"
 brandIcon: "simple-icons:googlecloud"
@@ -31,7 +31,7 @@ keywords:
   - "GCP log management cost"
 faqs:
   - question: "Is LogTide cheaper than Google Cloud Logging?"
-    answer: "Beyond GCP's 50 GiB/month free tier, Cloud Logging charges $0.50/GiB. At 100 GiB/day, LogTide on a GCE instance costs roughly $450/month versus about $1,675/month for Cloud Logging plus Log Analytics - around 73% less, or ~$14,700/year saved."
+    answer: "Beyond GCP's 50 GiB/month free tier, Cloud Logging charges $0.50/GiB. At 100 GiB/day, LogTide on a GCE instance costs roughly $450/month versus about $1,475/month in Cloud Logging ingestion - around 70% less, or ~$12,300/year saved."
   - question: "Can I migrate from Cloud Logging to LogTide without losing data?"
     answer: "Yes. Use Cloud Logging's Log Router to forward logs to LogTide through a Pub/Sub sink, run both in parallel to validate, then reduce Cloud Logging retention to minimize cost. No re-instrumentation of your apps is required."
   - question: "Does LogTide include SIEM like Chronicle?"
@@ -54,14 +54,13 @@ Google Cloud Logging offers a generous 50 GiB/month free tier, but costs scale q
 | Additional ingestion | $0.50/GiB |
 | Log storage (30 days default) | Included with ingestion |
 | Log storage (>30 days, Log Buckets) | $0.01/GiB/month |
-| Log Analytics (BigQuery linked) | BigQuery pricing applies |
+| Log Analytics | No additional charge (BigQuery costs only if you query the linked dataset from BigQuery) |
 | Log Router sinks | Free (but destination costs apply) |
 
 **Real-world example:** A GCP-native SaaS ingesting 100 GiB/day:
 - First 50 GiB free: -$0
 - Remaining 2,950 GiB/month × $0.50 = $1,475/month
-- Log Analytics: ~$200/month (BigQuery query costs)
-- **Total: ~$1,675/month ($20,100/year)**
+- **Total: ~$1,475/month ($17,700/year)**
 
 ### LogTide Pricing
 
@@ -77,7 +76,7 @@ Google Cloud Logging offers a generous 50 GiB/month free tier, but costs scale q
 - Compute + storage: ~$450/month
 - **Total: ~$450/month ($5,400/year)**
 
-**Savings: ~$14,700/year (73%)**
+**Savings: ~$12,300/year (~70%)**
 
 ### When Cloud Logging Is Cheaper
 
@@ -97,7 +96,7 @@ If you're under 50 GiB/month, Cloud Logging's free tier wins. At exactly 50 GiB/
 | Dashboards | Cloud Monitoring | SIEM dashboard |
 | Sigma detection rules | No | Built-in |
 | MITRE ATT&CK mapping | No | Included |
-| Log Analytics | BigQuery-linked (extra cost) | Included |
+| Log Analytics | SQL over log buckets, no extra charge | Included |
 | Log Router | Yes (sinks to GCS, BigQuery, Pub/Sub) | N/A |
 | Error Reporting | Integrated | Roadmap |
 | Self-hosted | No (GCP only) | Yes |
@@ -123,7 +122,7 @@ If you're under 50 GiB/month, Cloud Logging's free tier wins. At exactly 50 GiB/
 
 **Multi-cloud support.** LogTide runs anywhere - AWS, GCP, Azure, on-premises. Cloud Logging is GCP-only. If you run multi-cloud, LogTide provides a single pane of glass.
 
-**No query costs.** Cloud Logging queries are free in the Logs Explorer, but Log Analytics (BigQuery-linked) charges per query. LogTide queries are always unlimited.
+**No query costs.** Cloud Logging queries in Logs Explorer and Log Analytics are free, but querying a linked BigQuery dataset from BigQuery is billed as BigQuery usage. LogTide queries are always unlimited.
 
 **Data sovereignty.** Cloud Logging stores data in Google's infrastructure. With LogTide, your logs stay in infrastructure you control, which matters for GDPR and data residency requirements.
 
@@ -143,7 +142,7 @@ If you're under 50 GiB/month, Cloud Logging's free tier wins. At exactly 50 GiB/
 - You need SIEM capabilities without Chronicle costs
 - You run multi-cloud or hybrid infrastructure
 - Data residency requirements mandate self-hosting
-- You want unlimited queries with no BigQuery charges
+- You want to query months of logs without paying for longer retention or BigQuery exports
 - You prefer open-source and no vendor lock-in
 
 ## Migration Path
@@ -198,7 +197,7 @@ gcloud logging buckets update _Default \
 | Logs Explorer | Search | Real-time search |
 | Alerting Policy | Alert Rule | Similar functionality |
 | Log Router Sink | N/A | Ship directly to LogTide |
-| Log Analytics | SIEM Dashboard | No BigQuery costs |
+| Log Analytics | Query syntax + SIEM Dashboard | Same data, no export needed |
 | Error Reporting | Log-based alerts | Pattern matching |
 | Audit Logs | Security Events | Manual capture required |
 

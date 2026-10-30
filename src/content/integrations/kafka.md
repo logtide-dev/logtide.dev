@@ -29,7 +29,7 @@ faqs:
   - question: "How do I ship logs from Kafka into LogTide?"
     answer: "The recommended approach is to run Fluent Bit as a Kafka consumer using its built-in kafka input plugin, then configure an http output that posts to your LogTide instance at /api/v1/ingest/single with your API key in the X-API-Key header. Alternatively you can write a custom Node.js or Python consumer that batches records and posts them to /api/v1/ingest."
   - question: "Does LogTide support structured JSON logs coming through Kafka?"
-    answer: "Yes. Both the Fluent Bit consumer and the example Node.js and Python producers serialize log events as JSON. As long as each message includes the expected fields (level, message, service, timestamp), LogTide ingests and indexes them as fully structured log events."
+    answer: "Yes. Both the Fluent Bit consumer and the example Node.js and Python producers serialize log events as JSON. As long as each message includes the expected fields (level, message, service, time), LogTide ingests and indexes them as fully structured log events."
   - question: "Can I use Redpanda instead of Apache Kafka with this setup?"
     answer: "Yes. The guide explicitly lists Redpanda as a Kafka-compatible alternative. Because Redpanda implements the Kafka protocol, the same Fluent Bit configuration, producer code, and consumer setup work without changes."
 ---
@@ -91,14 +91,14 @@ Applications produce logs to Kafka topics. A Kafka Connect sink or Fluent Bit co
 ### Create Log Topics
 
 ```bash
-# Create a topic for application logs
+# Create a topic for application logs (24 hour retention, 10 GB max per partition)
 kafka-topics.sh --create \
   --bootstrap-server localhost:9092 \
   --topic logs.application \
   --partitions 12 \
   --replication-factor 3 \
-  --config retention.ms=86400000 \        # 24 hour retention
-  --config retention.bytes=10737418240 \  # 10 GB max per partition
+  --config retention.ms=86400000 \
+  --config retention.bytes=10737418240 \
   --config compression.type=lz4
 
 # Create a topic for infrastructure logs
@@ -110,13 +110,13 @@ kafka-topics.sh --create \
   --config retention.ms=86400000 \
   --config compression.type=lz4
 
-# Create a topic for security events (higher retention)
+# Create a topic for security events (7 day retention)
 kafka-topics.sh --create \
   --bootstrap-server localhost:9092 \
   --topic logs.security \
   --partitions 6 \
   --replication-factor 3 \
-  --config retention.ms=604800000 \       # 7 day retention
+  --config retention.ms=604800000 \
   --config compression.type=lz4
 ```
 
@@ -167,7 +167,7 @@ export async function sendLog(event: LogEvent) {
       key: event.service,
       value: JSON.stringify({
         ...event,
-        timestamp: new Date().toISOString(),
+        time: new Date().toISOString(),
         hostname: process.env.HOSTNAME,
       }),
       headers: {
@@ -209,7 +209,7 @@ def send_log(level: str, message: str, service: str, **metadata):
         'message': message,
         'service': service,
         'metadata': metadata,
-        'timestamp': datetime.now(timezone.utc).isoformat(),
+        'time': datetime.now(timezone.utc).isoformat(),
         'hostname': socket.gethostname(),
     }
 
@@ -255,7 +255,7 @@ def flush():
     URI           /api/v1/ingest/single
     Format        json_lines
     Header        X-API-Key ${LOGTIDE_API_KEY}
-    Header        Content-Type application/json
+    Header        Content-Type application/x-ndjson
     tls           On
     tls.verify    On
     Retry_Limit   5
@@ -352,7 +352,7 @@ services:
       KAFKA_LOG_RETENTION_HOURS: 24
       KAFKA_LOG_SEGMENT_BYTES: 1073741824
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: false
-      CLUSTER_ID: kafka-logtide-cluster-001
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     volumes:
       - kafka_data:/var/lib/kafka/data
 

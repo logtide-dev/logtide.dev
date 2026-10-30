@@ -125,9 +125,9 @@ services:
     Host          ${LOGTIDE_API_URL}
     Port          443
     URI           /api/v1/ingest/single
-    Format        json
+    Format        json_lines
     Header        X-API-Key ${LOGTIDE_API_KEY}
-    Header        Content-Type application/json
+    Header        Content-Type application/x-ndjson
     tls           On
     tls.verify    On
 ```
@@ -281,6 +281,7 @@ services:
     volumes:
       - ./config/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
       - ./config/parsers.conf:/fluent-bit/etc/parsers.conf:ro
+      - ./config/extract_service.lua:/fluent-bit/etc/extract_service.lua:ro
       - fluent_buffer:/var/log/fluent-bit
     ports:
       - "24224:24224"
@@ -339,6 +340,7 @@ secrets:
     Port              24224
     Buffer_Chunk_Size 1M
     Buffer_Max_Size   6M
+    storage.type      filesystem
 
 # Parse JSON logs from applications
 [FILTER]
@@ -370,9 +372,9 @@ secrets:
     Host              ${LOGTIDE_API_URL}
     Port              443
     URI               /api/v1/ingest/single
-    Format            json
+    Format            json_lines
     Header            X-API-Key ${LOGTIDE_API_KEY}
-    Header            Content-Type application/json
+    Header            Content-Type application/x-ndjson
     tls               On
     tls.verify        On
     Retry_Limit       5
@@ -632,7 +634,7 @@ docker compose logs -f fluent-bit
 
 ```bash
 # Send a test log
-docker compose exec app sh -c 'echo "{\"level\":\"info\",\"message\":\"Test log\"}"'
+docker compose exec app sh -c 'echo "{\"level\":\"info\",\"message\":\"Test log\"}" > /proc/1/fd/1'
 
 # Check LogTide dashboard for the test log
 ```
@@ -646,11 +648,13 @@ Control buffer sizes to manage memory:
 ```ini
 [INPUT]
     Name              forward
-    Buffer_Chunk_Size 512K   # Reduce for memory-constrained environments
+    # Reduce for memory-constrained environments
+    Buffer_Chunk_Size 512K
     Buffer_Max_Size   2M
 
 [SERVICE]
-    storage.backlog.mem_limit 25M  # Limit backlog memory
+    # Limit backlog memory
+    storage.backlog.mem_limit 25M
 ```
 
 ### Throughput
@@ -659,12 +663,13 @@ For high-volume logging:
 
 ```ini
 [SERVICE]
-    Flush    1            # More frequent flushes
-    Workers  4            # Parallel output workers
+    # More frequent flushes
+    Flush    1
 
 [OUTPUT]
     Name     http
-    Workers  2            # Parallel HTTP connections
+    # Parallel HTTP connections
+    Workers  2
 ```
 
 ### Disk Buffering
@@ -679,11 +684,13 @@ Enable disk buffering for reliability:
 
 [INPUT]
     Name                      forward
-    storage.type              filesystem  # Enable disk buffering
+    # Enable disk buffering
+    storage.type              filesystem
 
 [OUTPUT]
     Name                      http
-    storage.total_limit_size  500M  # Max disk usage per output
+    # Max disk usage per output
+    storage.total_limit_size  500M
 ```
 
 ## Troubleshooting

@@ -153,12 +153,12 @@ Set the connection in your Function App settings (portal → Environment variabl
 ```json
 {
   "Values": {
-    "LOGTIDE_DSN": "https://lp_your_key@logtide.example.com/your-project"
+    "LOGTIDE_DSN": "https://lp_your_key@logtide.example.com"
   }
 }
 ```
 
-If your LogTide instance is private, use VNet integration on the Function App (Premium and Dedicated plans) so outbound traffic reaches it.
+If your LogTide instance is private, use VNet integration on the Function App (Flex Consumption, Premium and Dedicated plans) so outbound traffic reaches it.
 
 ## Approach 2: Keep Application Insights, route the volume to LogTide
 
@@ -199,7 +199,7 @@ Your application code logs everything to LogTide via the SDK; App Insights only 
 ## Troubleshooting
 
 - **Logs missing from the end of invocations** - the instance was recycled before an interval flush; call `await hub.flush()` before returning.
-- **Nothing arrives at LogTide** - check outbound networking: Consumption plan functions need a public LogTide endpoint; VNet-only instances require Premium/Dedicated plans with VNet integration.
+- **Nothing arrives at LogTide** - check outbound networking: classic Consumption plan functions need a public LogTide endpoint; VNet-only instances require Flex Consumption, Premium or Dedicated plans with VNet integration.
 - **Duplicate logs in both platforms** - lower the `host.json` default log level so App Insights stops capturing what the SDK already ships.
 
 ---

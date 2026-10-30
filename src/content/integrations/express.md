@@ -23,11 +23,11 @@ keywords:
   - "node express logs"
 faqs:
   - question: "How do I add LogTide logging to an Express.js application?"
-    answer: "Install the @logtide/express package with npm and add the logtide() middleware to your Express app using app.use(). Pass your DSN, service name, and environment in the options object - LogTide initialises automatically and every HTTP request is logged without any further code changes."
+    answer: "Install the @logtide/express package with npm and add the logtide() middleware to your Express app using app.use(). Pass your DSN, service name, and environment in the options object - LogTide initialises automatically and every HTTP request is traced as a span without any further code changes."
   - question: "Does the Express integration log every request automatically?"
-    answer: "Yes. Once the logtide() middleware is registered, every HTTP request and response is logged as a structured JSON event including method, path, status code, duration, IP, and user agent - with no manual instrumentation required."
+    answer: "Yes. Once the logtide() middleware is registered, every HTTP request is recorded as a trace span with method, path, status code, duration, client IP, and user agent attributes, and 5xx responses are also logged as error entries - with no manual instrumentation required."
   - question: "Can I attach per-request context like user ID or tenant to Express logs?"
-    answer: "Yes. Inside any route or middleware you can call req.logtideScope.setTag() or req.logtideScope.setExtra() to attach custom fields. Those fields are then included on every log entry produced during that specific request."
+    answer: "Yes. Inside any route or middleware you can call req.logtideScope.setTag() or req.logtideScope.setExtra() to attach custom fields. Those fields are attached to the log entries and errors LogTide captures with that request's scope (such as 5xx error logs and errors passed through logtideErrorHandler())."
   - question: "Will adding LogTide middleware slow down my Express server?"
     answer: "No. Logging is non-blocking - log events are buffered and shipped asynchronously so request handling is never delayed. The middleware also propagates W3C traceparent headers at no extra cost."
 ---
@@ -36,10 +36,10 @@ LogTide's Express SDK provides drop-in middleware for automatic request logging,
 
 ## Why use LogTide with Express?
 
-- **Zero-config request logging**: Every HTTP request/response logged automatically
+- **Zero-config request tracing**: Every HTTP request recorded as a span automatically, 5xx responses logged as errors
 - **Per-request scoping**: Attach user, tenant, and custom tags to all logs in a request
 - **Distributed tracing**: W3C traceparent headers propagated automatically
-- **Error capture**: Unhandled errors captured with full request context
+- **Error capture**: Errors captured with request context via `logtideErrorHandler()`
 - **Non-blocking**: Logging never slows down your request handling
 
 ## Prerequisites
@@ -61,7 +61,7 @@ This includes `@logtide/core` as a dependency.
 ```typescript
 import express from 'express';
 import { hub } from '@logtide/core';
-import { logtide } from '@logtide/express';
+import { logtide, logtideErrorHandler } from '@logtide/express';
 
 const app = express();
 
@@ -73,7 +73,7 @@ app.use(logtide({
 }));
 
 app.get('/users/:id', (req, res) => {
-  req.logtideScope.setTag('userId', req.params.id);
+  req.logtideScope?.setTag('userId', req.params.id);
   res.json({ id: req.params.id });
 });
 
@@ -99,10 +99,10 @@ Attach context to all logs within a request:
 ```typescript
 app.use((req, res, next) => {
   if (req.user) {
-    req.logtideScope.setExtra('userId', req.user.id);
-    req.logtideScope.setExtra('email', req.user.email);
+    req.logtideScope?.setExtra('userId', req.user.id);
+    req.logtideScope?.setExtra('email', req.user.email);
   }
-  req.logtideScope.setTag('tenant', req.headers['x-tenant-id']);
+  req.logtideScope?.setTag('tenant', String(req.headers['x-tenant-id']));
   next();
 });
 ```
@@ -122,8 +122,11 @@ app.get('/api/data', async (req, res) => {
 ## Error Handling
 
 ```typescript
-// The middleware automatically captures 5xx errors.
-// Your error response handler:
+// The middleware records 5xx responses as error logs. To capture the
+// thrown error itself, register logtideErrorHandler() after your routes:
+app.use(logtideErrorHandler());
+
+// Then your own error response handler:
 app.use((err, req, res, next) => {
   res.status(err.status || 500).json({
     error: err.message,
@@ -132,25 +135,23 @@ app.use((err, req, res, next) => {
 });
 ```
 
-## Request Logging Output
+## Request Tracing Output
 
-Each request generates a structured log:
+Each request produces a span (sent as a trace) named after the method and path, for example `GET /users/123`, with attributes such as:
 
 ```json
 {
-  "level": "info",
-  "message": "GET /users/123 200",
-  "service": "api-server",
-  "metadata": {
-    "method": "GET",
-    "path": "/users/123",
-    "statusCode": 200,
-    "duration": 45,
-    "ip": "192.168.1.1",
-    "userAgent": "Mozilla/5.0..."
-  }
+  "http.method": "GET",
+  "http.target": "/users/123",
+  "http.route": "/users/:id",
+  "http.status_code": 200,
+  "duration_ms": 45,
+  "net.peer.ip": "192.168.1.1",
+  "http.user_agent": "Mozilla/5.0..."
 }
 ```
+
+Responses with a 5xx status additionally produce an error log entry (`HTTP 500 GET /users/123`).
 
 ## Next Steps
 
