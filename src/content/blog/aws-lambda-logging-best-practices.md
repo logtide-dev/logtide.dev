@@ -119,7 +119,7 @@ If you ship logs from inside the handler with any batching SDK or agent, the han
 
 - **Node.js**: with JSON format enabled, plain `console.log` is fine - you don't need a logging library for structure. Without it, use one (pino is the usual choice) or stack traces will fragment.
 - **Python**: the stdlib `logging` module integrates with JSON format directly; resist the urge to `print()`.
-- **Java**: Log4j2 inside Lambda has real sharp edges - the plugin cache gets destroyed by JAR shading and the Lambda appender silently vanishes. We wrote a dedicated guide: [AWS Lambda Java logging with Log4j2](/integrations/aws-lambda-java/).
+- **Java**: Log4j2 inside Lambda has real sharp edges - the plugin cache gets destroyed by JAR shading and the Lambda appender silently vanishes. We wrote a dedicated guide: [AWS Lambda Java logging with Log4j2](/blog/aws-lambda-java-log4j2/).
 
 ## The part nobody budgets for: reading the logs
 
@@ -169,5 +169,6 @@ Self-hosted LogTide gives you field-based queries, live tail, and alerting on th
 **Related guides:**
 
 - [AWS Lambda integration](/integrations/aws-lambda/) - SDK, forwarding, and extension setup for LogTide
-- [AWS Lambda Java logging with Log4j2](/integrations/aws-lambda-java/) - shading, appenders, and flush patterns for the JVM
+- [AWS Lambda Java logging with Log4j2](/blog/aws-lambda-java-log4j2/) - Maven setup, JSON logs and the shade plugin fix
+- [AWS Lambda Java integration](/integrations/aws-lambda-java/) - shipping JVM Lambda logs to LogTide
 - [LogTide vs AWS CloudWatch](/vs/aws-cloudwatch/) - feature and cost comparison
