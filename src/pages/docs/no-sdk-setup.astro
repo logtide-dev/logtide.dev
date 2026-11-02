@@ -41,8 +41,8 @@ const headings = [
               </p>
               <p class="text-sm text-muted-foreground">
                   LogTide supports <strong>stdout-based logging</strong> via Fluent
-                  Bit (self-hosted) or Docker logging drivers (cloud). Simply write
-                  to stdout/stderr and your logs will be automatically ingested.
+                  Bit, both on LogTide Cloud and self-hosted. Simply write to
+                  stdout/stderr and your logs will be automatically ingested.
               </p>
           </div>
       </div>
@@ -62,13 +62,13 @@ const headings = [
           </CardHeader>
           <CardContent class="text-sm">
               <p class="text-muted-foreground mb-3">
-                  Use Docker's Fluentd logging driver to send logs directly to
-                  LogTide Cloud.
+                  Run a small Fluent Bit container next to your services and ship
+                  logs to LogTide Cloud over HTTPS.
               </p>
               <ul class="space-y-2 ml-2">
                   <li class="flex items-start gap-2">
                       <Icon name="lucide:check-circle" class="w-4 h-4 text-primary-readable mt-0.5 flex-shrink-0" />
-                      <span>No Fluent Bit container needed</span>
+                      <span>HTTPS only, API key sent as a header</span>
                   </li>
                   <li class="flex items-start gap-2">
                       <Icon name="lucide:check-circle" class="w-4 h-4 text-primary-readable mt-0.5 flex-shrink-0" />
@@ -217,34 +217,86 @@ const headings = [
 
   <div class="mb-8 space-y-6">
       <p class="text-muted-foreground">
-          For LogTide Cloud, configure your Docker containers to use the
-          Fluentd logging driver:
+          For LogTide Cloud, run Fluent Bit on the same host as your
+          containers. Docker hands container output to Fluent Bit locally, and
+          Fluent Bit sends it to <code class="bg-muted px-1 rounded">https://api.logtide.dev</code> over HTTPS.
       </p>
 
       <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">1. Generate API Key</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+              Create an API key in your project settings at
+              <a href="https://app.logtide.dev" class="text-primary-readable underline">app.logtide.dev</a>.
+          </p>
+      </div>
+
+      <div>
           <h3 class="text-lg font-semibold mb-3 scroll-mt-24">
-              1. Configure docker-compose.yml
+              2. Create fluent-bit.conf
+          </h3>
+          <Code
+              lang="ini"
+              theme="one-dark-pro"
+              code={`[SERVICE]
+  Flush         1
+  Log_Level     info
+
+[INPUT]
+  Name          forward
+  Listen        0.0.0.0
+  Port          24224
+
+[OUTPUT]
+  Name          http
+  Match         *
+  Host          api.logtide.dev
+  Port          443
+  URI           /api/v1/ingest/single
+  Format        json_lines
+  Header        X-API-Key \${LOGTIDE_API_KEY}
+  Header        Content-Type application/x-ndjson
+  tls           On
+  tls.verify    On
+  Retry_Limit   5`}
+          />
+      </div>
+
+      <div>
+          <h3 class="text-lg font-semibold mb-3 scroll-mt-24">
+              3. Configure docker-compose.yml
           </h3>
           <p class="text-sm text-muted-foreground mb-3">
-              Add logging configuration to each service in your
-              <code class="bg-muted px-1 rounded">docker-compose.yml</code>:
+              Add the Fluent Bit service and point each service's logging driver
+              at it:
           </p>
           <Code
               lang="yaml"
               theme="one-dark-pro"
               code={`services:
-my-app:
-  image: my-app:latest
-  logging:
-    driver: fluentd
-    options:
-      fluentd-address: api.logtide.dev:24224
-      fluentd-async: "true"
-      tag: "lp_your_api_key_here.{{.Name}}"
-      labels: "service"
-  labels:
-    service: "my-app"`}
+  fluent-bit:
+    image: fluent/fluent-bit:4.2.2
+    volumes:
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+    ports:
+      - "127.0.0.1:24224:24224"
+    environment:
+      - LOGTIDE_API_KEY=lp_your_api_key_here
+
+  my-app:
+    image: my-app:latest
+    depends_on:
+      - fluent-bit
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async: "true"
+        tag: "docker.{{.Name}}"`}
           />
+          <p class="text-sm text-muted-foreground mt-3">
+              Each record carries <code class="bg-muted px-1 rounded">container_name</code>, which LogTide
+              uses as the service name.
+          </p>
       </div>
 
       <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
@@ -254,16 +306,14 @@ my-app:
                   <p
                       class="font-semibold text-blue-600 dark:text-blue-400 mb-1"
                   >
-                      Coming Soon
+                      Keep port 24224 local
                   </p>
                   <p class="text-sm text-muted-foreground">
-                      Sign up at
-                      <a
-                          href="https://app.logtide.dev/register"
-                          class="text-primary-readable underline">app.logtide.dev</a
-                      >
-                      to start on the free plan, and we'll notify you when Fluentd logging
-                      driver support is available.
+                      Port 24224 is only the local hop between Docker and Fluent
+                      Bit, so bind it to <code class="bg-muted px-1 rounded">127.0.0.1</code>. LogTide Cloud does not
+                      accept the Fluentd forward protocol directly: logs reach it
+                      only over HTTPS on port 443, so
+                      <code class="bg-muted px-1 rounded">fluentd-address: api.logtide.dev:24224</code> will not work.
                   </p>
               </div>
           </div>
@@ -702,6 +752,14 @@ restart: unless-stopped`}
   # TLS (disable for internal Docker network)
   tls                 Off`}
           />
+          <p class="text-sm text-muted-foreground mt-3">
+              This output targets a self-hosted LogTide on the internal Docker
+              network. To send to LogTide Cloud instead, set
+              <code class="bg-muted px-1 rounded">Host api.logtide.dev</code>, <code class="bg-muted px-1 rounded">Port 443</code> and
+              <code class="bg-muted px-1 rounded">tls On</code>. Plain HTTP requests to LogTide Cloud get a
+              redirect to HTTPS, which Fluent Bit does not follow, so nothing is
+              ingested.
+          </p>
       </div>
 
       <div>
@@ -822,13 +880,13 @@ end`}
       # Docker socket (read-only)
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
-      # For LogTide Cloud
+      # Self-hosted
       LOGTIDE_API_KEY: lp_your_api_key_here
-      LOGTIDE_API_HOST: api.logtide.dev
+      LOGTIDE_API_HOST: localhost  # or your server IP
 
-      # Or for self-hosted
-      # LOGTIDE_API_KEY: lp_your_api_key_here
-      # LOGTIDE_API_HOST: localhost  # or your server IP
+      # For LogTide Cloud use api.logtide.dev and also set
+      # Port 443 + tls On in fluent-bit.conf
+      # LOGTIDE_API_HOST: api.logtide.dev
     restart: unless-stopped
     networks:
       - your-network
