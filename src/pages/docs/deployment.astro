@@ -87,12 +87,12 @@ docker compose up -d`}
                   <tbody>
                       <tr>
                           <td class="p-3 border-b border-border font-mono text-xs">DB_PASSWORD</td>
-                          <td class="p-3 border-b border-border">PostgreSQL password</td>
+                          <td class="p-3 border-b border-border">PostgreSQL password <span class="text-muted-foreground">(any characters)</span></td>
                           <td class="p-3 border-b border-border font-mono text-xs">random_secure_password</td>
                       </tr>
                       <tr>
                           <td class="p-3 border-b border-border font-mono text-xs">REDIS_PASSWORD</td>
-                          <td class="p-3 border-b border-border">Redis password <span class="text-muted-foreground">(optional)</span></td>
+                          <td class="p-3 border-b border-border">Redis password <span class="text-muted-foreground">(optional, any characters)</span></td>
                           <td class="p-3 border-b border-border font-mono text-xs">another_secure_password</td>
                       </tr>
                       <tr>
@@ -105,6 +105,12 @@ docker compose up -d`}
           </div>
           <p class="text-sm text-muted-foreground mt-3">
               Database migrations run automatically on first start.
+          </p>
+          <p class="text-sm text-muted-foreground mt-3">
+              Since 1.6.1 passwords can contain any character, <code class="bg-muted px-1 rounded">#</code> <code class="bg-muted px-1 rounded">%</code> <code class="bg-muted px-1 rounded">@</code> <code class="bg-muted px-1 rounded">/</code> included:
+              the compose file passes the database and Redis settings separately and the backend builds the connection URLs, encoding the passwords.
+              The one exception is <code class="bg-muted px-1 rounded">$</code>: wrap such a password in single quotes in <code class="bg-muted px-1 rounded">.env</code>
+              (<code class="bg-muted px-1 rounded">DB_PASSWORD='pa$word'</code>), otherwise Docker Compose reads it as a variable.
           </p>
           <Card class="border-yellow-500/30 bg-yellow-500/5 mt-4">
               <CardHeader>
@@ -128,6 +134,37 @@ docker compose up -d`}
 MONITOR_ALLOW_PRIVATE_TARGETS=true`} />
               </CardContent>
           </Card>
+      </div>
+
+      <div>
+          <h3 id="external-services" class="text-lg font-semibold mb-3 scroll-mt-24">Use an External PostgreSQL or Redis</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+              The backend and the worker share one environment block, <code class="bg-muted px-1 rounded">x-backend-env</code>, at the top of <code class="bg-muted px-1 rounded">docker-compose.yml</code>.
+              To use a database or Redis outside the compose project (1.6.1 and later), change the connection settings there:
+          </p>
+          <Code
+              lang="yaml"
+              theme="one-dark-pro"
+              code={`x-backend-env: &backend-env
+  # Separate settings: the backend builds the URL and encodes the password
+  DB_HOST: db.example.com
+  DB_PORT: 5432
+  DB_USER: logtide
+  DB_PASSWORD: \${DB_PASSWORD}
+  DB_NAME: logtide
+  REDIS_HOST: redis.example.com
+  REDIS_PORT: 6379
+  REDIS_PASSWORD: \${REDIS_PASSWORD}
+  # Or one URL each, which wins over the settings above
+  # (percent-encode # % @ / ? : in a password you put here)
+  # DATABASE_URL: postgresql://logtide:secret@db.example.com:5432/logtide?sslmode=require
+  # REDIS_URL: rediss://:secret@redis.example.com:6380`}
+          />
+          <p class="text-sm text-muted-foreground mt-3">
+              A URL is the way to pass extra connection options, such as <code class="bg-muted px-1 rounded">sslmode</code> or a TLS <code class="bg-muted px-1 rounded">rediss://</code> connection.
+              If you no longer need the bundled <code class="bg-muted px-1 rounded">postgres</code> or <code class="bg-muted px-1 rounded">redis</code> service, remove it together with the
+              <code class="bg-muted px-1 rounded">depends_on</code> entries of <code class="bg-muted px-1 rounded">backend</code> and <code class="bg-muted px-1 rounded">worker</code> that point at it.
+          </p>
       </div>
 
       <div>
@@ -404,8 +441,8 @@ docker compose -f docker-compose.simple.yml up -d`}
                           <td class="p-3 border-b border-border text-green-500">Yes</td>
                       </tr>
                       <tr>
-                          <td class="p-3 border-b border-border font-mono text-xs">REDIS_URL</td>
-                          <td class="p-3 border-b border-border">Not set = uses PostgreSQL alternatives</td>
+                          <td class="p-3 border-b border-border font-mono text-xs">REDIS_PASSWORD</td>
+                          <td class="p-3 border-b border-border">Not used: this setup has no Redis and uses PostgreSQL instead</td>
                           <td class="p-3 border-b border-border text-muted-foreground">No</td>
                       </tr>
                   </tbody>
@@ -424,7 +461,7 @@ docker compose -f docker-compose.simple.yml up -d`}
           </CardHeader>
           <CardContent class="text-sm text-muted-foreground">
               <p>
-                  You can add Redis at any time by setting <code class="bg-muted px-1 rounded">REDIS_URL</code> in your <code class="bg-muted px-1 rounded">.env</code> file
+                  You can add Redis at any time by setting <code class="bg-muted px-1 rounded">REDIS_PASSWORD</code> in your <code class="bg-muted px-1 rounded">.env</code> file
                   and switching to the full <code class="bg-muted px-1 rounded">docker-compose.yml</code>. No data migration required - Redis is only used for
                   ephemeral data (cache, rate limits, job queues).
               </p>
@@ -514,6 +551,8 @@ API_KEY_SECRET=your_32_character_secret_key_here
       proxy_pass http://localhost:3000;
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
   }
 
   # Backend API - REQUIRED for relative URLs to work
@@ -521,6 +560,8 @@ API_KEY_SECRET=your_32_character_secret_key_here
       proxy_pass http://localhost:8080/api/;
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
   }
 
   # SSE for live tail (requires special headers)
@@ -534,6 +575,33 @@ API_KEY_SECRET=your_32_character_secret_key_here
   }
 }`}
           />
+      </div>
+
+      <div>
+          <h3 id="trust-proxy" class="text-lg font-semibold mb-3 scroll-mt-24">Client IP Behind a Proxy</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+              By default (<code class="bg-muted px-1 rounded">TRUST_PROXY=false</code>) the backend sees the proxy as the client, so the audit log shows the proxy address
+              for every request and all users share the login, registration and password reset rate limits.
+              Tell the backend how many proxies sit in front of it:
+          </p>
+          <Code
+              lang="bash"
+              theme="one-dark-pro"
+              code={`# .env
+# One reverse proxy (nginx, Caddy, Traefik, Nginx Proxy Manager)
+TRUST_PROXY=1
+
+# Cloudflare in front of the reverse proxy
+TRUST_PROXY=2
+
+# Or the proxy addresses themselves (IPs and CIDRs, comma separated)
+TRUST_PROXY=172.16.0.0/12`}
+          />
+          <p class="text-sm text-muted-foreground mt-3">
+              The client IP is then the address right before those proxies, so a client cannot fake it with its own
+              <code class="bg-muted px-1 rounded">X-Forwarded-For</code> header. <code class="bg-muted px-1 rounded">TRUST_PROXY=true</code> still works and trusts every hop, which lets a client choose
+              the IP that gets logged: prefer a number or a list. Hop counts and lists need 1.6.1 or later.
+          </p>
       </div>
 
       <div>
@@ -683,6 +751,11 @@ docker compose ps`}
               </ul>
               <p class="mt-2">
                   The <code class="bg-muted px-1 rounded">LOGTIDE_PORT</code> environment variable controls the Traefik port (default: 3080).
+              </p>
+              <p class="mt-2">
+                  The overlay needs Docker Compose 2.24 or later. It sets <code class="bg-muted px-1 rounded">TRUST_PROXY: "1"</code> on the backend, since Traefik is the one proxy
+                  in front of it; change it to <code class="bg-muted px-1 rounded">"2"</code> in the overlay if Cloudflare or another proxy sits in front of Traefik
+                  (see <a href="#trust-proxy" class="text-primary-readable hover:underline">Client IP behind a proxy</a>).
               </p>
           </CardContent>
       </Card>

@@ -384,7 +384,7 @@ docker compose -f docker-compose.simple.yml up -d`}
           <tbody>
             <tr>
               <td class="p-3 border-b border-border font-mono text-xs">DB_PASSWORD</td>
-              <td class="p-3 border-b border-border">PostgreSQL database password</td>
+              <td class="p-3 border-b border-border">PostgreSQL database password <span class="text-muted-foreground">(any characters since 1.6.1; wrap it in single quotes if it contains <code class="bg-background px-1 rounded">$</code>)</span></td>
             </tr>
             <tr>
               <td class="p-3 border-b border-border font-mono text-xs">REDIS_PASSWORD</td>
@@ -607,7 +607,11 @@ docker compose logs redis`} />
         </li>
         <li class="flex items-start gap-2">
           <Icon name="lucide:alert-circle" class="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
-          <span><strong>Invalid DATABASE_URL:</strong> Check that DB_USER, DB_PASSWORD, and DB_NAME are all set correctly</span>
+          <span><strong>Invalid DATABASE_URL:</strong> Check that DB_USER, DB_PASSWORD and DB_NAME are set. If you set <code class="bg-muted px-1 py-0.5 rounded font-mono">DATABASE_URL</code> yourself, percent-encode reserved characters in its password (<code class="bg-muted px-1 py-0.5 rounded font-mono">#</code> as <code class="bg-muted px-1 py-0.5 rounded font-mono">%23</code>, <code class="bg-muted px-1 py-0.5 rounded font-mono">%</code> as <code class="bg-muted px-1 py-0.5 rounded font-mono">%25</code>)</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <Icon name="lucide:alert-circle" class="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
+          <span><strong>Cannot read properties of undefined (reading 'searchParams'):</strong> on 1.6.0 and earlier, a database password with <code class="bg-muted px-1 py-0.5 rounded font-mono">#</code>, <code class="bg-muted px-1 py-0.5 rounded font-mono">%</code>, <code class="bg-muted px-1 py-0.5 rounded font-mono">@</code>, <code class="bg-muted px-1 py-0.5 rounded font-mono">/</code>, <code class="bg-muted px-1 py-0.5 rounded font-mono">?</code> or <code class="bg-muted px-1 py-0.5 rounded font-mono">:</code> breaks the connection URL. Upgrade to 1.6.1, or choose a password without them (<code class="bg-muted px-1 py-0.5 rounded font-mono">openssl rand -hex 24</code>) and recreate the database volume, since PostgreSQL keeps the password it was first created with</span>
         </li>
       </ul>
     </div>
