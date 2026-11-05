@@ -1,8 +1,8 @@
 ---
-title: "On-Premise Log Management for EU Compliance and Flat Pricing"
+title: "On-Premise Log Management for EU Compliance"
 description: "Which on-prem log management tools keep EU log data local, and how their pricing behaves. GDPR, NIS2 and DORA logging duties, plus a comparison and checklist."
 pubDate: 2026-10-30
-author: "LogTide Team"
+author: "Giuseppe Pollio"
 tags:
   - "compliance"
   - "gdpr"

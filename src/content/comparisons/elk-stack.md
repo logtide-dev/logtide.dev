@@ -8,7 +8,7 @@ logtidePricing: "Free (self-hosted)"
 migrationDoc: "/docs/migration/elk/"
 highlights:
   - "Single stack vs 3+ components"
-  - "75% less memory"
+  - "Smaller footprint"
   - "Built-in SIEM included"
   - "No cluster management"
 relatedIntegrations:
@@ -30,7 +30,7 @@ keywords:
   - "simpler ELK alternative"
 faqs:
   - question: "Does LogTide use fewer resources than the ELK Stack?"
-    answer: "Yes, substantially. A production ELK deployment requires 22-44 GB of RAM across Elasticsearch, Logstash, and Kibana, while LogTide runs on 6-12 GB total - a reduction of 60-75%. This directly translates to lower infrastructure costs and makes LogTide viable on smaller servers."
+    answer: "Usually. Our sizing estimate (not a benchmark) is 22-44 GB of RAM for a production ELK deployment across Elasticsearch, Logstash and Kibana, against 6-12 GB for LogTide. Test with your own workload before sizing hardware."
   - question: "Does LogTide include SIEM without extra licensing, unlike ELK?"
     answer: "Core Elastic Security detections are available in the free tier, but advanced capabilities (such as machine learning anomaly detection and parts of endpoint protection) require paid subscriptions. LogTide includes Sigma detection rules, MITRE ATT&CK mapping, and incident management as part of the free, open-source release with no additional licensing fees."
   - question: "When is the ELK Stack the better choice over LogTide?"
@@ -39,7 +39,7 @@ faqs:
     answer: "Replace Beats or Logstash with Fluent Bit pointed at the LogTide HTTP ingest endpoint, translate your Elasticsearch or KQL queries to LogTide REST API parameters (see the query mapping table in this page), and convert Watcher alert rules to LogTide alert rules. A full step-by-step guide is available at /docs/migration/elk/."
 ---
 
-The ELK Stack (Elasticsearch, Logstash, Kibana) is the most widely deployed open-source log management solution. LogTide offers a simpler alternative with fewer components, lower resource requirements, and built-in SIEM. Here's a detailed comparison.
+The ELK Stack (Elasticsearch, Logstash, Kibana) is the most widely deployed open-source log management solution. LogTide offers a simpler alternative with fewer components, lower resource requirements, and built-in SIEM. Here's a detailed comparison. If you are still choosing between options, the [ELK alternatives](/elk-alternatives/) overview compares LogTide, Loki, Graylog and SigNoz, [self-hosted log management](/self-hosted-log-management/) covers the general picture, and the [centralized logging server guide](/blog/self-hosted-centralized-logging-server/) shows a hands-on setup.
 
 ## Architecture Comparison
 
@@ -79,7 +79,7 @@ One of LogTide's biggest advantages is resource efficiency:
 | TimescaleDB | - | 4-8 GB RAM |
 | **Total RAM** | **22-44 GB** | **6-12 GB** |
 
-LogTide uses **60-75% less memory** for equivalent workloads.
+These are our sizing estimates, not measured benchmarks. Test with your own workload.
 
 ## Feature Comparison
 
@@ -111,7 +111,7 @@ LogTide uses **60-75% less memory** for equivalent workloads.
 
 **Dramatically simpler.** No more managing Elasticsearch clusters (shards, replicas, split-brain), Logstash pipelines (grok patterns, codec issues), and Kibana (index patterns, saved objects). LogTide is one deployment.
 
-**Lower resource requirements.** ELK requires 22-44 GB RAM minimum for production. LogTide runs on 6-12 GB. That's a 60-75% reduction in infrastructure costs.
+**Lower resource requirements.** Our sizing estimate for ELK in production is 22-44 GB of RAM, against 6-12 GB for LogTide (estimates, not benchmarks).
 
 **No version headaches.** ELK components must be version-matched. Upgrading Elasticsearch without matching Kibana and Logstash causes compatibility issues. LogTide is a single versioned release.
 
@@ -130,7 +130,7 @@ LogTide uses **60-75% less memory** for equivalent workloads.
 ## When to Choose LogTide
 
 - You want simpler operations (single stack vs 3+ components)
-- Your infrastructure budget is limited (60-75% less RAM needed)
+- Your infrastructure budget is limited (smaller footprint by our estimate)
 - You need SIEM capabilities without paid Elastic licenses
 - You're tired of ELK version compatibility issues
 - You want built-in alerting without ElastAlert or Watcher

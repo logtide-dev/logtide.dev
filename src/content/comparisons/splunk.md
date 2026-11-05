@@ -3,7 +3,7 @@ title: "LogTide vs Splunk for Log Management"
 description: "Compare LogTide and Splunk for log management. Open-source vs enterprise licensing, features, and migration path."
 competitor: "Splunk"
 competitorUrl: "https://www.splunk.com"
-competitorPricing: "~$1,500-$1,800/GB/day/year (list estimate)"
+competitorPricing: "Quote-based (no public per-GB list price)"
 logtidePricing: "Free (self-hosted)"
 migrationDoc: "/docs/migration/splunk/"
 highlights:
@@ -30,7 +30,7 @@ keywords:
   - "Splunk Enterprise alternative"
 faqs:
   - question: "How much can I save by switching from Splunk to LogTide?"
-    answer: "For a 50 GB/day workload, Splunk Enterprise licensing plus Enterprise Security and infrastructure typically runs $150,000-350,000 per year. LogTide infrastructure for the same volume costs roughly $4,800/year - a saving of $145,000-345,000/year (97%+). The savings grow as ingest volume increases because LogTide has no per-GB license fee."
+    answer: "Splunk does not publish a per-GB list price (its pricing page directs you to sales, checked November 2026), so we cannot give a verified saving. What you can compare is the structure: Splunk licenses by ingest volume or workload plus add-ons such as Enterprise Security, while self-hosted LogTide has no license fee and costs only infrastructure and the time to run it. Get a Splunk quote for your volume and compare it with your own LogTide infrastructure estimate."
   - question: "Can I use my existing Sigma detection rules in LogTide instead of rewriting SPL?"
     answer: "Yes. LogTide uses Sigma as its native detection rule format, giving you access to 2,000+ community rules from SigmaHQ out of the box. This contrasts with Splunk, which requires proprietary SPL queries and a separate Splunk Enterprise Security license. Any Sigma rules your team already owns are fully portable to LogTide."
   - question: "How do I migrate log collection from Splunk Universal Forwarders to LogTide?"
@@ -39,44 +39,31 @@ faqs:
     answer: "Splunk remains the stronger choice if your team has years of institutional SPL expertise and large investments in Splunk apps from Splunkbase, you need the most advanced ML-based correlation available in Splunk ES, you require enterprise-grade vendor SLAs, or your organization is already deeply integrated into the Splunk ecosystem and the switching cost outweighs the licensing savings."
 ---
 
-Splunk is a legacy enterprise log management and SIEM platform. LogTide is a modern, open-source alternative with native Sigma rules support. Here's how they compare.
+Splunk is a legacy enterprise log management and SIEM platform. LogTide is a modern, open-source alternative with native Sigma rules support. Here's how they compare. Splunk pricing is quote-based, so this page compares structure rather than dollar figures. If your reason to leave is data location, read [on-premise log management for EU compliance](/blog/on-premise-log-management-eu-compliance/).
 
 ## Cost Comparison
 
-Splunk's licensing model is one of the most expensive in the industry.
+Splunk does not publish a per-GB list price. Its [pricing page](https://www.splunk.com/en_us/products/pricing/platform-pricing.html) offers ingest-based and other models and directs you to sales (checked November 2026). We therefore do not quote Splunk dollar figures here, since any number we gave would be an unverified guess.
 
-### Splunk Pricing
+### How to compare
 
-Splunk charges based on daily ingestion volume:
+| Item | Splunk | LogTide |
+|------|--------|---------|
+| License | Quote-based, depends on ingest or workload model | Free (AGPLv3) |
+| SIEM | Enterprise Security is a separate product (ask for it in the quote) | Included (Sigma rules, incidents) |
+| Users | Depends on contract | Unlimited |
+| Infrastructure | Cloud: included in the subscription. Enterprise: you run it | You run it |
 
-| Tier | Cost |
-|------|------|
-| Splunk Enterprise (1-10 GB/day) | ~$1,500-1,800/GB/day/year (list estimate, not published by Splunk) |
-| Splunk Enterprise (100+ GB/day) | Negotiated (typically $500-1,800/GB/day/year) |
-| Splunk Cloud | Higher than Enterprise |
-| Splunk Enterprise Security | Additional license |
-| Splunk SOAR | Additional license |
-
-**Real-world example:** Enterprise with 50 GB/day:
-- Splunk Enterprise license: ~$75,000-250,000/year
-- Enterprise Security add-on: ~$25,000-50,000/year
-- Infrastructure + admin staff: ~$50,000/year
-- **Total: ~$150,000-350,000/year**
+**Method:** ask Splunk for a quote at your daily ingest volume, including Enterprise Security if you need a SIEM, and add the cost of the people who run it. Then estimate LogTide as servers plus disks plus the time to operate them. For a worked example with verified list prices on another vendor, see [LogTide vs Datadog](/vs/datadog/); for the cloud providers, see the [cloud logging pricing overview](/cloud-logging-pricing/). For compliance-driven on-prem deployments, read [on-premise log management for EU compliance](/blog/on-premise-log-management-eu-compliance/).
 
 ### LogTide Pricing
 
-| Component | Cost |
+| Component | Assumed cost |
 |-----------|------|
 | Software license | Free (AGPLv3) |
-| Infrastructure (50 GB/day) | ~$300-600/month |
+| Infrastructure (50 GB/day) | ~$300-600/month (our estimate, not a quote) |
 | SIEM features | Included |
 | Users | Unlimited |
-
-**Same 50 GB/day scenario:**
-- Infrastructure: ~$400/month
-- **Total: ~$4,800/year**
-
-**Savings: $145,000-345,000/year (97%+)**
 
 ## Feature Comparison
 
@@ -106,7 +93,7 @@ Splunk charges based on daily ingestion volume:
 
 ## Where LogTide Wins
 
-**Cost savings of 90-97%.** Splunk licensing is extremely expensive, especially for growing companies. LogTide eliminates per-GB licensing entirely.
+**No per-GB licensing.** Splunk licensing is quote-based and tied to volume or workload, which can be hard to predict as you grow. LogTide has no license fee, so cost is infrastructure and operations.
 
 **Industry-standard detection rules.** Splunk locks you into proprietary SPL. LogTide uses Sigma, the open standard for detection rules with 2,000+ community rules from SigmaHQ.
 

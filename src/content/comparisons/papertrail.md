@@ -3,7 +3,7 @@ title: "LogTide vs Papertrail for Log Management"
 description: "Compare LogTide and SolarWinds Papertrail: self-hosted vs SaaS, pricing per GB, retention limits, SIEM features, and a step-by-step migration path."
 competitor: "Papertrail"
 competitorUrl: "https://www.papertrail.com/"
-competitorPricing: "From $5/GB/month (free trial)"
+competitorPricing: "See Papertrail pricing page (30-day trial)"
 logtidePricing: "Free (self-hosted)"
 highlights:
   - "Self-hosted option"
@@ -32,41 +32,27 @@ faqs:
   - question: "What is the best self-hosted alternative to Papertrail?"
     answer: "LogTide is a strong self-hosted Papertrail alternative: it keeps the simple setup and live tail experience Papertrail is known for, while adding structured JSON queries, unlimited retention, a built-in SIEM, and no per-GB pricing. Papertrail has no self-hosted option, so any data-sovereignty requirement rules it out."
   - question: "Is LogTide cheaper than Papertrail?"
-    answer: "Beyond small volumes, yes. Papertrail's pricing starts at $5 per GB of monthly ingestion with short searchable retention, so 25 GB/month is on the order of $125/month. A team ingesting 5 GB/day (~150 GB/month) would need a high-tier plan, while LogTide runs on a ~$50-100/month VPS with months of searchable retention and unlimited users."
+    answer: "Often, beyond small volumes, but we could not verify Papertrail's current per-GB price (checked November 2026: the site offers a 30-day trial with 100 GB included and sends you to a separate pricing page). Check that page for your volume. Papertrail keeps searchable retention to days or weeks, while LogTide on a VPS keeps as much as your disk allows, with unlimited users and no per-GB fee."
   - question: "What does Papertrail do better than LogTide?"
     answer: "Papertrail's onboarding is among the fastest in the industry - point rsyslog or remote_syslog2 at an endpoint and logs appear in seconds, with zero infrastructure to run. For very small projects with only a few GB/month, or teams that only need basic tail and grep-style search, Papertrail is hard to beat."
   - question: "How do I migrate from Papertrail to LogTide?"
     answer: "Run both in parallel: Papertrail receives logs via syslog, so configure your rsyslog/syslog-ng to also forward to a Fluent Bit or Vector pipeline that ships to LogTide's HTTP ingest API. Validate search and alerting for a week or two, then remove the Papertrail destination and cancel the subscription."
 ---
 
-Papertrail (acquired by SolarWinds) is one of the oldest and simplest hosted log management services: pipe syslog at it, get a live tail and searchable logs in seconds. LogTide is a self-hosted, open-source log management platform with structured queries and a built-in SIEM. One optimizes for zero-setup simplicity, the other for ownership, cost at scale, and security tooling - here's the honest comparison.
+Papertrail (acquired by SolarWinds) is one of the oldest and simplest hosted log management services: pipe syslog at it, get a live tail and searchable logs in seconds. LogTide is a self-hosted, open-source log management platform with structured queries and a built-in SIEM. One optimizes for zero-setup simplicity, the other for ownership, cost at scale, and security tooling - here's the honest comparison. If you are comparing several hosted services at once, see the [hosted log management comparison](/blog/hosted-log-management-compared/).
 
 ## Cost Comparison
 
 ### Papertrail Pricing
 
-Papertrail charges by monthly log volume, with searchable retention measured in days and an archive on paid plans. The current pricing page lists a single "Log Observability" offering that starts at **$5.00 per GB per month**, with unlimited systems and users. Over the plan limit, logs either stop or continue as usage-based billing (up to 200% extra at a 30% higher price per GB). The page lists a free trial but no permanent free plan.
-
-Earlier published tiers (for reference, now superseded):
-
-| Plan tier | Monthly volume | Searchable retention | Approx. price |
-|-----------|---------------|----------------------|---------------|
-| Entry | 1 GB/month | 1 week | ~$7/month |
-| Growth | 25 GB/month | 2 weeks | ~$75/month |
-| Upper tiers | 100+ GB/month | 2-4 weeks | ~$230+/month |
-
-(Prices are indicative - SolarWinds adjusts tiers periodically; check their pricing page for current numbers.)
+Papertrail charges by monthly log volume, with searchable retention measured in days and an archive on paid plans. We could not verify its current per-GB price: as of November 2026 the [Papertrail site](https://www.papertrail.com/) advertises a 30-day free trial with 100 GB included and links to a separate pricing page. Check that page for your volume. We removed older per-GB and tier figures that we could not confirm.
 
 Two structural limits matter more than the sticker price:
 
 1. **Searchable retention is days, not months.** Even top tiers cap live search at a few weeks. Older logs go to an S3 archive you have to download and grep manually.
 2. **Volume tiers punish growth.** A noisy deploy or a traffic spike pushes you into the next tier or triggers per-GB overage.
 
-**Real-world example:** A team ingesting a modest 5 GB/day:
-
-- Monthly volume: ~150 GB - beyond standard published tiers, requiring custom/enterprise pricing, realistically several hundred dollars per month
-- Searchable window: still capped at ~2-4 weeks
-- **Total: ~$300-500+/month with search limited to recent weeks**
+**Method:** at 5 GB/day (about 150 GB/month), get the current Papertrail price for that volume and compare it with the LogTide infrastructure below. Searchable retention stays capped to recent weeks on SaaS plans of this type, so also compare how far back you can search.
 
 ### LogTide Pricing
 
@@ -85,9 +71,9 @@ LogTide is free, open-source software. You pay only for infrastructure:
 
 - Infrastructure: ~$100-150/month
 - Searchable retention: **months, not days** - query everything live
-- **Savings: typically 60-75%, plus the retention difference**
+- Compare with your Papertrail quote; the retention difference matters as much as the price
 
-The gap widens with volume: at 20+ GB/day Papertrail-class SaaS pricing becomes untenable while LogTide's infrastructure cost grows roughly with storage alone.
+The gap tends to widen with volume, because per-GB SaaS pricing grows with ingest while LogTide's infrastructure cost grows roughly with storage.
 
 ## Feature Comparison
 
@@ -120,7 +106,7 @@ The gap widens with volume: at 20+ GB/day Papertrail-class SaaS pricing becomes 
 
 **Simplicity as a feature.** The product is deliberately minimal: a tail, a search box, saved searches, and alerts. There is almost no learning curve, which makes it great for teams that only ever grep recent logs.
 
-**Low entry price.** Pricing starts at $5/GB per month with a free trial, which keeps hobby projects and low-traffic side services cheap.
+**Low entry price.** A free trial and simple volume-based pricing keep hobby projects and low-traffic side services cheap.
 
 ## Where LogTide Wins
 

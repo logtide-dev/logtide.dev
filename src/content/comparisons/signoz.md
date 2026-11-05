@@ -39,7 +39,7 @@ faqs:
     answer: "SigNoz wins when you need full observability across all three pillars - metrics, traces, and logs - with deep cross-signal correlation, service dependency maps auto-generated from trace data, and a custom dashboard builder. If your priority is broad observability rather than log-centric security detection, SigNoz is the stronger fit."
 ---
 
-SigNoz and LogTide are both open-source, self-hosted platforms that support OpenTelemetry. SigNoz focuses on full observability (metrics, traces, logs). LogTide focuses on log management with built-in SIEM capabilities, plus basic metrics and traces support. Here's how they compare.
+SigNoz and LogTide are both open-source, self-hosted platforms that support OpenTelemetry. SigNoz focuses on full observability (metrics, traces, logs). LogTide focuses on log management with built-in SIEM capabilities, plus basic metrics and traces support. Here's how they compare. SigNoz is also covered in the [ELK alternatives](/elk-alternatives/) overview; for the general self-hosted picture, see [self-hosted log management](/self-hosted-log-management/).
 
 ## Philosophy Comparison
 

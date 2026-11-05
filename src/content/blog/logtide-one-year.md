@@ -1,5 +1,5 @@
 ---
-title: "Logtide: 1 Year After the First Commit (The Real Numbers)"
+title: "Logtide One Year After the First Commit"
 description: "One year of Logtide: 2,000 commits, 50 releases, 1.0 shipped, three storage engines, a forced rebrand and a security audit. What worked and what didn't."
 pubDate: 2026-11-02
 author: "Giuseppe Pollio"
@@ -89,7 +89,7 @@ The lesson I'd give anyone building a multi-tenant product solo: the hard part i
 
 **Writing about the technical decisions, not the product.** The most read posts I wrote this year were not the release announcements. *I Replaced Redis with PostgreSQL* got 340 reactions, the microservices math got 154. The average release post got around 15. People came for the Postgres opinions, and some of them found the log management along the way.
 
-**SDKs in the languages people actually use.** Node.js, Python, PHP, Kotlin/Java, C#, Go and Ruby, plus Laravel, Symfony, Slim and WordPress integrations. The Kotlin SDK was a community contribution in the first two months, and I still think about that every time someone asks for a new language.
+**SDKs in the languages people actually use.** Node.js, Python, PHP, Kotlin/Java, C#, Go and Ruby (see the [Ruby and Rails logging guide](/blog/structured-logging-ruby-rails/)), plus Laravel, Symfony, Slim and WordPress integrations. The Kotlin SDK was a community contribution in the first two months, and I still think about that every time someone asks for a new language.
 
 ---
 

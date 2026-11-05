@@ -1,8 +1,8 @@
 ---
-title: "Azure Functions Logging: Dependency Injection, ILogger and App Insights"
+title: "Azure Functions Logging: ILogger and App Insights"
 description: "How Azure Functions logging works: ILogger via dependency injection in the isolated worker, host.json vs worker log levels, App Insights filtering and costs."
 pubDate: 2026-10-30
-author: "LogTide Team"
+author: "Giuseppe Pollio"
 tags:
   - "azure"
   - "serverless"

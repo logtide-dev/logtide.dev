@@ -1,8 +1,8 @@
 ---
-title: "Google Cloud Logging Pricing Explained: What You Actually Pay"
+title: "Google Cloud Logging Pricing Explained"
 description: "Google Cloud Logging pricing in plain numbers - ingestion, the 50 GiB free tier, retention, Log Analytics, sinks, live tail limits and worked cost examples."
 pubDate: 2026-10-30
-author: "LogTide Team"
+author: "Giuseppe Pollio"
 tags:
   - "gcp"
   - "logging"
@@ -29,7 +29,7 @@ faqs:
 
 Cloud Logging pricing looks simple: $0.50 per GiB after a free tier. The bill gets surprising because of what counts as a GiB (every GKE container line, every load balancer request, Data Access audit logs) and because several things that sound free are only free at the Google end - the destination you route to still charges.
 
-This guide lays out exactly what Google bills, shows the math at three volumes, and lists the levers that cut the number. All prices are as of October 2026 and come from the official [Google Cloud Observability pricing page](https://cloud.google.com/stackdriver/pricing). Check it before budgeting, since rates change.
+This post is the Google-only deep dive. For AWS and Azure next to Google, see the [cloud logging pricing comparison](/cloud-logging-pricing/). This guide lays out exactly what Google bills, shows the math at three volumes, and lists the levers that cut the number. All prices were checked in November 2026 and come from the official [Google Cloud Observability pricing page](https://cloud.google.com/stackdriver/pricing). Check it before budgeting, since rates change.
 
 ## What Cloud Logging bills
 

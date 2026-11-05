@@ -1,8 +1,8 @@
 ---
-title: "Structured Logging and Error Tracking for Ruby and Rails"
+title: "Structured Logging for Ruby and Rails"
 description: "Ship structured logs, exceptions, and traces from Ruby and Rails with the new LogTide Ruby SDK - a stdlib-only gem with Rack and Rails middleware."
 pubDate: 2026-06-20
-author: "LogTide Team"
+author: "Giuseppe Pollio"
 tags:
   - "ruby"
   - "rails"
@@ -178,6 +178,8 @@ The Rack middleware reads inbound `traceparent` headers automatically, so the ot
 Hosted log platforms price by the gigabyte, and Ruby apps under load generate a lot of gigabytes. LogTide is self-hosted: you run it on your own infrastructure and pay for that infrastructure, not for ingestion or retention. At meaningful volume that's a large saving, and your log data - which often contains user and request detail - never leaves systems you control. That matters for data residency and compliance as much as for cost.
 
 ## Next steps
+
+The same SDK model exists for other runtimes: the [Node.js observability walkthrough](/blog/complete-nodejs-observability-logtide/) covers scopes, breadcrumbs and traces end to end, and the [first-year retrospective](/blog/logtide-one-year/) lists the supported languages.
 
 - [Ruby SDK reference](/docs/sdks/ruby/) - every method and configuration option
 - [Rails integration guide](/integrations/rails/) - the full Rails walkthrough

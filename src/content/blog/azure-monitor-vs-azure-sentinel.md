@@ -1,8 +1,8 @@
 ---
-title: "Azure Monitor vs Azure Sentinel: What's the Difference?"
+title: "Azure Monitor vs Azure Sentinel Explained"
 description: "Azure Monitor and Microsoft Sentinel overlap more than their names suggest. What each one does, how the pricing stacks, and when you actually need both."
 pubDate: 2026-06-12
-author: "LogTide Team"
+author: "Giuseppe Pollio"
 tags:
   - "azure"
   - "siem"
@@ -82,6 +82,8 @@ law -> sentinel { class: flow }
 Same data, two lenses. Which is exactly why the pricing model stings.
 
 ## Pricing: where the overlap gets expensive
+
+Rates below are US East list prices, read from the Azure Retail Prices API in November 2026. For Azure next to AWS and Google, see the [cloud logging pricing comparison](/cloud-logging-pricing/); for the head-to-head with a self-hosted option, [LogTide vs Azure Monitor](/vs/azure-monitor/). If your workload is serverless, the cost side of Functions logging is in [Azure Functions logging](/blog/azure-functions-logging-dependency-injection/).
 
 Both products bill per GB on the **same ingested data**:
 

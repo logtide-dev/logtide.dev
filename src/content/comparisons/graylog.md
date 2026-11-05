@@ -31,16 +31,16 @@ keywords:
   - "self-hosted log management"
 faqs:
   - question: "Is LogTide cheaper to run than Graylog?"
-    answer: "Both tools are free open-source software, but infrastructure costs differ dramatically. Graylog requires Elasticsearch (3 nodes), MongoDB, and a JVM-based server, totalling 30-60 GB of RAM. LogTide runs on 6-12 GB total, saving roughly 60-80% on infrastructure. For a 50 GB/day workload, LogTide infrastructure costs around $250/month versus ~$700/month for Graylog Open - and if you need SIEM, Graylog Security starts at $18,000/year (about $1,500/month) on top of the infrastructure."
+    answer: "Both tools are free open-source software, but infrastructure costs differ dramatically. Graylog requires Elasticsearch (3 nodes), MongoDB, and a JVM-based server, which in our sizing estimate totals 30-60 GB of RAM (not a benchmark; size for your own load). LogTide's estimate is 6-12 GB. For a 50 GB/day workload, LogTide infrastructure costs around $250/month versus ~$700/month for Graylog Open - and if you need SIEM, Graylog Security starts at $18,000/year (about $1,500/month) on top of the infrastructure."
   - question: "Does LogTide include SIEM features that Graylog locks behind a paid tier?"
-    answer: "Yes. Sigma detection rules, MITRE ATT&CK mapping, and incident management are locked behind the paid Graylog Security tier (from $18,000/year). LogTide includes all of these capabilities in its free, open-source AGPLv3 release with no feature gating."
+    answer: "Yes. Sigma detection rules, MITRE ATT&CK mapping, and incident management are locked behind the paid Graylog Security tier (from $18,000/year, Graylog pricing page, checked November 2026). LogTide includes all of these capabilities in its free, open-source AGPLv3 release with no feature gating."
   - question: "How do I migrate from Graylog to LogTide?"
     answer: "Run both systems in parallel using Fluent Bit to fan out logs to both a LogTide HTTP output and your existing Graylog GELF output. For network devices sending native Syslog or GELF, add a Fluent Bit relay that receives those protocols and forwards to LogTide. After 1-2 weeks of validation, redirect all sources to LogTide and decommission the Graylog stack (Elasticsearch, MongoDB, and Graylog Server)."
   - question: "When is Graylog the better choice over LogTide?"
     answer: "Graylog is the stronger choice if you already receive logs primarily via Syslog or GELF from network devices and firewalls, need its mature processing pipelines and extractors for complex log transformation, or have an existing team with deep Graylog expertise and established dashboards. If you are already running an Elasticsearch cluster and want to leverage that investment, Graylog integrates naturally."
 ---
 
-Graylog is an established open-source log management platform built on Java, MongoDB, and Elasticsearch (or OpenSearch). LogTide is a modern alternative with simpler architecture, lower resource needs, and built-in SIEM. Both are self-hosted and open-source, so this comparison focuses on architecture, operational complexity, and capabilities.
+Graylog is an established open-source log management platform built on Java, MongoDB, and Elasticsearch (or OpenSearch). LogTide is a modern alternative with simpler architecture, lower resource needs, and built-in SIEM. Both are self-hosted and open-source, so this comparison focuses on architecture, operational complexity, and capabilities. If you are weighing several Elasticsearch-based stacks, the [ELK alternatives](/elk-alternatives/) overview puts Graylog next to the others, and [self-hosted log management](/self-hosted-log-management/) covers what running your own involves.
 
 ## Architecture Comparison
 
@@ -68,7 +68,7 @@ LogTide is a single application stack:
 
 ## Resource Comparison
 
-One of LogTide's biggest advantages over Graylog is resource efficiency:
+One difference is resource footprint. Typical sizing (our estimates, not measured benchmarks):
 
 | Component | Graylog | LogTide |
 |-----------|---------|---------|
@@ -81,7 +81,7 @@ One of LogTide's biggest advantages over Graylog is resource efficiency:
 | **CPU cores** | **12-24** | **4-8** |
 | **Disk IOPS** | High (ES indexing) | Moderate |
 
-LogTide uses **60-80% less memory** for equivalent workloads, primarily because it avoids the Elasticsearch heap overhead and JVM memory requirements.
+These are our sizing estimates, not benchmark results, so test with your own workload. The structural reason for the difference is that LogTide avoids the Elasticsearch cluster and the JVM-based server.
 
 ## Cost Comparison
 
@@ -91,7 +91,7 @@ Both offer free self-hosted options, but operational costs differ significantly 
 
 | Tier | Cost |
 |------|------|
-| Graylog Open (self-hosted) | Free (limited features) |
+| Graylog Open (self-hosted) | Free, no daily ingest cap (per Graylog) |
 | Graylog Enterprise | From $15,000/year (about $1,250/month), from 10 GB/day |
 | Graylog Security | From $18,000/year (about $1,500/month), from 10 GB/day |
 
@@ -122,9 +122,7 @@ To get SIEM features, you need Graylog Security at $1,500+/month, bringing the t
 - Infrastructure: ~$200-300/month
 - **Total: ~$250/month ($3,000/year)**
 
-**Infrastructure savings vs Graylog Open: ~$5,400/year (64%)**
-
-**Savings vs Graylog Security: ~$23,400/year (89%)**
+Difference on these estimates: ~$5,400/year versus Graylog Open, and ~$23,400/year versus Graylog Open plus Graylog Security. Infrastructure figures are our estimates, not quotes.
 
 ## Feature Comparison
 
@@ -164,7 +162,7 @@ To get SIEM features, you need Graylog Security at $1,500+/month, bringing the t
 
 **Dramatically simpler operations.** Graylog requires managing Elasticsearch clusters (shard allocation, replica management, index rotation, JVM garbage collection tuning), MongoDB (replica sets for HA, WiredTiger cache sizing), and the Graylog JVM (heap sizing, thread pool tuning). LogTide is a single Docker Compose deployment with your choice of TimescaleDB or ClickHouse.
 
-**Lower resource footprint.** Graylog's Elasticsearch dependency alone needs 24-48 GB of RAM in production. Add MongoDB and the Graylog JVM, and you're looking at 30-60 GB minimum. LogTide runs on 6-12 GB total, saving 60-80% on infrastructure.
+**Lower resource footprint.** Graylog depends on an Elasticsearch or OpenSearch cluster plus MongoDB and a JVM server. In our sizing estimate that is 30-60 GB of RAM against 6-12 GB for LogTide; measure with your own load.
 
 **Built-in SIEM at no extra cost.** Graylog locks SIEM features (Sigma rules, MITRE ATT&CK mapping, incident management) behind the paid Graylog Security tier at $18,000+/year. LogTide includes all SIEM capabilities in the free open-source version.
 
@@ -188,7 +186,7 @@ To get SIEM features, you need Graylog Security at $1,500+/month, bringing the t
 ## When to Choose LogTide
 
 - You want simpler operations without managing Elasticsearch and MongoDB
-- Infrastructure budget is limited (60-80% less RAM needed)
+- Infrastructure budget is limited (smaller footprint by our estimate)
 - You need SIEM capabilities without paying for Graylog Security
 - You prefer native application SDKs over GELF format
 - You want a modern stack with flexible storage (TimescaleDB or ClickHouse)

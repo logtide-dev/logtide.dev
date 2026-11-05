@@ -39,7 +39,7 @@ faqs:
     answer: "Because both Loki and LogTide support Fluent Bit and OpenTelemetry, migration is straightforward: reconfigure your Grafana Alloy (or legacy Promtail) or Fluent Bit outputs to point at the LogTide HTTP ingest endpoint, translate your LogQL label selectors and regex filters to LogTide REST API parameters (see the query mapping table on this page), and recreate your Grafana alerting rules as LogTide native alert rules. A full migration guide is at /docs/migration/loki/."
 ---
 
-Grafana Loki and LogTide are both open-source log management tools. Loki excels at lightweight label-based indexing within the Grafana ecosystem. LogTide provides an all-in-one solution with full-text search, built-in alerting, and SIEM capabilities. Here's how they compare.
+Grafana Loki and LogTide are both open-source log management tools. Loki excels at lightweight label-based indexing within the Grafana ecosystem. LogTide provides an all-in-one solution with full-text search, built-in alerting, and SIEM capabilities. Here's how they compare. Loki is also one of the options on the [ELK alternatives](/elk-alternatives/) page, and the [centralized logging server guide](/blog/self-hosted-centralized-logging-server/) compares storage backends for a self-hosted setup.
 
 ## Architecture Comparison
 

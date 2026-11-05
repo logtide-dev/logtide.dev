@@ -8,9 +8,9 @@ import GitHubIcon from '../components/ui/GitHubIcon.astro';
 import { ClientRouter } from 'astro:transitions';
 import { Icon } from 'astro-icon/components';
 
-const title = 'Self-Hosted Log Management | Open Source & GDPR-Compliant | LogTide';
+const title = 'Self-Hosted Log Management: Setup, Costs, Options | LogTide';
 const description =
-  'LogTide is self-hosted, open-source log management with a built-in SIEM - a privacy-first alternative to ELK, Datadog and Splunk. Keep every log on your own infrastructure.';
+  'What self-hosted log management involves: a Docker Compose quickstart, how costs behave, and how LogTide compares with ELK, Loki, Graylog, Datadog and Splunk.';
 const keywords = [
   'self-hosted log management',
   'open source log management',
@@ -34,6 +34,19 @@ const alternatives = alternativeSlugs
   .map((slug) => allComparisons.find((c) => c.id === slug))
   .filter((c): c is NonNullable<typeof c> => c !== undefined);
 
+const quickstartCode = `mkdir logtide && cd logtide
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/docker-compose.yml
+curl -O https://raw.githubusercontent.com/logtide-dev/logtide/main/docker/.env.example
+mv .env.example .env
+# edit .env: DB_PASSWORD, API_KEY_SECRET
+docker compose up -d
+
+# dashboard: http://localhost:3000   API: http://localhost:8080
+curl -X POST http://localhost:8080/api/v1/ingest \
+  -H "X-API-Key: lp_your_api_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{"logs":[{"time":"2026-11-05T10:30:00Z","service":"my-app","level":"info","message":"Hello from LogTide"}]}'`;
+
 const benefits = [
   {
     icon: 'lucide:server',
@@ -45,7 +58,7 @@ const benefits = [
     icon: 'lucide:dollar-sign',
     title: 'No per-GB ingestion fees',
     description:
-      'Self-hosting removes metered pricing entirely. You pay for the box, not for every gigabyte you ingest or query.',
+      'Self-hosting removes metered pricing. You pay for the servers and disks, not for every gigabyte you ingest or query, and you carry the operations work yourself.',
   },
   {
     icon: 'lucide:lock',
@@ -82,7 +95,7 @@ const faqs = [
   {
     question: 'Is self-hosted logging cheaper than SaaS tools like Datadog or Splunk?',
     answer:
-      'Beyond modest volumes, yes. SaaS platforms charge per GB ingested plus per-user seats, which scales with your traffic. Self-hosting LogTide shifts cost to fixed infrastructure, which commonly saves 70-90% at scale. See the LogTide vs Datadog and vs Splunk breakdowns for worked numbers.',
+      'Beyond modest volumes, yes. SaaS platforms charge per GB ingested plus per-user seats, which scales with your traffic. Self-hosting LogTide shifts cost to fixed infrastructure, which depends on your volume and on what you spend on servers and operations. The LogTide vs Datadog and vs Splunk pages show worked examples with sourced list prices.',
   },
   {
     question: 'Is LogTide a good open-source alternative to the ELK Stack?',
@@ -97,7 +110,7 @@ const faqs = [
   {
     question: 'How do I deploy LogTide on my own infrastructure?',
     answer:
-      'LogTide runs as a Docker Compose stack. Download the compose file and .env.example from the repository, run docker compose up -d, create an organization and API key, then point your SDKs or log shippers at the HTTP endpoint. The deployment guide covers production setups including reverse proxy and storage tuning.',
+      'LogTide runs as a Docker Compose stack. Download the compose file and .env.example, set DB_PASSWORD and API_KEY_SECRET, run docker compose up -d, create an organization and API key, then point your SDKs or log shippers at the HTTP endpoint. The quickstart on this page has the commands, and the deployment guide covers production setups.',
   },
   {
     question: 'Can self-hosted LogTide replace a SIEM?',
@@ -174,7 +187,9 @@ const faqs = [
               <a href="/vs/elk-stack/" class="text-foreground underline decoration-primary/30 underline-offset-4 hover:decoration-primary">ELK</a>,
               <a href="/vs/datadog/" class="text-foreground underline decoration-primary/30 underline-offset-4 hover:decoration-primary">Datadog</a> and
               <a href="/vs/splunk/" class="text-foreground underline decoration-primary/30 underline-offset-4 hover:decoration-primary">Splunk</a>.
-              No per-GB fees. No data leaving your servers.
+              No per-GB fees. No data leaving your servers. Looking for a Datadog replacement
+              specifically? See the
+              <a href="/datadog-alternatives/" class="text-foreground underline decoration-primary/30 underline-offset-4 hover:decoration-primary">Datadog alternatives</a> list.
             </p>
 
             <div class="mt-8 flex flex-wrap gap-3">
@@ -222,6 +237,10 @@ const faqs = [
         </h2>
         <p class="mt-5 max-w-[58ch] text-lg text-muted-foreground">
           Self-hosted log management gives you the cost, privacy and control that metered SaaS platforms can't.
+          The trade-off is that you run it: upgrades, backups and disk capacity are yours. The
+          <a href="/blog/self-hosted-centralized-logging-server/" class="text-primary-readable hover:underline">centralized logging server guide</a>
+          walks through architecture, collectors and disk sizing. If your driver is regulation rather than cost, read
+          <a href="/blog/on-premise-log-management-eu-compliance/" class="text-primary-readable hover:underline">on-premise log management for EU compliance</a>.
         </p>
 
         <div class="mt-10 grid gap-px overflow-hidden rounded-2xl border border-foreground/[0.08] cell-grid md:grid-cols-2 lg:grid-cols-3">
@@ -235,6 +254,36 @@ const faqs = [
         </div>
       </section>
 
+      <!-- Quickstart -->
+      <section class="mx-auto max-w-[77.5rem] px-4 pt-24 sm:px-6 md:pt-36 lg:px-10" aria-labelledby="quickstart-heading">
+        <p class="font-mono text-xs text-primary-readable">quickstart</p>
+        <h2 id="quickstart-heading" class="mt-3 max-w-[22ch] text-[clamp(2.25rem,1.5rem+2.6vw,4rem)] font-bold leading-none tracking-[-0.03em]">
+          Running in four steps
+        </h2>
+        <p class="mt-5 max-w-[62ch] text-lg text-muted-foreground">
+          You need Docker Engine and Docker Compose. The default stack starts five services
+          (PostgreSQL with TimescaleDB, Redis, backend, worker, frontend). Redis is optional since v0.5.0,
+          and a lighter compose file without it exists for small machines. Full details are in
+          <a href="/docs/getting-started/" class="text-primary-readable hover:underline">Getting started</a>
+          and the <a href="/docs/deployment/" class="text-primary-readable hover:underline">deployment guide</a>.
+        </p>
+        <ol class="m-0 mt-8 grid max-w-[62ch] list-none gap-3 p-0 text-muted-foreground">
+          <li><strong class="text-foreground">1.</strong> Download the compose file and the example environment file.</li>
+          <li><strong class="text-foreground">2.</strong> In <code>.env</code>, set <code>DB_PASSWORD</code> and <code>API_KEY_SECRET</code> (32+ characters, for example from <code>openssl rand -base64 32</code>).</li>
+          <li><strong class="text-foreground">3.</strong> Start the stack, open the dashboard on port 3000, then create an organization, a project and an API key.</li>
+          <li><strong class="text-foreground">4.</strong> Send a first log to the HTTP API on port 8080.</li>
+        </ol>
+        <div class="mt-6 min-w-0 max-w-[62ch] overflow-hidden rounded-xl border border-foreground/15 bg-card">
+          <pre class="overflow-x-auto p-5 text-sm leading-relaxed"><code>{quickstartCode}</code></pre>
+        </div>
+        <p class="mt-4 max-w-[62ch] text-sm text-muted-foreground">
+          This is a single-node setup for evaluation. For production, put a reverse proxy with TLS in front,
+          pin image versions and plan disk for your retention. Honest limit: you operate the database, so
+          backups and upgrades are your job. The project's own story, including what did not work, is in the
+          <a href="/blog/logtide-one-year/" class="text-primary-readable hover:underline">first-year retrospective</a>.
+        </p>
+      </section>
+
       <!-- Open-source alternative -->
       <section class="mx-auto max-w-[77.5rem] px-4 pt-24 sm:px-6 md:pt-36 lg:px-10" aria-labelledby="alt-heading">
         <h2 id="alt-heading" class="max-w-[22ch] text-[clamp(2.25rem,1.5rem+2.6vw,4rem)] font-bold leading-none tracking-[-0.03em]">
@@ -242,7 +291,11 @@ const faqs = [
         </h2>
         <p class="mt-5 max-w-[58ch] text-lg text-muted-foreground">
           Already on a hosted platform or a heavy stack? See how self-hosted LogTide compares -
-          honestly, including where the incumbent still wins.
+          honestly, including where the incumbent still wins. Moving off the ELK Stack in particular?
+          See the <a href="/elk-alternatives/" class="text-primary-readable hover:underline">ELK alternatives</a> overview.
+          Unsure whether hosted or self-hosted fits? The
+          <a href="/blog/hosted-log-management-compared/" class="text-primary-readable hover:underline">hosted log management comparison</a>
+          covers the SaaS side.
         </p>
 
         <div class="mt-10 grid gap-px overflow-hidden rounded-2xl border border-foreground/[0.08] cell-grid sm:grid-cols-2 lg:grid-cols-3">
@@ -270,7 +323,10 @@ const faqs = [
             <h3 class="mt-4 text-2xl font-bold tracking-[-0.025em]">Cut log costs at scale</h3>
             <p class="mt-2 text-muted-foreground">
               Per-GB ingestion pricing punishes growth. Self-hosting turns log cost into a flat
-              infrastructure line, commonly saving 70-90% once you pass the free tiers.
+              infrastructure line. Below the free tiers of the cloud providers, hosted is usually cheaper;
+              the
+              <a href="/cloud-logging-pricing/" class="text-primary-readable hover:underline">cloud logging pricing overview</a>
+              shows where the crossover sits.
             </p>
             <a href="/use-cases/cost-optimization/" class="mt-4 inline-block font-medium text-primary-readable hover:underline">
               Cost optimization guide →

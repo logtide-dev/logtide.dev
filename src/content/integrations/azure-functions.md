@@ -1,14 +1,14 @@
 ---
-title: "Azure Functions Logging Integration"
-description: "Send Azure Functions logs to LogTide with the JavaScript SDK: structured logging, cold start tracking, and an alternative to Application Insights per-GB costs."
+title: "Azure Functions Logging with App Insights"
+description: "How Azure Functions logging works: Application Insights, host.json levels, sampling, cold starts and flushing, costs, and how to send logs to LogTide."
 category: "infrastructure"
 difficulty: "medium"
 sdk: "javascript"
 brandIcon: "simple-icons:azurefunctions"
 highlights:
-  - "SDK-based structured logging"
-  - "Cold start tracking"
-  - "Cost savings vs App Insights"
+  - "How Functions logs reach Application Insights"
+  - "host.json levels and sampling"
+  - "OpenTelemetry (OTLP) export to LogTide"
   - "Works alongside Azure Monitor"
 relatedIntegrations:
   - "aws-lambda"
@@ -18,51 +18,212 @@ relatedUseCases:
   - "real-time-alerting"
 keywords:
   - "azure functions logging"
+  - "azure function logging"
   - "azure functions logs"
+  - "azure functions application insights"
   - "azure functions application insights alternative"
   - "azure functions structured logging"
   - "serverless logging azure"
-  - "azure functions log management"
 faqs:
-  - question: "How do I send Azure Functions logs to LogTide?"
-    answer: "Initialize the LogTide JavaScript SDK outside your function handler so it survives warm invocations, log with structured metadata inside the handler, and call flush() before returning so batched logs ship before the worker idles. The same pattern works for HTTP, timer, and queue triggers."
-  - question: "Is LogTide cheaper than Application Insights for Azure Functions?"
-    answer: "Usually, yes. Application Insights telemetry lands in a Log Analytics workspace billed at roughly $2.76/GB pay-as-you-go. Chatty function apps easily generate tens of GB per month. Self-hosted LogTide replaces the per-GB meter with fixed infrastructure cost, while keeping full-text search, field queries, and alerting."
+  - question: "Where do Azure Functions logs go by default?"
+    answer: "When Application Insights integration is enabled, which is the default when you create a function app in the portal or with Core Tools, telemetry goes to the connected Application Insights resource. That includes logs from the Functions host and traces written from your code. The connection is the APPLICATIONINSIGHTS_CONNECTION_STRING app setting."
+  - question: "How do I log from a Node.js function?"
+    answer: "In the Node.js v4 programming model, use context.log, context.info, context.warn and context.error on the InvocationContext. Microsoft recommends context over console, because console output is tracked at app level but is not associated with a specific function."
+  - question: "How do I control how much an Azure function logs?"
+    answer: "Use logging.logLevel in host.json to set a default level and per-category levels, and logging.applicationInsights.samplingSettings to limit telemetry. Be careful with levels above Information for the Function and Host categories: Microsoft documents that this stops some telemetry reaching the Application Insights tables and portal views."
+  - question: "Why are my Azure Functions logs missing the last lines of an invocation?"
+    answer: "The Functions runtime can recycle a worker at any time, and in-memory state is not guaranteed to persist. If you buffer logs in your own exporter or SDK, flush before the handler returns. Telemetry that goes through the Functions host and Application Insights is handled by the runtime, so it needs no manual flush."
+  - question: "Can I send Azure Functions logs to LogTide?"
+    answer: "Yes, two ways. Enable OpenTelemetry in host.json and export logs over OTLP to LogTide's OTLP endpoint, or call the LogTide JavaScript SDK from your functions and flush before returning. Both can run alongside Application Insights."
   - question: "Can I keep Application Insights and use LogTide at the same time?"
-    answer: "Yes, and it's the recommended migration path: leave App Insights sampling on for platform metrics and distributed tracing, route verbose application logs to LogTide, and turn down App Insights log retention. You keep the Azure-native APM features while moving the expensive log volume off the meter."
-  - question: "Does calling flush() on every invocation slow my function down?"
-    answer: "It adds one HTTP round-trip - typically 10-50 ms to an instance in the same region. The SDK batches everything else asynchronously. For latency-critical HTTP functions you can skip the per-invocation flush and rely on the interval flush, accepting a small risk of losing the final batch when an instance is recycled."
+    answer: "Yes. With OpenTelemetry mode, if you provide both an Application Insights connection string and an OTLP exporter configuration, data is sent to both. A common split keeps Application Insights for tracing and the Azure portal views, and sends verbose application logs to LogTide, with a higher default log level in host.json."
 ---
 
-Azure Functions ship their logs to Application Insights by default - which works, until the Log Analytics bill arrives. At ~$2.76/GB ingested, a chatty function app becomes one of the most expensive log sources in your subscription, and querying it means KQL plus per-GB retention fees.
+Azure Functions comes with logging already wired up: create a function app, and its logs flow to Application Insights. That is a good default, until the volume grows, the sampling hides what you need, or you want logs from Functions next to everything else. This guide explains how Functions logging works, what controls it, and how the options compare, with LogTide as one option.
 
-This guide wires Azure Functions (Node.js v4 programming model) to LogTide for structured, searchable logs with real-time alerting - either replacing verbose App Insights logging or running alongside it.
+## How Azure Functions logging works
 
-## Why use LogTide with Azure Functions?
+Azure Functions has built-in integration with Application Insights, a feature of Azure Monitor. Telemetry is generated by both the Functions host process and the language worker process where your code runs. With the integration enabled, the connected Application Insights instance receives host logs, traces written from your code, and performance data.
 
-- **Cost control**: Log Analytics charges ~$2.76/GB; LogTide is self-hosted with flat infrastructure costs ([full breakdown](/vs/azure-monitor/))
-- **Structured queries**: filter by your own metadata fields instead of writing KQL against `traces`
-- **Real-time alerting**: error spikes, timeout patterns, cold start bursts - without Azure Monitor alert rule pricing
-- **Cross-cloud correlation**: Functions, on-prem services, and [AWS Lambda](/integrations/aws-lambda/) logs in one place
-- **Retention without fees**: keep logs searchable for months instead of paying $0.10/GB/month past the included window
+The connection is an app setting. Use `APPLICATIONINSIGHTS_CONNECTION_STRING`; the older `APPINSIGHTS_INSTRUMENTATIONKEY` is deprecated. When you create the app in the portal, with Core Tools or with Visual Studio Code, integration is enabled by default.
 
-## Prerequisites
+For custom logs in most stacks (including Node.js), the default pipeline is `worker -> Functions host -> Application Insights`, and the host applies the log levels from `host.json`. The `Function.<name>.User` category holds logs written by your own code.
 
-- Azure Functions app on the **Node.js v4** programming model (v3 works with minor changes)
-- LogTide instance reachable from Azure (public endpoint or VNet)
-- A LogTide DSN or API key
+### Writing logs in Node.js
 
-## Approach 1: LogTide SDK (recommended)
+In the v4 programming model, log through the invocation context:
 
-### Installation
+```typescript
+import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
+
+app.http('processOrder', {
+  methods: ['POST'],
+  authLevel: 'function',
+  handler: async (request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> => {
+    context.info(`order received, invocationId=${context.invocationId}`);
+    try {
+      const order = await request.json();
+      // business logic
+      return { status: 200, jsonBody: { ok: true } };
+    } catch (err) {
+      context.error(`order failed, invocationId=${context.invocationId}`, err);
+      return { status: 500, jsonBody: { error: 'Internal server error' } };
+    }
+  },
+});
+```
+
+The v4 methods are `context.trace`, `debug`, `info`, `warn` and `error`, plus `context.log` for the default information level. Microsoft's guidance: use `context` rather than `console`, because console output is tracked at app level but is not tied to a specific function. Including `context.invocationId` in your messages lets you correlate them.
+
+### Log levels and categories
+
+Every log has a level (Trace, Debug, Information, Warning, Error, Critical, None) and a category. You set the minimum level per category in `host.json`:
+
+```json
+{
+  "version": "2.0",
+  "logging": {
+    "logLevel": {
+      "default": "Warning",
+      "Host.Results": "Information",
+      "Function": "Information"
+    }
+  }
+}
+```
+
+These levels apply to every destination of the .NET logging pipeline, including Application Insights and Azure Monitor diagnostic settings (the `FunctionAppLogs` table). A log filtered here appears nowhere.
+
+Microsoft's caution matters in practice: Application Insights stores the runtime's own events in tables at the `Information` level. If you raise `Host.Results` or `Function` above `Information`, you lose request, dependency and custom metric data in those tables and in the portal Monitor views, and only higher-severity traces remain. For high-volume apps Microsoft's suggestion is a `Warning` default, then explicit `Information` entries for the functions that matter, and `Function.<name>.User` set to `Warning` or `Error` to avoid collecting user logs at `Information`.
+
+### Sampling
+
+Application Insights sampling is on by default and protects you from too much telemetry at peak load. The default is 20 telemetry items per second, applied per host running your app. You can tune it and exclude types from sampling:
+
+```json
+{
+  "logging": {
+    "applicationInsights": {
+      "samplingSettings": {
+        "isEnabled": true,
+        "maxTelemetryItemsPerSecond": 20,
+        "excludedTypes": "Request;Exception"
+      }
+    }
+  }
+}
+```
+
+If logs appear to be missing, sampling is the first thing to check.
+
+## Cold starts, recycling and flushing
+
+Microsoft defines a cold start as the first time a function app starts after a period of inactivity, taking longer to start. The Node.js guide also warns that you can cache data in global variables for reuse, but should not rely on it persisting, because the runtime can recycle your worker at any time.
+
+For logging, this means:
+
+- **Logs that go through `context` are handled by the runtime.** Nothing for you to flush.
+- **Anything you buffer yourself is at risk.** A logging SDK or exporter that batches in memory and sends on a timer can lose its last batch when the worker is recycled. Flush before returning, or use a processor that exports immediately.
+- **To log cold starts yourself,** use a module-level flag, as you would on any serverless platform. There is no built-in cold start field to query in your own logs.
+
+## Costs and retention
+
+Application Insights data is stored in a Log Analytics workspace and billed by ingestion volume. Azure Functions includes a free daily limit for trying Application Insights, and Microsoft warns that if you hit it during testing, new logs stop appearing in queries.
+
+From the Azure Monitor pricing page (checked November 2026): the first 5 GB per month per billing account on the pay-as-you-go tier are free, Analytics Logs keep data at no charge for 31 days (90 days with Microsoft Sentinel on the workspace), and Application Insights data is retained at no charge for 90 days. The page loads its per-GB prices dynamically, so check [Azure Monitor pricing](https://azure.microsoft.com/en-us/pricing/details/monitor/) for the current rate in your Region instead of relying on a number copied here.
+
+Microsoft's own guidance for high-volume function apps, from [Configure monitoring for Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/configure-monitoring):
+
+- Use the Basic table plan where you do not need the Analytics plan features.
+- Use sampling and lower `maxTelemetryItemsPerSecond`.
+- Set a `Warning` or `Error` default log level, and raise it back per function.
+- Turn off scale controller logging when you are done investigating it.
+
+You can also override `host.json` values without redeploying, through app settings named `AzureFunctionsJobHost__logging__logLevel__default`, with double underscores for the JSON path. Changing app settings restarts the function app.
+
+## Your options
+
+| Option | Good for | Trade-offs |
+|---|---|---|
+| Built-in Application Insights integration | Default monitoring, Azure portal views, Live Metrics, application map | Volume and sampling need tuning; analysis in KQL and Azure tooling |
+| OpenTelemetry to Application Insights | Standards-based telemetry, trace and log correlation. Microsoft recommends it for new and existing apps | Needs `host.json` and code changes; the classic SDKs are legacy |
+| OpenTelemetry to any OTLP endpoint | Sending the same telemetry to another backend, or to two at once | Some portal features need Azure Monitor (see below) |
+| Diagnostic settings to Log Analytics | Platform logs in the `FunctionAppLogs` table, central Azure governance | Same ingestion-based billing model |
+| A logging SDK called from the function | Structured events straight to a backend | You own batching and flushing |
+
+Application Insights is the best fit if you want Azure-native APM: automatic dependency tracking, application map, Live Metrics and portal views. LogTide does not replace those. It fits when you want your function logs searchable together with logs from other clouds, containers and servers, or when you want to control retention and cost outside Azure Monitor.
+
+## Sending Azure Functions logs to LogTide
+
+### Option 1: OpenTelemetry (OTLP)
+
+LogTide accepts OTLP logs over HTTP at `/v1/otlp/logs`, with JSON or Protobuf and an `X-API-Key` header (see the [OpenTelemetry integration](/docs/opentelemetry/)). Azure Functions can export to any OTLP-compliant endpoint, so no vendor SDK is needed.
+
+First enable OpenTelemetry in the Functions host, in `host.json`:
+
+```json
+{
+  "version": "2.0",
+  "telemetryMode": "OpenTelemetry"
+}
+```
+
+Then install the packages. Microsoft's OTLP sample uses these:
+
+```bash
+npm install @opentelemetry/api @opentelemetry/auto-instrumentations-node \
+  @opentelemetry/exporter-logs-otlp-http @azure/functions-opentelemetry-instrumentation
+```
+
+Create `src/index.ts`, adapted from Microsoft's OTLP sample to export logs only (the trace exporter and tracer provider are left out to keep this focused on logs):
+
+```typescript
+import { AzureFunctionsInstrumentation } from '@azure/functions-opentelemetry-instrumentation';
+import { getResourceDetectors } from '@opentelemetry/auto-instrumentations-node';
+import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http';
+import { registerInstrumentations } from '@opentelemetry/instrumentation';
+import { detectResourcesSync } from '@opentelemetry/resources';
+import { LoggerProvider, SimpleLogRecordProcessor } from '@opentelemetry/sdk-logs';
+
+const resource = detectResourcesSync({ detectors: getResourceDetectors() });
+
+const loggerProvider = new LoggerProvider({ resource });
+loggerProvider.addLogRecordProcessor(new SimpleLogRecordProcessor(new OTLPLogExporter()));
+
+registerInstrumentations({
+  loggerProvider,
+  instrumentations: [new AzureFunctionsInstrumentation()],
+});
+```
+
+Point `main` in `package.json` at the new file, for example `"main": "dist/src/{index.js,functions/*.js}"`. Microsoft's sample uses `SimpleLogRecordProcessor`, which exports each record as it is emitted, so there is no batch to lose when a worker is recycled; the price is one HTTP request per log record. Because of that, test the volume before using it on a busy function.
+
+Configure the exporter with standard OpenTelemetry environment variables as app settings:
+
+```text
+OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=https://api.logtide.dev/v1/otlp/logs
+OTEL_EXPORTER_OTLP_HEADERS=X-API-Key=lp_your_api_key
+OTEL_SERVICE_NAME=order-processor
+```
+
+Use the logs-specific endpoint variable, because LogTide serves logs at `/v1/otlp/logs` rather than the default `/v1/logs` path. For self-hosted LogTide, use your own host, for example `https://your-logtide-host/v1/otlp/logs`. Per Microsoft, if you also keep `APPLICATIONINSIGHTS_CONNECTION_STRING`, data goes to both destinations. Remove it if you want LogTide only.
+
+Limits to know before switching, all from Microsoft's documentation:
+
+- With `telemetryMode` set to `OpenTelemetry`, the `logging.applicationInsights` section of `host.json` (including sampling) does not apply.
+- Filters in `host.json` apply only to host logs. Worker logs are filtered with the OpenTelemetry settings of your language.
+- The portal does not support log streaming, and "Recent function invocation" traces appear only when telemetry goes to Azure Monitor.
+- The host captures stdout and stderr. Do not add a console exporter in production, or you will see duplicates.
+
+Validate the setup in a non-production function app before rolling it out.
+
+### Option 2: the LogTide SDK
+
+If you prefer the SDK, initialize it at module scope so it survives warm invocations, and flush before the function returns:
 
 ```bash
 npm install @logtide/core
 ```
-
-### HTTP-triggered function
-
-Initialize the hub **outside** the handler - Azure reuses the worker process across invocations, so the client and its batch buffer survive warm starts:
 
 ```typescript
 // src/functions/processOrder.ts
@@ -73,140 +234,86 @@ hub.init({
   dsn: process.env.LOGTIDE_DSN,
   service: 'order-processor',
   environment: process.env.AZURE_FUNCTIONS_ENVIRONMENT || 'production',
-  batchSize: 50,
-  flushInterval: 1000, // flush quickly - instances can be recycled anytime
 });
 
-let isColdStart = true;
+let coldStart = true;
 
 app.http('processOrder', {
   methods: ['POST'],
   authLevel: 'function',
   handler: async (request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> => {
-    const startTime = Date.now();
-
-    if (isColdStart) {
-      hub.captureLog('info', 'Cold start detected', {
-        functionName: context.functionName,
-        coldStart: true,
-      });
-      isColdStart = false;
-    }
-
-    hub.captureLog('info', 'Invocation started', {
+    const isCold = coldStart;
+    coldStart = false;
+    const base = {
       invocationId: context.invocationId,
       functionName: context.functionName,
-    });
+      coldStart: isCold,
+    };
+    const startedAt = Date.now();
 
     try {
       const order = await request.json();
       // business logic
-
-      hub.captureLog('info', 'Order processed', {
-        invocationId: context.invocationId,
-        duration: Date.now() - startTime,
-      });
-
-      await hub.flush();
+      hub.captureLog('info', 'order processed', { ...base, duration: Date.now() - startedAt });
       return { status: 200, jsonBody: { ok: true } };
     } catch (error) {
-      hub.captureError(error as Error, {
-        extra: { invocationId: context.invocationId },
-        tags: { functionName: context.functionName },
-      });
-
-      await hub.flush();
+      hub.captureError(error as Error, base);
       return { status: 500, jsonBody: { error: 'Internal server error' } };
+    } finally {
+      await hub.flush();
     }
   },
 });
 ```
 
-### Timer and queue triggers
+Set `LOGTIDE_DSN` in the function app settings (portal, Environment variables) or in `local.settings.json` for local development. Better, store it as a Key Vault reference. The SDK batches by default (100 events or 5 seconds), retries, and has a circuit breaker, see the [JavaScript SDK reference](/docs/sdks/nodejs/). The explicit `flush()` adds one HTTP round trip per invocation. For latency-sensitive HTTP functions you can skip it and accept that the last batch may be lost if the worker is recycled.
 
-The same pattern applies - initialize once, log with metadata, flush at the end:
+The function app must be able to reach your LogTide host. For a private instance, check your hosting plan's virtual network integration support in the Azure documentation.
 
-```typescript
-import { app, InvocationContext, Timer } from '@azure/functions';
-import { hub } from '@logtide/core';
+Once logs are in LogTide, search them by field. See [Query Syntax](/docs/query-syntax/):
 
-app.timer('nightlyCleanup', {
-  schedule: '0 0 3 * * *',
-  handler: async (timer: Timer, context: InvocationContext) => {
-    hub.captureLog('info', 'Cleanup started', { invocationId: context.invocationId });
-
-    const removed = await runCleanup();
-
-    hub.captureLog('info', 'Cleanup finished', {
-      invocationId: context.invocationId,
-      removedItems: removed,
-    });
-    await hub.flush();
-  },
-});
+```text
+service:order-processor coldStart:true
+service:order-processor level:error
+invocationId:abc-123
 ```
 
-### Configuration
+### Application Insights and LogTide together
 
-Set the connection in your Function App settings (portal → Environment variables, or `local.settings.json` for local dev):
+A common split: keep Application Insights for what it does natively (requests, dependencies, application map, Live Metrics) with sampling and a `Warning` default level in `host.json`, and send verbose application logs to LogTide. If you use the SDK route, set the `host.json` default level so Application Insights stops capturing what the SDK already ships, otherwise you pay for the same logs twice.
 
-```json
-{
-  "Values": {
-    "LOGTIDE_DSN": "https://lp_your_key@logtide.example.com"
-  }
-}
-```
+## EU data residency
 
-If your LogTide instance is private, use VNet integration on the Function App (Flex Consumption, Premium and Dedicated plans) so outbound traffic reaches it.
+For Application Insights, you choose the location of the resource when you create it, in an Azure geography (Microsoft's documentation suggests the same region as the function app, or a nearby one). Pick an EU region for both the function app and the Application Insights resource if your data must stay in the EU.
 
-## Approach 2: Keep Application Insights, route the volume to LogTide
+For logs you send elsewhere, the location is wherever the receiver runs:
 
-You don't have to choose. A pragmatic split that most teams land on:
+- **LogTide Cloud:** LogTide's DPA and sub-processor list state that its infrastructure is hosted in Strasbourg, France (OVH), and that customer personal data is not transferred outside the EU/EEA. Billing data processed by Stripe is the documented exception. See the [DPA](/legal/dpa/) and [sub-processors](/legal/subprocessors/).
+- **Self-hosted LogTide:** logs stay in the region or data center where you deploy it, including an Azure region of your choice.
 
-- **App Insights keeps**: platform metrics, distributed traces, dependency maps, live metrics - the APM features Azure does natively well, with **sampling enabled** to cap cost
-- **LogTide gets**: all verbose application logging - request details, business events, debug context - the volume that makes Log Analytics expensive
-
-In `host.json`, keep App Insights log capture at `Warning` and above so duplicated volume stays minimal:
-
-```json
-{
-  "logging": {
-    "logLevel": {
-      "default": "Warning"
-    },
-    "applicationInsights": {
-      "samplingSettings": {
-        "isEnabled": true,
-        "maxTelemetryItemsPerSecond": 5
-      }
-    }
-  }
-}
-```
-
-Your application code logs everything to LogTide via the SDK; App Insights only records warnings, errors and sampled traces. Typical outcome: 80-95% less Log Analytics ingestion with no loss of searchable detail - it's all in LogTide instead.
-
-## Which approach should you pick?
-
-| | SDK only | SDK + App Insights (split) |
-|---|---|---|
-| Log Analytics costs | Near zero | Heavily reduced (sampled) |
-| Distributed tracing | No (logs only) | Yes (App Insights) |
-| Azure-native dashboards | No | Yes |
-| Best for | Cost-first, log-centric teams | Teams using APM features |
+This describes where data is stored, not who may be compelled to disclose it. For compliance decisions, rely on your own legal review. The article on [on-premise log management for EU compliance](/blog/on-premise-log-management-eu-compliance/) explains the difference.
 
 ## Troubleshooting
 
-- **Logs missing from the end of invocations** - the instance was recycled before an interval flush; call `await hub.flush()` before returning.
-- **Nothing arrives at LogTide** - check outbound networking: classic Consumption plan functions need a public LogTide endpoint; VNet-only instances require Flex Consumption, Premium or Dedicated plans with VNet integration.
-- **Duplicate logs in both platforms** - lower the `host.json` default log level so App Insights stops capturing what the SDK already ships.
+- **Missing logs and gaps in the portal:** check sampling first, then the log level for `Function` and `Host.Results`.
+- **Missing logs with OpenTelemetry mode on:** `host.json` `logging.applicationInsights` settings no longer apply, and worker logs follow your language's OpenTelemetry settings.
+- **Last logs of an invocation are missing in LogTide:** the SDK buffer was not flushed before the worker was recycled. Await `hub.flush()` or use an exporter that exports immediately.
+- **Nothing arrives in LogTide:** check the API key, the endpoint path (`/v1/otlp/logs` for OTLP, `/api/v1/ingest` for the HTTP API) and outbound network access from the function app.
+- **Duplicate logs:** do not combine a console exporter with the host's stdout capture, and lower `host.json` levels if both Application Insights and LogTide receive the same logs.
+- **New logs stop in Application Insights during testing:** you may have hit the free daily limit.
 
----
+## Sources
 
-**Next steps:**
+- [Monitor executions in Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/functions-monitoring)
+- [Configure monitoring for Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/configure-monitoring)
+- [Use OpenTelemetry with Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/opentelemetry-howto)
+- [Node.js developer guide for Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/functions-reference-node)
+- [Azure Monitor pricing](https://azure.microsoft.com/en-us/pricing/details/monitor/) (checked November 2026)
 
-- [AWS Lambda integration](/integrations/aws-lambda/) - same pattern on AWS
-- [LogTide vs Azure Monitor](/vs/azure-monitor/) - full cost and feature comparison
-- [Cloud logging pricing breakdown](/cloud-logging-pricing/) - CloudWatch, GCP and Azure compared
-- [Real-time alerting use case](/use-cases/real-time-alerting/) - alert rules on function errors
+## Next steps
+
+- [AWS Lambda logging](/integrations/aws-lambda/): the same questions on AWS
+- [Azure Functions logging with dependency injection](/blog/azure-functions-logging-dependency-injection/)
+- [LogTide vs Azure Monitor](/vs/azure-monitor/): feature and cost comparison
+- [Cloud logging pricing breakdown](/cloud-logging-pricing/)
+- [Real-time alerting use case](/use-cases/real-time-alerting/)

@@ -7,9 +7,9 @@ import FAQSection from '../components/content/FAQSection.astro';
 import { ClientRouter } from 'astro:transitions';
 import { Icon } from 'astro-icon/components';
 
-const title = 'ELK Stack Alternatives: Lighter Open-Source Log Management | LogTide';
+const title = 'ELK Stack Alternatives for Log Management | LogTide';
 const description =
-  'The best ELK Stack alternatives compared: LogTide, Grafana Loki, SigNoz and Graylog. Cut the JVM cluster overhead without losing search, alerting or dashboards.';
+  'Alternatives to the ELK Stack (Elasticsearch, Logstash, Kibana) for log management: LogTide, Grafana Loki, SigNoz and Graylog, with trade-offs for each.';
 const keywords = [
   'ELK alternative',
   'ELK stack alternatives',
@@ -38,7 +38,7 @@ const painPoints = [
     icon: 'lucide:cpu',
     title: 'Resource hunger',
     description:
-      'A production ELK cluster wants multiple JVM nodes with 8-32 GB of heap each. Many teams spend more on the logging cluster than on the services it monitors.',
+      'Elasticsearch runs on the JVM and a production cluster usually means several nodes with sizeable heaps. Sizing depends on your volume and queries, so measure before you commit.',
   },
   {
     icon: 'lucide:wrench',
@@ -135,7 +135,7 @@ const faqs = [
   {
     question: 'How much lighter than ELK is LogTide?',
     answer:
-      'A minimal production ELK deployment typically needs 8-16 GB of RAM across Elasticsearch and Logstash before handling real volume. LogTide runs as a single service backed by TimescaleDB or ClickHouse and handles moderate volumes comfortably on a 4-8 GB VM, with no shard or heap tuning.',
+      'We do not have a benchmark to quote. The structural difference is that ELK means running Elasticsearch (a JVM cluster) plus Logstash and Kibana, while LogTide is a backend, worker and frontend on PostgreSQL with TimescaleDB (ClickHouse optional), with no shard or heap tuning. Test both with your own log volume before sizing hardware.',
   },
   {
     question: 'How do I migrate from ELK to LogTide?',
@@ -202,9 +202,13 @@ const faqs = [
             ELK Stack alternatives <span class="text-primary-readable">that don't need a cluster</span>
           </h1>
           <p class="mt-6 max-w-[58ch] text-lg text-muted-foreground">
-            Elasticsearch, Logstash and Kibana built the category - and earned a reputation for
-            eating RAM and engineering time. Here are the serious alternatives for self-hosted
-            log management, compared honestly.
+            This page is about the ELK Stack: Elasticsearch (search and storage), Logstash
+            (ingestion) and Kibana (dashboards), not the animal. The stack built the category and
+            earned a reputation for using a lot of RAM and engineering time. Here are the serious
+            alternatives for self-hosted log management, compared honestly. For the broader picture, see
+            <a href="/self-hosted-log-management/" class="text-foreground underline decoration-primary/30 underline-offset-4 hover:decoration-primary">self-hosted log management</a>;
+            for a hands-on setup, the
+            <a href="/blog/self-hosted-centralized-logging-server/" class="text-foreground underline decoration-primary/30 underline-offset-4 hover:decoration-primary">centralized logging server guide</a>.
           </p>
           <div class="mt-8 flex flex-wrap gap-3">
             <a
@@ -288,6 +292,9 @@ const faqs = [
               <a href={`/vs/${c.id}/`} class="text-primary-readable hover:underline">LogTide vs {c.data.competitor}</a>
             </>
           ))}, or browse <a href="/vs/" class="text-primary-readable hover:underline">all comparisons</a>.
+          If the driver is cost rather than operations, the
+          <a href="/cloud-logging-pricing/" class="text-primary-readable hover:underline">cloud logging pricing overview</a>
+          shows what the managed cloud options charge.
         </p>
       </section>
 
@@ -312,13 +319,6 @@ const faqs = [
                 <td class="px-5 py-3 font-medium">1 + database</td>
                 <td class="px-5 py-3">2+ (Loki, Grafana)</td>
                 <td class="px-5 py-3">3 (Graylog, ES, Mongo)</td>
-              </tr>
-              <tr class="border-b border-foreground/[0.08]">
-                <td class="px-5 py-3 text-muted-foreground">Typical minimum RAM</td>
-                <td class="px-5 py-3">8-16 GB</td>
-                <td class="px-5 py-3 font-medium">4-8 GB</td>
-                <td class="px-5 py-3">2-4 GB</td>
-                <td class="px-5 py-3">8-16 GB</td>
               </tr>
               <tr class="border-b border-foreground/[0.08]">
                 <td class="px-5 py-3 text-muted-foreground">Full-text search</td>

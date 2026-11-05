@@ -3,10 +3,10 @@ title: "LogTide vs Sumo Logic for Log Management"
 description: "Compare LogTide and Sumo Logic for log management. Self-hosted vs cloud SaaS, pricing, data caps, and migration path."
 competitor: "Sumo Logic"
 competitorUrl: "https://www.sumologic.com/"
-competitorPricing: "Free tier (500 MB/day) then from $3.00/GB/day"
+competitorPricing: "Contact sales (no public per-GB price)"
 logtidePricing: "Free (self-hosted)"
 highlights:
-  - "Massive cost savings"
+  - "No per-GB license"
   - "Full data sovereignty"
   - "No data caps or throttling"
   - "Built-in SIEM included"
@@ -30,7 +30,7 @@ keywords:
   - "Sumo Logic pricing alternative"
 faqs:
   - question: "How much cheaper is LogTide compared to Sumo Logic?"
-    answer: "At 50 GB/day, Sumo Logic Essentials costs roughly $5,000-7,000/month including extended retention and the Cloud SIEM add-on. LogTide infrastructure for the same volume runs around $250/month - a saving of $57,000-81,000/year (95%+). At 200 GB/day the savings can exceed $200,000 per year, since LogTide has no per-GB license fee."
+    answer: "We cannot give a verified figure: Sumo Logic does not publish an Essentials per-GB price (its pricing page says contact sales, checked November 2026). Get a quote for your daily volume, add Cloud SIEM and retention, and compare it with your own estimate of LogTide infrastructure (servers, disks and the time to run them). LogTide has no per-GB license fee."
   - question: "Does LogTide enforce daily data caps like Sumo Logic does?"
     answer: "No. Sumo Logic enforces daily ingestion limits tied to your plan, and exceeding them triggers overage charges or throttling - which can cause you to lose logs during incidents, exactly when you need them most. LogTide has no artificial ingestion caps; it processes as much data as your underlying infrastructure can handle."
   - question: "How do I migrate from Sumo Logic to LogTide?"
@@ -39,7 +39,7 @@ faqs:
     answer: "Sumo Logic is the stronger choice when your organization requires pre-existing enterprise compliance certifications (FedRAMP Moderate, SOC 2, HIPAA, PCI DSS) without managing them yourself, when you need advanced ML analytics like LogReduce or anomaly detection, or when your team has no capacity to manage infrastructure and wants a fully managed SaaS platform with zero operational overhead."
 ---
 
-Sumo Logic is a cloud-native SaaS platform for log management, analytics, and security. LogTide is a self-hosted, open-source log management platform with built-in SIEM. Here's an honest comparison to help you evaluate both options for your log management needs.
+Sumo Logic is a cloud-native SaaS platform for log management, analytics, and security. LogTide is a self-hosted, open-source log management platform with built-in SIEM. Here's an honest comparison to help you evaluate both options for your log management needs. The [hosted log management comparison](/blog/hosted-log-management-compared/) covers other SaaS options, and [self-hosted log management](/self-hosted-log-management/) covers what running your own involves.
 
 ## Cost Comparison
 
@@ -47,35 +47,16 @@ Sumo Logic is one of the more expensive SaaS log management platforms, with pric
 
 ### Sumo Logic Pricing
 
-Sumo Logic charges based on daily data ingest tiers:
+Sumo Logic does not publish per-GB log prices. Its [pricing page](https://www.sumologic.com/pricing) lists plans with "Contact Sales" for Essentials and shows no rate (checked November 2026), so we do not quote dollar figures for Sumo Logic. Older versions of this page quoted a free tier and a per-GB Essentials price that we could not verify, and removed them.
 
-| Tier | Cost |
-|------|------|
-| Free | 500 MB/day, 7 days retention, limited features |
-| Essentials | From $3.00/GB/day (annual commitment) |
-| Enterprise Operations | Custom pricing (negotiated) |
-| Enterprise Security | Custom pricing (includes Cloud SIEM) |
-| Enterprise Suite | Custom pricing (full platform) |
+| Item | Sumo Logic | LogTide |
+|------|------------|---------|
+| License | Quote-based, annual commitment for Essentials | Free (AGPLv3) |
+| Cloud SIEM | Separate licensing | Included |
+| Extended retention | Additional fees, ask in the quote | Storage-bound, no per-GB fee |
+| Users | Depends on plan | Unlimited |
 
-Additional costs:
-
-| Add-on | Cost |
-|--------|------|
-| Cloud SIEM | Additional licensing on top of base plan |
-| Extended retention (90+ days) | Additional per-GB fees |
-| Continuous Intelligence credits | Usage-based |
-
-**Real-world example:** A mid-size company ingesting 50 GB/day:
-
-- Essentials tier: 50 GB/day x $3.00 = $150/day
-- Monthly cost: ~$4,500/month
-- Extended retention (90 days): additional ~$500/month
-- Cloud SIEM add-on: additional ~$1,000-2,000/month
-- **Total: ~$5,000-7,000/month ($60,000-84,000/year)**
-
-At 200 GB/day (Enterprise tier, negotiated):
-- Estimated: ~$15,000-25,000/month
-- **Total: ~$180,000-300,000/year**
+**Method:** request a quote at your daily volume (with Cloud SIEM and your retention) and compare it with servers plus disks plus operating time for LogTide. For an example with verified list prices see [LogTide vs Datadog](/vs/datadog/) and the [cloud logging pricing overview](/cloud-logging-pricing/).
 
 ### LogTide Pricing
 
@@ -89,18 +70,15 @@ LogTide is free, open-source software. You pay only for infrastructure:
 | SIEM features | Included |
 | Users | Unlimited |
 
-**Same 50 GB/day scenario:**
+**50 GB/day (our estimate, not a quote):**
 
 - Infrastructure: ~$200-300/month
-- **Total: ~$250/month ($3,000/year)**
 
-**Savings: ~$57,000-81,000/year (95%+)**
+**200 GB/day (our estimate, 8 CPU, 32 GB RAM, 4 TB):**
 
-At 200 GB/day:
-- Infrastructure (8 CPU, 32 GB RAM, 4 TB): ~$400/month
-- **Total: ~$400/month ($4,800/year)**
+- Infrastructure: ~$400/month
 
-**Savings at scale: ~$175,000-295,000/year (97%+)**
+Compare these with your Sumo Logic quote. They exclude the time your team spends running LogTide.
 
 ## Feature Comparison
 
@@ -143,7 +121,7 @@ At 200 GB/day:
 
 ## Where LogTide Wins
 
-**Massive cost savings.** Sumo Logic's per-GB pricing is among the highest in the industry. At 50 GB/day, LogTide saves $57,000-81,000 per year. At 200 GB/day, savings can exceed $200,000 per year. The more data you ingest, the more dramatic the cost advantage.
+**No per-GB license.** Sumo Logic pricing is quote-based and tied to ingest volume and add-ons. LogTide has no license fee, so cost is infrastructure and operations.
 
 **No data caps or throttling.** Sumo Logic enforces daily ingestion limits tied to your plan. Exceeding your committed tier triggers overage charges or log throttling, which can cause you to lose critical data during peak traffic or incidents - exactly when you need logs most. LogTide ingests as much as your infrastructure can handle with no artificial caps.
 

@@ -1,8 +1,8 @@
 ---
-title: "Complete Node.js Observability: Logs, Errors, and Traces with LogTide"
+title: "Node.js Observability: Logs, Errors and Traces"
 description: "Instrument a Node.js service end to end with the LogTide SDK: structured logs, error capture, per-request scopes, breadcrumbs, and complete traces."
 pubDate: 2026-06-22
-author: "LogTide Team"
+author: "Giuseppe Pollio"
 tags:
   - "nodejs"
   - "javascript"
@@ -230,4 +230,4 @@ process.on('SIGTERM', async () => {
 - [x] Propagate `traceparent` on outgoing requests
 - [x] `flush()` + `close()` on `SIGTERM`
 
-That's the full picture: every log, error, and span tied to the same request, on a backend you own. Point your `LOGTIDE_DSN` at your instance and you're done.
+That's the full picture: every log, error, and span tied to the same request, on a backend you own. Point your `LOGTIDE_DSN` at your instance and you're done. If you have not deployed one yet, the [self-hosted log management quickstart](/self-hosted-log-management/) gets a single node running. Coming from Datadog's browser logs SDK? See the [SDK migration notes](/vs/datadog/). The same ideas for Ruby are in [structured logging for Ruby and Rails](/blog/structured-logging-ruby-rails/).

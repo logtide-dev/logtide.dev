@@ -31,7 +31,7 @@ faqs:
     answer: "Buffered events are flushed automatically on the batching interval. For graceful shutdown, call hub.flush() (or hub.close()) before the process exits to ensure no logs are lost - the plugin does not register a shutdown hook itself."
 ---
 
-LogTide's Elysia SDK provides a Bun-optimized plugin for automatic request logging, scoped context, lifecycle hooks, and W3C trace propagation.
+LogTide's Elysia SDK provides a Bun-optimized plugin for automatic request logging, scoped context, lifecycle hooks, and W3C trace propagation. This page shows how it maps onto Elysia's request lifecycle, how to add your own hooks next to it, and how to shut down cleanly.
 
 ## Why use LogTide with Elysia?
 
@@ -76,6 +76,8 @@ The plugin is already registered with `.as('global')` internally, so it applies 
 
 ## Plugin Options
 
+The plugin accepts the `ClientOptions` of `@logtide/core` (see the [JavaScript SDK configuration](/docs/sdks/nodejs/#configuration)):
+
 ```typescript
 app.use(logtide({
   dsn: process.env.LOGTIDE_DSN,
@@ -86,21 +88,9 @@ app.use(logtide({
 }));
 ```
 
-## Per-Request Tracing
+## How the plugin maps onto the Elysia lifecycle
 
-```typescript
-app
-  .use(logtide({
-    dsn: process.env.LOGTIDE_DSN,
-    service: 'elysia-api',
-  }))
-  .get('/orders', () => {
-    hub.captureLog('info', 'Listing orders');
-    return { orders: [] };
-  });
-```
-
-## Lifecycle Hooks
+Elysia runs each request through a fixed sequence of events: `onRequest`, `onParse`, `onTransform` (and `derive`), validation, `onBeforeHandle` (and `resolve`), the handler, `onAfterHandle`, `mapResponse`, and finally `onAfterResponse`. If something throws at any stage, `onError` runs. LogTide uses three of these:
 
 | Hook | Behavior |
 |------|----------|
@@ -108,7 +98,62 @@ app
 | `onAfterHandle` | Finishes the span with status and duration, sets traceparent response header |
 | `onError` | Captures errors with request context |
 
+Everything else in the sequence is yours. Elysia applies hooks only to routes registered after them, so register `logtide()` first and your routes after it. Elysia's plugin scope is `local` by default, and the LogTide plugin applies `.as('global')`, so its hooks reach every instance that uses it, including parents and descendants.
+
+## Adding your own hooks
+
+Your own hooks sit next to the plugin's. Two useful ones are `derive`, to add a request ID to every request context, and `onAfterResponse`, which runs after the response has been sent and is a good place for an access log that does not slow the response down.
+
+```typescript
+import { Elysia } from 'elysia';
+import { hub } from '@logtide/core';
+import { logtide } from '@logtide/elysia';
+
+const app = new Elysia()
+  .use(logtide({ dsn: process.env.LOGTIDE_DSN, service: 'elysia-api' }))
+  .derive(({ request }) => ({
+    requestId: request.headers.get('x-request-id') ?? crypto.randomUUID(),
+  }))
+  .onBeforeHandle(({ requestId, request }) => {
+    hub.addBreadcrumb({
+      type: 'custom',
+      category: 'http',
+      message: `${request.method} ${new URL(request.url).pathname}`,
+      timestamp: Date.now(),
+      data: { requestId },
+    });
+  })
+  .onAfterResponse(({ request, set, requestId }) => {
+    hub.captureLog('info', 'request completed', {
+      requestId,
+      method: request.method,
+      path: new URL(request.url).pathname,
+      status: set.status,
+    });
+  })
+  .get('/orders', () => ({ orders: [] }));
+```
+
+In `onAfterResponse` the value you get is the handler's return value, not a `Response`, so read the status and headers from `set`.
+
+## Scoped hooks with guard
+
+`guard` lets you attach hooks to a group of routes, for example to log only the admin API at a higher detail level:
+
+```typescript
+app.guard(
+  {
+    beforeHandle: ({ request }) => {
+      hub.captureLog('info', 'admin access', { path: new URL(request.url).pathname });
+    },
+  },
+  (admin) => admin.get('/admin/users', () => []),
+);
+```
+
 ## Error Handling
+
+The plugin captures the error first, so your own `onError` only has to shape the response. Register it before the routes it should cover. `code` is one of Elysia's error codes such as `NOT_FOUND`, `VALIDATION`, `PARSE`, `INTERNAL_SERVER_ERROR` or `UNKNOWN`:
 
 ```typescript
 app
@@ -117,14 +162,37 @@ app
     service: 'elysia-api',
   }))
   .onError(({ code, error }) => {
-    // Error is already captured by the plugin
-    return new Response(JSON.stringify({
-      error: error.message,
-    }), {
-      status: code === 'NOT_FOUND' ? 404 : 500,
+    // Already captured by the plugin
+    const status = code === 'NOT_FOUND' ? 404 : code === 'VALIDATION' ? 422 : 500;
+    return new Response(JSON.stringify({ error: String(error) }), {
+      status,
+      headers: { 'Content-Type': 'application/json' },
     });
   });
 ```
+
+If your handler returns nothing, Elysia sends the error by its own rules.
+
+## Graceful Shutdown
+
+The plugin does not register a shutdown hook, so flush explicitly when the process gets a termination signal:
+
+```typescript
+const app = new Elysia()
+  .use(logtide({ dsn: process.env.LOGTIDE_DSN, service: 'elysia-api' }))
+  .listen(3000);
+
+async function shutdown() {
+  await app.stop();   // stop accepting requests
+  await hub.close();  // flush buffered events and disable further capture
+  process.exit(0);
+}
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
+```
+
+In containers, `SIGTERM` is what the orchestrator sends first, so this is the path that matters for [Docker](/integrations/docker/) deployments.
 
 ## Next Steps
 

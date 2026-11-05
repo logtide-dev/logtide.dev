@@ -3,7 +3,7 @@ title: "LogTide vs Better Stack for Log Management"
 description: "Compare LogTide and Better Stack (Logtail) for log management. Self-hosted vs SaaS, pricing, SIEM, and migration path."
 competitor: "Better Stack"
 competitorUrl: "https://betterstack.com/"
-competitorPricing: "Free tier (3 GB/month) then from $0.10/GB"
+competitorPricing: "Free tier (3 GB, 3-day retention) then from $0.10/GB (EU)"
 logtidePricing: "Free (self-hosted)"
 highlights:
   - "Self-hosted option"
@@ -30,7 +30,7 @@ keywords:
   - "Logtail replacement"
 faqs:
   - question: "Is LogTide cheaper than Better Stack (Logtail)?"
-    answer: "Not always. Better Stack is inexpensive: in the EU region logs cost $0.10/GB ingested plus $0.05/GB/month retention, and team members with telemetry access are free. A startup ingesting 50 GB/day pays around $293/month on Better Stack ($150 ingestion + $75 retention + $68 for 2 Responder seats), versus roughly $250/month on LogTide infrastructure - close to break-even. The gap opens at higher volume: at 200 GB/day it is about $1,000/month versus $400/month (around 60% saving), and US-region pricing ($0.15/GB) is higher still. LogTide's other advantages are self-hosting, built-in SIEM and unlimited retention rather than price alone."
+    answer: "Not always. Better Stack is inexpensive: in the EU region logs cost $0.10/GB ingested plus $0.05/GB/month retention, and team members with telemetry access are free. A startup ingesting 50 GB/day pays around $293/month on Better Stack ($150 ingestion + $75 retention + $68 for 2 Responder seats), versus roughly $250/month on LogTide infrastructure - close to break-even. The gap opens at higher volume: at 200 GB/day it is about $1,000/month versus $400/month (a difference of roughly $600/month on our estimates), and US-region pricing ($0.15/GB) is higher still. LogTide's other advantages are self-hosting, built-in SIEM and unlimited retention rather than price alone."
   - question: "Does LogTide support self-hosting, unlike Better Stack?"
     answer: "Yes. Better Stack is a SaaS-only platform with no self-hosted option. LogTide is open-source (AGPLv3) and runs on your own infrastructure - on-premises, in your cloud VPC, or in an air-gapped environment - giving you full data sovereignty and GDPR compliance without relying on a third-party data processor."
   - question: "When is Better Stack the better choice over LogTide?"
@@ -39,7 +39,7 @@ faqs:
     answer: "Run both platforms in parallel: add the LogTide SDK alongside your existing Better Stack (Logtail) SDK, or use Fluent Bit with two HTTP output blocks to fan logs to both destinations. After 1-2 weeks of validation - comparing search results, alert behavior, and SSE streaming - remove the Better Stack SDK and Fluent Bit output block, then cancel your subscription."
 ---
 
-Better Stack (formerly Logtail) is a modern SaaS log management platform with uptime monitoring and incident management. LogTide is a self-hosted, open-source log management platform with built-in SIEM. Both target developers who want clean, modern tooling - here's how they compare.
+Better Stack (formerly Logtail) is a modern SaaS log management platform with uptime monitoring and incident management. LogTide is a self-hosted, open-source log management platform with built-in SIEM. Both target developers who want clean, modern tooling - here's how they compare. For the wider hosted-service landscape, see the [hosted log management comparison](/blog/hosted-log-management-compared/); for the self-hosted side, [self-hosted log management](/self-hosted-log-management/).
 
 ## Cost Comparison
 
@@ -47,7 +47,7 @@ Better Stack offers competitive SaaS pricing with a developer-friendly free tier
 
 ### Better Stack Pricing
 
-Better Stack charges based on data volume and retention (prices below are for the EU region, per the [Better Stack pricing page](https://betterstack.com/pricing); US is $0.15/GB ingestion and $0.08/GB/month retention):
+Better Stack charges based on data volume and retention (prices below are for the EU region, per the [Better Stack pricing page](https://betterstack.com/pricing), checked November 2026; US is $0.15/GB ingestion and $0.08/GB/month retention):
 
 | Component | Cost |
 |-----------|------|
@@ -155,7 +155,7 @@ At low and moderate volume Better Stack is price-competitive with self-hosting, 
 
 **No vendor lock-in.** LogTide is AGPLv3 open-source. Your data lives in TimescaleDB or ClickHouse that you own and control. Your detection rules use the portable Sigma standard. You can inspect, fork, and modify every line of source code.
 
-**Cost advantage at scale.** Better Stack's per-GB pricing means costs grow linearly with data volume and retention. At 200+ GB/day, LogTide's infrastructure-only cost model saves roughly 60-70% compared to Better Stack, depending on region.
+**Cost advantage at scale.** Better Stack's per-GB pricing means costs grow linearly with data volume and retention. In the 200 GB/day example above, LogTide's infrastructure-only cost model comes out well below Better Stack on both regions, while at 50 GB/day it is close to break-even in the EU region.
 
 **Real-time SSE streaming.** LogTide's Server-Sent Events streaming provides real-time log tailing with efficient, standards-based technology. No proprietary protocols, no WebSocket complexity - just HTTP streaming that works through any proxy or CDN.
 

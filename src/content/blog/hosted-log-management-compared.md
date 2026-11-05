@@ -1,8 +1,8 @@
 ---
-title: "Hosted Log Management Compared: Pricing, Retention and EU Data"
+title: "Hosted Log Management Compared: Pricing, EU Data"
 description: "Hosted log services compared at 100 GB and 400 GB a month: Better Stack (Logtail), Datadog, Grafana Cloud, New Relic, Axiom, Papertrail and LogTide Cloud."
 pubDate: 2026-11-04
-author: "LogTide Team"
+author: "Giuseppe Pollio"
 tags:
   - "logging"
   - "cost-optimization"
@@ -43,7 +43,7 @@ All prices are public list prices in USD, excluding tax, taken from each vendor'
 
 A hosted log service takes three jobs off your plate: accepting logs reliably, storing them, and making them searchable. You point an agent, an SDK or syslog at an endpoint and the rest is the vendor's problem.
 
-That puts it between two other options. The logging built into your cloud (CloudWatch, Google Cloud Logging, Azure Monitor) needs no setup, but it is tied to one provider and meters ingestion, storage and often queries separately. We cover those in [cloud logging pricing](/cloud-logging-pricing/). Running your own stack gives you full control, and the operations work that comes with it. That is the [self-hosted route](/self-hosted-log-management/).
+That puts it between two other options. The logging built into your cloud (CloudWatch, Google Cloud Logging, Azure Monitor) needs no setup, but it is tied to one provider and meters ingestion, storage and often queries separately. We cover those in [cloud logging pricing](/cloud-logging-pricing/), and Google's in more detail in [Google Cloud Logging pricing explained](/blog/google-cloud-logging-pricing/). Running your own stack gives you full control, and the operations work that comes with it. That is the [self-hosted route](/self-hosted-log-management/).
 
 ## The options at a glance
 
@@ -105,7 +105,7 @@ A region tells you where logs sit. It does not settle everything an auditor will
 
 **New Relic** is hard to argue with if you fit inside 100 GB a month and one full user, or if you want one platform for APM and logs. The cost shows up when you add people. See [LogTide vs New Relic](/vs/new-relic/).
 
-**Datadog** is rarely the cheap choice for logs alone. It earns its price when you already use it for infrastructure and APM and want everything correlated in one place. See [LogTide vs Datadog](/vs/datadog/).
+**Datadog** is rarely the cheap choice for logs alone. It earns its price when you already use it for infrastructure and APM and want everything correlated in one place. See [LogTide vs Datadog](/vs/datadog/) for a worked cost example, or the [Datadog alternatives](/datadog-alternatives/) list if you are replacing it.
 
 **Papertrail** remains one of the fastest ways to go from syslog to a live tail. It is expensive per GB, so it works best at small volumes where the bill stays small anyway. See [LogTide vs Papertrail](/vs/papertrail/).
 

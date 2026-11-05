@@ -6,9 +6,9 @@ import FAQSection from '../components/content/FAQSection.astro';
 import { ClientRouter } from 'astro:transitions';
 import { Icon } from 'astro-icon/components';
 
-const title = 'Cloud Logging Pricing: CloudWatch vs GCP vs Azure Costs Compared | LogTide';
+const title = 'Cloud Logging Pricing Compared: AWS, Google, Azure | LogTide';
 const description =
-  'What AWS CloudWatch, Google Cloud Logging and Azure Monitor really cost per GB - ingestion, storage, query fees and worked examples, plus the self-hosted alternative.';
+  'Side-by-side per-GB list prices for AWS CloudWatch, Google Cloud Logging and Azure Monitor, with a shared 50 GB/day example and sources (checked November 2026).';
 const keywords = [
   'cloud logging pricing',
   'google cloud logging pricing',
@@ -30,10 +30,12 @@ const providers = [
   {
     name: 'AWS CloudWatch Logs',
     vsLink: '/vs/aws-cloudwatch/',
+    detailLink: '/blog/aws-lambda-logging-best-practices/',
+    detailLabel: 'Lambda logging and costs →',
     rows: [
       ['Ingestion', '$0.50/GB'],
       ['Storage', '$0.03/GB/month'],
-      ['Logs Insights queries', '$0.005/GB scanned'],
+      ['Logs Insights queries', '$0.005/GB scanned*'],
       ['Live Tail', '$0.01/minute'],
     ],
     note: 'Every Logs Insights query bills for the data it scans - debugging sessions have a meter running.',
@@ -41,22 +43,26 @@ const providers = [
   {
     name: 'Google Cloud Logging',
     vsLink: '/vs/gcp-cloud-logging/',
+    detailLink: '/blog/google-cloud-logging-pricing/',
+    detailLabel: 'Google-only pricing explainer →',
     rows: [
       ['First 50 GiB/month', 'Free'],
       ['Additional ingestion', '$0.50/GiB'],
-      ['Storage (>30 days)', '$0.01/GiB/month'],
+      ['Retention beyond 30 days', '$0.01/GiB/month'],
       ['Log Analytics', 'No additional charge'],
     ],
-    note: 'The free tier is generous for small projects, but beyond it costs scale linearly with volume.',
+    note: 'The free tier is generous for small projects, but beyond it costs scale linearly with volume. The detailed Google-only breakdown is in the pricing explainer post.',
   },
   {
     name: 'Azure Monitor (Log Analytics)',
     vsLink: '/vs/azure-monitor/',
+    detailLink: '/blog/azure-monitor-vs-azure-sentinel/',
+    detailLabel: 'Azure Monitor vs Sentinel →',
     rows: [
       ['Ingestion (pay-as-you-go)', '$2.30/GB'],
       ['Ingestion (commitment, 100 GB/day)', '$1.96/GB'],
       ['Extra retention', '$0.10/GB/month'],
-      ['Sentinel SIEM add-on', '+$2.00/GB ($4.30 combined)'],
+      ['With Microsoft Sentinel', '$4.30/GB combined'],
     ],
     note: 'The highest per-GB price of the three - and security detection (Sentinel) nearly doubles it.',
   },
@@ -86,7 +92,7 @@ const faqs = [
   {
     question: 'How can I reduce cloud logging costs?',
     answer:
-      'Short term: filter noisy debug logs at the source, sample high-volume access logs, and reduce retention on low-value log groups. Structurally: move log search and retention to self-hosted infrastructure. Self-hosting LogTide replaces per-GB fees with a fixed infrastructure cost, typically saving 60-90% beyond ~50 GB/day.',
+      'Short term: filter noisy debug logs at the source, sample high-volume access logs, and reduce retention on low-value log groups. Structurally: move log search and retention to self-hosted infrastructure. Self-hosting LogTide replaces per-GB fees with a fixed infrastructure cost, with a saving that depends on your volume and on what you spend on servers and operations.',
   },
   {
     question: 'Is self-hosted logging really cheaper than CloudWatch or GCP?',
@@ -154,8 +160,21 @@ const faqs = [
           </h1>
           <p class="mt-6 max-w-[58ch] text-lg text-muted-foreground">
             AWS CloudWatch, Google Cloud Logging and Azure Monitor all meter ingestion, storage and
-            queries separately. Here's the per-GB breakdown, worked examples at real volumes, and
-            where the bill actually comes from.
+            queries separately. Here's the side-by-side per-GB breakdown, one shared
+            example, and where the bill actually comes from. This is the cross-provider overview; if you
+            only need Google, the
+            <a href="/blog/google-cloud-logging-pricing/" class="text-foreground underline decoration-primary/30 underline-offset-4 hover:decoration-primary">Google Cloud Logging pricing explainer</a>
+            goes deeper. Coming from a SaaS tool like Datadog? See
+            <a href="/vs/datadog/" class="text-foreground underline decoration-primary/30 underline-offset-4 hover:decoration-primary">LogTide vs Datadog</a>
+            and the <a href="/blog/hosted-log-management-compared/" class="text-foreground underline decoration-primary/30 underline-offset-4 hover:decoration-primary">hosted log management comparison</a>.
+          </p>
+          <p class="mt-4 max-w-[58ch] text-sm text-muted-foreground">
+            Sources, checked November 2026, US East / list prices:
+            <a href="https://aws.amazon.com/cloudwatch/pricing/" class="text-primary-readable hover:underline">AWS CloudWatch pricing</a>,
+            <a href="https://cloud.google.com/products/observability/pricing" class="text-primary-readable hover:underline">Google Cloud Observability pricing</a>,
+            <a href="https://azure.microsoft.com/en-us/pricing/details/monitor/" class="text-primary-readable hover:underline">Azure Monitor pricing</a>
+            (Azure figures read from the Azure Retail Prices API). *The CloudWatch query rate is the one AWS lists for scanned data;
+            newer plans include a free query allowance. Regions, tiers and contracts change the numbers.
           </p>
         </div>
       </section>
@@ -180,6 +199,9 @@ const faqs = [
               <p class="mb-4 flex-1 text-sm text-muted-foreground">{p.note}</p>
               <a href={p.vsLink} class="text-sm font-medium text-primary-readable hover:underline">
                 Full comparison vs LogTide →
+              </a>
+              <a href={p.detailLink} class="mt-2 text-sm font-medium text-primary-readable hover:underline">
+                {p.detailLabel}
               </a>
             </article>
           ))}
@@ -237,11 +259,11 @@ const faqs = [
         </div>
 
         <p class="mt-6 max-w-[70ch] text-sm text-muted-foreground">
-          Figures from the detailed comparisons:
+          Figures use the list prices above and our own sizing assumptions (30-day retention, about 10 queries a day on CloudWatch, 90-day retention on Azure, a VM plus disk for LogTide). The LogTide column is an estimate, not a quote, and excludes the time your team spends operating it. Detailed comparisons:
           <a href="/vs/aws-cloudwatch/" class="text-primary-readable hover:underline">vs CloudWatch</a>,
           <a href="/vs/gcp-cloud-logging/" class="text-primary-readable hover:underline">vs Cloud Logging</a>,
           <a href="/vs/azure-monitor/" class="text-primary-readable hover:underline">vs Azure Monitor</a>.
-          Below ~50 GiB/month, cloud free tiers win - self-hosting pays off as volume grows.
+          Below the free tiers, cloud logging wins on cost - self-hosting pays off as volume grows.
         </p>
       </section>
 
@@ -255,8 +277,8 @@ const faqs = [
             <Icon name="lucide:search" class="h-6 w-6 text-primary-readable" aria-hidden="true" />
             <h3 class="mt-4 font-semibold">Pay-per-query</h3>
             <p class="mt-1.5 text-sm text-muted-foreground">
-              CloudWatch Logs Insights bills $0.005/GB scanned and Azure Basic Logs $0.006/GB. The more
-              you debug, the more you pay - a perverse incentive during incidents.
+              CloudWatch Logs Insights bills for the data each query scans, and some Azure Monitor log tiers do too. The more
+              you debug, the more you pay, which is a perverse incentive during incidents.
             </p>
           </article>
           <article class="bg-background p-6">
@@ -271,8 +293,8 @@ const faqs = [
             <Icon name="lucide:shield-alert" class="h-6 w-6 text-primary-readable" aria-hidden="true" />
             <h3 class="mt-4 font-semibold">SIEM add-ons</h3>
             <p class="mt-1.5 text-sm text-muted-foreground">
-              Security detection is never included: Microsoft Sentinel adds about $2.00/GB on top of Log
-              Analytics ($4.30/GB combined). LogTide ships Sigma rules and MITRE ATT&CK mapping in the box.
+              Security detection is never included: Microsoft Sentinel lists at $4.30/GB combined with Log
+              Analytics (about $2.00/GB above the $2.30 ingestion price). LogTide ships Sigma rules and MITRE ATT&CK mapping in the box.
             </p>
           </article>
           <article class="bg-background p-6">
@@ -296,8 +318,7 @@ const faqs = [
             <h3 class="font-semibold">1. Filter and sample at the source</h3>
             <p class="mt-1.5 max-w-[70ch] text-sm text-muted-foreground">
               Drop debug-level noise before it ships, sample high-volume access logs, and route
-              low-value log groups to short retention. This buys 20-40% but caps out quickly - and
-              every filter is data you can't get back.
+              low-value log groups to short retention. How much it saves depends on how noisy your logs are, and it caps out quickly. Every filter is data you can't get back.
             </p>
           </li>
           <li class="bg-background p-6 md:p-8">

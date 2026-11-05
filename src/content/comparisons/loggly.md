@@ -3,7 +3,7 @@ title: "LogTide vs Loggly for Log Management"
 description: "Compare LogTide and SolarWinds Loggly: self-hosted vs SaaS, daily-volume pricing, retention limits, SIEM capabilities, and a practical migration path."
 competitor: "Loggly"
 competitorUrl: "https://www.loggly.com/"
-competitorPricing: "Free tier (200 MB/day) then from ~$79/month"
+competitorPricing: "Free tier (200 MB/day) then from $79/month (annual)"
 logtidePricing: "Free (self-hosted)"
 highlights:
   - "Self-hosted option"
@@ -32,27 +32,27 @@ faqs:
   - question: "What is the best self-hosted alternative to Loggly?"
     answer: "LogTide covers Loggly's core feature set - JSON ingestion, full-text and field search, dashboards, alerting - as self-hosted open source, and adds a built-in SIEM with Sigma rules. Loggly is SaaS-only, so teams with data-residency requirements or growing volume caps typically migrate to a self-hosted platform."
   - question: "Is LogTide cheaper than Loggly?"
-    answer: "Beyond the free tier, usually yes. Loggly's paid plans start around $79/month for roughly 1 GB/day with about two weeks of retention, and scale steeply with volume. A LogTide instance handling several GB/day runs on infrastructure costing $100-200/month with months of searchable retention and unlimited users."
+    answer: "Beyond the free tier, usually yes. Loggly's Standard plan is $79/month billed annually for 1 GB/day with 15-day retention (Loggly pricing page, checked November 2026), and higher plans raise the volume and retention. A LogTide instance handling several GB/day runs on infrastructure costing $100-200/month with months of searchable retention and unlimited users."
   - question: "What does Loggly do better than LogTide?"
     answer: "Loggly is fully managed - no servers to run - with mature agentless ingestion (syslog and HTTP from anywhere), automated parsing for dozens of common formats, and polished derived-field tooling. Small teams under a few hundred MB/day who don't want to operate anything get real value from its free and entry tiers."
   - question: "How do I migrate from Loggly to LogTide?"
     answer: "Loggly receives logs via syslog and HTTP, so the migration is shipper-level: add a second output to your rsyslog/Fluentd/Fluent Bit pipeline pointing at LogTide's HTTP ingest API, run both for one or two weeks while validating searches and alerts, then remove the Loggly output and downgrade the subscription."
 ---
 
-Loggly (a SolarWinds product, like [Papertrail](/vs/papertrail/)) is a veteran SaaS log aggregator focused on JSON-aware ingestion and search. LogTide is a self-hosted, open-source log management platform with a built-in SIEM. The trade is the classic one - managed convenience against volume-capped pricing - but the details decide which side you should be on.
+Loggly (a SolarWinds product, like [Papertrail](/vs/papertrail/)) is a veteran SaaS log aggregator focused on JSON-aware ingestion and search. LogTide is a self-hosted, open-source log management platform with a built-in SIEM. The trade is the classic one - managed convenience against volume-capped pricing - but the details decide which side you should be on. The [hosted log management comparison](/blog/hosted-log-management-compared/) puts Loggly-style SaaS next to other hosted options.
 
 ## Cost Comparison
 
 ### Loggly Pricing
 
-Loggly bills by **daily ingestion volume** with retention tied to the plan tier (figures indicative - SolarWinds adjusts plans periodically):
+Loggly bills by **daily ingestion volume** with retention tied to the plan tier (prices from the [Loggly pricing page](https://www.loggly.com/plans-and-pricing/), billed annually, checked November 2026; SolarWinds adjusts plans periodically):
 
 | Plan | Daily volume | Retention | Approx. price |
 |------|-------------|-----------|---------------|
 | Lite (free) | 200 MB/day | 7 days | $0 |
-| Standard | ~1 GB/day | ~2 weeks | from ~$79/month |
-| Pro | several GB/day | ~2-4 weeks | from ~$159/month |
-| Enterprise | custom | ~30+ days | from ~$279/month |
+| Standard | 1 GB/day | 15 days | $79/month |
+| Pro | plans up to 100 GB/day | 15-30 days | from $159/month |
+| Enterprise | custom (up to TBs) | 15-90 days | from $279/month |
 
 The structural issues mirror its sibling Papertrail:
 
@@ -60,7 +60,7 @@ The structural issues mirror its sibling Papertrail:
 2. **Retention measured in weeks.** Investigating anything older means hoping you exported in time.
 3. **Volume tiers compound with growth.** Every new service pushes you toward the next tier.
 
-**Real-world example:** A team ingesting 5 GB/day needs Pro/Enterprise territory - realistically **$300-600+/month** with retention still capped around a month.
+**Example:** a team ingesting 5 GB/day needs a plan above Standard. Pick the Pro volume that covers 5 GB/day from the Loggly page; retention there is 15-30 days. We do not quote a total because the Pro price depends on the volume you select.
 
 ### LogTide Pricing
 

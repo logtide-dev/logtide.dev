@@ -1,8 +1,8 @@
 ---
-title: "AWS Lambda Logging: How It Works and the Practices That Matter"
+title: "AWS Lambda Logging: Best Practices That Matter"
 description: "How AWS Lambda logging really works - CloudWatch log groups, JSON structured logs, retention, costs, and how to ship Lambda logs somewhere searchable."
 pubDate: 2026-07-03
-author: "LogTide Team"
+author: "Giuseppe Pollio"
 tags:
   - "aws"
   - "serverless"
@@ -123,7 +123,7 @@ If you ship logs from inside the handler with any batching SDK or agent, the han
 
 ## The part nobody budgets for: reading the logs
 
-CloudWatch ingestion is $0.50/GB, storage $0.03/GB-month - and **every CloudWatch Logs Insights query costs $0.005 per GB scanned**. Debugging an incident across a month of logs for a busy function can cost more than the ingestion did, and the interactive experience (per-log-group selection, KQL-ish syntax, no live tail worth the name) is not where you want to be at 3 a.m.
+CloudWatch ingestion is $0.50/GB and storage $0.03/GB-month (US East list prices, checked November 2026; see the [cloud logging pricing comparison](/cloud-logging-pricing/) for Google and Azure too) - and **every CloudWatch Logs Insights query costs $0.005 per GB scanned**. Debugging an incident across a month of logs for a busy function can cost more than the ingestion did, and the interactive experience (per-log-group selection, KQL-ish syntax, no live tail worth the name) is not where you want to be at 3 a.m.
 
 That's why most teams eventually forward Lambda logs somewhere built for search. The standard options:
 

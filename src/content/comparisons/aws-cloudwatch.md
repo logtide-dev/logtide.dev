@@ -1,6 +1,6 @@
 ---
 title: "LogTide vs AWS CloudWatch Logs"
-description: "Compare LogTide and AWS CloudWatch Logs for log management. Self-hosted vs cloud-native, pricing, and migration path."
+description: "LogTide vs AWS CloudWatch Logs: self-hosted vs cloud-native, a sourced cost example (checked November 2026), SIEM and a migration path."
 competitor: "AWS CloudWatch"
 competitorUrl: "https://aws.amazon.com/cloudwatch/"
 brandIcon: "simple-icons:amazonwebservices"
@@ -8,7 +8,7 @@ competitorPricing: "$0.50/GB ingestion + $0.03/GB/month storage"
 logtidePricing: "Free (self-hosted)"
 migrationDoc: "/docs/migration/"
 highlights:
-  - "80-90% cost savings"
+  - "Flat infrastructure cost"
   - "No AWS lock-in"
   - "Built-in SIEM included"
   - "Full-text search"
@@ -32,7 +32,7 @@ keywords:
   - "AWS logging alternative"
 faqs:
   - question: "Is LogTide cheaper than AWS CloudWatch Logs?"
-    answer: "Yes, significantly for most workloads. A mid-size SaaS ingesting 50 GB/day pays roughly $870/month with CloudWatch ($0.50/GB ingestion plus storage and query costs), versus about $330/month running LogTide on equivalent AWS infrastructure - a saving of around $6,480/year (62%). At 200+ GB/day the savings exceed 80%."
+    answer: "Yes, significantly for most workloads. A mid-size SaaS ingesting 50 GB/day pays roughly $870/month with CloudWatch ($0.50/GB ingestion plus storage and query costs), versus about $330/month for the EC2 and EBS we estimate LogTide needs on AWS - roughly $6,480/year (62%) less, before engineering time. The gap widens with volume because the CloudWatch bill is linear in GB while a server is a step cost. Figures use AWS list prices checked November 2026 and our own sizing assumptions."
   - question: "Does LogTide include SIEM, unlike CloudWatch?"
     answer: "Yes. LogTide ships Sigma detection rules, MITRE ATT&CK mapping, and incident management at no extra cost. CloudWatch has no native SIEM - you would need Amazon Security Lake or a separate third-party tool to reach equivalent security-detection capabilities."
   - question: "When is AWS CloudWatch the better choice over LogTide?"
@@ -41,11 +41,11 @@ faqs:
     answer: "The recommended path is a parallel run: first ship logs to both platforms via the LogTide SDK or a CloudWatch subscription filter forwarded by a Lambda function, then compare results for 1-2 weeks, and finally cut over by pointing applications directly to LogTide and reducing CloudWatch retention. See the migration overview at /docs/migration/ for the general step-by-step process."
 ---
 
-AWS CloudWatch Logs is the default log management service for AWS workloads. LogTide is a self-hosted, open-source log management platform with built-in SIEM. Here's an honest comparison.
+AWS CloudWatch Logs is the default log management service for AWS workloads. LogTide is a self-hosted, open-source log management platform with built-in SIEM. Here's an honest comparison. (Not on AWS only? See [Azure Monitor](/vs/azure-monitor/) and [Google Cloud Logging](/vs/gcp-cloud-logging/) for the other two clouds.)
 
 ## Cost Comparison
 
-AWS CloudWatch pricing scales linearly with volume - costs can grow faster than your traffic.
+AWS CloudWatch pricing scales linearly with volume. Rates below are for US East (N. Virginia), from the [CloudWatch pricing page](https://aws.amazon.com/cloudwatch/pricing/) and [CloudWatch Omni pricing](https://aws.amazon.com/cloudwatch/omni/pricing/), checked November 2026. AWS also publishes tiered and regional rates and newer query allowances, so confirm with the AWS pricing calculator. A cross-provider view is in the [cloud logging pricing overview](/cloud-logging-pricing/); the Lambda side is covered in [AWS Lambda logging best practices](/blog/aws-lambda-logging-best-practices/).
 
 ### CloudWatch Logs Pricing
 
@@ -53,14 +53,14 @@ AWS CloudWatch pricing scales linearly with volume - costs can grow faster than 
 |-----------|------|
 | Log ingestion | $0.50/GB |
 | Log storage | $0.03/GB/month |
-| Log Insights queries | $0.005/GB scanned |
+| Log Insights queries | $0.005/GB scanned (AWS lists this rate; newer plans add a free query allowance) |
 | CloudWatch Logs subscription filter | $0.00 (but Lambda costs) |
 | Live Tail | $0.01/minute |
 
 **Real-world example:** A mid-size SaaS running on AWS with 50 GB/day log ingestion:
 - Ingestion: 50 GB × $0.50 × 30 = $750/month
 - Storage (30-day retention): 1,500 GB × $0.03 = $45/month
-- Log Insights (10 queries/day): ~$75/month
+- Log Insights (assumed 10 queries/day, each scanning 50 GB): ~$75/month
 - **Total: ~$870/month ($10,440/year)**
 
 ### LogTide Pricing
@@ -79,7 +79,7 @@ AWS CloudWatch pricing scales linearly with volume - costs can grow faster than 
 
 **Savings: ~$6,480/year (62%)**
 
-At higher volumes (200+ GB/day), savings exceed 80%.
+Because CloudWatch is metered per GB and a server is not, the percentage saved grows with volume. We have not benchmarked a specific higher volume, so size your own. If you also pay for a SIEM, add that to the CloudWatch side.
 
 ## Feature Comparison
 
@@ -111,7 +111,7 @@ At higher volumes (200+ GB/day), savings exceed 80%.
 
 ## Where LogTide Wins
 
-**Cost at scale.** CloudWatch's $0.50/GB ingestion fee adds up fast. LogTide's self-hosted model means you pay only for infrastructure, which is dramatically cheaper for 50+ GB/day.
+**Cost at scale.** CloudWatch's $0.50/GB ingestion fee adds up with volume. LogTide's self-hosted model means you pay for infrastructure instead, which in the example above is cheaper at 50 GB/day. See also [elk-alternatives](/elk-alternatives/) if you are weighing other self-hosted stacks.
 
 **Full-text search.** CloudWatch requires Log Insights queries to search logs. LogTide provides real-time full-text search without per-query costs.
 

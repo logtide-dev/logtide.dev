@@ -1,0 +1,542 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import SEO from '../components/SEO.astro';
+import FAQSection from '../components/content/FAQSection.astro';
+import { ClientRouter } from 'astro:transitions';
+import { Icon } from 'astro-icon/components';
+
+const title = 'Datadog Alternatives Compared: 7 Options | LogTide';
+const description =
+  'Seven Datadog alternatives compared: Grafana, SigNoz, Elastic, New Relic, Better Stack, Graylog and LogTide. Who each fits, limits, and sourced pricing.';
+const keywords = [
+  'datadog alternatives',
+  'datadog alternative',
+  'open source datadog alternative',
+  'self-hosted datadog alternative',
+  'datadog cheaper alternative',
+  'datadog log management alternative',
+  'datadog competitors',
+];
+
+const seoBreadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Datadog Alternatives', url: '/datadog-alternatives/' },
+];
+
+const reasons = [
+  {
+    icon: 'lucide:receipt',
+    title: 'Bills that grow with volume',
+    description:
+      'Datadog prices logs per ingested GB plus per indexed event, and infrastructure per host. Costs scale with traffic and with every new product you turn on.',
+  },
+  {
+    icon: 'lucide:layers',
+    title: 'Many products, many meters',
+    description:
+      'Logs, APM, infrastructure, SIEM and more are separate line items. Forecasting a month ahead gets harder as usage spreads across them.',
+  },
+  {
+    icon: 'lucide:server',
+    title: 'Data residency and control',
+    description:
+      'Datadog is SaaS only. Teams with strict residency, audit or air-gap requirements need something they can run on their own infrastructure.',
+  },
+  {
+    icon: 'lucide:lock',
+    title: 'Proprietary agents and formats',
+    description:
+      'Moving off a proprietary agent and query language is work. OpenTelemetry-native tools lower the cost of switching again later.',
+  },
+];
+
+const alternatives = [
+  {
+    name: 'Grafana stack (Loki, Tempo, Mimir)',
+    tagline: 'Composable open-source observability, or Grafana Cloud',
+    bestFor: 'Teams that already run Prometheus and Grafana and want logs, metrics and traces as separate, scalable pieces.',
+    points: [
+      'Loki indexes labels only, so storage is cheap but free-text search over large ranges is slower',
+      'Strong dashboards and a large plugin ecosystem',
+      'You assemble and operate several components, or pay for Grafana Cloud',
+    ],
+    limits: 'More moving parts than an all-in-one tool. No built-in SIEM.',
+    link: '/vs/grafana-loki/',
+    linkLabel: 'LogTide vs Grafana Loki',
+  },
+  {
+    name: 'SigNoz',
+    tagline: 'OpenTelemetry-native APM on ClickHouse',
+    bestFor: 'Teams that want the closest open-source match to Datadog APM: traces, metrics and logs in one UI.',
+    points: [
+      'Built around OpenTelemetry from the start',
+      'Self-host the community edition or use SigNoz Cloud',
+      'Stronger on APM and tracing than log-only tools',
+    ],
+    limits: 'ClickHouse is a real operational commitment at scale. No SIEM or detection rules.',
+    link: '/vs/signoz/',
+    linkLabel: 'LogTide vs SigNoz',
+  },
+  {
+    name: 'Elastic (Elasticsearch, Kibana, Elastic Cloud)',
+    tagline: 'The incumbent for search-heavy logging and security',
+    bestFor: 'Teams with large full-text search needs, existing Elastic skills, or a security program built on Elastic Security.',
+    points: [
+      'Very strong full-text search and aggregation',
+      'Logs, APM and security under one vendor, hosted or self-managed',
+      'Large ecosystem of integrations and shippers',
+    ],
+    limits: 'Self-managed clusters need JVM sizing, shard and lifecycle management. Some advanced features sit in paid tiers.',
+    link: '/vs/elk-stack/',
+    linkLabel: 'LogTide vs ELK Stack',
+  },
+  {
+    name: 'New Relic',
+    tagline: 'Full-stack SaaS with usage-based pricing',
+    bestFor: 'Teams that want to stay on a hosted all-in-one platform but prefer ingest-plus-seat pricing over per-host billing.',
+    points: [
+      'Broad platform: APM, infrastructure, logs, browser and more',
+      'Free tier with a monthly data allowance (see pricing below)',
+      'No servers to run',
+    ],
+    limits: 'Still SaaS only, and full-platform seats are priced separately from data.',
+    link: '/vs/new-relic/',
+    linkLabel: 'LogTide vs New Relic',
+  },
+  {
+    name: 'Better Stack',
+    tagline: 'Hosted logs, uptime and incident management',
+    bestFor: 'Small and mid-size teams that want logging, uptime monitoring and on-call without running anything.',
+    points: [
+      'Simple per-GB ingestion and retention pricing with regional rates',
+      'Uptime checks, status pages and on-call in the same product',
+      'Fast to set up',
+    ],
+    limits: 'Narrower than Datadog on deep APM and infrastructure monitoring. Hosted only.',
+    link: '/vs/better-stack/',
+    linkLabel: 'LogTide vs Better Stack',
+  },
+  {
+    name: 'Graylog',
+    tagline: 'Log management with processing pipelines',
+    bestFor: 'Teams with syslog-heavy or network-device logging who want pipelines and role-based access in a packaged product.',
+    points: [
+      'Mature processing pipelines and extractors',
+      'Open edition available, with paid tiers for enterprise and security features',
+      'Runs on top of OpenSearch or Elasticsearch plus MongoDB',
+    ],
+    limits: 'Log-focused: no APM or metrics platform comparable to Datadog.',
+    link: '/vs/graylog/',
+    linkLabel: 'LogTide vs Graylog',
+  },
+  {
+    name: 'LogTide',
+    tagline: 'Self-hosted log management with built-in SIEM',
+    bestFor: 'Teams whose Datadog bill is mostly logs, or who need logs to stay on their own infrastructure, with security detection included.',
+    points: [
+      'One service on TimescaleDB or ClickHouse, deployed with Docker Compose',
+      'Sigma rules, incident management and alerting with email and webhook notifications',
+      'Native OTLP ingestion for logs, traces and metrics, plus trace-to-log correlation',
+      'AGPLv3, no per-seat pricing',
+    ],
+    limits: 'A log management and SIEM product, not a full Datadog replacement. See the gaps below.',
+    link: '/vs/datadog/',
+    linkLabel: 'LogTide vs Datadog in depth',
+    featured: true,
+  },
+];
+
+const pricing = [
+  {
+    vendor: 'Datadog',
+    detail:
+      'Log ingest from $0.10 per GB; 15-day indexing $1.70 per million events per month (annual billing, $2.55 on-demand); Infrastructure Pro $15 per host per month (annual billing).',
+    href: 'https://www.datadoghq.com/pricing/',
+  },
+  {
+    vendor: 'New Relic',
+    detail: '100 GB per month of data ingest free, then $0.40 per GB (original data option). Full-platform user seats are priced separately.',
+    href: 'https://newrelic.com/pricing',
+  },
+  {
+    vendor: 'Better Stack',
+    detail: 'Logs and traces ingestion $0.10 per GB in Europe, $0.15 in the US; retention $0.05 and $0.08 per GB per month. Free tier of 3 GB retained for 3 days.',
+    href: 'https://betterstack.com/pricing',
+  },
+  {
+    vendor: 'SigNoz Cloud',
+    detail: 'Logs and traces $0.30 per GB on the Teams plan, after the included usage.',
+    href: 'https://signoz.io/pricing/',
+  },
+  {
+    vendor: 'Grafana Cloud',
+    detail: 'Free tier includes 50 GB of logs and 50 GB of traces per month with 14-day retention. Paid usage is priced per GB with separate line items.',
+    href: 'https://grafana.com/pricing/',
+  },
+];
+
+const faqs = [
+  {
+    question: 'What is the best alternative to Datadog?',
+    answer:
+      'It depends on what you use Datadog for. For open-source APM closest to Datadog, SigNoz. For a composable stack around Prometheus, the Grafana stack. For hosted all-in-one, New Relic or Better Stack. For self-hosted log management with built-in SIEM, LogTide.',
+  },
+  {
+    question: 'Is there a free, open-source alternative to Datadog?',
+    answer:
+      'Yes. The Grafana stack, SigNoz (community edition) and LogTide are open source and can be self-hosted. They differ in scope: SigNoz and Grafana cover metrics and traces more deeply, while LogTide focuses on logs and security detection.',
+  },
+  {
+    question: 'Can LogTide replace Datadog completely?',
+    answer:
+      'Not for every team. LogTide covers log management, alerting, OTLP ingestion and a built-in SIEM. If you rely on Datadog for APM, profiling, RUM, synthetics or its large integration catalog, LogTide will not replace those today.',
+  },
+  {
+    question: 'When should I stay on Datadog?',
+    answer:
+      'Stay if you use many Datadog products together, depend on its integrations and auto-instrumentation, have no capacity to run infrastructure, and your bill is justified by the time it saves your team.',
+  },
+  {
+    question: 'How do I migrate from Datadog to LogTide?',
+    answer:
+      'Inventory what you use, deploy LogTide, switch SDKs or shippers, rebuild alerts, run both in parallel to validate, then cut over. The Datadog migration guide walks through each step.',
+  },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <SEO
+      title={title}
+      description={description}
+      type="website"
+      ogImage="https://logtide.dev/images/default.png"
+      breadcrumbs={seoBreadcrumbs}
+      keywords={keywords}
+      faqs={faqs}
+    />
+    <meta name="theme-color" content="#7c3aed" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter-tight-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <title>{title}</title>
+    <ClientRouter />
+    <script is:inline>
+      (function () {
+        function applyTheme() {
+          // Dark by default; the header toggle and the footer picker store
+          // 'dark', 'light' or 'system' (follow the OS).
+          const stored = localStorage.getItem('theme') || 'dark';
+          const theme = stored === 'system'
+            ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+            : stored;
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        }
+        applyTheme();
+        document.addEventListener('astro:after-swap', applyTheme);
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen bg-background text-foreground antialiased">
+    <Header />
+
+    <main>
+      <!-- Hero -->
+      <section class="relative" aria-labelledby="hero-heading">
+        <div class="pointer-events-none absolute inset-x-0 -top-16 hidden h-[640px] bg-[radial-gradient(45%_50%_at_25%_0%,hsl(var(--primary)/0.2),transparent_70%)] dark:block" aria-hidden="true"></div>
+        <div class="dot-grid pointer-events-none absolute inset-x-0 -top-16 h-[520px]" aria-hidden="true"></div>
+        <div class="relative mx-auto max-w-[77.5rem] px-4 pt-16 sm:px-6 md:pt-28 lg:px-10">
+          <p class="font-mono text-xs text-primary-readable">checked November 2026</p>
+          <h1 id="hero-heading" class="mt-4 max-w-[20ch] text-[clamp(2.75rem,1.6rem+4.4vw,5.25rem)] font-bold leading-[0.95] tracking-[-0.032em]">
+            Datadog alternatives, <span class="text-primary-readable">compared honestly</span>
+          </h1>
+          <p class="mt-6 max-w-[58ch] text-lg text-muted-foreground">
+            Seven real options, who each one fits, where each falls short, and when it is
+            better to stay on Datadog. We make LogTide, so we say plainly where it does not
+            cover what Datadog does.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a
+              href="/vs/datadog/"
+              class="btn-primary inline-flex h-12 items-center gap-2 rounded-[10px] bg-primary px-5 font-medium text-primary-foreground"
+            >
+              LogTide vs Datadog in depth
+              <Icon name="lucide:arrow-right" class="h-4 w-4" aria-hidden="true" />
+            </a>
+            <a
+              href="/docs/migration/datadog/"
+              class="btn-ghost inline-flex h-12 items-center rounded-[10px] border border-foreground/15 px-5 font-medium"
+            >
+              Datadog migration guide
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Why leave -->
+      <section class="mx-auto max-w-[77.5rem] px-4 pt-20 sm:px-6 md:pt-28 lg:px-10" aria-labelledby="why-heading">
+        <p class="font-mono text-xs text-primary-readable">why teams look elsewhere</p>
+        <h2 id="why-heading" class="mt-3 max-w-[22ch] text-[clamp(2.25rem,1.5rem+2.6vw,4rem)] font-bold leading-none tracking-[-0.03em]">
+          Why people look for a Datadog alternative
+        </h2>
+        <div class="mt-10 grid gap-px overflow-hidden rounded-2xl border border-foreground/[0.08] cell-grid md:grid-cols-2 lg:grid-cols-4">
+          {reasons.map((point) => (
+            <article class="bg-background p-6">
+              <Icon name={point.icon} class="h-6 w-6 text-primary-readable" aria-hidden="true" />
+              <h3 class="mt-4 font-semibold">{point.title}</h3>
+              <p class="mt-1.5 text-sm text-muted-foreground">{point.description}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- Alternatives -->
+      <section class="mx-auto max-w-[77.5rem] px-4 pt-20 sm:px-6 md:pt-28 lg:px-10" aria-labelledby="alts-heading">
+        <h2 id="alts-heading" class="max-w-[22ch] text-[clamp(2.25rem,1.5rem+2.6vw,4rem)] font-bold leading-none tracking-[-0.03em]">
+          Seven alternatives, one by one
+        </h2>
+        <p class="mt-5 max-w-[58ch] text-lg text-muted-foreground">
+          Pick by what you actually use Datadog for. A tool that is great at logs may be the
+          wrong answer if your main use is APM.
+        </p>
+
+        <div class="mt-10 grid gap-px overflow-hidden rounded-2xl border border-foreground/[0.08] cell-grid md:grid-cols-2">
+          {alternatives.map((alt) => (
+            <article class={`flex flex-col p-6 md:p-8 ${alt.featured ? 'bg-card' : 'bg-background'}`}>
+              <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <h3 class="text-xl font-semibold tracking-[-0.015em]">{alt.name}</h3>
+                {alt.featured && (
+                  <span class="inline-flex items-center gap-1.5 rounded-full border border-primary-readable/35 bg-nav-active px-2 py-px text-[11.5px] font-medium text-nav-active-foreground">
+                    <span class="h-1.5 w-1.5 rounded-full bg-primary-readable" aria-hidden="true"></span>
+                    That's us
+                  </span>
+                )}
+              </div>
+              <p class="mt-1 font-mono text-xs text-muted-foreground">{alt.tagline}</p>
+              <p class="mt-4 text-sm"><strong>Best for:</strong> <span class="text-muted-foreground">{alt.bestFor}</span></p>
+              <ul class="m-0 mt-4 flex-1 list-none space-y-2 p-0">
+                {alt.points.map((point) => (
+                  <li class="flex items-start gap-2 text-sm text-muted-foreground">
+                    <Icon name="lucide:chevron-right" class="mt-0.5 h-4 w-4 shrink-0 text-primary-readable" aria-hidden="true" />
+                    {point}
+                  </li>
+                ))}
+              </ul>
+              <p class="mt-4 text-sm"><strong>Limits:</strong> <span class="text-muted-foreground">{alt.limits}</span></p>
+              <a href={alt.link} class="mt-5 text-sm font-medium text-primary-readable hover:underline">
+                {alt.linkLabel} →
+              </a>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- Comparison table -->
+      <section class="mx-auto max-w-[77.5rem] px-4 pt-20 sm:px-6 md:pt-28 lg:px-10" aria-labelledby="table-heading">
+        <h2 id="table-heading" class="text-[clamp(2.25rem,1.5rem+2.6vw,4rem)] font-bold leading-none tracking-[-0.03em]">At a glance</h2>
+        <p class="mt-5 max-w-[58ch] text-sm text-muted-foreground">
+          Qualitative summary. Check each vendor's current documentation before deciding.
+        </p>
+        <div class="mt-8 overflow-x-auto rounded-2xl border border-foreground/[0.08]">
+          <table class="w-full min-w-[48rem] text-sm">
+            <thead>
+              <tr class="border-b border-foreground/[0.08] bg-card text-left">
+                <th class="px-5 py-3 font-mono text-xs font-medium">Tool</th>
+                <th class="px-5 py-3 font-mono text-xs font-medium">Deployment</th>
+                <th class="px-5 py-3 font-mono text-xs font-medium">Strongest at</th>
+                <th class="px-5 py-3 font-mono text-xs font-medium">Pricing model</th>
+                <th class="px-5 py-3 font-mono text-xs font-medium">Open source</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-foreground/[0.08]">
+                <td class="px-5 py-3 font-medium">Datadog</td>
+                <td class="px-5 py-3">SaaS</td>
+                <td class="px-5 py-3">Full-stack observability</td>
+                <td class="px-5 py-3">Per GB, per event, per host</td>
+                <td class="px-5 py-3">No</td>
+              </tr>
+              <tr class="border-b border-foreground/[0.08]">
+                <td class="px-5 py-3 font-medium">Grafana stack</td>
+                <td class="px-5 py-3">Self-hosted or cloud</td>
+                <td class="px-5 py-3">Dashboards, metrics, cheap logs</td>
+                <td class="px-5 py-3">Free self-hosted, usage-based cloud</td>
+                <td class="px-5 py-3">Yes</td>
+              </tr>
+              <tr class="border-b border-foreground/[0.08]">
+                <td class="px-5 py-3 font-medium">SigNoz</td>
+                <td class="px-5 py-3">Self-hosted or cloud</td>
+                <td class="px-5 py-3">OpenTelemetry APM</td>
+                <td class="px-5 py-3">Community edition self-hosted, per GB cloud</td>
+                <td class="px-5 py-3">Yes (community edition)</td>
+              </tr>
+              <tr class="border-b border-foreground/[0.08]">
+                <td class="px-5 py-3 font-medium">Elastic</td>
+                <td class="px-5 py-3">Self-managed or cloud</td>
+                <td class="px-5 py-3">Full-text search, security</td>
+                <td class="px-5 py-3">Tiered, usage-based cloud</td>
+                <td class="px-5 py-3">Partly (see Elastic licensing)</td>
+              </tr>
+              <tr class="border-b border-foreground/[0.08]">
+                <td class="px-5 py-3 font-medium">New Relic</td>
+                <td class="px-5 py-3">SaaS</td>
+                <td class="px-5 py-3">Full-stack observability</td>
+                <td class="px-5 py-3">Per GB plus seats</td>
+                <td class="px-5 py-3">No</td>
+              </tr>
+              <tr class="border-b border-foreground/[0.08]">
+                <td class="px-5 py-3 font-medium">Better Stack</td>
+                <td class="px-5 py-3">SaaS</td>
+                <td class="px-5 py-3">Logs, uptime, on-call</td>
+                <td class="px-5 py-3">Per GB ingest and retention</td>
+                <td class="px-5 py-3">No</td>
+              </tr>
+              <tr class="border-b border-foreground/[0.08]">
+                <td class="px-5 py-3 font-medium">Graylog</td>
+                <td class="px-5 py-3">Self-hosted or cloud</td>
+                <td class="px-5 py-3">Log pipelines, syslog</td>
+                <td class="px-5 py-3">Open edition, paid tiers</td>
+                <td class="px-5 py-3">Open edition</td>
+              </tr>
+              <tr>
+                <td class="px-5 py-3 font-medium text-primary-readable">LogTide</td>
+                <td class="px-5 py-3">Self-hosted</td>
+                <td class="px-5 py-3">Logs with built-in SIEM</td>
+                <td class="px-5 py-3">Self-hosted, no seat pricing</td>
+                <td class="px-5 py-3">Yes (AGPLv3)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Pricing -->
+      <section class="mx-auto max-w-[77.5rem] px-4 pt-20 sm:px-6 md:pt-28 lg:px-10" aria-labelledby="pricing-heading">
+        <p class="font-mono text-xs text-primary-readable">checked November 2026</p>
+        <h2 id="pricing-heading" class="mt-3 max-w-[22ch] text-[clamp(2.25rem,1.5rem+2.6vw,4rem)] font-bold leading-none tracking-[-0.03em]">
+          Published list prices
+        </h2>
+        <p class="mt-5 max-w-[58ch] text-sm text-muted-foreground">
+          Taken from each vendor's public pricing page. List prices only: volume discounts,
+          contracts and plan minimums change the real number, and the units differ between
+          vendors, so these are not directly comparable. Elastic and Graylog are omitted
+          because we could not verify a simple comparable figure. Self-hosted tools cost
+          infrastructure and engineering time instead of licence fees.
+        </p>
+        <ul class="m-0 mt-8 list-none divide-y divide-foreground/[0.08] overflow-hidden rounded-2xl border border-foreground/[0.08] p-0">
+          {pricing.map((p) => (
+            <li class="grid gap-1 bg-background p-5 md:grid-cols-[12rem_1fr_auto] md:items-baseline md:gap-6">
+              <span class="font-semibold">{p.vendor}</span>
+              <span class="text-sm text-muted-foreground">{p.detail}</span>
+              <a href={p.href} rel="noopener" class="text-sm font-medium text-primary-readable hover:underline">Source</a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <!-- Stay / not for -->
+      <section class="mx-auto max-w-[77.5rem] px-4 pt-20 sm:px-6 md:pt-28 lg:px-10" aria-labelledby="honest-heading">
+        <h2 id="honest-heading" class="max-w-[22ch] text-[clamp(2.25rem,1.5rem+2.6vw,4rem)] font-bold leading-none tracking-[-0.03em]">
+          When to stay, and where LogTide falls short
+        </h2>
+        <div class="mt-10 grid gap-px overflow-hidden rounded-2xl border border-foreground/[0.08] cell-grid md:grid-cols-2">
+          <article class="bg-background p-6 md:p-8">
+            <h3 class="text-xl font-semibold tracking-[-0.015em]">Stay on Datadog if</h3>
+            <ul class="m-0 mt-4 list-none space-y-2 p-0">
+              {[
+                'You use APM, infrastructure, logs and more together and value one place for all of it.',
+                'You depend on its integration catalog and auto-instrumentation.',
+                'Nobody on the team has time to run and upgrade infrastructure.',
+                'Your bill is acceptable for the engineering hours it saves.',
+              ].map((t) => (
+                <li class="flex items-start gap-2 text-sm text-muted-foreground">
+                  <Icon name="lucide:chevron-right" class="mt-0.5 h-4 w-4 shrink-0 text-primary-readable" aria-hidden="true" />
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </article>
+          <article class="bg-card p-6 md:p-8">
+            <h3 class="text-xl font-semibold tracking-[-0.015em]">LogTide is not the right fit if</h3>
+            <ul class="m-0 mt-4 list-none space-y-2 p-0">
+              {[
+                'You need a full APM suite. LogTide ingests OTLP traces and correlates them with logs, but it is a log management product.',
+                'You rely on profiling, real user monitoring or synthetic checks. The docs do not describe these features.',
+                'You want a large drag-and-drop dashboard builder and hundreds of ready-made integrations.',
+                'You want a managed service and do not want to operate anything yourself.',
+              ].map((t) => (
+                <li class="flex items-start gap-2 text-sm text-muted-foreground">
+                  <Icon name="lucide:chevron-right" class="mt-0.5 h-4 w-4 shrink-0 text-primary-readable" aria-hidden="true" />
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </article>
+        </div>
+        <p class="mt-8 max-w-[62ch] text-sm text-muted-foreground">
+          A common pattern is to keep Datadog for APM and move only the log volume somewhere
+          cheaper. If self-hosting is the draw, read about
+          <a href="/self-hosted-log-management/" class="text-primary-readable hover:underline">self-hosted log management</a>
+          first. Other side-by-side pages:
+          <a href="/vs/signoz/" class="text-primary-readable hover:underline">LogTide vs SigNoz</a>,
+          <a href="/vs/grafana-loki/" class="text-primary-readable hover:underline">LogTide vs Grafana Loki</a>,
+          <a href="/vs/new-relic/" class="text-primary-readable hover:underline">LogTide vs New Relic</a>.
+        </p>
+      </section>
+
+      <!-- FAQ -->
+      <section class="mx-auto max-w-[77.5rem] px-4 pt-20 sm:px-6 md:pt-28 lg:px-10" aria-labelledby="faq-wrap">
+        <div class="max-w-[46rem]">
+          <h2 id="faq-wrap" class="sr-only">Datadog alternatives FAQ</h2>
+          <FAQSection faqs={faqs} title="Datadog alternatives: FAQ" />
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="mx-auto max-w-[77.5rem] px-4 pb-24 pt-20 sm:px-6 md:pb-36 md:pt-28 lg:px-10" aria-labelledby="cta-heading">
+        <div class="flex flex-wrap items-center justify-between gap-x-12 gap-y-6 rounded-2xl border border-foreground/15 bg-card p-8 md:p-12">
+          <div class="flex-[1_1_24rem]">
+            <h2 id="cta-heading" class="text-[clamp(1.75rem,1.3rem+1.6vw,2.5rem)] font-bold leading-[1.05] tracking-[-0.03em]">Try it on your own logs</h2>
+            <p class="mt-4 max-w-[58ch] text-lg text-muted-foreground">
+              Deploy LogTide with Docker Compose, send a copy of your logs, and compare it with
+              your current setup before you commit.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <a
+              href="/docs/getting-started/"
+              class="btn-primary inline-flex h-12 items-center gap-2 rounded-[10px] bg-primary px-5 font-medium text-primary-foreground"
+            >
+              Get started
+              <Icon name="lucide:arrow-right" class="h-4 w-4" aria-hidden="true" />
+            </a>
+            <a
+              href="/docs/migration/datadog/"
+              class="btn-ghost inline-flex h-12 items-center rounded-[10px] border border-foreground/15 px-5 font-medium"
+            >
+              Datadog migration guide
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+
+    <style is:global>
+      @import '../styles/tailwind.css';
+      @import '../styles/custom.css';
+    </style>
+  </body>
+</html>

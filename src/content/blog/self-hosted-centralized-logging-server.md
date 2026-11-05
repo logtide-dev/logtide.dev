@@ -1,8 +1,8 @@
 ---
-title: "How to Set Up a Self-Hosted Centralized Logging Server"
+title: "Self-Hosted Centralized Logging Server Setup"
 description: "Set up a self-hosted centralized logging server: architecture, collectors, backends compared, disk sizing, TLS, and a Docker Compose walkthrough."
 pubDate: 2026-10-30
-author: "LogTide Team"
+author: "Giuseppe Pollio"
 tags:
   - "self-hosted"
   - "logging"
@@ -100,7 +100,7 @@ How to read it:
 - **Need petabyte-scale full-text search or an existing Beats and Logstash estate?** Elasticsearch or OpenSearch is still the proven answer. Budget for the cluster. See [ELK alternatives](/elk-alternatives/) if the footprint is the problem.
 - **Already live in Grafana and mostly filter by service and pod?** Loki fits well, and the cost model is hard to beat. Searching arbitrary text across a long time range is where it hurts. Details in [LogTide vs Loki](/vs/grafana-loki/).
 - **Want a UI-first product with pipelines and streams?** Graylog. Note the SSPL if you plan to offer it as a service; for internal use it rarely matters. See [LogTide vs Graylog](/vs/graylog/).
-- **Want one small stack with search, live tail, alerting and detection rules, on a database you already know how to back up?** That is the gap LogTide targets. It is younger than the others, with a smaller ecosystem, so check that the integrations you need exist.
+- **Want one small stack with search, live tail, alerting and detection rules, on a database you already know how to back up?** That is the gap LogTide targets. It is younger than the others, with a smaller ecosystem, so check that the integrations you need exist. The project's [first-year retrospective](/blog/logtide-one-year/) is candid about what is still rough.
 
 Whatever you pick, check two things before committing: how a query behaves on a week of your real data, and what restoring from backup looks like.
 

@@ -1,8 +1,8 @@
 ---
-title: "AWS Lambda Java Log4j2: Setup, JSON Logs and Maven Shade Fix"
+title: "AWS Lambda Java Log4j2: Setup and JSON Logs"
 description: "Complete Log4j2 setup for AWS Lambda Java: Maven dependencies, log4j2.xml, JSON log format, request ID, log level env var, and the shade plugin cache fix."
 pubDate: 2026-10-30
-author: "LogTide Team"
+author: "Giuseppe Pollio"
 tags:
   - "aws"
   - "java"

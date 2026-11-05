@@ -1,6 +1,6 @@
 ---
 title: "LogTide vs Google Cloud Logging"
-description: "LogTide vs Google Cloud Logging: self-hosted, open-source log management with built-in SIEM. Cut GCP logging costs ~70% beyond the 50 GiB free tier."
+description: "LogTide vs Google Cloud Logging: self-hosted, open-source with built-in SIEM. Cost example beyond the 50 GiB free tier, prices checked November 2026."
 competitor: "Google Cloud Logging"
 competitorUrl: "https://cloud.google.com/logging"
 brandIcon: "simple-icons:googlecloud"
@@ -31,7 +31,7 @@ keywords:
   - "GCP log management cost"
 faqs:
   - question: "Is LogTide cheaper than Google Cloud Logging?"
-    answer: "Beyond GCP's 50 GiB/month free tier, Cloud Logging charges $0.50/GiB. At 100 GiB/day, LogTide on a GCE instance costs roughly $450/month versus about $1,475/month in Cloud Logging ingestion - around 70% less, or ~$12,300/year saved."
+    answer: "Beyond GCP's 50 GiB/month free tier, Cloud Logging charges $0.50/GiB. At 100 GiB/day, LogTide on a GCE instance costs roughly $450/month versus about $1,475/month in Cloud Logging ingestion - about $12,300/year less on these assumptions. Cloud Logging prices are from Google's pricing page, checked November 2026; the LogTide figure is our own infrastructure estimate and excludes engineering time."
   - question: "Can I migrate from Cloud Logging to LogTide without losing data?"
     answer: "Yes. Use Cloud Logging's Log Router to forward logs to LogTide through a Pub/Sub sink, run both in parallel to validate, then reduce Cloud Logging retention to minimize cost. No re-instrumentation of your apps is required."
   - question: "Does LogTide include SIEM like Chronicle?"
@@ -44,7 +44,7 @@ Google Cloud Logging (formerly Stackdriver) is GCP's native log management servi
 
 ## Cost Comparison
 
-Google Cloud Logging offers a generous 50 GiB/month free tier, but costs scale quickly beyond that.
+Google Cloud Logging offers a 50 GiB/month free tier per project, but costs scale linearly beyond that. Prices below are from [Google Cloud Observability pricing](https://cloud.google.com/products/observability/pricing), checked November 2026. This page compares against LogTide; for a full breakdown of the Google bill (routing, sinks, Log Analytics, live tail) read [Google Cloud Logging pricing explained](/blog/google-cloud-logging-pricing/), and for AWS and Azure side by side see the [cloud logging pricing overview](/cloud-logging-pricing/).
 
 ### Cloud Logging Pricing
 
@@ -76,7 +76,7 @@ Google Cloud Logging offers a generous 50 GiB/month free tier, but costs scale q
 - Compute + storage: ~$450/month
 - **Total: ~$450/month ($5,400/year)**
 
-**Savings: ~$12,300/year (~70%)**
+Difference on these assumptions: ~$12,300/year. The compute and disk figures are our estimates, not quotes.
 
 ### When Cloud Logging Is Cheaper
 
@@ -116,7 +116,7 @@ If you're under 50 GiB/month, Cloud Logging's free tier wins. At exactly 50 GiB/
 
 ## Where LogTide Wins
 
-**Cost at scale.** Beyond the free tier, Cloud Logging charges $0.50/GiB. At 100+ GiB/day, LogTide saves 70-85% on log management costs.
+**Cost at scale.** Beyond the free tier, Cloud Logging charges $0.50/GiB. At 100 GiB/day the example above is about $1,475/month for ingestion versus an estimated $450/month for infrastructure; at lower volumes the free tier narrows or closes the gap.
 
 **Built-in SIEM.** LogTide includes Sigma detection rules, MITRE ATT&CK mapping, and incident management at no extra cost. Cloud Logging has no native SIEM - you'd need Chronicle SIEM or a third-party solution.
 
