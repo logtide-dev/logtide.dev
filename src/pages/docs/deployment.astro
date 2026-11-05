@@ -309,8 +309,8 @@ FLUENT_BIT_IMAGE=myregistry/fluent-bit-arm64:latest`}
                   lang="bash"
                   theme="one-dark-pro"
                   code={`# In your .env file
-LOGTIDE_BACKEND_IMAGE=logtide/backend:1.6.1
-LOGTIDE_FRONTEND_IMAGE=logtide/frontend:1.6.1`}
+LOGTIDE_BACKEND_IMAGE=logtide/backend:1.6.2
+LOGTIDE_FRONTEND_IMAGE=logtide/frontend:1.6.2`}
               />
           </CardContent>
       </Card>
@@ -495,7 +495,10 @@ docker compose -f docker-compose.simple.yml up -d`}
                   <li><strong>Via domain on port 80/443</strong> (e.g., <code class="bg-muted px-1 rounded">https://logtide.example.com</code>) → Uses relative URLs (assumes reverse proxy)</li>
               </ul>
               <p class="mt-3">
-                  No <code class="bg-muted px-1 rounded">PUBLIC_API_URL</code> configuration needed for these scenarios!
+                  No <code class="bg-muted px-1 rounded">PUBLIC_API_URL</code> configuration needed for these scenarios! This is the compose default since 1.6.2. If your <code class="bg-muted px-1 rounded">.env</code> still has <code class="bg-muted px-1 rounded">PUBLIC_API_URL=http://localhost:8080</code> from an older install, remove that line.
+              </p>
+              <p class="mt-3">
+                  Ports taken on the host? Since 1.6.2 set <code class="bg-muted px-1 rounded">FRONTEND_PORT</code>, <code class="bg-muted px-1 rounded">BACKEND_PORT</code>, <code class="bg-muted px-1 rounded">DB_PORT</code>, <code class="bg-muted px-1 rounded">REDIS_PORT</code> or <code class="bg-muted px-1 rounded">SYSLOG_PORT</code> in <code class="bg-muted px-1 rounded">.env</code>. Only the published port changes, containers keep their own ports inside the docker network, and auto-detection follows <code class="bg-muted px-1 rounded">BACKEND_PORT</code>.
               </p>
           </CardContent>
       </Card>
@@ -652,9 +655,9 @@ PUBLIC_API_URL=https://api.logtide.example.com
                               <td class="p-3 border-b border-border text-muted-foreground">Explicit configuration</td>
                           </tr>
                           <tr>
-                              <td class="p-3 border-b border-border">Custom port setup</td>
-                              <td class="p-3 border-b border-border font-mono text-xs">http://host:custom-port</td>
-                              <td class="p-3 border-b border-border text-muted-foreground">When backend is not on :8080</td>
+                              <td class="p-3 border-b border-border">Custom host ports</td>
+                              <td class="p-3 border-b border-border font-mono text-xs">(not needed)</td>
+                              <td class="p-3 border-b border-border text-muted-foreground">Set BACKEND_PORT, auto-detection follows it (1.6.2+)</td>
                           </tr>
                           <tr>
                               <td class="p-3">LogTide Cloud</td>

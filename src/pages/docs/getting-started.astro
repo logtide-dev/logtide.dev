@@ -39,7 +39,6 @@ nano .env
 #   - DB_PASSWORD: set a secure password
 #   - REDIS_PASSWORD: set a secure password
 #   - API_KEY_SECRET: run "openssl rand -base64 32" and paste the result
-#   - PUBLIC_API_URL: set to http://YOUR_SERVER_IP:8080 (if accessing remotely)
 
 # 4. Start LogTide
 docker compose up -d
@@ -396,7 +395,7 @@ docker compose -f docker-compose.simple.yml up -d`}
             </tr>
             <tr class="bg-amber-500/10">
               <td class="p-3 font-mono text-xs">PUBLIC_API_URL</td>
-              <td class="p-3"><strong>Required for remote access.</strong> Set to <code class="bg-background px-1 rounded">http://YOUR_SERVER_IP:8080</code> if accessing from another machine</td>
+              <td class="p-3"><strong>Usually not needed.</strong> Since 1.6.2 the browser works out the API address from the host you opened the UI on. Set it when the API lives somewhere else</td>
             </tr>
           </tbody>
         </table>
@@ -405,7 +404,7 @@ docker compose -f docker-compose.simple.yml up -d`}
         <CardContent class="pt-4 text-sm">
           <p class="flex items-start gap-2">
             <Icon name="lucide:alert-triangle" class="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
-            <span><strong>Accessing from another machine?</strong> You must set <code class="bg-background px-1 rounded">PUBLIC_API_URL</code> to your server's IP address (e.g., <code class="bg-background px-1 rounded">http://192.168.1.100:8080</code>). Without this, the frontend will try to reach <code class="bg-background px-1 rounded">localhost:8080</code> which won't work remotely.</span>
+            <span><strong>Accessing from another machine?</strong> Since 1.6.2 nothing has to be set: the browser calls the host you opened the UI on, on <code class="bg-background px-1 rounded">BACKEND_PORT</code>. If your <code class="bg-background px-1 rounded">.env</code> still has <code class="bg-background px-1 rounded">PUBLIC_API_URL=http://localhost:8080</code>, remove that line.</span>
           </p>
         </CardContent>
       </Card>
@@ -428,7 +427,7 @@ docker compose -f docker-compose.simple.yml up -d`}
           <li><strong>GitHub:</strong> <code class="bg-background px-1 rounded">ghcr.io/logtide-dev/logtide-backend</code></li>
         </ul>
         <p class="mt-3 text-xs">
-          Pin versions in production: <code class="bg-background px-1 rounded">LOGTIDE_BACKEND_IMAGE=logtide/backend:1.6.1</code>
+          Pin versions in production: <code class="bg-background px-1 rounded">LOGTIDE_BACKEND_IMAGE=logtide/backend:1.6.2</code>
         </p>
       </CardContent>
     </Card>
@@ -534,22 +533,26 @@ docker compose -f docker-compose.simple.yml up -d`}
         <div class="space-y-2">
           <p class="font-semibold">Cause:</p>
           <p class="text-muted-foreground text-sm">
-            You're accessing LogTide from a different machine than where it's running. The frontend defaults to <code class="bg-background px-1 rounded">localhost:8080</code>
-            which only works when your browser is on the same machine as Docker.
+            The browser cannot reach the API address it was given. The usual reasons are a
+            <code class="bg-background px-1 rounded">PUBLIC_API_URL</code> pointing at <code class="bg-background px-1 rounded">localhost</code> while you open the UI from another machine (older installs have it in <code class="bg-background px-1 rounded">.env</code>),
+            or a UI served over https calling an API on plain http, which the browser blocks as mixed content. The browser console tells you which one it is.
           </p>
         </div>
 
         <div class="space-y-2">
           <p class="font-semibold">Solution:</p>
           <p class="text-muted-foreground text-sm mb-2">
-            Set <code class="bg-background px-1 rounded">PUBLIC_API_URL</code> in your <code class="bg-background px-1 rounded">.env</code> file to your server's IP:
+            On 1.6.2 or later, remove <code class="bg-background px-1 rounded">PUBLIC_API_URL</code> from <code class="bg-background px-1 rounded">.env</code> to get auto-detection. If that does not fit your setup, set it to the address the browser should use. Behind an https reverse proxy, route <code class="bg-background px-1 rounded">/api/</code> to the backend and use the same domain as the UI:
           </p>
-          <Code lang="bash" theme="one-dark-pro" code={`# Replace with your server's actual IP address
-PUBLIC_API_URL=http://192.168.1.100:8080`} />
+          <Code lang="bash" theme="one-dark-pro" code={`# Direct access, replace with your server's actual IP address
+PUBLIC_API_URL=http://192.168.1.100:8080
+
+# Behind an https reverse proxy
+PUBLIC_API_URL=https://logtide.example.com`} />
           <p class="text-muted-foreground text-sm mt-2">
-            Then restart the frontend:
+            Then recreate the containers so they pick up the new value:
           </p>
-          <Code lang="bash" theme="one-dark-pro" code={`docker compose restart frontend`} />
+          <Code lang="bash" theme="one-dark-pro" code={`docker compose up -d`} />
         </div>
 
         <div class="space-y-2">
@@ -561,7 +564,7 @@ PUBLIC_API_URL=http://192.168.1.100:8080`} />
 curl http://192.168.1.100:8080/health
 
 # Expected response:
-# {"status":"ok","timestamp":"...","version":"1.6.1"}`} />
+# {"status":"ok","timestamp":"...","version":"1.6.2"}`} />
           <p class="text-muted-foreground text-sm mt-2">
             If this fails, the backend isn't running correctly - check the logs with <code class="bg-background px-1 rounded">docker compose logs backend</code>.
           </p>
