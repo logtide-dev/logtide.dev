@@ -4,6 +4,10 @@ import autoprefixer from 'autoprefixer';
 import icon from 'astro-icon';
 import sitemap from '@astrojs/sitemap';
 import astroD2 from 'astro-d2';
+import { getLastmodMap } from './scripts/content-dates.mjs';
+
+const lastmodByUrl = getLastmodMap();
+const EXCLUDED_FROM_SITEMAP = ['/login/', '/register/', '/dashboard/'];
 
 // https://astro.build/config
 export default defineConfig({
@@ -12,16 +16,14 @@ export default defineConfig({
   integrations: [
     icon(),
     sitemap({
-      // Non-HTML endpoints (llms.txt) aren't picked up automatically.
-      customPages: ['https://logtide.dev/llms.txt'],
-      filter: (page) =>
-        !page.includes('/login') &&
-        !page.includes('/register') &&
-        !page.includes('/dashboard'),
+      // Exact paths: a substring match would also drop /docs/dashboards/.
+      filter: (page) => !EXCLUDED_FROM_SITEMAP.includes(new URL(page).pathname),
       changefreq: 'weekly',
       priority: 0.7,
-      lastmod: new Date(),
       serialize(item) {
+        const lastmod = lastmodByUrl.get(item.url);
+        if (lastmod) item.lastmod = lastmod;
+
         // Higher priority for important pages
         if (item.url === 'https://logtide.dev/') {
           item.priority = 1.0;

@@ -46,6 +46,7 @@ const description = 'Real-world logging scenarios and how to solve them with Log
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <SEO
+      breadcrumbs={[{ name: 'Home', url: '/' }, { name: 'Use cases', url: '/use-cases/' }]}
       title={title}
       description={description}
       type="website"
@@ -93,6 +94,10 @@ const description = 'Real-world logging scenarios and how to solve them with Log
           <p class="mt-6 max-w-[58ch] text-lg text-muted-foreground">
             Real-world logging scenarios and how to solve them with LogTide.
             Each guide includes problem analysis, implementation steps, and best practices.
+            New to self-hosting? Start with
+            <a href="/self-hosted-log-management/" class="text-foreground underline decoration-primary/30 underline-offset-4 hover:decoration-primary">self-hosted log management</a>.
+            Weighing costs? See the
+            <a href="/cloud-logging-pricing/" class="text-foreground underline decoration-primary/30 underline-offset-4 hover:decoration-primary">cloud logging pricing overview</a>.
           </p>
         </div>
       </section>

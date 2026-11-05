@@ -41,7 +41,10 @@ const pathname = Astro.url.pathname.replace(/\/$/, '');
 const pathParts = pathname.split('/').filter(Boolean);
 const seoBreadcrumbs = [{ name: 'Home', url: '/' }];
 for (let i = 0; i < pathParts.length; i++) {
-  const name = pathParts[i].charAt(0).toUpperCase() + pathParts[i].slice(1).replace(/-/g, ' ');
+  // The current page uses its real title ("API Reference", not "Api")
+  const name = i === pathParts.length - 1 && i > 0
+    ? title
+    : pathParts[i].charAt(0).toUpperCase() + pathParts[i].slice(1).replace(/-/g, ' ');
   const url = '/' + pathParts.slice(0, i + 1).join('/') + '/';
   seoBreadcrumbs.push({ name, url });
 }
@@ -206,7 +209,7 @@ try {
 
     <div class="docs-layout">
       <!-- Mobile menu button -->
-      <div class="mobile-menu-button lg:hidden">
+      <div class="mobile-menu-button px-4 pt-4 sm:px-6 lg:hidden">
         <button
           id="mobile-menu-toggle"
           class="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
@@ -228,7 +231,7 @@ try {
       >
         <div class="flex items-center justify-between border-b border-border p-4">
           <span class="font-semibold">Documentation</span>
-          <button id="mobile-menu-close" class="rounded p-1 hover:bg-muted">
+          <button id="mobile-menu-close" class="rounded p-1 hover:bg-muted" aria-label="Close documentation menu">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -340,6 +343,7 @@ try {
 
         const copyBtn = document.createElement('button');
         copyBtn.className = 'opacity-60 hover:opacity-100 transition-opacity p-1';
+        copyBtn.setAttribute('aria-label', 'Copy code');
         copyBtn.innerHTML = `
             <svg class="copy-icon h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
             <svg class="check-icon h-4 w-4 text-green-500 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>

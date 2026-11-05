@@ -22,8 +22,7 @@ const isActive = (href: string) => path.startsWith(href);
 <header class="sticky top-0 z-50 border-b border-border/70 bg-background/75 backdrop-blur-md">
   <div class="header-container flex h-16 items-center gap-8">
     <a href="/" class="flex shrink-0 items-center rounded-lg" aria-label="LogTide home">
-      <img src="/logo/white.svg" alt="LogTide" class="hidden h-7 w-auto dark:block" width="102" height="28" />
-      <img src="/logo/dark.svg" alt="LogTide" class="block h-7 w-auto dark:hidden" width="102" height="28" />
+      <span class="block h-7 w-[102px] bg-foreground [mask:url(/logo/white.svg)_center/contain_no-repeat]" aria-hidden="true"></span>
     </a>
 
     <nav class="hidden items-center gap-7 lg:flex" aria-label="Main">

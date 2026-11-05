@@ -9,6 +9,9 @@ COPY package.json pnpm-lock.yaml ./
 # Enable pnpm via corepack (version from package.json "packageManager")
 RUN corepack enable && corepack prepare --activate
 
+# git supplies the real page dates (sitemap lastmod, dateModified) at build time
+RUN apk add --no-cache git && git config --global --add safe.directory /app
+
 # Install dependencies
 RUN pnpm install --frozen-lockfile
 
@@ -26,6 +29,7 @@ COPY --from=build /app/dist /usr/share/nginx/html
 
 # Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY security-headers.conf /etc/nginx/snippets/security-headers.conf
 
 EXPOSE 80
 

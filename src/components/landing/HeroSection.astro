@@ -70,7 +70,7 @@ const facts = [
   <div class="relative mx-auto max-w-[77.5rem] px-4 pt-16 sm:px-6 md:pt-28 lg:px-10">
     <div data-reveal>
       <a
-        href="/changelog/v1-6-2/"
+        href="/changelog/v1-6/#v1-6-2"
         class="inline-flex max-w-full items-center gap-2.5 rounded-lg border border-foreground/15 bg-foreground/[0.03] py-1 pl-1 pr-3 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <span class="shrink-0 rounded-[5px] bg-nav-active px-2 py-0.5 font-mono text-[11px] text-nav-active-foreground">v1.6.2</span>
@@ -93,14 +93,14 @@ const facts = [
         <div class="flex flex-wrap gap-2.5">
           <a
             href="https://app.logtide.dev/register"
-            class="btn-primary inline-flex h-12 items-center gap-2.5 whitespace-nowrap rounded-[10px] bg-primary px-5 font-medium text-primary-foreground"
+            class="btn-primary inline-flex h-12 flex-1 items-center justify-center gap-2.5 whitespace-nowrap sm:flex-none rounded-[10px] bg-primary px-5 font-medium text-primary-foreground"
           >
             Start free on EU cloud
             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
           </a>
           <a
             href="/docs/"
-            class="btn-ghost inline-flex h-12 items-center whitespace-nowrap rounded-[10px] border border-foreground/15 px-5 font-medium"
+            class="btn-ghost inline-flex h-12 flex-1 items-center justify-center whitespace-nowrap sm:flex-none rounded-[10px] border border-foreground/15 px-5 font-medium"
           >
             Read the docs
           </a>
@@ -132,8 +132,7 @@ const facts = [
       >
         <!-- App sidebar -->
         <div class="hidden w-[212px] shrink-0 flex-col gap-3.5 border-r border-border bg-card px-3 py-3.5 lg:flex" aria-hidden="true">
-          <img src="/logo/white.svg" alt="" class="ml-2 mt-0.5 hidden h-5 w-auto self-start dark:block" width="73" height="20" />
-          <img src="/logo/dark.svg" alt="" class="ml-2 mt-0.5 block h-5 w-auto self-start dark:hidden" width="73" height="20" />
+          <span class="ml-2 mt-0.5 block h-5 w-[73px] self-start bg-foreground [mask:url(/logo/white.svg)_center/contain_no-repeat]" aria-hidden="true"></span>
           {appNav.map((section) => (
             <div class="flex flex-col gap-px">
               {section.label && <span class="px-2 pb-1 text-[11px] font-medium text-muted-foreground">{section.label}</span>}

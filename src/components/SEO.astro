@@ -1,4 +1,5 @@
 ---
+import { getCollection } from 'astro:content';
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, ORG_SCHEMA, TWITTER_HANDLE, OG_LOCALE } from '../config/seo';
 
 interface Props {
@@ -10,6 +11,10 @@ interface Props {
   datePublished?: string | null;
   dateModified?: string | null;
   author?: string;
+  /** Set for a named person; the default author is the organization. */
+  authorUrl?: string | null;
+  noindex?: boolean;
+  extraSchemas?: object[];
   keywords?: string[];
   faqs?: Array<{ question: string; answer: string }>;
 }
@@ -23,6 +28,9 @@ const {
   datePublished = null,
   dateModified = null,
   author = SITE_NAME,
+  authorUrl = null,
+  noindex = false,
+  extraSchemas = [],
   keywords = [],
   faqs = []
 } = Astro.props;
@@ -39,6 +47,9 @@ const canonicalURL = `${SITE_URL}${pathname}`;
 
 const isHomepage = pathname === '/' || pathname === '';
 
+// Page titles carry a brand suffix that doesn't belong in an article headline.
+const headline = title.replace(/\s*\|\s*LogTide.*$/, '');
+
 // JSON-LD Schemas
 const schemas: object[] = [];
 
@@ -53,10 +64,16 @@ if (isHomepage) {
   schemas.push({
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": `${SITE_URL}/#website`,
+    "publisher": { "@id": `${SITE_URL}/#organization` },
     "name": SITE_NAME,
     "url": SITE_URL,
     "description": SITE_DESCRIPTION
   });
+
+  // The released version comes from the changelog so it can't drift.
+  const releases = await getCollection('changelog', ({ data }) => data.status === 'released' && !data.draft);
+  const latestRelease = releases.sort((a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0))[0];
 
   // SoftwareApplication schema (homepage only)
   schemas.push({
@@ -65,13 +82,17 @@ if (isHomepage) {
     "name": SITE_NAME,
     "operatingSystem": "Linux, Docker",
     "applicationCategory": "DeveloperApplication",
+    // Range of the plans listed on /pricing/: keep in sync with that page.
     "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
+      "@type": "AggregateOffer",
+      "lowPrice": "0",
+      "highPrice": "99",
+      "offerCount": 3,
+      "priceCurrency": "USD",
+      "url": `${SITE_URL}/pricing/`
     },
     "description": SITE_DESCRIPTION,
-    "softwareVersion": "1.6.2",
+    "softwareVersion": latestRelease?.data.version?.replace(/^v/, ''),
     "url": SITE_URL
   });
 }
@@ -95,15 +116,15 @@ if (type === 'article' && (datePublished || dateModified)) {
   const articleSchema: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "TechArticle",
-    "headline": title,
+    "headline": headline,
     "description": description,
     "url": canonicalURL,
-    "author": {
-      "@type": "Organization",
-      "name": author
-    },
+    "author": authorUrl
+      ? { "@type": "Person", "name": author, "url": `${SITE_URL}${authorUrl}` }
+      : { "@type": "Organization", "name": author },
     "publisher": {
       "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
       "name": SITE_NAME,
       "url": SITE_URL,
       "logo": {
@@ -146,10 +167,11 @@ if (faqs.length > 0) {
     }))
   });
 }
+schemas.push(...extraSchemas);
 ---
 
 <!-- Canonical URL -->
-<link rel="canonical" href={canonicalURL} />
+{!noindex && <link rel="canonical" href={canonicalURL} />}
 
 <!-- Meta Description -->
 <meta name="description" content={description} />
@@ -158,8 +180,8 @@ if (faqs.length > 0) {
 {keywords.length > 0 && <meta name="keywords" content={keywords.join(', ')} />}
 
 <!-- Additional SEO meta tags -->
-<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-<meta name="author" content={SITE_NAME} />
+<meta name="robots" content={noindex ? "noindex, follow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
+<meta name="author" content={author} />
 <meta name="generator" content="Astro" />
 
 <!-- Open Graph -->

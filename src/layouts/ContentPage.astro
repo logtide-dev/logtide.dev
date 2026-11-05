@@ -14,6 +14,9 @@ interface Props {
   dateModified?: string | null;
   keywords?: string[];
   faqs?: Array<{ question: string; answer: string }>;
+  author?: string;
+  authorUrl?: string | null;
+  extraSchemas?: object[];
 }
 
 const {
@@ -24,7 +27,10 @@ const {
   datePublished = null,
   dateModified = null,
   keywords = [],
-  faqs = []
+  faqs = [],
+  author,
+  authorUrl = null,
+  extraSchemas = []
 } = Astro.props;
 
 const SITE_URL = 'https://logtide.dev';
@@ -46,6 +52,9 @@ const defaultOgImage = ogImage || `${SITE_URL}/docs/images/sections/guides.png`;
       dateModified={dateModified}
       keywords={keywords}
       faqs={faqs}
+      author={author}
+      authorUrl={authorUrl}
+      extraSchemas={extraSchemas}
     />
     <meta name="theme-color" content="#7c3aed" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />

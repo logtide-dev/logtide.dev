@@ -1,0 +1,71 @@
+---
+import ContentPage from '../../layouts/ContentPage.astro';
+
+const title = 'About LogTide and Giuseppe Pollio | LogTide';
+const description = 'LogTide is open-source log management and SIEM, created and maintained by Giuseppe Pollio. Where it came from, who builds it and how the project is run.';
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'About', url: '/about/' },
+];
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Giuseppe Pollio',
+  url: 'https://logtide.dev/about/',
+  description: 'Creator and maintainer of LogTide, and AWS Community Builder.',
+  worksFor: { '@id': 'https://logtide.dev/#organization' },
+  sameAs: ['https://dev.to/polliog', 'https://github.com/Polliog'],
+};
+---
+
+<ContentPage
+  title={title}
+  description={description}
+  breadcrumbs={breadcrumbs}
+  extraSchemas={[personSchema]}
+  keywords={["about LogTide", "Giuseppe Pollio", "LogTide creator", "open source log management"]}
+>
+  <p class="font-mono text-xs text-primary-readable">about</p>
+  <h1 class="mt-4">About LogTide</h1>
+  <p class="text-lg text-muted-foreground">
+    LogTide is open-source log management and SIEM for teams that want to own their data. You can run it on your
+    own servers or use the managed EU cloud, and the core is the same in both.
+  </p>
+
+  <div class="prose-content">
+    <h2>Why it exists</h2>
+    <p>
+      LogTide started on November 26, 2025, with a first commit and a dev.to post a few days later:
+      <em>I built an Open Source Datadog alternative because ELK was eating my RAM</em>. The goal has not changed
+      since: logs, traces and threat detection in one product, without an Elasticsearch cluster to babysit.
+    </p>
+    <p>
+      The numbers from the first year, good and bad, are in
+      <a href="/blog/logtide-one-year/">Logtide: 1 Year After the First Commit</a>.
+    </p>
+
+    <h2 id="giuseppe-pollio">Who builds it</h2>
+    <p>
+      LogTide is created and maintained by Giuseppe Pollio, who also writes the articles on this blog. Giuseppe is an
+      AWS Community Builder and publishes technical posts on
+      <a href="https://dev.to/polliog" target="_blank" rel="noopener noreferrer">dev.to</a>. Most of the code so far
+      has been written by one person, with contributions from the community on
+      <a href="https://github.com/logtide-dev/logtide" target="_blank" rel="noopener noreferrer">GitHub</a>.
+    </p>
+
+    <h2>How the project is run</h2>
+    <ul>
+      <li>The core is open source under the AGPLv3 license, and development happens in public.</li>
+      <li>Release notes for every version are in the <a href="/changelog/">changelog</a>.</li>
+      <li>Vulnerabilities can be reported privately to <a href="mailto:security@logtide.dev">security@logtide.dev</a>.</li>
+      <li>Company and data processing details are in the <a href="/legal/terms/">terms</a> and the <a href="/legal/dpa/">data processing agreement</a>.</li>
+    </ul>
+
+    <h2>Where to go next</h2>
+    <p>
+      Start with the <a href="/docs/getting-started/">getting started guide</a>, see how LogTide compares in the
+      <a href="/vs/">comparison pages</a>, or <a href="/contact/">get in touch</a>.
+    </p>
+  </div>
+</ContentPage>

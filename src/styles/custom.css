@@ -479,3 +479,9 @@ svg[data-d2-version] {
   max-height: 460px;
   margin: 1.75rem auto;
 }
+
+/* one-dark-pro comments miss WCAG AA (4.22:1) on the code block background */
+html.dark [style*="#7F848E" i] {
+  --shiki-dark: #9aa0ac !important;
+  color: #9aa0ac !important;
+}

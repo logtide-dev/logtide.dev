@@ -4,28 +4,55 @@ import ContentPage from '../../layouts/ContentPage.astro';
 import StatusBadge from '../../components/changelog/StatusBadge.astro';
 import TypeBadge from '../../components/changelog/TypeBadge.astro';
 import { Icon } from 'astro-icon/components';
+import { releaseGroupSlug } from '../../lib/changelog';
 
 export async function getStaticPaths() {
-  const entries = await getCollection('changelog', ({ data }) => !data.draft);
-  // Only entries with a markdown body get their own page; frontmatter-only
-  // entries (most roadmap items) are fully represented on the index.
-  return entries
-    .filter((entry) => (entry.body ?? '').trim().length > 0)
-    .map((entry) => ({
-      params: { slug: entry.id },
-      props: { entry },
-    }));
+  const entries = await getCollection(
+    'changelog',
+    ({ data }) => !data.draft && data.status === 'released',
+  );
+
+  const groups = new Map<string, CollectionEntry<'changelog'>[]>();
+  for (const entry of entries) {
+    const slug = releaseGroupSlug(entry.id);
+    if (!slug) continue;
+    if (!groups.has(slug)) groups.set(slug, []);
+    groups.get(slug)!.push(entry);
+  }
+
+  return [...groups].map(([slug, releases]) => ({
+    params: { slug },
+    props: {
+      // Newest first
+      releases: releases.sort((a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0)),
+    },
+  }));
 }
 
 interface Props {
-  entry: CollectionEntry<'changelog'>;
+  releases: CollectionEntry<'changelog'>[];
 }
 
-const { entry } = Astro.props;
-const { Content } = await render(entry);
-const { version, title, description, date, targetDate, status, highlights, githubPr } = entry.data;
+const { releases } = Astro.props;
+const rendered = await Promise.all(
+  releases.map(async (entry) => ({ entry, Content: (await render(entry)).Content })),
+);
 
-const pageTitle = `${title} | LogTide Changelog`;
+const newest = releases[0];
+const oldest = releases[releases.length - 1];
+const minor = (Astro.params.slug as string).replace(/^v/, '').replace('-', '.');
+
+const heading = `LogTide ${minor}`;
+const withTitle = `${heading} release notes: ${oldest.data.title}`;
+const pageTitle = withTitle.length <= 60 ? withTitle : `${heading} release notes`;
+
+// Meta descriptions come from frontmatter that may run up to 300 characters.
+function clamp(text: string, max = 155) {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max - 1);
+  return `${cut.slice(0, cut.lastIndexOf(' '))}…`;
+}
+const description = clamp(oldest.data.description);
 
 const rawPathname = Astro.url.pathname;
 const pathname = rawPathname.endsWith('/') ? rawPathname : rawPathname + '/';
@@ -33,12 +60,11 @@ const pathname = rawPathname.endsWith('/') ? rawPathname : rawPathname + '/';
 const seoBreadcrumbs = [
   { name: 'Home', url: '/' },
   { name: 'Changelog', url: '/changelog/' },
-  { name: title, url: pathname },
+  { name: heading, url: pathname },
 ];
 
-const formattedDate = date
-  ? date.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
-  : targetDate ?? null;
+const formatDate = (date: Date) =>
+  date.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
 ---
 
 <ContentPage
@@ -46,7 +72,8 @@ const formattedDate = date
   description={description}
   ogImage="https://logtide.dev/images/changelogs.png"
   breadcrumbs={seoBreadcrumbs}
-  datePublished={date ? date.toISOString() : null}
+  datePublished={oldest.data.date ? oldest.data.date.toISOString() : null}
+  dateModified={newest.data.date ? newest.data.date.toISOString() : null}
 >
   <!-- Navigation breadcrumb -->
   <nav class="mb-8" aria-label="Breadcrumb">
@@ -59,70 +86,69 @@ const formattedDate = date
         <a href="/changelog/" class="transition-colors hover:text-foreground">Changelog</a>
       </li>
       <li class="text-muted-foreground/50">/</li>
-      <li class="text-foreground line-clamp-1">{version ?? title}</li>
+      <li class="text-foreground line-clamp-1">{heading}</li>
     </ol>
   </nav>
 
-  <!-- Page Header -->
   <header class="mb-10">
     <p class="font-mono text-xs text-primary-readable">changelog</p>
-    <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
-      {version && (
-        <span class="font-mono text-sm font-semibold">{version}</span>
-      )}
-      <StatusBadge status={status} />
-      <TypeBadge type={entry.data.type} />
-      {formattedDate && (
-        date
-          ? <time datetime={date.toISOString()} class="font-mono text-xs text-muted-foreground">{formattedDate}</time>
-          : <span class="font-mono text-xs text-muted-foreground">{formattedDate}</span>
-      )}
-    </div>
-
-    <h1 class="mt-5">
-      {title}
-    </h1>
-
+    <h1 class="mt-4">{heading} release notes</h1>
     <p class="text-lg text-muted-foreground">
-      {description}
+      {releases.length === 1
+        ? oldest.data.description
+        : `${releases.length} releases in the ${minor} line, newest first. ${oldest.data.description}`}
     </p>
-
-    {highlights.length > 0 && (
-      <ul class="m-0 mt-6 grid list-none gap-px overflow-hidden rounded-xl border border-foreground/[0.08] cell-grid p-0 sm:grid-cols-2">
-        {highlights.map((h) => (
-          <li class="bg-background px-4 py-3.5 text-[14.5px] text-foreground/85">{h}</li>
-        ))}
-      </ul>
-    )}
   </header>
 
-  <!-- Markdown Content -->
-  <div class="prose-content">
-    <Content />
-  </div>
+  {rendered.map(({ entry, Content }) => (
+    <section id={entry.id} class="scroll-mt-24 border-t border-foreground/[0.08] pt-8 pb-6">
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+        {entry.data.version && <span class="font-mono text-sm font-semibold">{entry.data.version}</span>}
+        <StatusBadge status={entry.data.status} />
+        <TypeBadge type={entry.data.type} />
+        {entry.data.date && (
+          <time datetime={entry.data.date.toISOString()} class="font-mono text-xs text-muted-foreground">{formatDate(entry.data.date)}</time>
+        )}
+      </div>
 
-  <!-- Footer links -->
-  <div class="mt-16 border-t border-foreground/[0.08] pt-8">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-      <a
-        href="/changelog/"
-        class="inline-flex items-center gap-2 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground"
-      >
-        <Icon name="lucide:arrow-left" class="w-4 h-4" />
-        All releases
-      </a>
-      {githubPr && (
+      <h2 class="mt-4">{entry.data.title}</h2>
+
+      {releases.length > 1 && <p class="text-muted-foreground">{entry.data.description}</p>}
+
+      {entry.data.highlights.length > 0 && (
+        <ul class="m-0 mt-6 grid list-none gap-px overflow-hidden rounded-xl border border-foreground/[0.08] cell-grid p-0 sm:grid-cols-2">
+          {entry.data.highlights.map((h) => (
+            <li class="bg-background px-4 py-3.5 text-[14.5px] text-foreground/85">{h}</li>
+          ))}
+        </ul>
+      )}
+
+      <div class="prose-content mt-6">
+        <Content />
+      </div>
+
+      {entry.data.githubPr && (
         <a
-          href={githubPr}
+          href={entry.data.githubPr}
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground"
+          class="mt-4 inline-flex items-center gap-2 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground"
         >
           <Icon name="simple-icons:github" class="w-4 h-4" />
-          View pull request
+          View pull request for {entry.data.version}
           <Icon name="lucide:external-link" class="w-3.5 h-3.5" />
         </a>
       )}
-    </div>
+    </section>
+  ))}
+
+  <div class="mt-10 border-t border-foreground/[0.08] pt-8">
+    <a
+      href="/changelog/"
+      class="inline-flex items-center gap-2 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground"
+    >
+      <Icon name="lucide:arrow-left" class="w-4 h-4" />
+      All releases
+    </a>
   </div>
 </ContentPage>

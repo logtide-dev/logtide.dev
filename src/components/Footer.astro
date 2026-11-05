@@ -25,6 +25,7 @@ const columns: { title: string; links: FooterLink[] }[] = [
       { href: '/blog/', label: 'Blog' },
       { href: '/changelog/', label: 'Changelog' },
       { href: 'https://app.logtide.dev/status/logtide/overview', label: 'Status', external: true },
+      { href: '/about/', label: 'About' },
       { href: '/contact/', label: 'Contact' },
     ],
   },
@@ -91,8 +92,7 @@ const iconLink =
   <div class="mx-auto grid max-w-[77.5rem] grid-cols-2 gap-x-8 gap-y-12 px-4 pb-10 pt-16 sm:grid-cols-3 sm:px-6 lg:grid-cols-[minmax(0,1.9fr)_repeat(6,minmax(0,1fr))] lg:px-10">
     <div class="col-span-2 flex min-w-0 flex-col gap-[18px] sm:col-span-3 lg:col-span-1">
       <a href="/" class="self-start rounded-lg" aria-label="LogTide home">
-        <img src="/logo/white.svg" alt="LogTide" class="hidden h-7 w-auto dark:block" width="102" height="28" loading="lazy" />
-        <img src="/logo/dark.svg" alt="LogTide" class="block h-7 w-auto dark:hidden" width="102" height="28" loading="lazy" />
+        <span class="block h-7 w-[102px] bg-foreground [mask:url(/logo/white.svg)_center/contain_no-repeat]" role="img" aria-label="LogTide"></span>
       </a>
       <p class="max-w-[32ch] text-[15px] text-muted-foreground">
         Open-source observability. Self-hosted or EU cloud, built in Europe.

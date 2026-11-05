@@ -5,9 +5,10 @@ interface Props {
   title: string;
   description: string;
   keywords?: string[];
+  noindex?: boolean;
 }
 
-const { title, description, keywords = [] } = Astro.props;
+const { title, description, keywords = [], noindex = false } = Astro.props;
 ---
 
 <!doctype html>
@@ -21,6 +22,7 @@ const { title, description, keywords = [] } = Astro.props;
       type="website" 
       ogImage="https://logtide.dev/images/default.png"
       keywords={keywords}
+      noindex={noindex}
     />
     <meta name="theme-color" content="#7c3aed" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
@@ -30,7 +32,6 @@ const { title, description, keywords = [] } = Astro.props;
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/inter-tight-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
     <title>{title}</title>
     <script is:inline>
       // Theme detection (runs before page renders to prevent flash)

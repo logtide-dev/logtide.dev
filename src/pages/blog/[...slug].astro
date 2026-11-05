@@ -63,7 +63,7 @@ try {
 ---
 
 <ContentPage
-  title={`${title} | LogTide Blog`}
+  title={`${title} | LogTide`}
   description={description}
   ogImage="https://logtide.dev/images/blog.png"
   breadcrumbs={seoBreadcrumbs}
@@ -71,6 +71,8 @@ try {
   dateModified={dateModifiedISO}
   keywords={entry.data.keywords}
   faqs={entry.data.faqs}
+  author={entry.data.author}
+  authorUrl={entry.data.author === 'LogTide Team' ? null : '/about/'}
 >
   <!-- Navigation breadcrumb -->
   <nav class="mb-8" aria-label="Breadcrumb">
@@ -100,7 +102,7 @@ try {
     </p>
 
     <p class="mt-5 font-mono text-xs text-muted-foreground">
-      <time datetime={pubDate.toISOString()}>{pubDateFormatted}</time> · {entry.data.author}
+      <time datetime={pubDate.toISOString()}>{pubDateFormatted}</time> · {entry.data.author === 'LogTide Team' ? entry.data.author : <a href="/about/" class="hover:text-foreground">{entry.data.author}</a>}
     </p>
 
     {entry.data.tags.length > 0 && (
