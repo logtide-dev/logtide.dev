@@ -684,7 +684,7 @@ const headings = [
                       </tr>
                       <tr>
                           <td class="p-3 border-b border-border font-mono text-xs">INITIAL_ADMIN_PASSWORD</td>
-                          <td class="p-3 border-b border-border">Password (minimum 8 characters)</td>
+                          <td class="p-3 border-b border-border">Password (minimum 8 characters). A weak value still creates the admin, with a warning in the logs; passwords set later from the app need 12+ characters and pass a strength check</td>
                           <td class="p-3 border-b border-border">Yes</td>
                       </tr>
                       <tr>
