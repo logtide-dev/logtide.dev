@@ -20,13 +20,14 @@ const keywords = [
   "GitHub webhook logs",
   "Uptime Robot webhook",
   "Better Stack webhook",
+  "Odoo automated action webhook",
   "generic JSON webhook field mapping"
 ];
 ---
 
 <DocsLayout
   title="Webhook Receivers"
-  description="Inbound webhook receivers in LogTide: a tokenized ingest URL that normalizes payloads from GitHub, uptime monitors and arbitrary JSON into log entries."
+  description="Inbound webhook receivers in LogTide: a tokenized ingest URL that normalizes payloads from GitHub, uptime monitors, Odoo and arbitrary JSON into log entries."
   keywords={keywords}
   headings={headings}
 >
@@ -90,7 +91,7 @@ const keywords = [
             <Icon name="lucide:shuffle" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
             <div>
               <h4 class="font-medium mb-1">Adapters normalize</h4>
-              <p class="text-sm text-muted-foreground">GitHub, uptime monitors, or arbitrary JSON are mapped into standard log entries with the right level and service.</p>
+              <p class="text-sm text-muted-foreground">GitHub, uptime monitors, Odoo, or arbitrary JSON are mapped into standard log entries with the right level and service.</p>
             </div>
           </div>
         </CardContent>
@@ -246,6 +247,25 @@ Content-Type: application/json`}
       <li><strong>Better Stack</strong> (<code>data.attributes</code> incident shape): status <code>Started</code> maps to <code>error</code>, <code>Resolved</code> and <code>Acknowledged</code> to <code>info</code>. The monitor name becomes the service and the incident cause is part of the message.</li>
     </ul>
     <p class="text-sm text-muted-foreground">Unrecognized shapes are marked <code>skipped</code>.</p>
+
+    <h3 id="odoo" class="text-lg font-semibold mb-3 scroll-mt-24 flex items-center gap-2">
+      <Icon name="simple-icons:odoo" class="w-4 h-4" /> Odoo
+    </h3>
+    <p class="text-sm text-muted-foreground">
+      For Odoo 17+ Automated Actions with the <strong>Send Webhook Notification</strong> action,
+      including Odoo Online where custom modules are not allowed. Odoo posts the selected record
+      fields plus <code>_model</code>, <code>_id</code>, <code>_name</code> and <code>_action</code>.
+    </p>
+    <ul class="list-disc list-inside space-y-2 ml-2 text-sm">
+      <li><strong>message</strong>: <code>&lt;model&gt; &lt;display name&gt;</code>, plus <code>→ &lt;state&gt;</code> when the payload has a <code>state</code> field, e.g. <code>account.move INV/2026/0042 → posted</code>.</li>
+      <li><strong>level</strong>: a <code>levelMap</code> in the field mapping wins (matched on <code>state</code>, case-insensitive); otherwise <code>cancel</code>/<code>cancelled</code>/<code>error</code>/<code>failed</code>/<code>exception</code> map to <code>warn</code> and everything else to <code>info</code>.</li>
+      <li><strong>service</strong>: the field mapping default service, or <code>odoo</code>.</li>
+      <li><strong>metadata.odoo</strong>: <code>model</code>, <code>id</code>, <code>display_name</code>, <code>action</code>, and <code>fields</code> with every selected field (Many2one values stay as <code>[id, "Name"]</code>).</li>
+    </ul>
+    <p class="text-sm text-muted-foreground">
+      Payloads without <code>_model</code> are marked <code>skipped</code>. For Odoo server logs
+      (tracebacks, slow requests, cron) see the <a href="/integrations/odoo/">Odoo integration</a>.
+    </p>
 
     <h3 id="generic-json" class="text-lg font-semibold mb-3 scroll-mt-24 flex items-center gap-2">
       <Icon name="lucide:braces" class="w-4 h-4" /> Generic JSON
