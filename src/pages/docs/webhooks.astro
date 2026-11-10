@@ -240,6 +240,8 @@ const event = parseWebhookEvent(body);`}
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>incident.created</code></td><td class="py-2">A new security incident was created (typically from a Sigma rule detection).</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>error.detected</code></td><td class="py-2">An exception group crossed its notification threshold.</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>monitor.status_changed</code></td><td class="py-2">An uptime monitor changed status (e.g. up → down).</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hardware.health.degraded</code></td><td class="py-2">A hardware host got worse: from ok to warning or critical, or from warning to critical. Not sent for muted hosts.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hardware.health.recovered</code></td><td class="py-2">A hardware host that had an open hardware incident is healthy again. Same <code>data</code> shape as <code>hardware.health.degraded</code>.</td></tr>
           <tr><td class="py-2 pr-4"><code>channel.test</code></td><td class="py-2">A test delivery sent when verifying a notification channel.</td></tr>
         </tbody>
       </table>
@@ -357,6 +359,47 @@ const event = parseWebhookEvent(body);`}
   "link": "https://app.logtide.dev/monitoring/mon_1a2b"
 }`}
     />
+
+    <h3 id="hardware-health" class="text-lg font-semibold mb-3 scroll-mt-24">
+      <code>hardware.health.degraded</code> and <code>hardware.health.recovered</code> data
+    </h3>
+    <Code
+      lang="json"
+      theme="one-dark-pro"
+      code={`{
+  "host_id": "5b0c9d2e-3f41-4a7b-9c1d-2e8f6a7b8c90",
+  "host_name": "nas-01",
+  "project_id": "3a2b1c0d-9e8f-4a7b-8c6d-5e4f3a2b1c0d",
+  "project_name": "homelab",
+  "status": "critical",
+  "previous_status": "warning",
+  "severity": "critical",
+  "title": "Hardware critical: nas-01",
+  "message": "Disk ZA1ABC12 has 12 sectors pending reallocation; Fan FAN1 stopped",
+  "findings": [
+    {
+      "component": "disks",
+      "hw_id": "ZA1ABC12",
+      "severity": "warning",
+      "code": "disk.pending_sectors",
+      "message": "Disk ZA1ABC12 has 12 sectors pending reallocation",
+      "value": 12,
+      "threshold": 0
+    }
+  ],
+  "incident_id": "7c1d2e3f-4a5b-6c7d-8e9f-0a1b2c3d4e5f",
+  "changed_at": "2026-11-10T14:30:00.000Z",
+  "link": "https://app.logtide.dev/dashboard/hardware/5b0c9d2e-3f41-4a7b-9c1d-2e8f6a7b8c90"
+}`}
+    />
+    <p class="text-sm text-muted-foreground">
+      <code>status</code> is <code>warning</code>, <code>critical</code> or <code>ok</code>;
+      <code>previous_status</code> can also be <code>unknown</code> or <code>stale</code>.
+      <code>findings</code> lists the problems at the time of the change, worst first, and is empty
+      on <code>hardware.health.recovered</code>. <code>incident_id</code> is the hardware incident
+      that was opened, updated or resolved, or <code>null</code>. See
+      <a href="/docs/hardware-health/">Hardware Health</a>.
+    </p>
 
     <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
       <div class="flex items-start gap-3">

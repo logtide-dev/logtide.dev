@@ -51,7 +51,7 @@ const th = "py-2 pr-4 font-semibold";
   </div>
 
   <p class="text-lg text-muted-foreground mb-8">
-    Watch the physical health of your servers from <strong>Monitor → Hardware</strong>: SMART data
+    Watch the physical health of your servers from <strong>Monitor → Hardware</strong> (keyboard shortcut <code>g h</code>): SMART data
     from disks, ECC memory errors, temperatures, fans, power supplies and network cards, plus
     hardware events from the kernel log and the BMC. Available since LogTide 1.7.0, open source.
   </p>
@@ -163,8 +163,9 @@ const th = "py-2 pr-4 font-semibold";
       </li>
       <li>
         <strong>Virtual machines and most cloud instances expose no hardware sensors.</strong> The
-        agent detects virtualization and reports it, and the host page says that sensors are not
-        available instead of showing an empty page. Run the agent on the hypervisor host, not inside
+        agent detects virtualization and reports it. Such hosts get a <strong>VM</strong> badge and
+        the status <strong>No sensors</strong> instead of a health status, and the host page
+        explains that sensors are not available. Run the agent on the hypervisor host, not inside
         the guests.
       </li>
       <li>
@@ -397,6 +398,7 @@ sudo sh -c 'set -a; . /etc/logtide/hw-agent.env; LOGTIDE_HW_DRY_RUN=1 python3 /o
     <p>
       Every data point carries the attributes <code>host.name</code>, <code>hw.type</code> and
       <code>hw.id</code> (the device, sensor or controller it belongs to). All metrics are gauges.
+      For disks, <code>hw.id</code> is the drive's serial number (or its <code>/dev/disk/by-id</code> name when there is none), not <code>sda</code>, so a drive keeps its history when the kernel renames it after a reboot; the current kernel name is in the <code>device</code> attribute.
       Counters such as error totals are sent as the raw cumulative value, and LogTide works on the
       growth over a window, so a reboot that resets a counter does not look like an improvement or
       a spike.
@@ -425,9 +427,9 @@ sudo sh -c 'set -a; . /etc/logtide/hw-agent.env; LOGTIDE_HW_DRY_RUN=1 python3 /o
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.temperature</code></td><td class="py-2 pr-4">Cel</td><td class="py-2 pr-4"><code>sensor</code>; <code>hw.type</code> is cpu, physical_disk, memory, board, gpu or other</td><td class="py-2">hwmon, smartctl, ipmitool</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.temperature.limit</code></td><td class="py-2 pr-4">Cel</td><td class="py-2 pr-4"><code>sensor</code>, <code>limit_type</code> (high, critical)</td><td class="py-2">hwmon, ipmitool</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.fan.speed</code></td><td class="py-2 pr-4">rpm</td><td class="py-2 pr-4"><code>sensor</code></td><td class="py-2">hwmon, ipmitool</td></tr>
-          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.fan.speed.limit</code></td><td class="py-2 pr-4">rpm</td><td class="py-2 pr-4"><code>limit_type</code> (low.critical)</td><td class="py-2">ipmitool</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.fan.speed.limit</code></td><td class="py-2 pr-4">rpm</td><td class="py-2 pr-4"><code>sensor</code>, <code>limit_type</code> (low.critical)</td><td class="py-2">ipmitool</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.voltage</code></td><td class="py-2 pr-4">V</td><td class="py-2 pr-4"><code>sensor</code></td><td class="py-2">hwmon, ipmitool</td></tr>
-          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.voltage.limit</code></td><td class="py-2 pr-4">V</td><td class="py-2 pr-4"><code>limit_type</code> (low.critical, high.critical)</td><td class="py-2">hwmon, ipmitool</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.voltage.limit</code></td><td class="py-2 pr-4">V</td><td class="py-2 pr-4"><code>sensor</code>, <code>limit_type</code> (low.critical, high.critical, low, high)</td><td class="py-2">hwmon, ipmitool</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.power_supply.status</code></td><td class="py-2 pr-4">1 / 0</td><td class="py-2 pr-4"><code>sensor</code></td><td class="py-2">ipmitool</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.memory.errors</code></td><td class="py-2 pr-4">count (cumulative)</td><td class="py-2 pr-4"><code>error_type</code> (corrected, uncorrected); <code>hw.id</code> is the memory controller or DIMM label</td><td class="py-2">EDAC</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.memory.size</code></td><td class="py-2 pr-4">By</td><td class="py-2 pr-4">-</td><td class="py-2"><code>/proc/meminfo</code></td></tr>
@@ -455,7 +457,7 @@ sudo sh -c 'set -a; . /etc/logtide/hw-agent.env; LOGTIDE_HW_DRY_RUN=1 python3 /o
       <strong>CPU</strong>, <strong>Cooling</strong>, <strong>Power</strong> and
       <strong>Network</strong>. A component is <code>ok</code>, <code>warning</code>,
       <code>critical</code> or <code>unknown</code> (no data). The host status is the worst of its
-      components. Every finding on the host page names the component, the device and the value that
+      components, or <code>stale</code> when the host stopped reporting. Every finding on the host page names the component, the device and the value that
       crossed the threshold.
     </p>
 
@@ -472,12 +474,32 @@ sudo sh -c 'set -a; . /etc/logtide/hw-agent.env; LOGTIDE_HW_DRY_RUN=1 python3 /o
           <tr class="border-b border-border/50"><td class="py-2 pr-4">Disks</td><td class="py-2 pr-4">Any reallocated sector, pending sector or reported uncorrectable error. NVMe media errors grew in 7 days. UDMA CRC errors grew in 24 hours (usually a bad cable). Endurance used at 80% or more. Temperature at 55 C or more for HDD and SATA SSD, 70 C or more for NVMe.</td><td class="py-2">SMART overall status failed. Offline uncorrectable sectors above 0. NVMe critical warning set. NVMe available spare below its threshold. Endurance used at 95% or more. Reallocated sectors grew by 10 or more in 7 days. Temperature at 65 C or more for HDD and SATA SSD, 80 C or more for NVMe.</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4">Memory</td><td class="py-2 pr-4">Corrected ECC errors grew in the last 24 hours.</td><td class="py-2">Any uncorrected ECC error since boot or in the last 7 days. Corrected errors grew by 100 or more in 24 hours (a DIMM degrading fast).</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4">CPU</td><td class="py-2 pr-4">Temperature at or above the sensor's high limit. Thermal throttle count grew in 24 hours.</td><td class="py-2">Temperature at or above the sensor's critical limit. When a sensor reports no limits, 85 C and 95 C are used.</td></tr>
-          <tr class="border-b border-border/50"><td class="py-2 pr-4">Cooling</td><td class="py-2 pr-4">-</td><td class="py-2">A fan below its low-critical limit, or at 0 rpm after reporting a higher speed in the last 24 hours.</td></tr>
-          <tr class="border-b border-border/50"><td class="py-2 pr-4">Power</td><td class="py-2 pr-4">A voltage outside its limits.</td><td class="py-2">A power supply reporting failure.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Cooling</td><td class="py-2 pr-4">A board, memory or other (non-CPU, non-disk) temperature sensor at or above its own high limit.</td><td class="py-2">A fan below its low-critical limit, or at 0 rpm after reporting a higher speed in the last 24 hours. A board, memory or other temperature sensor at or above its own critical limit.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Power</td><td class="py-2 pr-4">A voltage outside its low or high limit.</td><td class="py-2">A power supply reporting failure. A voltage outside its low-critical or high-critical limit.</td></tr>
           <tr><td class="py-2 pr-4">Network</td><td class="py-2 pr-4">CRC errors grew in 24 hours. 5 or more carrier changes (link flaps) in 24 hours. 100 or more errors in 24 hours.</td><td class="py-2">-</td></tr>
         </tbody>
       </table>
     </div>
+
+    <p>
+      Two more checks raise a component to <code>warning</code> so that a silent failure is not
+      shown as healthy:
+    </p>
+
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li>
+        <strong>Missing device.</strong> A disk, power supply, fan or network interface that
+        reported in the last 24 hours and is gone from the latest data (<code>disk.missing</code>,
+        <code>power.psu_missing</code>, <code>cooling.fan_missing</code>,
+        <code>network.interface_missing</code>). A dead drive often disappears instead of
+        reporting an error.
+      </li>
+      <li>
+        <strong>Collector down.</strong> A collector now reports 0 although its component had data
+        in the last 24 hours (<code>agent.collector_down</code>), for example because
+        <code>smartctl</code> started failing. The host page names the collector.
+      </li>
+    </ul>
 
     <ul class="list-disc list-inside space-y-2 ml-2">
       <li>Only physical network interfaces are evaluated. Bridges, VLANs, VPNs and container interfaces are ignored.</li>
@@ -511,10 +533,15 @@ sudo sh -c 'set -a; . /etc/logtide/hw-agent.env; LOGTIDE_HW_DRY_RUN=1 python3 /o
       and metadata <code>hw.event.source</code> (<code>kmsg</code> or <code>sel</code>) and
       <code>hw.event.type</code> (<code>disk</code>, <code>memory</code>, <code>cpu</code>,
       <code>pcie</code>, <code>power</code>, <code>thermal</code>, <code>network</code> or
-      <code>other</code>). The level follows the kernel priority; SEL entries are warnings, and
-      critical when they mention an uncorrectable error, a failure or a predictive failure. Recent
-      events for a host appear on its page, and you can search them in the log explorer by
-      service <code>hardware</code>.
+      <code>other</code>). Kernel lines are at least warnings: priority 0 to 2 is
+      critical, 3 is error, anything else is warning. BMC entries are warnings, and critical when
+      the event mentions an uncorrectable error, a failure or a predictive failure. When the BMC
+      logs that a condition cleared (a <code>Deasserted</code> entry), the event is sent at info
+      level, with <code>hw.sel.direction</code> set to <code>deasserted</code>, and no detection
+      rule fires on it. BMC events also carry <code>hw.sel.id</code> and
+      <code>hw.sel.timestamp</code>. The host page lists the host's events from the last 7 days,
+      newest first, and you can search them in the log explorer by service
+      <code>hardware</code>.
     </p>
   </div>
 
@@ -524,16 +551,18 @@ sudo sh -c 'set -a; . /etc/logtide/hw-agent.env; LOGTIDE_HW_DRY_RUN=1 python3 /o
 
   <div class="mb-8 space-y-4">
     <p>
-      The <strong>Hardware Health</strong> detection pack is a bundle of Sigma rules, in a new
-      <code>hardware</code> pack category, that match hardware problems in kernel and syslog
-      messages. Enable it from the detection packs page like any other pack.
+      The <strong>Hardware Health Pack</strong> is a bundle of 21 Sigma rules, in the new
+      <code>hardware</code> pack category, that match hardware problems in kernel and BMC messages.
+      Open <strong>Alerts</strong>, choose <strong>Detection packs</strong> and enable it like any
+      other pack. Its detections show up in the recent detections on the Alerts page.
     </p>
 
     <p>
-      The rules match on the message text, so they fire on agent events and on plain kernel lines
-      that reach LogTide some other way. If you already ship kernel logs through
-      <a href="/docs/syslog/">syslog</a>, journald or Fluent Bit, the pack works <strong>without the
-      agent</strong>; you just do not get the metrics and the host page.
+      The rules match on the message text, case-insensitively and whatever the service name, so
+      they fire on agent events and on plain kernel lines that reach LogTide some other way. If you
+      already ship kernel logs through <a href="/docs/syslog/">syslog</a>, journald or Fluent Bit,
+      the pack works <strong>without the agent</strong>; you just do not get the metrics and the
+      host page. The rules carry no MITRE ATT&amp;CK tags, because hardware faults are not attacks.
     </p>
 
     <div class="overflow-x-auto">
@@ -541,22 +570,26 @@ sudo sh -c 'set -a; . /etc/logtide/hw-agent.env; LOGTIDE_HW_DRY_RUN=1 python3 /o
         <thead>
           <tr class="border-b border-border text-left">
             <th class={th}>Area</th>
+            <th class={th}>Rule (severity)</th>
             <th class="py-2 font-semibold">Matches messages such as</th>
           </tr>
         </thead>
         <tbody class="text-muted-foreground">
-          <tr class="border-b border-border/50"><td class="py-2 pr-4">Memory</td><td class="py-2">EDAC corrected and uncorrected errors, <code>Hardware Error</code>, <code>Machine check events logged</code></td></tr>
-          <tr class="border-b border-border/50"><td class="py-2 pr-4">Disk</td><td class="py-2"><code>I/O error, dev</code>, <code>hard resetting link</code>, <code>SATA link down</code>, <code>failed command: READ FPDMA</code>, <code>Medium Error</code>, <code>Buffer I/O error</code>, NVMe timeouts and <code>controller is down</code></td></tr>
-          <tr class="border-b border-border/50"><td class="py-2 pr-4">PCIe</td><td class="py-2"><code>AER: Corrected error</code>, <code>AER: Uncorrected</code>, <code>PCIe Bus Error</code></td></tr>
-          <tr class="border-b border-border/50"><td class="py-2 pr-4">Thermal</td><td class="py-2"><code>temperature above threshold</code>, <code>cpu clock throttled</code></td></tr>
-          <tr class="border-b border-border/50"><td class="py-2 pr-4">Power</td><td class="py-2"><code>Power supply</code> and <code>redundancy lost</code> events from the BMC log</td></tr>
-          <tr><td class="py-2 pr-4">Network</td><td class="py-2"><code>NIC Link is Down</code>, <code>Detected Tx Unit Hang</code>, <code>link is not ready</code> (low severity)</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Memory</td><td class="py-2 pr-4">Corrected memory error (medium), Uncorrected memory error (critical)</td><td class="py-2">EDAC lines with <code>CE</code> or <code>UE</code>, BMC <code>Correctable ECC</code> and <code>Uncorrectable ECC</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">CPU</td><td class="py-2 pr-4">Machine check exception (high), APEI corrected (medium), recoverable (high) and fatal (critical), CPU IERR (critical)</td><td class="py-2"><code>mce: [Hardware Error]</code>, <code>Machine check events logged</code>, <code>Hardware Error]:</code> with an <code>event severity</code>, BMC <code>IERR</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Disk</td><td class="py-2 pr-4">Disk I/O error (high), ATA command failed (high), SATA link reset or down (medium), NVMe timeout or controller down (high), Drive fault from the BMC (high)</td><td class="py-2"><code>I/O error, dev</code>, <code>Buffer I/O error</code>, <code>Medium Error</code>, <code>failed command: READ FPDMA</code>, <code>hard resetting link</code>, <code>SATA link down</code>, NVMe <code>timeout</code> and <code>controller is down</code>, <code>Drive Fault</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">PCIe</td><td class="py-2 pr-4">Uncorrected error (high), corrected error (low), PCI parity or system error (high)</td><td class="py-2"><code>AER: Uncorrected</code>, <code>AER: Corrected error</code>, BMC <code>PCI PERR</code> and <code>PCI SERR</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Thermal</td><td class="py-2 pr-4">CPU thermal throttling (high), critical temperature or threshold (critical)</td><td class="py-2"><code>temperature above threshold</code>, <code>cpu clock throttled</code>, <code>critical temperature reached</code>, BMC upper critical thresholds</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Power</td><td class="py-2 pr-4">Power supply fault (high), power supply removed (high)</td><td class="py-2"><code>Power supply</code> or PSU with fail, fault or AC lost, <code>redundancy lost</code>, <code>Presence detected | Deasserted</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Network</td><td class="py-2 pr-4">NIC link down or hang (medium), NIC link not ready (low)</td><td class="py-2"><code>NIC Link is Down</code>, <code>Detected Tx Unit Hang</code>, <code>NETDEV WATCHDOG</code>, <code>link is not ready</code></td></tr>
         </tbody>
       </table>
     </div>
 
     <p class="text-sm text-muted-foreground">
-      For general Sigma usage see the
+      BMC recoveries are logged as <code>... | Deasserted</code>. Every rule skips those lines,
+      except <em>Power supply removed</em>, which exists to catch a supply that is no longer
+      present. For general Sigma usage see the
       <a href="/use-cases/security-monitoring/" class="text-primary-readable underline hover:text-primary-readable/80">security monitoring guide</a>.
     </p>
   </div>
@@ -568,24 +601,40 @@ sudo sh -c 'set -a; . /etc/logtide/hw-agent.env; LOGTIDE_HW_DRY_RUN=1 python3 /o
   <div class="mb-8 space-y-4">
     <ul class="list-disc list-inside space-y-2 ml-2">
       <li>
-        When a host gets worse (to <code>warning</code> or <code>critical</code>), LogTide opens or
-        updates an incident with source <code>hardware</code> in the
-        <a href="/docs/incidents/">incidents inbox</a>. A warning maps to medium severity, a critical to critical.
+        When a host gets worse (ok to <code>warning</code> or <code>critical</code>, or warning to
+        critical), LogTide opens or updates an incident with source <strong>Hardware</strong> in the
+        <a href="/docs/incidents/">incidents inbox</a> and sends a notification. A warning maps to
+        medium severity, a critical to critical. There is at most one active hardware incident per host.
       </li>
       <li>
-        The notification uses the new <strong>Hardware health</strong> event type. Choose its
-        destinations (email, Slack, Discord, Teams, webhook) under
-        <strong>Settings → Notifications → Routing</strong>, as described in
-        <a href="/docs/notification-routing/">Notification Routing</a>.
+        If the host improves from critical to warning, the incident drops to medium severity and
+        no new notification is sent.
       </li>
       <li>
-        When the host returns to <code>ok</code>, the incident is resolved and a resolved
+        When the host returns to <code>ok</code>, the incident is resolved and a recovery
         notification is sent.
       </li>
       <li>
-        <strong>Mute a host</strong> on its detail page while you work on it. A muted host is still
-        evaluated and shown, but opens no incidents and sends no notifications. Forgetting a host
-        removes it from the list; it comes back by itself if the agent keeps sending data.
+        The notification uses the <strong>Hardware health</strong> event type. Choose its
+        destinations (email, Slack, Discord, Teams, PagerDuty, webhook) under
+        <strong>Settings → Notifications → Routing</strong>, as described in
+        <a href="/docs/notification-routing/">Notification Routing</a>. Without defaults, an email
+        goes to your organization owners and admins when SMTP is configured. Owners and admins also
+        get an in-app notification when a host degrades.
+      </li>
+      <li>
+        Webhook destinations receive <code>hardware.health.degraded</code> and
+        <code>hardware.health.recovered</code> events, see <a href="/docs/webhooks/#hardware-health">Webhooks</a>.
+        PagerDuty gets one PagerDuty incident per hardware incident, closed on recovery.
+      </li>
+      <li>
+        <strong>Mute a host</strong> on its detail page while you work on it (organization owners
+        and admins can). A muted host is still evaluated and shown, but opens no incidents and
+        sends no notifications. If it recovers while muted, its open incident is resolved silently.
+      </li>
+      <li>
+        <strong>Forget host</strong> resolves the host's open incident and removes the host from the
+        list. It comes back by itself if the agent keeps sending data.
       </li>
       <li>A stale host does not open an incident. Use a heartbeat monitor for that, see <a href="#limits">above</a>.</li>
     </ul>
@@ -610,7 +659,8 @@ sudo sh -c 'set -a; . /etc/logtide/hw-agent.env; LOGTIDE_HW_DRY_RUN=1 python3 /o
       <h3 class="text-lg font-semibold mb-2 scroll-mt-24">A collector shows as unavailable</h3>
       <p class="text-sm text-muted-foreground">
         The host page lists every collector with its state. Unavailable means the agent could not
-        run it: <code>smart</code> needs <code>smartctl</code> and privileges to open the devices,
+        run it (if it had been working in the last 24 hours, the host also gets an
+        <code>agent.collector_down</code> warning): <code>smart</code> needs <code>smartctl</code> and privileges to open the devices,
         <code>ipmi</code> and <code>sel</code> need <code>ipmitool</code> and a BMC device,
         <code>edac</code> needs ECC memory and the EDAC modules, <code>kmsg</code> needs read access
         to <code>/dev/kmsg</code>. On hardware without a BMC or without ECC, unavailable is expected.
@@ -621,7 +671,7 @@ sudo sh -c 'set -a; . /etc/logtide/hw-agent.env; LOGTIDE_HW_DRY_RUN=1 python3 /o
       <h3 class="text-lg font-semibold mb-2 scroll-mt-24">The host is detected as a virtual machine</h3>
       <p class="text-sm text-muted-foreground">
         The agent reads DMI data and reports <code>hw.virtual</code>. Guests see virtual disks and
-        no sensors, so the page shows a banner instead of component data. Install the agent on the
+        no sensors, so the host is listed as <strong>No sensors</strong> with a banner instead of component data. Install the agent on the
         hypervisor host instead.
       </p>
     </div>

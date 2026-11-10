@@ -79,6 +79,7 @@ const keywords = [
           <tr class="border-b border-border/50"><td class="py-2 pr-4">Alert</td><td class="py-2 pr-4"><code>alert</code></td><td class="py-2">An alert rule starts firing. While it keeps firing, new triggers update the same incident.</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4">Monitor</td><td class="py-2 pr-4"><code>monitor</code></td><td class="py-2">An uptime monitor reaches its failure threshold and is reported down.</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4">Security</td><td class="py-2 pr-4"><code>sigma</code></td><td class="py-2">Detections are grouped into a security incident, with MITRE tags, IP reputation and geo data.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Hardware</td><td class="py-2 pr-4"><code>hardware</code></td><td class="py-2">A host in <a href="/docs/hardware-health/">Monitor → Hardware</a> turns warning or critical. Resolved when the host is healthy again.</td></tr>
           <tr><td class="py-2 pr-4">Manual</td><td class="py-2 pr-4"><code>manual</code></td><td class="py-2">A member creates one, for example through <code>POST /api/v1/siem/incidents</code>.</td></tr>
         </tbody>
       </table>
@@ -87,8 +88,8 @@ const keywords = [
     <p class="text-sm text-muted-foreground">
       An alert incident takes its severity from the levels the rule watches: <code>critical</code>
       gives critical, <code>error</code> gives high, <code>warn</code> gives medium, anything else
-      low. An incident's severity can escalate while it is active but never drops on its own.
-      There is at most one active (open or acknowledged) incident per alert rule or monitor. A
+      low. An incident's severity can escalate while it is active but never drops on its own (hardware incidents are the exception: they follow the host status, medium for warning and critical for critical).
+      There is at most one active (open or acknowledged) incident per alert rule, monitor or hardware host. A
       resolved incident is never reopened by the source: the next failure opens a new one.
     </p>
 

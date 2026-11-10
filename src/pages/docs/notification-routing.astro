@@ -99,9 +99,9 @@ const keywords = [
 
   <div class="mb-8 space-y-4">
     <p>
-      Notifications belong to one of five event types: <strong>Alerts</strong>,
+      Notifications belong to one of six event types: <strong>Alerts</strong>,
       <strong>Security detections</strong>, <strong>Security incidents</strong>,
-      <strong>Uptime</strong> and <strong>Errors</strong>. For each notification LogTide applies the
+      <strong>Uptime</strong>, <strong>Errors</strong> and <strong>Hardware health</strong>. For each notification LogTide applies the
       same three steps:
     </p>
 
@@ -245,6 +245,7 @@ const keywords = [
           <tr class="border-b border-border/50"><td class="py-2 pr-4">Alert rule</td><td class="py-2 pr-4">Rule starts firing, and on each re-notification</td><td class="py-2 pr-4"><code>alert.resolved</code></td><td class="py-2"><code>alert:&lt;ruleId&gt;</code></td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4">Uptime monitor</td><td class="py-2 pr-4">Monitor is reported down</td><td class="py-2 pr-4">Monitor recovers</td><td class="py-2"><code>monitor:&lt;monitorId&gt;</code></td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4">Security incident</td><td class="py-2 pr-4">Incident created</td><td class="py-2 pr-4">-</td><td class="py-2"><code>incident:&lt;incidentId&gt;</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Hardware host</td><td class="py-2 pr-4">Host gets worse (to warning or critical, or warning to critical)</td><td class="py-2 pr-4">Host returns to ok</td><td class="py-2"><code>hardware:&lt;incidentId&gt;</code></td></tr>
           <tr><td class="py-2 pr-4">Error</td><td class="py-2 pr-4">New, regressed or escalating error group</td><td class="py-2 pr-4">-</td><td class="py-2"><code>error:&lt;groupId&gt;</code></td></tr>
         </tbody>
       </table>

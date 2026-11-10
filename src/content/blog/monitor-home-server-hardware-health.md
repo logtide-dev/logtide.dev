@@ -16,7 +16,7 @@ keywords:
   - "smartmontools discord alerts"
 faqs:
   - question: "Does this work for virtual machines?"
-    answer: "Not really. A virtual machine sees virtual disks and no hardware sensors, so there is nothing to read. The agent detects this and the host page says so. Install it on the hypervisor host instead, for example the Proxmox node."
+    answer: "Not really. A virtual machine sees virtual disks and no hardware sensors, so there is nothing to read. The agent detects this, and the host is listed as No sensors with an explanation on its page. Install it on the hypervisor host instead, for example the Proxmox node."
   - question: "Can LogTide predict when a disk will fail?"
     answer: "No. It watches the warning signs that hardware reports, such as reallocated sectors, SMART failures, rising temperatures and corrected ECC errors, and alerts you when they appear or grow. About a third of failing disks show no SMART warning at all, so backups are still the real protection."
   - question: "Do I need a BMC or ECC memory?"
@@ -97,7 +97,7 @@ If nothing about your disks shows up, check that `smartctl -a /dev/sda` works on
 
 ## 5. See the host in Monitor > Hardware
 
-Open **Monitor → Hardware** in the dashboard and pick your project. Within a minute or two your server shows up with a status, a chip for each component, and a last seen time.
+Open **Monitor → Hardware** in the dashboard (or press g then h) and pick your project. Within a minute or two your server shows up with a status, a chip for each component, and a last seen time.
 
 Click it. The host page has a section for disks, memory, CPU, cooling, power and network, a findings list at the top, and recent hardware events at the bottom. Growth-based checks, such as "reallocated sectors went up this week", need some history, so the first day is mostly about the absolute checks.
 
@@ -105,9 +105,9 @@ A green host means no known warning signs right now. It is not a guarantee.
 
 ## 6. Enable the Hardware Health detection pack
 
-The agent also forwards kernel messages that look like hardware problems: I/O errors, SATA link resets, memory errors, PCIe errors, thermal throttling. The Hardware Health detection pack turns those into detections.
+The agent also forwards kernel messages that look like hardware problems: I/O errors, SATA link resets, memory errors, PCIe errors, thermal throttling. The Hardware Health Pack turns those into detections.
 
-Open the detection packs page and enable **Hardware Health**. That is all. The rules match on the message text, so the pack works for any machine whose kernel logs reach LogTide, even without the agent, for example via [syslog](/docs/syslog/) or journald.
+Open **Alerts**, click **Detection packs** and enable **Hardware Health Pack**. That is all. The rules match on the message text, so the pack works for any machine whose kernel logs reach LogTide, even without the agent, for example via [syslog](/docs/syslog/) or journald.
 
 ## 7. Send alerts to Discord or email
 
@@ -135,9 +135,9 @@ curl -X POST https://api.logtide.dev/api/v1/ingest \
   }'
 ```
 
-Use your own URL and key as before. The log appears in the explorer under the `hardware` service, and the Hardware Health pack raises a detection for it. Your Discord channel or inbox should get the message according to your routing rules. Remember to resolve the test detection afterwards.
+Use your own URL and key as before. The log appears in the explorer under the `hardware` service, and the **Disk I/O Error** rule of the pack raises a detection for it. You can see it in the recent detections on the Alerts page. The line only has to contain the text the rule looks for; it does not matter which service sent it. It does not change the host status, because that comes from the metrics, so no hardware notification is sent for this test.
 
-You can also stop the agent for ten minutes. The host turns stale on the Hardware page. It does not notify, which leads to the last step.
+You can also stop the agent for ten minutes. The host turns stale on the Hardware page after 10 minutes. It does not notify, which leads to the last step.
 
 ## 9. Know when the whole server goes dark
 
