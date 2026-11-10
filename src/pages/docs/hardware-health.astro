@@ -1,0 +1,667 @@
+---
+import DocsLayout from '../../layouts/Docs.astro';
+import Card from '../../components/ui/Card.astro';
+import CardContent from '../../components/ui/CardContent.astro';
+import { Code } from 'astro:components';
+import { Icon } from 'astro-icon/components';
+
+const headings = [
+  { text: "Overview", slug: "overview", depth: 2 },
+  { text: "What It Can and Cannot See", slug: "limits", depth: 2 },
+  { text: "Requirements", slug: "requirements", depth: 2 },
+  { text: "Install the Agent", slug: "install", depth: 2 },
+  { text: "Docker Compose", slug: "install-compose", depth: 3 },
+  { text: "Standalone Docker", slug: "install-docker", depth: 3 },
+  { text: "systemd", slug: "install-systemd", depth: 3 },
+  { text: "Verify", slug: "verify", depth: 3 },
+  { text: "Configuration", slug: "configuration", depth: 2 },
+  { text: "Permissions", slug: "permissions", depth: 2 },
+  { text: "What Is Collected", slug: "metrics", depth: 2 },
+  { text: "Health Rules", slug: "health-rules", depth: 2 },
+  { text: "Hardware Events", slug: "events", depth: 2 },
+  { text: "Hardware Health Detection Pack", slug: "detection-pack", depth: 2 },
+  { text: "Notifications and Incidents", slug: "notifications", depth: 2 },
+  { text: "Troubleshooting", slug: "troubleshooting", depth: 2 }
+];
+
+const keywords = [
+  "hardware health monitoring",
+  "SMART disk monitoring",
+  "ECC memory errors monitoring",
+  "IPMI sensor monitoring",
+  "homelab hardware monitoring",
+  "self-hosted hardware monitoring",
+  "smartmontools alerting"
+];
+
+const th = "py-2 pr-4 font-semibold";
+---
+
+<DocsLayout
+  title="Hardware Health"
+  description="Early warning for failing disks, RAM, fans and power on bare-metal servers and homelabs: the LogTide hardware agent, health rules, hardware events and notifications."
+  keywords={keywords}
+  headings={headings}
+>
+  <div class="flex items-center gap-3 mb-4">
+    <div class="p-2 bg-primary/10 rounded-lg">
+      <Icon name="lucide:cpu" class="w-6 h-6 text-primary-readable" />
+    </div>
+    <h1 class="text-3xl font-bold">Hardware Health</h1>
+  </div>
+
+  <p class="text-lg text-muted-foreground mb-8">
+    Watch the physical health of your servers from <strong>Monitor → Hardware</strong>: SMART data
+    from disks, ECC memory errors, temperatures, fans, power supplies and network cards, plus
+    hardware events from the kernel log and the BMC. Available since LogTide 1.7.0, open source.
+  </p>
+
+  <p class="text-sm text-muted-foreground mb-8">
+    Prefer a walkthrough? Follow the step-by-step tutorial
+    <a href="/blog/monitor-home-server-hardware-health/" class="text-primary-readable underline hover:text-primary-readable/80">Monitor a home server's disks, RAM and fans with LogTide</a>.
+  </p>
+
+  <h2 id="overview" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Overview
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Hardware Health is early warning, not prediction. It reads the signals that hardware gives
+      out before it fails (reallocated sectors, corrected memory errors, a fan slowing down, a
+      PCIe link retraining) and turns them into a status per host and per component, with an
+      incident and a notification when something gets worse.
+    </p>
+
+    <p>A small agent runs on each server and sends two things to your LogTide project:</p>
+
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li><strong>Metrics</strong> named <code>hw.*</code>, sent as OTLP gauges to <code>POST /v1/otlp/metrics</code>.</li>
+      <li><strong>Events</strong> from the kernel log and the BMC event log, sent as logs with service <code>hardware</code>.</li>
+    </ul>
+
+    <p>
+      LogTide registers each host the first time it sees <code>hw.*</code> metrics from it,
+      evaluates it every two minutes and shows the result on <strong>Monitor → Hardware</strong>.
+      Nothing else is needed: the agent uses the same project API key as your logs.
+    </p>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:hard-drive" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">Disks</h4>
+              <p class="text-sm text-muted-foreground">HDD, SATA SSD and NVMe: SMART status and attributes, NVMe spare and media errors, wear, temperature.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:memory-stick" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">Memory</h4>
+              <p class="text-sm text-muted-foreground">Corrected and uncorrected ECC errors per memory controller, read from the kernel EDAC subsystem.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:thermometer" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">CPU and cooling</h4>
+              <p class="text-sm text-muted-foreground">CPU temperature against its limits, thermal throttling, and fan speeds from the motherboard or the BMC.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent class="pt-4">
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:plug-zap" class="w-5 h-5 text-primary-readable mt-0.5 shrink-0" />
+            <div>
+              <h4 class="font-medium mb-1">Power and network</h4>
+              <p class="text-sm text-muted-foreground">PSU status and voltages from the BMC, link flaps and error counters on physical network cards.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+
+  <h2 id="limits" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    What It Can and Cannot See
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="lucide:alert-triangle" class="w-5 h-5 text-yellow-500 mt-0.5 flex-shrink-0" />
+        <div>
+          <p class="font-semibold text-yellow-600 dark:text-yellow-400 mb-1">Keep your backups</p>
+          <p class="text-sm text-muted-foreground">
+            SMART does not catch every failing disk. Studies of large disk fleets (Google, Backblaze)
+            found that roughly a third of drives that fail show no SMART warning beforehand. A green
+            status here means no known warning signs, not that the hardware is guaranteed healthy.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li>
+        <strong>Bare metal, homelab and on-premises servers</strong> are the target. Disks, board
+        sensors, EDAC and a BMC are all visible there.
+      </li>
+      <li>
+        <strong>Virtual machines and most cloud instances expose no hardware sensors.</strong> The
+        agent detects virtualization and reports it, and the host page says that sensors are not
+        available instead of showing an empty page. Run the agent on the hypervisor host, not inside
+        the guests.
+      </li>
+      <li>
+        <strong>A host that goes completely dark shows as stale.</strong> If no <code>hw.*</code> data
+        point arrives for more than 10 minutes, the host is marked <strong>stale</strong>. A stale host
+        is shown but does not open an incident. To be told when a machine dies or loses power, pair
+        it with a <strong>heartbeat</strong> monitor from Uptime that the server pings on a schedule.
+      </li>
+      <li>
+        Not covered in this release: RAID controller tools (MegaCLI, storcli), UPS (NUT), Redfish,
+        per-host custom thresholds, and Windows or macOS hosts.
+      </li>
+    </ul>
+  </div>
+
+  <h2 id="requirements" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Requirements
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li>LogTide 1.7.0 or later (self-hosted or Cloud) and a project API key.</li>
+      <li>A <strong>Linux</strong> host. The agent is a single Python 3 script with no dependencies.</li>
+      <li><code>smartmontools</code> for disk data. Included in the Docker image.</li>
+      <li><code>ipmitool</code> and a <strong>BMC</strong> (iDRAC, iLO, IPMI) for PSU, voltage and sensor data from the board. Optional, included in the Docker image.</li>
+      <li>The <strong>EDAC</strong> kernel modules loaded for ECC memory counters (<code>/sys/devices/system/edac/mc</code> must exist). Needs ECC RAM and a supporting platform.</li>
+      <li><strong>Root or a privileged container</strong>, because SMART, IPMI and <code>/dev/kmsg</code> need it. See <a href="#permissions">Permissions</a>.</li>
+    </ul>
+
+    <p class="text-sm text-muted-foreground">
+      Each collector is independent. A host without a BMC still reports disks, memory and
+      temperatures; the missing collector is listed as unavailable on the host page.
+    </p>
+  </div>
+
+  <h2 id="install" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Install the Agent
+  </h2>
+
+  <div class="mb-8 space-y-6">
+    <p>
+      Create a project API key first (<strong>Project settings → API keys</strong>). Use a
+      dedicated key for hardware agents so you can rotate it separately. The examples use the
+      LogTide Cloud API URL; for a self-hosted instance set <code>LOGTIDE_URL</code> to your own
+      API base URL.
+    </p>
+
+    <div>
+      <h3 id="install-compose" class="text-lg font-semibold mb-3 scroll-mt-24">Docker Compose</h3>
+      <p class="text-sm text-muted-foreground mb-3">
+        If the host that runs LogTide is the machine you want to monitor, enable the
+        <code>hardware</code> profile of the LogTide compose file. Put the key in
+        <code>.env</code> and start the profile:
+      </p>
+      <Code
+        lang="bash"
+        theme="one-dark-pro"
+        code={`# docker/.env
+HW_AGENT_API_KEY=lp_your_ingestion_key_here
+
+docker compose --profile hardware up -d`}
+      />
+      <p class="text-sm text-muted-foreground mt-3">
+        If <code>HW_AGENT_API_KEY</code> is empty, <code>FLUENT_BIT_API_KEY</code> is used. With
+        neither set, every request is rejected with 401 while the container still looks healthy.
+        The service is called <code>hw-agent</code>, runs privileged, and talks to the backend over
+        the compose network. Use <code>HW_AGENT_IMAGE</code> to pin a different image.
+      </p>
+    </div>
+
+    <div>
+      <h3 id="install-docker" class="text-lg font-semibold mb-3 scroll-mt-24">Standalone Docker</h3>
+      <p class="text-sm text-muted-foreground mb-3">
+        For every other server, run the agent as a single container and point it at your LogTide
+        API with your own URL and key:
+      </p>
+      <Code
+        lang="bash"
+        theme="one-dark-pro"
+        code={`docker run -d --name logtide-hw-agent --restart unless-stopped --privileged \\
+  -e LOGTIDE_URL=https://api.logtide.dev \\
+  -e LOGTIDE_API_KEY=lp_your_key \\
+  -e HOST_ROOT=/host \\
+  -v /sys:/host/sys:ro \\
+  -v /proc:/host/proc:ro \\
+  -v /etc/hostname:/host/etc/hostname:ro \\
+  -v logtide-hw-agent-state:/var/lib/logtide-hw-agent \\
+  logtide/hw-agent:latest`}
+      />
+      <p class="text-sm text-muted-foreground mt-3">
+        The mounts and <code>--privileged</code> are explained under <a href="#permissions">Permissions</a>.
+      </p>
+    </div>
+
+    <div>
+      <h3 id="install-systemd" class="text-lg font-semibold mb-3 scroll-mt-24">systemd</h3>
+      <p class="text-sm text-muted-foreground mb-3">
+        Without Docker, run the single-file agent as a systemd service. The example is for
+        Debian and Ubuntu; install <code>ipmitool</code> only on servers with a BMC.
+      </p>
+      <Code
+        lang="bash"
+        theme="one-dark-pro"
+        code={`sudo apt install -y python3 smartmontools ipmitool
+sudo install -d /opt/logtide-hw-agent /etc/logtide
+sudo curl -fsSL https://raw.githubusercontent.com/logtide-dev/logtide/main/hw-agent/logtide_hw_agent.py \\
+  -o /opt/logtide-hw-agent/logtide_hw_agent.py
+sudo curl -fsSL https://raw.githubusercontent.com/logtide-dev/logtide/main/hw-agent/logtide-hw-agent.service \\
+  -o /etc/systemd/system/logtide-hw-agent.service
+sudo tee /etc/logtide/hw-agent.env >/dev/null <<'ENV'
+LOGTIDE_URL=https://api.logtide.dev
+LOGTIDE_API_KEY=lp_your_key
+ENV
+sudo chmod 600 /etc/logtide/hw-agent.env
+sudo systemctl daemon-reload
+sudo systemctl enable --now logtide-hw-agent`}
+      />
+      <p class="text-sm text-muted-foreground mt-3">
+        The service runs as root and keeps its state in
+        <code>/var/lib/logtide-hw-agent</code>. Read its log with
+        <code>journalctl -u logtide-hw-agent -f</code>.
+      </p>
+    </div>
+
+    <div>
+      <h3 id="verify" class="text-lg font-semibold mb-3 scroll-mt-24">Verify</h3>
+      <p class="text-sm text-muted-foreground mb-3">
+        Before leaving the agent running, do a dry run. It collects once, prints the payloads and
+        sends nothing, so you can see which collectors work on this machine:
+      </p>
+      <Code
+        lang="bash"
+        theme="one-dark-pro"
+        code={`# Docker
+docker run --rm --privileged -e HOST_ROOT=/host -e LOGTIDE_HW_DRY_RUN=1 \\
+  -v /sys:/host/sys:ro -v /proc:/host/proc:ro -v /etc/hostname:/host/etc/hostname:ro \\
+  logtide/hw-agent:latest --once
+
+# systemd
+sudo sh -c 'set -a; . /etc/logtide/hw-agent.env; LOGTIDE_HW_DRY_RUN=1 python3 /opt/logtide-hw-agent/logtide_hw_agent.py --once'`}
+      />
+      <p class="text-sm text-muted-foreground mt-3">
+        Without <code>LOGTIDE_HW_DRY_RUN</code>, <code>--once</code> collects, sends one real batch
+        and exits with code 1 if delivery failed. That is the quickest way to test the URL and the
+        key. Then open <strong>Monitor → Hardware</strong>: the host appears within a minute or two.
+      </p>
+    </div>
+  </div>
+
+  <h2 id="configuration" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Configuration
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>The agent is configured with environment variables.</p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class={th}>Variable</th>
+            <th class={th}>Default</th>
+            <th class="py-2 font-semibold">Description</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>LOGTIDE_URL</code></td><td class="py-2 pr-4">required</td><td class="py-2">Base URL of the LogTide API, for example <code>http://backend:8080</code>.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>LOGTIDE_API_KEY</code></td><td class="py-2 pr-4">required</td><td class="py-2">Project API key, sent as <code>X-API-Key</code>.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>LOGTIDE_HOSTNAME</code></td><td class="py-2 pr-4"><code>$HOST_ROOT/etc/hostname</code>, else the system hostname</td><td class="py-2">Value of <code>host.name</code>, the name shown in Monitor → Hardware.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>HOST_ROOT</code></td><td class="py-2 pr-4">empty</td><td class="py-2">Prefix for <code>/sys</code>, <code>/proc</code> and <code>/etc</code> reads. Set to <code>/host</code> in the container.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>LOGTIDE_HW_INTERVAL</code></td><td class="py-2 pr-4"><code>60</code></td><td class="py-2">Seconds between collections (minimum 5).</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>LOGTIDE_HW_COLLECTORS</code></td><td class="py-2 pr-4">all</td><td class="py-2">Comma-separated list of <code>smart,edac,hwmon,thermal,ipmi,sel,net,kmsg</code>. Use it to switch collectors off.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>LOGTIDE_HW_STATE_DIR</code></td><td class="py-2 pr-4"><code>/var/lib/logtide-hw-agent</code></td><td class="py-2">Where the last BMC event id is stored.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>LOGTIDE_HW_DRY_RUN</code></td><td class="py-2 pr-4">off</td><td class="py-2"><code>1</code> prints payloads to stdout instead of sending them.</td></tr>
+          <tr><td class="py-2 pr-4"><code>LOGTIDE_HW_KMSG_PATH</code></td><td class="py-2 pr-4"><code>/dev/kmsg</code></td><td class="py-2">Kernel log device. Only useful for testing.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      The command line flag <code>--once</code> runs one collection, sends it and exits. In the
+      compose stack the agent reads <code>HW_AGENT_API_KEY</code> and <code>HW_AGENT_IMAGE</code>
+      from <code>.env</code>.
+    </p>
+  </div>
+
+  <h2 id="permissions" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Permissions
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      The agent runs as root because SMART queries, <code>/dev/kmsg</code> and
+      <code>/dev/ipmi0</code> need raw device access. It only reads: it does not write to disks,
+      change fan settings or modify the BMC. In the container, the setup is:
+    </p>
+
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li>
+        <code>/sys</code> and <code>/proc</code> are mounted read-only under <code>/host</code> and
+        read through <code>HOST_ROOT</code>. The container's own <code>/sys/class/net</code> only
+        shows the container's network namespace, so NIC counters would be wrong without the host mount.
+      </li>
+      <li>
+        <code>--privileged</code> gives the container the host's <code>/dev</code> (SATA and NVMe
+        disks, <code>/dev/kmsg</code>, <code>/dev/ipmi0</code>) and the capabilities
+        <code>smartctl</code> needs.
+      </li>
+      <li>
+        The <code>/etc/hostname</code> mount makes the host name match the real host instead of the
+        container id. You can set <code>LOGTIDE_HOSTNAME</code> instead.
+      </li>
+      <li>The state volume keeps the BMC event log position across restarts, so old events are not sent again.</li>
+    </ul>
+
+    <p class="text-sm text-muted-foreground">
+      Without <code>--privileged</code> you need <code>--cap-add SYS_RAWIO --cap-add SYS_ADMIN
+      --cap-add SYSLOG</code> plus one <code>--device</code> per disk (<code>/dev/sda</code>,
+      <code>/dev/nvme0</code>), <code>--device /dev/kmsg</code>, and <code>--device /dev/ipmi0</code>
+      if present. This is more fragile, because seccomp and AppArmor profiles vary between
+      distributions, and privileged is the tested path.
+    </p>
+  </div>
+
+  <h2 id="metrics" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    What Is Collected
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Every data point carries the attributes <code>host.name</code>, <code>hw.type</code> and
+      <code>hw.id</code> (the device, sensor or controller it belongs to). All metrics are gauges.
+      Counters such as error totals are sent as the raw cumulative value, and LogTide works on the
+      growth over a window, so a reboot that resets a counter does not look like an improvement or
+      a spike.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class={th}>Metric</th>
+            <th class={th}>Unit</th>
+            <th class={th}>Extra attributes</th>
+            <th class="py-2 font-semibold">Source</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.host.info</code></td><td class="py-2 pr-4">1</td><td class="py-2 pr-4"><code>hw.virtual</code>, <code>hw.vendor</code>, <code>hw.model</code>, <code>os.kernel</code>, <code>agent.version</code></td><td class="py-2">DMI, <code>/proc</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.agent.collector.status</code></td><td class="py-2 pr-4">1 / 0</td><td class="py-2 pr-4"><code>collector</code>: smart, edac, hwmon, ipmi, net, thermal, kmsg, sel</td><td class="py-2">Agent</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.physical_disk.smart_status</code></td><td class="py-2 pr-4">1 ok / 0 failed</td><td class="py-2 pr-4"><code>device</code>, <code>model</code>, <code>serial</code>, <code>protocol</code> (ata, nvme, scsi)</td><td class="py-2">smartctl</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.physical_disk.smart</code></td><td class="py-2 pr-4">raw value</td><td class="py-2 pr-4"><code>smart_attribute</code>: reallocated_sector_count, current_pending_sector, offline_uncorrectable, reported_uncorrect, udma_crc_error_count, command_timeout, reallocated_event_count, power_on_hours</td><td class="py-2">smartctl (ATA)</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.physical_disk.endurance_utilization</code></td><td class="py-2 pr-4">%</td><td class="py-2 pr-4">-</td><td class="py-2">NVMe percentage used, ATA wear attributes</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.physical_disk.available_spare</code></td><td class="py-2 pr-4">%</td><td class="py-2 pr-4">-</td><td class="py-2">NVMe</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.physical_disk.available_spare_threshold</code></td><td class="py-2 pr-4">%</td><td class="py-2 pr-4">-</td><td class="py-2">NVMe</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.physical_disk.media_errors</code></td><td class="py-2 pr-4">count</td><td class="py-2 pr-4">-</td><td class="py-2">NVMe</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.physical_disk.critical_warning</code></td><td class="py-2 pr-4">bitmask</td><td class="py-2 pr-4">-</td><td class="py-2">NVMe</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.temperature</code></td><td class="py-2 pr-4">Cel</td><td class="py-2 pr-4"><code>sensor</code>; <code>hw.type</code> is cpu, physical_disk, memory, board, gpu or other</td><td class="py-2">hwmon, smartctl, ipmitool</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.temperature.limit</code></td><td class="py-2 pr-4">Cel</td><td class="py-2 pr-4"><code>sensor</code>, <code>limit_type</code> (high, critical)</td><td class="py-2">hwmon, ipmitool</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.fan.speed</code></td><td class="py-2 pr-4">rpm</td><td class="py-2 pr-4"><code>sensor</code></td><td class="py-2">hwmon, ipmitool</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.fan.speed.limit</code></td><td class="py-2 pr-4">rpm</td><td class="py-2 pr-4"><code>limit_type</code> (low.critical)</td><td class="py-2">ipmitool</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.voltage</code></td><td class="py-2 pr-4">V</td><td class="py-2 pr-4"><code>sensor</code></td><td class="py-2">hwmon, ipmitool</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.voltage.limit</code></td><td class="py-2 pr-4">V</td><td class="py-2 pr-4"><code>limit_type</code> (low.critical, high.critical)</td><td class="py-2">hwmon, ipmitool</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.power_supply.status</code></td><td class="py-2 pr-4">1 / 0</td><td class="py-2 pr-4"><code>sensor</code></td><td class="py-2">ipmitool</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.memory.errors</code></td><td class="py-2 pr-4">count (cumulative)</td><td class="py-2 pr-4"><code>error_type</code> (corrected, uncorrected); <code>hw.id</code> is the memory controller or DIMM label</td><td class="py-2">EDAC</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.memory.size</code></td><td class="py-2 pr-4">By</td><td class="py-2 pr-4">-</td><td class="py-2"><code>/proc/meminfo</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.cpu.throttle_count</code></td><td class="py-2 pr-4">count (cumulative)</td><td class="py-2 pr-4"><code>throttle_type</code> (core, package)</td><td class="py-2">sysfs thermal_throttle</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.network.errors</code></td><td class="py-2 pr-4">count (cumulative)</td><td class="py-2 pr-4"><code>direction</code> (receive, transmit), <code>error_type</code> (errors, crc, dropped)</td><td class="py-2">sysfs, physical NICs only</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>hw.network.carrier_changes</code></td><td class="py-2 pr-4">count (cumulative)</td><td class="py-2 pr-4">-</td><td class="py-2">sysfs</td></tr>
+          <tr><td class="py-2 pr-4"><code>hw.network.up</code></td><td class="py-2 pr-4">1 / 0</td><td class="py-2 pr-4"><code>speed_mbps</code></td><td class="py-2">sysfs</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      The metrics are ordinary OTLP metrics, so you can also chart them in the Metrics Explorer or
+      with a <code>metric_chart</code> panel on a <a href="/docs/dashboards/">custom dashboard</a>.
+    </p>
+  </div>
+
+  <h2 id="health-rules" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Health Rules
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Each host has six components: <strong>Disks</strong>, <strong>Memory</strong>,
+      <strong>CPU</strong>, <strong>Cooling</strong>, <strong>Power</strong> and
+      <strong>Network</strong>. A component is <code>ok</code>, <code>warning</code>,
+      <code>critical</code> or <code>unknown</code> (no data). The host status is the worst of its
+      components. Every finding on the host page names the component, the device and the value that
+      crossed the threshold.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class={th}>Component</th>
+            <th class={th}>Warning</th>
+            <th class="py-2 font-semibold">Critical</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Disks</td><td class="py-2 pr-4">Any reallocated sector, pending sector or reported uncorrectable error. NVMe media errors grew in 7 days. UDMA CRC errors grew in 24 hours (usually a bad cable). Endurance used at 80% or more. Temperature at 55 C or more for HDD and SATA SSD, 70 C or more for NVMe.</td><td class="py-2">SMART overall status failed. Offline uncorrectable sectors above 0. NVMe critical warning set. NVMe available spare below its threshold. Endurance used at 95% or more. Reallocated sectors grew by 10 or more in 7 days. Temperature at 65 C or more for HDD and SATA SSD, 80 C or more for NVMe.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Memory</td><td class="py-2 pr-4">Corrected ECC errors grew in the last 24 hours.</td><td class="py-2">Any uncorrected ECC error since boot or in the last 7 days. Corrected errors grew by 100 or more in 24 hours (a DIMM degrading fast).</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">CPU</td><td class="py-2 pr-4">Temperature at or above the sensor's high limit. Thermal throttle count grew in 24 hours.</td><td class="py-2">Temperature at or above the sensor's critical limit. When a sensor reports no limits, 85 C and 95 C are used.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Cooling</td><td class="py-2 pr-4">-</td><td class="py-2">A fan below its low-critical limit, or at 0 rpm after reporting a higher speed in the last 24 hours.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Power</td><td class="py-2 pr-4">A voltage outside its limits.</td><td class="py-2">A power supply reporting failure.</td></tr>
+          <tr><td class="py-2 pr-4">Network</td><td class="py-2 pr-4">CRC errors grew in 24 hours. 5 or more carrier changes (link flaps) in 24 hours. 100 or more errors in 24 hours.</td><td class="py-2">-</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li>Only physical network interfaces are evaluated. Bridges, VLANs, VPNs and container interfaces are ignored.</li>
+      <li>Rules that look at growth need history. Right after you install the agent, growth-based findings can take up to 24 hours (or 7 days for the 7-day rules) to become meaningful.</li>
+      <li>The thresholds are fixed in this release and shared by the backend and the UI. Per-host custom thresholds are not available yet.</li>
+    </ul>
+  </div>
+
+  <h2 id="events" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Hardware Events
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>Besides metrics, the agent forwards hardware events as logs:</p>
+
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li>
+        <strong>Kernel log.</strong> The agent tails <code>/dev/kmsg</code> from the moment it
+        starts (no replay of old messages) and keeps only lines that look like hardware problems:
+        disk I/O errors, ATA link resets, EDAC and machine check messages, PCIe AER errors, thermal
+        throttling, NIC link changes.
+      </li>
+      <li>
+        <strong>BMC System Event Log.</strong> New entries from <code>ipmitool sel elist</code> are
+        forwarded once. The agent remembers the last entry it sent in its state directory.
+      </li>
+    </ul>
+
+    <p>
+      Each event is a log with service <code>hardware</code>, the host name as <code>hostname</code>,
+      and metadata <code>hw.event.source</code> (<code>kmsg</code> or <code>sel</code>) and
+      <code>hw.event.type</code> (<code>disk</code>, <code>memory</code>, <code>cpu</code>,
+      <code>pcie</code>, <code>power</code>, <code>thermal</code>, <code>network</code> or
+      <code>other</code>). The level follows the kernel priority; SEL entries are warnings, and
+      critical when they mention an uncorrectable error, a failure or a predictive failure. Recent
+      events for a host appear on its page, and you can search them in the log explorer by
+      service <code>hardware</code>.
+    </p>
+  </div>
+
+  <h2 id="detection-pack" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Hardware Health Detection Pack
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      The <strong>Hardware Health</strong> detection pack is a bundle of Sigma rules, in a new
+      <code>hardware</code> pack category, that match hardware problems in kernel and syslog
+      messages. Enable it from the detection packs page like any other pack.
+    </p>
+
+    <p>
+      The rules match on the message text, so they fire on agent events and on plain kernel lines
+      that reach LogTide some other way. If you already ship kernel logs through
+      <a href="/docs/syslog/">syslog</a>, journald or Fluent Bit, the pack works <strong>without the
+      agent</strong>; you just do not get the metrics and the host page.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class={th}>Area</th>
+            <th class="py-2 font-semibold">Matches messages such as</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Memory</td><td class="py-2">EDAC corrected and uncorrected errors, <code>Hardware Error</code>, <code>Machine check events logged</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Disk</td><td class="py-2"><code>I/O error, dev</code>, <code>hard resetting link</code>, <code>SATA link down</code>, <code>failed command: READ FPDMA</code>, <code>Medium Error</code>, <code>Buffer I/O error</code>, NVMe timeouts and <code>controller is down</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">PCIe</td><td class="py-2"><code>AER: Corrected error</code>, <code>AER: Uncorrected</code>, <code>PCIe Bus Error</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Thermal</td><td class="py-2"><code>temperature above threshold</code>, <code>cpu clock throttled</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4">Power</td><td class="py-2"><code>Power supply</code> and <code>redundancy lost</code> events from the BMC log</td></tr>
+          <tr><td class="py-2 pr-4">Network</td><td class="py-2"><code>NIC Link is Down</code>, <code>Detected Tx Unit Hang</code>, <code>link is not ready</code> (low severity)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      For general Sigma usage see the
+      <a href="/use-cases/security-monitoring/" class="text-primary-readable underline hover:text-primary-readable/80">security monitoring guide</a>.
+    </p>
+  </div>
+
+  <h2 id="notifications" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Notifications and Incidents
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <ul class="list-disc list-inside space-y-2 ml-2">
+      <li>
+        When a host gets worse (to <code>warning</code> or <code>critical</code>), LogTide opens or
+        updates an incident with source <code>hardware</code> in the
+        <a href="/docs/incidents/">incidents inbox</a>. A warning maps to medium severity, a critical to critical.
+      </li>
+      <li>
+        The notification uses the new <strong>Hardware health</strong> event type. Choose its
+        destinations (email, Slack, Discord, Teams, webhook) under
+        <strong>Settings → Notifications → Routing</strong>, as described in
+        <a href="/docs/notification-routing/">Notification Routing</a>.
+      </li>
+      <li>
+        When the host returns to <code>ok</code>, the incident is resolved and a resolved
+        notification is sent.
+      </li>
+      <li>
+        <strong>Mute a host</strong> on its detail page while you work on it. A muted host is still
+        evaluated and shown, but opens no incidents and sends no notifications. Forgetting a host
+        removes it from the list; it comes back by itself if the agent keeps sending data.
+      </li>
+      <li>A stale host does not open an incident. Use a heartbeat monitor for that, see <a href="#limits">above</a>.</li>
+    </ul>
+  </div>
+
+  <h2 id="troubleshooting" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Troubleshooting
+  </h2>
+
+  <div class="mb-8 space-y-6">
+    <div>
+      <h3 class="text-lg font-semibold mb-2 scroll-mt-24">No hosts appear</h3>
+      <ol class="list-decimal list-inside space-y-2 ml-2 text-sm text-muted-foreground">
+        <li>Run the agent once in the foreground (see <a href="#verify">Verify</a>) and read its output. It reports HTTP errors from LogTide.</li>
+        <li>Check the URL and key. A 401 means the API key is wrong. The URL is the base URL of your instance, not a path.</li>
+        <li>Make sure the key belongs to the project you are looking at in the project switcher.</li>
+        <li>Allow a minute or two. A host is registered on the first batch and evaluated every two minutes.</li>
+      </ol>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-semibold mb-2 scroll-mt-24">A collector shows as unavailable</h3>
+      <p class="text-sm text-muted-foreground">
+        The host page lists every collector with its state. Unavailable means the agent could not
+        run it: <code>smart</code> needs <code>smartctl</code> and privileges to open the devices,
+        <code>ipmi</code> and <code>sel</code> need <code>ipmitool</code> and a BMC device,
+        <code>edac</code> needs ECC memory and the EDAC modules, <code>kmsg</code> needs read access
+        to <code>/dev/kmsg</code>. On hardware without a BMC or without ECC, unavailable is expected.
+      </p>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-semibold mb-2 scroll-mt-24">The host is detected as a virtual machine</h3>
+      <p class="text-sm text-muted-foreground">
+        The agent reads DMI data and reports <code>hw.virtual</code>. Guests see virtual disks and
+        no sensors, so the page shows a banner instead of component data. Install the agent on the
+        hypervisor host instead.
+      </p>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-semibold mb-2 scroll-mt-24">NVMe temperatures are missing</h3>
+      <p class="text-sm text-muted-foreground">
+        NVMe temperatures come from SMART and from the kernel hwmon interface. If they are missing,
+        check that <code>smartctl -a /dev/nvme0</code> works as root on the host and that your
+        <code>smartmontools</code> is recent enough to support <code>-j</code> JSON output
+        (7.0 or newer).
+      </p>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-semibold mb-2 scroll-mt-24">IPMI permission errors</h3>
+      <p class="text-sm text-muted-foreground">
+        <code>ipmitool</code> talks to the BMC through <code>/dev/ipmi0</code>, which only root can
+        open, and the <code>ipmi_devintf</code> and <code>ipmi_si</code> kernel modules must be
+        loaded. Run <code>sudo ipmitool sensor</code> on the host: if that fails, the agent will fail
+        too. In a container, make sure the device is passed through.
+      </p>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-semibold mb-2 scroll-mt-24">A host turned stale</h3>
+      <p class="text-sm text-muted-foreground">
+        No <code>hw.*</code> data for 10 minutes. Check that the agent is running and that the
+        host and LogTide can still reach each other. Stale hosts do not notify; add a heartbeat
+        monitor if you need to know about it.
+      </p>
+    </div>
+  </div>
+
+  <div class="border-t border-border pt-6 mt-8">
+    <p class="text-sm text-muted-foreground">
+      Related: <a href="/docs/syslog/" class="text-primary-readable hover:underline">Syslog integration</a>,
+      <a href="/docs/notification-routing/" class="text-primary-readable hover:underline">Notification Routing</a>,
+      <a href="/docs/incidents/" class="text-primary-readable hover:underline">Incidents Inbox</a>,
+      <a href="/blog/monitor-home-server-hardware-health/" class="text-primary-readable hover:underline">Tutorial: monitor a home server</a>.
+    </p>
+  </div>
+</DocsLayout>
