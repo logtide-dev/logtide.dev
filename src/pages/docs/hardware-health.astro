@@ -212,6 +212,12 @@ const th = "py-2 pr-4 font-semibold";
       LogTide Cloud API URL; for a self-hosted instance set <code>LOGTIDE_URL</code> to your own
       API base URL.
     </p>
+    <p>
+      The agent lives in its own repository,
+      <a href="https://github.com/logtide-dev/logtide-hw-agent" class="text-primary hover:underline">logtide-dev/logtide-hw-agent</a>
+      (MIT license), and is versioned separately from LogTide. Agent 1.x works with LogTide 1.7.0
+      and later. The Docker image is <code>logtide/hw-agent</code>.
+    </p>
 
     <div>
       <h3 id="install-compose" class="text-lg font-semibold mb-3 scroll-mt-24">Docker Compose</h3>
@@ -271,9 +277,9 @@ docker compose --profile hardware up -d`}
         theme="one-dark-pro"
         code={`sudo apt install -y python3 smartmontools ipmitool
 sudo install -d /opt/logtide-hw-agent /etc/logtide
-sudo curl -fsSL https://raw.githubusercontent.com/logtide-dev/logtide/main/hw-agent/logtide_hw_agent.py \\
+sudo curl -fsSL https://raw.githubusercontent.com/logtide-dev/logtide-hw-agent/main/logtide_hw_agent.py \\
   -o /opt/logtide-hw-agent/logtide_hw_agent.py
-sudo curl -fsSL https://raw.githubusercontent.com/logtide-dev/logtide/main/hw-agent/logtide-hw-agent.service \\
+sudo curl -fsSL https://raw.githubusercontent.com/logtide-dev/logtide-hw-agent/main/logtide-hw-agent.service \\
   -o /etc/systemd/system/logtide-hw-agent.service
 sudo tee /etc/logtide/hw-agent.env >/dev/null <<'ENV'
 LOGTIDE_URL=https://api.logtide.dev
