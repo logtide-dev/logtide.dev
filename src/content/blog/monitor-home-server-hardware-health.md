@@ -1,7 +1,7 @@
 ---
 title: "Monitor a Home Server's Disks, RAM and Fans with LogTide"
 description: "Install the LogTide hardware agent on a home server, watch SMART, ECC, temperatures and fans in Monitor > Hardware, and get Discord or email alerts."
-pubDate: 2026-11-10
+pubDate: 2026-11-14
 author: "Giuseppe Pollio"
 tags:
   - "homelab"
