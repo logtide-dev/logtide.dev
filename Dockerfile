@@ -18,6 +18,10 @@ RUN pnpm install --frozen-lockfile
 # Copy source files
 COPY . .
 
+# Hosts like Dokploy clone with --depth 1, which leaves every page with the date
+# of the last commit. Fetch the full history so content-dates.mjs sees real dates.
+RUN if [ "$(git rev-parse --is-shallow-repository 2>/dev/null)" = "true" ]; then git fetch --unshallow --quiet || true; fi
+
 # Build the site
 RUN pnpm build
 
