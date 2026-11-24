@@ -309,8 +309,8 @@ FLUENT_BIT_IMAGE=myregistry/fluent-bit-arm64:latest`}
                   lang="bash"
                   theme="one-dark-pro"
                   code={`# In your .env file
-LOGTIDE_BACKEND_IMAGE=logtide/backend:1.7.0
-LOGTIDE_FRONTEND_IMAGE=logtide/frontend:1.7.0`}
+LOGTIDE_BACKEND_IMAGE=logtide/backend:1.7.1
+LOGTIDE_FRONTEND_IMAGE=logtide/frontend:1.7.1`}
               />
           </CardContent>
       </Card>
@@ -604,6 +604,12 @@ TRUST_PROXY=172.16.0.0/12`}
               The client IP is then the address right before those proxies, so a client cannot fake it with its own
               <code class="bg-muted px-1 rounded">X-Forwarded-For</code> header. <code class="bg-muted px-1 rounded">TRUST_PROXY=true</code> still works and trusts every hop, which lets a client choose
               the IP that gets logged: prefer a number or a list. Hop counts and lists need 1.6.1 or later.
+          </p>
+          <p class="text-sm text-muted-foreground mt-3">
+              The same address is what an API key's "Allowed origins and IPs" list is matched against. If a key with an IP allowlist
+              answers 403 behind a proxy, the response says which address the server saw (<code class="bg-muted px-1 rounded">request IP: ...</code>, since 1.7.1):
+              when it is the proxy's own address, <code class="bg-muted px-1 rounded">TRUST_PROXY</code> is not set for your setup. The list accepts single
+              addresses and CIDR ranges, IPv4 and IPv6. Clients that reach Cloudflare over IPv6 are seen with their IPv6 address, so allow that range too.
           </p>
       </div>
 
