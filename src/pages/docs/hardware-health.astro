@@ -17,6 +17,7 @@ const headings = [
   { text: "Configuration", slug: "configuration", depth: 2 },
   { text: "Permissions", slug: "permissions", depth: 2 },
   { text: "What Is Collected", slug: "metrics", depth: 2 },
+  { text: "Host Resource Metrics", slug: "system-metrics", depth: 2 },
   { text: "Health Rules", slug: "health-rules", depth: 2 },
   { text: "Hardware Events", slug: "events", depth: 2 },
   { text: "Hardware Health Detection Pack", slug: "detection-pack", depth: 2 },
@@ -31,7 +32,8 @@ const keywords = [
   "IPMI sensor monitoring",
   "homelab hardware monitoring",
   "self-hosted hardware monitoring",
-  "smartmontools alerting"
+  "smartmontools alerting",
+  "server CPU memory disk monitoring"
 ];
 
 const th = "py-2 pr-4 font-semibold";
@@ -53,7 +55,7 @@ const th = "py-2 pr-4 font-semibold";
   <p class="text-lg text-muted-foreground mb-8">
     Watch the physical health of your servers from <strong>Monitor → Hardware</strong> (keyboard shortcut <code>g h</code>): SMART data
     from disks, ECC memory errors, temperatures, fans, power supplies and network cards, plus
-    hardware events from the kernel log and the BMC. Available since LogTide 1.7.0, open source.
+    hardware events from the kernel log and the BMC. Since agent 1.1.0 it also sends host resource usage (CPU, memory, disks, network) to the Metrics Explorer. Available since LogTide 1.7.0, open source.
   </p>
 
   <p class="text-sm text-muted-foreground mb-8">
@@ -263,6 +265,8 @@ docker compose --profile hardware up -d`}
       />
       <p class="text-sm text-muted-foreground mt-3">
         The mounts and <code>--privileged</code> are explained under <a href="#permissions">Permissions</a>.
+        For filesystem usage in the <a href="#system-metrics">host resource metrics</a>, also add
+        <code>-v /:/host:ro,rslave</code>; without it the agent leaves <code>system.filesystem.*</code> out.
       </p>
     </div>
 
@@ -343,7 +347,7 @@ sudo sh -c 'set -a; . /etc/logtide/hw-agent.env; LOGTIDE_HW_DRY_RUN=1 python3 /o
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>LOGTIDE_HOSTNAME</code></td><td class="py-2 pr-4"><code>$HOST_ROOT/etc/hostname</code>, else the system hostname</td><td class="py-2">Value of <code>host.name</code>, the name shown in Monitor → Hardware.</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>HOST_ROOT</code></td><td class="py-2 pr-4">empty</td><td class="py-2">Prefix for <code>/sys</code>, <code>/proc</code> and <code>/etc</code> reads. Set to <code>/host</code> in the container.</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>LOGTIDE_HW_INTERVAL</code></td><td class="py-2 pr-4"><code>60</code></td><td class="py-2">Seconds between collections (minimum 5).</td></tr>
-          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>LOGTIDE_HW_COLLECTORS</code></td><td class="py-2 pr-4">all</td><td class="py-2">Comma-separated list of <code>smart,edac,hwmon,thermal,ipmi,sel,net,kmsg</code>. Use it to switch collectors off.</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>LOGTIDE_HW_COLLECTORS</code></td><td class="py-2 pr-4">all</td><td class="py-2">Comma-separated list of <code>smart,edac,hwmon,thermal,ipmi,sel,net,system,kmsg</code>. Use it to switch collectors off. An explicit list written for agent 1.0 has no <code>system</code>: add it to get <a href="#system-metrics">host resource metrics</a>.</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>LOGTIDE_HW_STATE_DIR</code></td><td class="py-2 pr-4"><code>/var/lib/logtide-hw-agent</code></td><td class="py-2">Where the last BMC event id is stored.</td></tr>
           <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>LOGTIDE_HW_DRY_RUN</code></td><td class="py-2 pr-4">off</td><td class="py-2"><code>1</code> prints payloads to stdout instead of sending them.</td></tr>
           <tr><td class="py-2 pr-4"><code>LOGTIDE_HW_KMSG_PATH</code></td><td class="py-2 pr-4"><code>/dev/kmsg</code></td><td class="py-2">Kernel log device. Only useful for testing.</td></tr>
@@ -451,6 +455,55 @@ sudo sh -c 'set -a; . /etc/logtide/hw-agent.env; LOGTIDE_HW_DRY_RUN=1 python3 /o
       The metrics are ordinary OTLP metrics, so you can also chart them in the Metrics Explorer or
       with a <code>metric_chart</code> panel on a <a href="/docs/dashboards/">custom dashboard</a>.
     </p>
+  </div>
+
+  <h2 id="system-metrics" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
+    Host Resource Metrics
+  </h2>
+
+  <div class="mb-8 space-y-4">
+    <p>
+      Since agent 1.1.0 the <code>system</code> collector also reports how busy the host is, with
+      OpenTelemetry <code>system.*</code> names. It is on by default and reads <code>/proc</code>
+      and <code>statvfs</code> through <code>HOST_ROOT</code>. The metrics land in the
+      <strong>Metrics Explorer</strong> under the service <code>logtide-hw-agent</code>, next to the
+      <code>hw.*</code> health signals, and can be charted with <code>metric_chart</code> dashboard panels.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-border text-left">
+            <th class={th}>Metric</th>
+            <th class={th}>Unit</th>
+            <th class={th}>Extra attributes</th>
+            <th class="py-2 font-semibold">Source</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted-foreground">
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>system.cpu.utilization</code></td><td class="py-2 pr-4">% (0-100)</td><td class="py-2 pr-4"><code>system.cpu.state</code>: user, system, iowait, steal, idle (they add up to 100)</td><td class="py-2"><code>/proc/stat</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>system.cpu.utilization.total</code></td><td class="py-2 pr-4">%</td><td class="py-2 pr-4">-</td><td class="py-2">busy share: 100 minus idle and iowait</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>system.cpu.load_average.1m</code>, <code>.5m</code>, <code>.15m</code></td><td class="py-2 pr-4">1</td><td class="py-2 pr-4">-</td><td class="py-2"><code>/proc/loadavg</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>system.memory.usage</code></td><td class="py-2 pr-4">By</td><td class="py-2 pr-4"><code>system.memory.state</code>: used (total minus available), free, cached, buffers</td><td class="py-2"><code>/proc/meminfo</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>system.memory.utilization</code></td><td class="py-2 pr-4">%</td><td class="py-2 pr-4">-</td><td class="py-2"><code>/proc/meminfo</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>system.paging.usage</code>, <code>system.paging.utilization</code></td><td class="py-2 pr-4">By, %</td><td class="py-2 pr-4"><code>system.paging.state</code>: used, free</td><td class="py-2">swap; nothing is sent without swap</td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>system.filesystem.usage</code></td><td class="py-2 pr-4">By</td><td class="py-2 pr-4"><code>system.device</code>, <code>system.filesystem.mountpoint</code>, <code>system.filesystem.type</code>, <code>system.filesystem.state</code> (used, free)</td><td class="py-2"><code>/proc/mounts</code>, <code>statvfs</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>system.filesystem.utilization</code></td><td class="py-2 pr-4">%</td><td class="py-2 pr-4"><code>system.device</code>, <code>system.filesystem.mountpoint</code>, <code>system.filesystem.type</code></td><td class="py-2">used / (used + free), like <code>df</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>system.disk.io.rate</code></td><td class="py-2 pr-4">By/s</td><td class="py-2 pr-4"><code>system.device</code>, <code>disk.io.direction</code> (read, write)</td><td class="py-2"><code>/proc/diskstats</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>system.disk.operations.rate</code></td><td class="py-2 pr-4">operations/s</td><td class="py-2 pr-4"><code>system.device</code>, <code>disk.io.direction</code></td><td class="py-2"><code>/proc/diskstats</code></td></tr>
+          <tr class="border-b border-border/50"><td class="py-2 pr-4"><code>system.network.io.rate</code></td><td class="py-2 pr-4">By/s</td><td class="py-2 pr-4"><code>system.device</code>, <code>network.io.direction</code> (receive, transmit)</td><td class="py-2"><code>/proc/net/dev</code></td></tr>
+          <tr><td class="py-2 pr-4"><code>system.uptime</code></td><td class="py-2 pr-4">s</td><td class="py-2 pr-4">-</td><td class="py-2"><code>/proc/uptime</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ul class="list-disc list-inside space-y-2 ml-2 text-sm text-muted-foreground">
+      <li>CPU, disk and network values are computed between two collections, so they appear from the second cycle on.</li>
+      <li>Disks are whole disks only (no partitions, loop or device-mapper devices). Network interfaces skip <code>lo</code> and <code>veth*</code>.</li>
+      <li>Pseudo filesystems (proc, sysfs, tmpfs, overlay, cgroup, squashfs and similar) are skipped, and each device is reported once.</li>
+      <li>In Docker, filesystem usage needs the host root mounted (<code>-v /:/host:ro,rslave</code>; in the compose file, uncomment the <code>/:/host:ro</code> line). Without it the agent leaves <code>system.filesystem.*</code> out instead of reporting the container's own disk.</li>
+      <li>For a hardware-only agent, list the collectors without <code>system</code>; <code>LOGTIDE_HW_COLLECTORS=system</code> gives a resource-only agent.</li>
+    </ul>
   </div>
 
   <h2 id="health-rules" class="text-2xl font-semibold mb-4 scroll-mt-24 border-b border-border pb-2">
