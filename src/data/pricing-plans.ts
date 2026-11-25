@@ -1,0 +1,66 @@
+// Cloud plans shown on /pricing/ and in its Open Graph image.
+
+export const signup = 'https://app.logtide.dev/register';
+
+export const plans = [
+  {
+    name: 'Free',
+    tagline: 'For side projects and trying LogTide Cloud.',
+    price: '$0',
+    priceNote: 'forever',
+    annual: null,
+    monthly: 0,
+    annualMonthly: 0,
+    annualTotal: 0,
+    cta: { label: 'Start for free', href: signup },
+    highlight: false,
+    limits: [
+      '10 GB / month of logs, traces and metrics',
+      '7-day retention',
+      '2 projects',
+      '5 alert rules',
+      '5 notification channels',
+    ],
+    sso: false,
+  },
+  {
+    name: 'Pro',
+    tagline: 'For teams running production workloads.',
+    price: '$29',
+    priceNote: '/month',
+    annual: '$24/month billed annually ($288/year)',
+    monthly: 29,
+    annualMonthly: 24,
+    annualTotal: 288,
+    cta: { label: 'Start with Pro', href: signup },
+    highlight: true,
+    limits: [
+      '100 GB / month of logs, traces and metrics',
+      '30-day retention',
+      'Unlimited projects',
+      'Unlimited alert rules',
+      'Unlimited notification channels',
+    ],
+    sso: false,
+  },
+  {
+    name: 'Pro Plus',
+    tagline: 'For teams that need 90-day retention.',
+    price: '$99',
+    priceNote: '/month',
+    annual: '$79/month billed annually ($948/year)',
+    monthly: 99,
+    annualMonthly: 79,
+    annualTotal: 948,
+    cta: { label: 'Start with Pro Plus', href: signup },
+    highlight: false,
+    limits: [
+      '400 GB / month of logs, traces and metrics',
+      '90-day retention',
+      'Unlimited projects',
+      'Unlimited alert rules',
+      'Unlimited notification channels',
+    ],
+    sso: true,
+  },
+];

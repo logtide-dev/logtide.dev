@@ -1,4 +1,5 @@
 ---
+import { ogImageUrl } from '../../og/paths';
 import { getCollection } from 'astro:content';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
@@ -93,7 +94,7 @@ const description = "What's new in LogTide, the self-hosted log management platf
       title={title}
       description={description}
       type="website"
-      ogImage="https://logtide.dev/images/changelogs.png"
+      ogImage={ogImageUrl('changelog/index')}
       keywords={["LogTide changelog", "product updates", "new features", "bug fixes", "log management roadmap", "open source security updates"]}
     />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />

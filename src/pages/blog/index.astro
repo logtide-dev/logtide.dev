@@ -1,4 +1,5 @@
 ---
+import { ogImageUrl } from '../../og/paths';
 import { getCollection } from 'astro:content';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
@@ -44,7 +45,7 @@ const coverMark = (post: (typeof posts)[number]) => post.data.tags[0] ?? 'logtid
       title={title}
       description={description}
       type="website"
-      ogImage="https://logtide.dev/images/blog.png"
+      ogImage={ogImageUrl('blog/index')}
       breadcrumbs={seoBreadcrumbs}
     />
     <meta name="theme-color" content="#7c3aed" />

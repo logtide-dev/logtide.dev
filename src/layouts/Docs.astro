@@ -55,76 +55,9 @@ const filePath = isIndexPage
   : `src/pages${pathname}.astro`;
 const editUrl = `https://github.com/logtide-dev/logtide.dev/edit/main/${filePath}`;
 
-// Generate OG image path based on page path
-const getOgImage = () => {
-  const SITE_URL = 'https://logtide.dev';
-  const DEFAULT_OG = `${SITE_URL}/images/default.png`;
-
-  // SDK pages: /docs/sdks/nodejs -> /docs/images/sdks/node.png
-  const sdkImageMap: Record<string, string> = {
-    '/docs/sdks/nodejs': `${SITE_URL}/docs/images/sdks/node.png`,
-    '/docs/sdks/express': `${SITE_URL}/docs/images/sdks/node.png`,
-    '/docs/sdks/fastify': `${SITE_URL}/docs/images/sdks/node.png`,
-    '/docs/sdks/nextjs-sdk': `${SITE_URL}/docs/images/sdks/node.png`,
-    '/docs/sdks/nuxt-sdk': `${SITE_URL}/docs/images/sdks/node.png`,
-    '/docs/sdks/sveltekit': `${SITE_URL}/docs/images/sdks/node.png`,
-    '/docs/sdks/hono': `${SITE_URL}/docs/images/sdks/node.png`,
-    '/docs/sdks/angular': `${SITE_URL}/docs/images/sdks/node.png`,
-    '/docs/sdks/elysia': `${SITE_URL}/docs/images/sdks/node.png`,
-    '/docs/sdks/python': `${SITE_URL}/docs/images/sdks/python.png`,
-    '/docs/sdks/go': `${SITE_URL}/docs/images/sdks/golang.png`,
-    '/docs/sdks/php': `${SITE_URL}/docs/images/sdks/php.png`,
-    '/docs/sdks/kotlin': `${SITE_URL}/docs/images/sdks/kotlin.png`,
-    '/docs/sdks/ruby': `${SITE_URL}/docs/images/sdks/ruby.png`,
-    '/docs/sdks/csharp': `${SITE_URL}/docs/images/sdks/csharp.png`,
-  };
-
-  // Section pages - extended mapping
-  const sectionImageMap: Record<string, string> = {
-    '/docs': `${SITE_URL}/docs/images/sections/getting_started.png`,
-    '/docs/getting-started': `${SITE_URL}/docs/images/sections/getting_started.png`,
-    '/docs/api': `${SITE_URL}/docs/images/sections/api_references.png`,
-    '/docs/sdks': `${SITE_URL}/docs/images/sections/sdks.png`,
-    '/docs/migration': `${SITE_URL}/docs/images/sections/migration.png`,
-    '/docs/authentication': `${SITE_URL}/docs/images/sections/authentication.png`,
-    '/docs/architecture': `${SITE_URL}/docs/images/sections/guides.png`,
-    '/docs/deployment': `${SITE_URL}/docs/images/sections/guides.png`,
-    '/docs/contributing': `${SITE_URL}/docs/images/sections/guides.png`,
-    '/docs/no-sdk-setup': `${SITE_URL}/docs/images/sections/getting_started.png`,
-    '/docs/syslog': `${SITE_URL}/docs/images/sections/guides.png`,
-    '/docs/opentelemetry': `${SITE_URL}/docs/images/sections/guides.png`,
-    '/docs/windows': `${SITE_URL}/docs/images/sections/guides.png`,
-  };
-
-  // Migration subpages
-  const migrationImageMap: Record<string, string> = {
-    '/docs/migration/datadog': `${SITE_URL}/docs/images/sections/migration.png`,
-    '/docs/migration/splunk': `${SITE_URL}/docs/images/sections/migration.png`,
-    '/docs/migration/elk': `${SITE_URL}/docs/images/sections/migration.png`,
-    '/docs/migration/signoz': `${SITE_URL}/docs/images/sections/migration.png`,
-    '/docs/migration/loki': `${SITE_URL}/docs/images/sections/migration.png`,
-  };
-
-  // Check SDK pages first
-  if (sdkImageMap[pathname]) {
-    return sdkImageMap[pathname];
-  }
-
-  // Check migration subpages
-  if (migrationImageMap[pathname]) {
-    return migrationImageMap[pathname];
-  }
-
-  // Check section pages
-  if (sectionImageMap[pathname]) {
-    return sectionImageMap[pathname];
-  }
-
-  // Default image
-  return DEFAULT_OG;
-};
-
-const ogImage = getOgImage();
+// Generated per page by src/pages/og/[...path].png.ts
+const ogSlug = pathname.replace(/^\/docs\/?/, '') || 'index';
+const ogImage = `https://logtide.dev/og/docs/${ogSlug}.png`;
 
 // Get dates from git for SEO schema
 let lastUpdated: string | null = null;

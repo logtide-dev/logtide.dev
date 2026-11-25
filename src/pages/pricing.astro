@@ -1,4 +1,6 @@
 ---
+import { ogImageUrl } from '../og/paths';
+import { plans, signup } from '../data/pricing-plans';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import SEO from '../components/SEO.astro';
@@ -26,71 +28,6 @@ const keywords = [
 const seoBreadcrumbs = [
   { name: 'Home', url: '/' },
   { name: 'Pricing', url: '/pricing/' },
-];
-
-const signup = 'https://app.logtide.dev/register';
-
-const plans = [
-  {
-    name: 'Free',
-    tagline: 'For side projects and trying LogTide Cloud.',
-    price: '$0',
-    priceNote: 'forever',
-    annual: null,
-    monthly: 0,
-    annualMonthly: 0,
-    annualTotal: 0,
-    cta: { label: 'Start for free', href: signup },
-    highlight: false,
-    limits: [
-      '10 GB / month of logs, traces and metrics',
-      '7-day retention',
-      '2 projects',
-      '5 alert rules',
-      '5 notification channels',
-    ],
-    sso: false,
-  },
-  {
-    name: 'Pro',
-    tagline: 'For teams running production workloads.',
-    price: '$29',
-    priceNote: '/month',
-    annual: '$24/month billed annually ($288/year)',
-    monthly: 29,
-    annualMonthly: 24,
-    annualTotal: 288,
-    cta: { label: 'Start with Pro', href: signup },
-    highlight: true,
-    limits: [
-      '100 GB / month of logs, traces and metrics',
-      '30-day retention',
-      'Unlimited projects',
-      'Unlimited alert rules',
-      'Unlimited notification channels',
-    ],
-    sso: false,
-  },
-  {
-    name: 'Pro Plus',
-    tagline: 'For teams that need 90-day retention.',
-    price: '$99',
-    priceNote: '/month',
-    annual: '$79/month billed annually ($948/year)',
-    monthly: 99,
-    annualMonthly: 79,
-    annualTotal: 948,
-    cta: { label: 'Start with Pro Plus', href: signup },
-    highlight: false,
-    limits: [
-      '400 GB / month of logs, traces and metrics',
-      '90-day retention',
-      'Unlimited projects',
-      'Unlimited alert rules',
-      'Unlimited notification channels',
-    ],
-    sso: true,
-  },
 ];
 
 const siemIncluded = ['Sigma detection rules', 'Incidents', 'MITRE ATT&CK mapping'];
@@ -177,7 +114,7 @@ const offerSchema = {
       title={title}
       description={description}
       type="website"
-      ogImage="https://logtide.dev/images/default.png"
+      ogImage={ogImageUrl('pricing')}
       breadcrumbs={seoBreadcrumbs}
       keywords={keywords}
       faqs={faqs}

@@ -1,4 +1,5 @@
 ---
+import { ogImageUrl } from '../../og/paths';
 import { getCollection } from 'astro:content';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
@@ -50,7 +51,7 @@ const description = 'Real-world logging scenarios and how to solve them with Log
       title={title}
       description={description}
       type="website"
-      ogImage="https://logtide.dev/images/use-cases.png"
+      ogImage={ogImageUrl('use-cases/index')}
       keywords={["log management use cases", "GDPR compliance logs", "security monitoring", "SIEM use cases", "incident response", "threat detection", "compliance monitoring"]}
     />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />

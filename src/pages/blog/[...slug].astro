@@ -1,4 +1,5 @@
 ---
+import { ogImageUrl } from '../../og/paths';
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import ContentPage from '../../layouts/ContentPage.astro';
 import { Icon } from 'astro-icon/components';
@@ -65,7 +66,7 @@ try {
 <ContentPage
   title={`${title} | LogTide`}
   description={description}
-  ogImage="https://logtide.dev/images/blog.png"
+  ogImage={ogImageUrl(`blog/${entry.id}`)}
   breadcrumbs={seoBreadcrumbs}
   datePublished={pubDate.toISOString()}
   dateModified={dateModifiedISO}
